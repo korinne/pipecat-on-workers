@@ -1,0 +1,133 @@
+{
+  "schema": 1,
+  "started_at": "2026-09-24T23:14:04.036Z",
+  "deployment_origin": "https://pipecat-python-do-spike.korinne.workers.dev",
+  "passed": true,
+  "scope": "Actual deployed capability WebSocket and configured STT, LLM, TTS providers; prerecorded input; wall-clock playback-receipt emulation.",
+  "physical_human_voice_acceptance_passed": false,
+  "fixture_provider_requested": false,
+  "acceptance_kind": "generic_provider_integration",
+  "pause_acceptance": {
+    "requested": false,
+    "passed": null,
+    "premature_reply_observed": null,
+    "definition": "Exactly one final user transcript and no assistant transcript or audio received before the final input PCM sample completes its paced duration. This checks this recording only, not general natural-speech turn quality."
+  },
+  "input": {
+    "source": "prerecorded-tts",
+    "format": "PCM16 LE mono 16000 Hz",
+    "duration_ms": 2200,
+    "samples": 35200,
+    "nonzero_samples": 34553,
+    "peak": 13285,
+    "rms": 1965.05
+  },
+  "playback": {
+    "method": "serial elapsed PCM duration, no audio device",
+    "received_chunks": 52,
+    "acknowledged_chunks": 52,
+    "acknowledged_duration_ms": 5200,
+    "completed_sentences": 1,
+    "received_audio_duration_ms": 5200,
+    "output_statistics": {
+      "samples": 124800,
+      "nonzero_samples": 123002,
+      "peak": 14559,
+      "rms": 2093.98
+    }
+  },
+  "transcript": {
+    "user_final_count": 1,
+    "assistant_sentence_count": 1
+  },
+  "latency_ms": {
+    "session_create": 1769.09,
+    "ready": 3712.29,
+    "input_start": 3728.17,
+    "first_audio_from_start": 9813.71,
+    "first_audio_after_final_transcript": 2066.21,
+    "first_audio_after_input_end": 3845.22,
+    "input_finish": 5968.49
+  },
+  "latency_definitions": {
+    "first_audio_after_final_transcript": "First accepted audio packet receipt minus the latest final user transcript receipt preceding that packet. The transcript timestamp is frozen when first audio arrives; this is not acoustic response latency."
+  },
+  "end": {
+    "sent": true,
+    "acknowledged": true,
+    "socket_closed": true,
+    "close_code": 1000
+  },
+  "limitations": [
+    "No microphone permissions, capture/resampling, speakers, headphones, echo or audible latency measured.",
+    "No human assessment of intelligibility or semantic correctness; inspect private captures.",
+    "One short response only; interruption, multi-turn memory, concurrent calls and soak acceptance remain untested.",
+    "Zero local resource counts do not prove remote compute or billing stopped."
+  ],
+  "failures": [],
+  "stop_reason": "first_complete_sentence_received_and_elapsed_playback_receipts_sent",
+  "cleanup": {
+    "closed": true,
+    "pipecat_tasks": 0,
+    "provider_tasks": 0,
+    "provider_sockets": 0,
+    "provider_readers": 0,
+    "pending_provider_requests": 0,
+    "queued_provider_bytes": 0,
+    "unacked_audio_bytes": 0,
+    "pending_playback_chunks": 0,
+    "pending_turn_tasks": 0,
+    "pending_user_fragments": 0,
+    "pending_user_chars": 0,
+    "messages": 3,
+    "stt_connection_generation": 1,
+    "dropped_audio_bytes": 0,
+    "turn_end_grace_ms": 1200,
+    "metrics": [
+      {
+        "event": "startup",
+        "elapsed_ms": 707,
+        "startup_ms": 707
+      },
+      {
+        "event": "server_clear",
+        "elapsed_ms": 1886,
+        "generation": 2,
+        "dispatch_ms": 0
+      },
+      {
+        "event": "user_end",
+        "elapsed_ms": 4806
+      },
+      {
+        "event": "generation_started",
+        "elapsed_ms": 4806,
+        "generation": 3
+      },
+      {
+        "event": "first_audio",
+        "elapsed_ms": 6838,
+        "generation": 3,
+        "response_ms": 2032
+      },
+      {
+        "event": "closed",
+        "elapsed_ms": 12189
+      }
+    ]
+  },
+  "cleanup_verified": true,
+  "finished_at": "2026-09-24T23:14:20.280Z",
+  "elapsed_ms": 16243.45,
+  "assessment": {
+    "deployment_version": "69b1b14d-e27b-4ebc-8623-33dc94d5c186",
+    "private_transcript_reviewed": true,
+    "expected_fictional_availability_in_assistant_text": true,
+    "observed_availability": [
+      "Tuesday at 10 AM",
+      "Thursday at 2 PM"
+    ],
+    "booking_performed": false,
+    "physical_audio_intelligibility_checked": false
+  }
+}

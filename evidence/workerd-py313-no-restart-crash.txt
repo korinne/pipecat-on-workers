@@ -1,0 +1,39 @@
+Pyodide has suffered a fatal error. Please report this to the Pyodide maintainers.
+
+
+✘ [ERROR] The cause of the fatal error was:
+
+
+✘ [ERROR] RuntimeError: memory access out of bounds
+
+      at [object Object]x4893fc
+      at [object Object]x1c6770
+      at [object Object]x1c7b1a
+      at [object Object]x1ec9e4
+      at [object Object]x203b74
+      at [object Object]x31a670
+      at [object Object]x31b255
+      at [object Object]x31b795
+      at [object Object]x31b0b0
+      at [object Object]x2f1da4 {
+    pyodide_fatal_error: true
+  }
+
+
+Stack (most recent call first):
+  File "/lib/python313.zip/json/decoder.py", line 361 in raw_decode
+  File "/lib/python313.zip/json/decoder.py", line 345 in decode
+  File "/lib/python313.zip/json/__init__.py", line 346 in loads
+  File "/session/metadata/entry.py", line 162 in on_message
+✘ [ERROR] *** Fatal uncaught kj::Exception: workerd/server/server.c++:4535: failed: abortIsolate() called, terminating process; reason = Python worker fatal error: RuntimeError: memory access out of bounds
+
+
+✘ [ERROR] stack: 104376f43 104f865ef 104ba9bdb 10471caf3 1059c3dab 1059c209f 1059c209f 1059c209f 1059c2ca3 1059c2cff 1059c2cff 1059c2cff 1059b89af 1059bf263 1059bef5b 105d18b63 105d17e3f 107680797 1045009af 1050cbf03 1050cb14b 1050bf987 10536c867 1053731d7 104f9bf83 104f90c1f 104f8e853 104f862d3 105372ae7 1053740f7 10759862b 10759bb87 1043439ff 10538755f 1075a1b63 107597493 104348dcb 1075c96f7 1075cfba7 1075c9383 1075cfba7 1075c7c2b 1075c79bf 1043349b7 18214e0df
+
+
+[wrangler:warn] The Workers runtime crashed unexpectedly and is being restarted (crash #1). Any additional runtime output above may indicate the cause.
+[wrangler:info] GET /api/session/<synthetic-session>/diagnostics 200 OK (10075ms)
+[wrangler:info] GET /api/session/<synthetic-session>/diagnostics 200 OK (10075ms)
+[wrangler:info] GET /api/session/<synthetic-session>/diagnostics 200 OK (10074ms)
+[wrangler:info] GET /api/session/<synthetic-session>/diagnostics 200 OK (10075ms)
+🪵  Logs were written to "/Users/korinne/Documents/Codex/2026-09-24/al/work/wrangler-logs/wrangler-2026-09-24_21-39-56_945.log"

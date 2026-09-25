@@ -1,0 +1,8 @@
+{
+  "observed": "2026-09-24",
+  "provider": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+  "transport": "authenticated REST SSE for a neutral test prompt",
+  "response_field": 1.5,
+  "choices_delta_content": "1.5",
+  "finding": "The response compatibility field may be numeric while the choices delta preserves the original text. Prefer the string delta."
+}

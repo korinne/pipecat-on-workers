@@ -1,0 +1,43 @@
+{
+  "deployment_version_id": "69b1b14d-e27b-4ebc-8623-33dc94d5c186",
+  "passed": true,
+  "active_duration_ms": 600011.29,
+  "sessions": 2,
+  "input_recordings": 20,
+  "interruptions": 10,
+  "recovery_after_interruption": 10,
+  "reconnect_history_verified_sessions": 1,
+  "all_cleanup_verified": true,
+  "failures": [],
+  "input_start_to_first_audio": {
+    "samples": 20,
+    "median_ms": 7674.57,
+    "p95_nearest_rank_ms": 13094.65,
+    "min_ms": 6776.04,
+    "max_ms": 13570.74
+  },
+  "client_interrupt_to_observed_server_clear_approx": {
+    "samples": 10,
+    "median_ms": 62.45,
+    "p95_nearest_rank_ms": 183.43,
+    "min_ms": 40.55,
+    "max_ms": 183.43
+  },
+  "clear_measurement_limit": "Derived from per-turn elapsed minus response measurement; includes network and20ms polling. Not acoustic silence or pure server cancellation time.",
+  "transcript_routing_checks": [
+    {
+      "session_ordinal": 1,
+      "final_user_transcripts": 10,
+      "expected_topic_matches": 10,
+      "other_recording_topic_matches": 0
+    },
+    {
+      "session_ordinal": 2,
+      "final_user_transcripts": 10,
+      "expected_topic_matches": 10,
+      "other_recording_topic_matches": 0
+    }
+  ],
+  "transcript_routing_limit": "No mixed input topics observed in these final user transcripts; this is not exhaustive semantic/context isolation proof.",
+  "physical_human_voice_acceptance_passed": false
+}

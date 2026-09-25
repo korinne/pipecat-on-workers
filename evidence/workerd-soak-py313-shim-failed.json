@@ -1,0 +1,161 @@
+{
+  "scope": "Four actual local Python Durable Objects; WebSocket PCM and synthetic provider events; silent fixture output, not real voice",
+  "requested_seconds": 600,
+  "samples": [
+    {
+      "elapsed_seconds": 0.054132125,
+      "turns": 4,
+      "interruptions": 0,
+      "pipecat_tasks": 28,
+      "unacked_bytes": 0,
+      "context_messages": [
+        3,
+        3,
+        3,
+        3
+      ]
+    },
+    {
+      "elapsed_seconds": 63.400031541999994,
+      "turns": 56,
+      "interruptions": 16,
+      "pipecat_tasks": 28,
+      "unacked_bytes": 0,
+      "context_messages": [
+        25,
+        25,
+        25,
+        25
+      ]
+    },
+    {
+      "elapsed_seconds": 126.72769841700001,
+      "turns": 108,
+      "interruptions": 36,
+      "pipecat_tasks": 28,
+      "unacked_bytes": 0,
+      "context_messages": [
+        46,
+        46,
+        46,
+        46
+      ]
+    },
+    {
+      "elapsed_seconds": 190.092854042,
+      "turns": 160,
+      "interruptions": 52,
+      "pipecat_tasks": 28,
+      "unacked_bytes": 0,
+      "context_messages": [
+        68,
+        68,
+        68,
+        68
+      ]
+    },
+    {
+      "elapsed_seconds": 253.550080959,
+      "turns": 212,
+      "interruptions": 68,
+      "pipecat_tasks": 28,
+      "unacked_bytes": 0,
+      "context_messages": [
+        81,
+        81,
+        81,
+        81
+      ]
+    },
+    {
+      "elapsed_seconds": 316.960099292,
+      "turns": 264,
+      "interruptions": 88,
+      "pipecat_tasks": 28,
+      "unacked_bytes": 0,
+      "context_messages": [
+        81,
+        81,
+        81,
+        81
+      ]
+    },
+    {
+      "elapsed_seconds": 380.383122834,
+      "turns": 316,
+      "interruptions": 104,
+      "pipecat_tasks": 28,
+      "unacked_bytes": 0,
+      "context_messages": [
+        81,
+        81,
+        81,
+        81
+      ]
+    },
+    {
+      "elapsed_seconds": 443.856586167,
+      "turns": 368,
+      "interruptions": 120,
+      "pipecat_tasks": 28,
+      "unacked_bytes": 0,
+      "context_messages": [
+        81,
+        81,
+        81,
+        81
+      ]
+    },
+    {
+      "elapsed_seconds": 507.269535667,
+      "turns": 420,
+      "interruptions": 140,
+      "pipecat_tasks": 28,
+      "unacked_bytes": 0,
+      "context_messages": [
+        81,
+        81,
+        81,
+        81
+      ]
+    }
+  ],
+  "voice_tested": false,
+  "errors": [
+    "Error: Timeout: turn clear"
+  ],
+  "startup_ms": [
+    23.25866599999999,
+    32.38312500000001,
+    44.37249999999999,
+    44.308791000000014
+  ],
+  "cleanup": [
+    {
+      "live": false,
+      "status": "active"
+    },
+    {
+      "live": false,
+      "status": "active"
+    },
+    {
+      "live": false,
+      "status": "active"
+    },
+    {
+      "live": false,
+      "status": "active"
+    }
+  ],
+  "passed": false,
+  "runtime": {
+    "python": "3.13.2",
+    "workerd": "1.20260923.1",
+    "workers_runtime_sdk": "1.9.0",
+    "compatibility_date": "2026-08-01"
+  },
+  "test_conditions": "Frozen final source. Native-JS controlled restart lifecycle test completed in this process before the soak. No source changes or inspector attachment during the soak.",
+  "runtime_failure": "Pyodide fatal RuntimeError: memory access out of bounds; workerd restarted. Last successful periodic sample was 507.270 seconds / 420 turns / 140 explicit interruptions. Exact crash time was not instrumented.",
+  "cleanup_limitation": "Post-crash diagnostics came from reconstructed objects and cannot establish orderly cleanup of the crashed live pipelines."
+}

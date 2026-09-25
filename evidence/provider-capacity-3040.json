@@ -1,0 +1,11 @@
+{
+  "checked_at": "2026-09-24T23:23:36.689191+00:00",
+  "scope": "Direct Workers AI REST WebSocket upgrade, no audio sent",
+  "http_status": 429,
+  "provider_error_code": 3040,
+  "provider_error_description": "Capacity temporarily exceeded, please try again.",
+  "retry_after_present": false,
+  "daily_quota_error_observed": false,
+  "no_audio_sent": true,
+  "source": "https://developers.cloudflare.com/workers-ai/platform/errors/"
+}

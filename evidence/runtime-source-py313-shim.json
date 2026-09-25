@@ -1,0 +1,9 @@
+{
+  "scope": "Final frozen Python 3.13 runtime source used for lifecycle and 600-second repeat; native-JS restart shim included",
+  "sha256": {
+    "src/entry.py": "0f0ebf622fafd535a7a7595c5ffe8fbe79ecae5c24392c541f7708a6254cdea9",
+    "src/conversation.py": "b61a20279acc515c4593e209606bfb68337c992535732cb7d6504f2dcec5102f",
+    "src/providers.py": "67262c2c883a65ea288d39deda15f233b53e4f9047b6dc5b1d446b739ff96e0e",
+    "src/runtime_probe.py": "352cdae0cc4e4ac8dadee6ba39ce5b9717f488f6ebddf8220bd756dbb6e77479"
+  }
+}

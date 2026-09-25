@@ -1,0 +1,48 @@
+{
+  "scope": "Four actual local Python Durable Objects; WebSocket PCM and synthetic provider events; silent fixture output, not real voice",
+  "requested_seconds": 600,
+  "samples": [
+    {
+      "elapsed_seconds": 0.052707875,
+      "turns": 4,
+      "interruptions": 0,
+      "pipecat_tasks": 28,
+      "unacked_bytes": 0,
+      "context_messages": [
+        3,
+        3,
+        3,
+        3
+      ]
+    }
+  ],
+  "voice_tested": false,
+  "errors": [
+    "Error: Timeout: turn clear"
+  ],
+  "startup_ms": [
+    43.385165999999984,
+    63.743458000000004,
+    63.546666999999985,
+    63.50749999999999
+  ],
+  "cleanup": [
+    {
+      "live": false,
+      "status": "active"
+    },
+    {
+      "live": false,
+      "status": "active"
+    },
+    {
+      "live": false,
+      "status": "active"
+    },
+    {
+      "live": false,
+      "status": "active"
+    }
+  ],
+  "passed": false
+}

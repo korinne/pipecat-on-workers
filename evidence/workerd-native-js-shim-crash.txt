@@ -1,0 +1,41 @@
+Pyodide has suffered a fatal error. Please report this to the Pyodide maintainers.
+
+
+✘ [ERROR] The cause of the fatal error was:
+
+
+✘ [ERROR] RuntimeError: memory access out of bounds
+
+      at [object Object]x48907a
+      at [object Object]x1c6770
+      at [object Object]x1c7b1a
+      at [object Object]x1952b8
+      at [object Object]x19c1bc
+      at [object Object]x1ddc71
+      at [object Object]x1b7262
+      at [object Object]x151d29
+      at [object Object]x265142
+      at [object Object]x26e30a {
+    pyodide_fatal_error: true
+  }
+
+
+Stack (most recent call first):
+  File "/lib/python313.zip/warnings.py", line 37 in _formatwarnmsg_impl
+  File "/lib/python313.zip/warnings.py", line 129 in _formatwarnmsg
+  File "/lib/python313.zip/warnings.py", line 28 in _showwarnmsg_impl
+  File "/lib/python313.zip/warnings.py", line 113 in _showwarnmsg
+  File "/lib/python313.zip/warnings.py", line 692 in _warn_unawaited_coroutine
+  File "/session/metadata/pipecat/processors/frame_processor.py", line 1265 in __process_frame
+✘ [ERROR] *** Fatal uncaught kj::Exception: workerd/server/server.c++:4535: failed: abortIsolate() called, terminating process; reason = Python worker fatal error: RuntimeError: memory access out of bounds
+
+
+✘ [ERROR] stack: 10204af43 102c5a5ef 10287dbdb 1023f0af3 103697dab 10369609f 10369609f 103696ca3 1036d5483 1036c45ab 10369315b 1039ecb1b 1039ed0f3 1039ed233 1053612ef 103a0268b 10353e2df 102c70607 102c6ff93 102c64c1f 102c62853 102c5a2d3 103046ae7 1030480f7 10526c62b 10526fb87 1020179ff 10305b55f 105275b63 10526b493 10201cdcb 10529d6f7 1052a3ba7 10529d383 1052a3ba7 10529bc2b 10529b9bf 1020089b7 18214e0df
+
+
+[wrangler:warn] The Workers runtime crashed unexpectedly and is being restarted (crash #1). Any additional runtime output above may indicate the cause.
+[wrangler:info] GET /api/session/<synthetic-session>/diagnostics 200 OK (1425ms)
+[wrangler:info] GET /api/session/<synthetic-session>/diagnostics 200 OK (1424ms)
+[wrangler:info] GET /api/session/<synthetic-session>/diagnostics 200 OK (1424ms)
+[wrangler:info] GET /api/session/<synthetic-session>/diagnostics 200 OK (1425ms)
+🪵  Logs were written to "/Users/korinne/Documents/Codex/2026-09-24/al/work/wrangler-logs/wrangler-2026-09-24_21-24-20_108.log"

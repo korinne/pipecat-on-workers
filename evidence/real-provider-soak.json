@@ -1,0 +1,246 @@
+{
+  "schema": 1,
+  "started_at": "2026-09-24T23:02:32.666Z",
+  "deployment_origin": "https://pipecat-python-do-spike.korinne.workers.dev",
+  "passed": true,
+  "requested_duration_ms": 600000,
+  "planned_input_turns": 20,
+  "fixture_provider_requested": false,
+  "physical_human_voice_acceptance_passed": false,
+  "playback_method": "wall-clock serial PCM duration receipts; no audio device",
+  "cross_session_isolation_established": false,
+  "distinct_recordings_supplied": true,
+  "limitations": [
+    "Prerecorded input; no physical microphone, speaker, echo, intelligibility or acoustic latency measurement.",
+    "Separate sessions and optional distinct recordings do not by themselves prove semantic cross-session isolation.",
+    "Client interruption is explicit control traffic during queued output, not measured acoustic barge-in.",
+    "Zero local resources do not prove remote compute or billing stopped."
+  ],
+  "sessions": [
+    {
+      "ordinal": 1,
+      "input_duration_ms": 4560,
+      "user_final_count": 10,
+      "assistant_sentence_count": 11,
+      "received_chunks": 353,
+      "acknowledged_chunks": 348,
+      "acknowledged_duration_ms": 34480,
+      "completed_sentences": 6,
+      "nonzero_output_samples": 822778,
+      "stale_audio_ignored": 9,
+      "turns": [
+        {
+          "number": 1,
+          "response_ms": 8588.13,
+          "interrupted": true,
+          "pending_playback_ms_at_interrupt": 96.99,
+          "elapsed_ms": 8771.56
+        },
+        {
+          "number": 2,
+          "response_ms": 13570.74,
+          "interrupted": false,
+          "recovery_verified": true,
+          "elapsed_ms": 22295.17
+        },
+        {
+          "number": 3,
+          "response_ms": 7732.68,
+          "interrupted": true,
+          "pending_playback_ms_at_interrupt": 87.65,
+          "elapsed_ms": 7815.56
+        },
+        {
+          "number": 4,
+          "response_ms": 8373.96,
+          "interrupted": false,
+          "recovery_verified": true,
+          "elapsed_ms": 14226.69
+        },
+        {
+          "number": 5,
+          "response_ms": 7536.78,
+          "interrupted": true,
+          "pending_playback_ms_at_interrupt": 79.82,
+          "elapsed_ms": 7599.54
+        },
+        {
+          "number": 6,
+          "response_ms": 7644.38,
+          "interrupted": false,
+          "recovery_verified": true,
+          "elapsed_ms": 13576.7
+        },
+        {
+          "number": 7,
+          "response_ms": 7700.36,
+          "interrupted": true,
+          "pending_playback_ms_at_interrupt": 87.42,
+          "elapsed_ms": 7761.54
+        },
+        {
+          "number": 8,
+          "response_ms": 8046.32,
+          "interrupted": false,
+          "recovery_verified": true,
+          "elapsed_ms": 14195.44
+        },
+        {
+          "number": 9,
+          "response_ms": 7648.79,
+          "interrupted": true,
+          "pending_playback_ms_at_interrupt": 81.06,
+          "elapsed_ms": 7711.48
+        },
+        {
+          "number": 10,
+          "response_ms": 7850.75,
+          "interrupted": false,
+          "recovery_verified": true,
+          "elapsed_ms": 15685.98
+        }
+      ],
+      "interruptions": 5,
+      "recoveries_after_interruption": 5,
+      "reconnect_history_verified": true,
+      "end_sent": true,
+      "end_acknowledged": true,
+      "close_code": 1000,
+      "cleanup": {
+        "closed": true,
+        "pipecat_tasks": 0,
+        "provider_tasks": 0,
+        "provider_sockets": 0,
+        "provider_readers": 0,
+        "pending_provider_requests": 0,
+        "queued_provider_bytes": 0,
+        "unacked_audio_bytes": 0,
+        "pending_playback_chunks": 0,
+        "pending_turn_tasks": 0,
+        "pending_user_fragments": 0,
+        "pending_user_chars": 0,
+        "messages": 16,
+        "stt_connection_generation": 1,
+        "dropped_audio_bytes": 0,
+        "turn_end_grace_ms": 1200
+      },
+      "cleanup_verified": true,
+      "received_audio_duration_ms": 34980
+    },
+    {
+      "ordinal": 2,
+      "input_duration_ms": 3320,
+      "user_final_count": 10,
+      "assistant_sentence_count": 11,
+      "received_chunks": 385,
+      "acknowledged_chunks": 380,
+      "acknowledged_duration_ms": 37680,
+      "completed_sentences": 6,
+      "nonzero_output_samples": 904082,
+      "stale_audio_ignored": 7,
+      "turns": [
+        {
+          "number": 1,
+          "response_ms": 6905.65,
+          "interrupted": true,
+          "pending_playback_ms_at_interrupt": 88.83,
+          "elapsed_ms": 6967.3
+        },
+        {
+          "number": 2,
+          "response_ms": 13094.65,
+          "interrupted": false,
+          "recovery_verified": true,
+          "elapsed_ms": 23950.58
+        },
+        {
+          "number": 3,
+          "response_ms": 6776.04,
+          "interrupted": true,
+          "pending_playback_ms_at_interrupt": 96.47,
+          "elapsed_ms": 6919.2
+        },
+        {
+          "number": 4,
+          "response_ms": 7127.33,
+          "interrupted": false,
+          "recovery_verified": true,
+          "elapsed_ms": 13102
+        },
+        {
+          "number": 5,
+          "response_ms": 6937.85,
+          "interrupted": true,
+          "pending_playback_ms_at_interrupt": 85.18,
+          "elapsed_ms": 6978.4
+        },
+        {
+          "number": 6,
+          "response_ms": 7004.81,
+          "interrupted": false,
+          "recovery_verified": true,
+          "elapsed_ms": 14119.08
+        },
+        {
+          "number": 7,
+          "response_ms": 9422.74,
+          "interrupted": true,
+          "pending_playback_ms_at_interrupt": 85.01,
+          "elapsed_ms": 9464.61
+        },
+        {
+          "number": 8,
+          "response_ms": 8455.37,
+          "interrupted": false,
+          "recovery_verified": true,
+          "elapsed_ms": 14360.8
+        },
+        {
+          "number": 9,
+          "response_ms": 6816.56,
+          "interrupted": true,
+          "pending_playback_ms_at_interrupt": 90.37,
+          "elapsed_ms": 6878.77
+        },
+        {
+          "number": 10,
+          "response_ms": 7045.49,
+          "interrupted": false,
+          "recovery_verified": true,
+          "elapsed_ms": 14950.5
+        }
+      ],
+      "interruptions": 5,
+      "recoveries_after_interruption": 5,
+      "reconnect_history_verified": false,
+      "end_sent": true,
+      "end_acknowledged": true,
+      "close_code": 1000,
+      "cleanup": {
+        "closed": true,
+        "pipecat_tasks": 0,
+        "provider_tasks": 0,
+        "provider_sockets": 0,
+        "provider_readers": 0,
+        "pending_provider_requests": 0,
+        "queued_provider_bytes": 0,
+        "unacked_audio_bytes": 0,
+        "pending_playback_chunks": 0,
+        "pending_turn_tasks": 0,
+        "pending_user_fragments": 0,
+        "pending_user_chars": 0,
+        "messages": 16,
+        "stt_connection_generation": 1,
+        "dropped_audio_bytes": 0,
+        "turn_end_grace_ms": 1200
+      },
+      "cleanup_verified": true,
+      "received_audio_duration_ms": 38180
+    }
+  ],
+  "failures": [],
+  "active_duration_ms": 600011.29,
+  "finished_at": "2026-09-24T23:12:39.951Z",
+  "elapsed_ms": 607291.8,
+  "deployment_version_id": "69b1b14d-e27b-4ebc-8623-33dc94d5c186"
+}

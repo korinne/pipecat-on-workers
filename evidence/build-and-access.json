@@ -1,0 +1,68 @@
+{
+  "wrangler": "4.139.0",
+  "workerd": "1.20260923.1",
+  "compatibility_date": "2026-09-24",
+  "workers_python": "3.14.2",
+  "local_python": "3.14.7",
+  "workers_py": "1.17.4",
+  "workers_runtime_sdk": "1.9.0",
+  "pipecat": "1.11.0",
+  "pydantic": "2.12.5",
+  "pydantic_core": "2.41.5",
+  "build_dry_run": {
+    "passed": true,
+    "upload_kib": 8352.42,
+    "gzip_kib": 2171.31
+  },
+  "authorization": {
+    "authenticated": true,
+    "method": "Task-local Wrangler OAuth; credentials excluded from deliverables",
+    "deployment_performed": true
+  },
+  "tests": {
+    "python_cases": 21,
+    "python_subtests": 8,
+    "browser_cases": 25,
+    "provider_adapter_synthetic_checks": "pass",
+    "actual_do_probe_cases": 10,
+    "passing_ten_minute_do_runs": 2,
+    "real_provider_prerecorded_smoke": "pass",
+    "physical_human_voice_conversations": 0,
+    "real_provider_harness_offline_tests": 12,
+    "real_provider_final_ten_minute_run": "pass",
+    "real_provider_final_concurrent_sessions": 2,
+    "real_provider_final_duration_input_turns": 20,
+    "real_provider_final_duration_interruptions": 10,
+    "real_provider_final_duration_recoveries": 10,
+    "real_provider_final_disconnect_reconnect": "pass",
+    "real_provider_final_mid_utterance_one_second_pause": "pass",
+    "real_provider_final_abandon_cleanup": "pass",
+    "real_provider_final_fictional_tool_response": "pass",
+    "real_provider_final_pending_tool_cancellation": "pass",
+    "real_provider_final_pending_model_cancellation": "previous 69b1 revision: not exercised due to HTTP 429; current capacity-fix revision: pass",
+    "physical_microphone_and_speaker_acceptance": "not performed",
+    "startup_lifecycle_fake_cases": 7,
+    "real_provider_current_pending_model_cancellation": "pass",
+    "real_provider_current_recorded_response_recovery": "pass",
+    "current_local_actual_do_lifecycle": "pass",
+    "access_auth_fake_cases": 22,
+    "deployed_access_key_verification": "pass",
+    "browser_key_file_import": "pass"
+  },
+  "configuration": {
+    "fixture_routes_default": false,
+    "query_strings_redacted": true
+  },
+  "workers_pyodide": "314.0.6",
+  "deployment_origin": "https://pipecat-python-do-spike.korinne.workers.dev",
+  "deployment_version_id": "33a5c3ed-17ba-47a7-9c77-db90cfbf3114",
+  "final_upload": {
+    "upload_kib": 8368.71,
+    "gzip_kib": 2175.5,
+    "wrangler_reported_startup_ms": 2838,
+    "startup_measurement_samples": 1
+  },
+  "verdict": "works with restrictions",
+  "long_duration_evidence_version": "69b1b14d-e27b-4ebc-8623-33dc94d5c186",
+  "spoken_model_cancellation_evidence_version": "a0fddf09-a341-4b07-bd50-84adcc2ffed1"
+}

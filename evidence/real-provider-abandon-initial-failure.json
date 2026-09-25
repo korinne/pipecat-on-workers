@@ -1,0 +1,7 @@
+{
+  "started_at": "2026-09-24T22:49:06.023Z",
+  "passed": false,
+  "fixture_provider_requested": false,
+  "client_audio_sent": false,
+  "failure": "server_reported_error"
+}

@@ -1,0 +1,163 @@
+{
+  "scope": "Four actual local Python Durable Objects; WebSocket PCM and synthetic provider events; silent fixture output, not real voice",
+  "requested_seconds": 600,
+  "samples": [
+    {
+      "elapsed_seconds": 0.063855708,
+      "turns": 4,
+      "interruptions": 0,
+      "pipecat_tasks": 28,
+      "unacked_bytes": 0,
+      "context_messages": [
+        3,
+        3,
+        3,
+        3
+      ]
+    },
+    {
+      "elapsed_seconds": 63.321733542,
+      "turns": 56,
+      "interruptions": 16,
+      "pipecat_tasks": 28,
+      "unacked_bytes": 0,
+      "context_messages": [
+        25,
+        25,
+        25,
+        25
+      ]
+    },
+    {
+      "elapsed_seconds": 126.591055917,
+      "turns": 108,
+      "interruptions": 36,
+      "pipecat_tasks": 28,
+      "unacked_bytes": 0,
+      "context_messages": [
+        46,
+        46,
+        46,
+        46
+      ]
+    },
+    {
+      "elapsed_seconds": 189.954070833,
+      "turns": 160,
+      "interruptions": 52,
+      "pipecat_tasks": 28,
+      "unacked_bytes": 0,
+      "context_messages": [
+        68,
+        68,
+        68,
+        68
+      ]
+    },
+    {
+      "elapsed_seconds": 253.284397042,
+      "turns": 212,
+      "interruptions": 68,
+      "pipecat_tasks": 28,
+      "unacked_bytes": 0,
+      "context_messages": [
+        81,
+        81,
+        81,
+        81
+      ]
+    },
+    {
+      "elapsed_seconds": 316.697418667,
+      "turns": 264,
+      "interruptions": 88,
+      "pipecat_tasks": 28,
+      "unacked_bytes": 0,
+      "context_messages": [
+        81,
+        81,
+        81,
+        81
+      ]
+    },
+    {
+      "elapsed_seconds": 380.036866208,
+      "turns": 316,
+      "interruptions": 104,
+      "pipecat_tasks": 28,
+      "unacked_bytes": 0,
+      "context_messages": [
+        81,
+        81,
+        81,
+        81
+      ]
+    },
+    {
+      "elapsed_seconds": 443.380182083,
+      "turns": 368,
+      "interruptions": 120,
+      "pipecat_tasks": 28,
+      "unacked_bytes": 0,
+      "context_messages": [
+        81,
+        81,
+        81,
+        81
+      ]
+    },
+    {
+      "elapsed_seconds": 506.72980250000006,
+      "turns": 420,
+      "interruptions": 140,
+      "pipecat_tasks": 28,
+      "unacked_bytes": 0,
+      "context_messages": [
+        81,
+        81,
+        81,
+        81
+      ]
+    }
+  ],
+  "voice_tested": false,
+  "errors": [
+    "Error: Timeout: turn clear"
+  ],
+  "startup_ms": [
+    47.235167000000004,
+    69.577458,
+    69.38112500000001,
+    69.25654200000001
+  ],
+  "cleanup": [
+    {
+      "live": false,
+      "status": "active"
+    },
+    {
+      "live": false,
+      "status": "active"
+    },
+    {
+      "live": false,
+      "status": "active"
+    },
+    {
+      "live": false,
+      "status": "active"
+    }
+  ],
+  "passed": false,
+  "failure_analysis": {
+    "verified": "workerd/Pyodide fatal RuntimeError: memory access out of bounds; workerd restarted",
+    "last_completed_sample_seconds": 506.7298025,
+    "last_completed_sample_turns": 420,
+    "confounders": [
+      "Separate-DO controlled abort test ran during soak",
+      "Inspector attachment attempted near crash"
+    ],
+    "cause_established": false,
+    "ten_minute_requirement_passed": false
+  }
+}

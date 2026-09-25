@@ -1,0 +1,39 @@
+[ERROR] Pyodide has suffered a fatal error. Please report this to the Pyodide maintainers.
+
+
+✘ [ERROR] The cause of the fatal error was:
+
+
+✘ [ERROR] RuntimeError: memory access out of bounds
+
+      at [object Object]x4893fc
+      at [object Object]x1c6770
+      at [object Object]x1c7b1a
+      at [object Object]x1ec9e4
+      at [object Object]x203b74
+      at [object Object]x31a670
+      at [object Object]x31b255
+      at [object Object]x31b795
+      at [object Object]x31b0b0
+      at [object Object]x2f1da4 {
+    pyodide_fatal_error: true
+  }
+
+
+Stack (most recent call first):
+  File "/lib/python313.zip/json/decoder.py", line 361 in raw_decode
+  File "/lib/python313.zip/json/decoder.py", line 345 in decode
+  File "/lib/python313.zip/json/__init__.py", line 346 in loads
+  File "/session/metadata/entry.py", line 155 in on_message
+  File "/session/metadata/python_modules/workers/entrypoints.py", line 69 in <lambda>
+✘ [ERROR] *** Fatal uncaught kj::Exception: workerd/server/server.c++:4535: failed: abortIsolate() called, terminating process; reason = Python worker fatal error: RuntimeError: memory access out of bounds
+
+
+✘ [ERROR] stack: 100de6f43 1019f65ef 101619bdb 10118caf3 102433dab 10243209f 10243209f 10243209f 102432ca3 102432cff 102432cff 102432cff 1024289af 10242f263 10242ef5b 102788b63 102787e3f 1040f0797 100f709af 101b3bf03 101b3b14b 101b2f987 101ddc867 101de31d7 101a0bf83 101a00c1f 1019fe853 1019f62d3 101de2ae7 101de40f7 10400862b 10400bb87 100db39ff 101df755f 104011b63 104007493 100db8dcb 1040396f7 10403fba7 104039383 10403fba7 104037c2b 1040379bf 100da49b7 18214e0df
+
+
+[wrangler:warn] The Workers runtime crashed unexpectedly and is being restarted (crash #1). Any additional runtime output above may indicate the cause.
+[wrangler:info] GET /api/session/5fc40421e04039894e03d915c57f7745/diagnostics 200 OK (5885ms)
+[wrangler:info] GET /api/session/0d486ee17a2a2d5f65757a645326db4b/diagnostics 200 OK (5885ms)
+[wrangler:info] GET /api/session/0c594073033e557ca6cbdc54706df9b9/diagnostics 200 OK (5883ms)
+[wrangler:info] GET /api/session/478d0ce5800fbe6f032d95c7db088293/diagnostics 200 OK (5883ms)

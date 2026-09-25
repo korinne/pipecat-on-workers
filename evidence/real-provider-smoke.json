@@ -1,0 +1,134 @@
+{
+  "schema": 1,
+  "started_at": "2026-09-24T22:43:31.714Z",
+  "deployment_origin": "https://pipecat-python-do-spike.korinne.workers.dev",
+  "passed": true,
+  "scope": "Actual deployed capability WebSocket and configured STT, LLM, TTS providers; prerecorded input; wall-clock playback-receipt emulation.",
+  "physical_human_voice_acceptance_passed": false,
+  "fixture_provider_requested": false,
+  "input": {
+    "source": "prerecorded-tts",
+    "format": "PCM16 LE mono 16000 Hz",
+    "duration_ms": 3240,
+    "samples": 51840,
+    "nonzero_samples": 51148,
+    "peak": 17467,
+    "rms": 2360.31
+  },
+  "playback": {
+    "method": "serial elapsed PCM duration, no audio device",
+    "received_chunks": 88,
+    "acknowledged_chunks": 88,
+    "acknowledged_duration_ms": 8800,
+    "completed_sentences": 1,
+    "received_audio_duration_ms": 8800,
+    "output_statistics": {
+      "samples": 211200,
+      "nonzero_samples": 208903,
+      "peak": 16959,
+      "rms": 1905.98
+    }
+  },
+  "transcript": {
+    "user_final_count": 2,
+    "assistant_sentence_count": 1
+  },
+  "latency_ms": {
+    "session_create": 3102.11,
+    "ready": 4793.92,
+    "input_start": 4812.47,
+    "first_audio_from_start": 10101.29,
+    "first_audio_after_final_transcript": 1433.26,
+    "first_audio_after_input_end": 1996.17
+  },
+  "latency_definitions": {
+    "first_audio_after_final_transcript": "First accepted audio packet receipt minus the latest final user transcript receipt preceding that packet. The transcript timestamp is frozen when first audio arrives; this is not acoustic response latency."
+  },
+  "latency_correction": {
+    "previous_first_final_anchored_ms": 4184.72,
+    "latest_preceding_user_final_from_start_ms": 8668.03,
+    "basis": "Recomputed from the private transcript capture: first audio at 10101.29 ms minus the latest preceding final user transcript at 8668.03 ms equals 1433.26 ms. The original metric used the first of two final user transcripts. This corrects the saved measurement without rerunning the session."
+  },
+  "end": {
+    "sent": true,
+    "acknowledged": true,
+    "socket_closed": true,
+    "close_code": 1000
+  },
+  "limitations": [
+    "No microphone permissions, capture/resampling, speakers, headphones, echo or audible latency measured.",
+    "No human assessment of intelligibility or semantic correctness; inspect private captures.",
+    "One short response only; interruption, multi-turn memory, concurrent calls and soak acceptance remain untested.",
+    "Zero local resource counts do not prove remote compute or billing stopped."
+  ],
+  "failures": [],
+  "stop_reason": "first_complete_sentence_received_and_elapsed_playback_receipts_sent",
+  "cleanup": {
+    "closed": true,
+    "pipecat_tasks": 0,
+    "provider_tasks": 0,
+    "provider_sockets": 0,
+    "provider_readers": 0,
+    "pending_provider_requests": 0,
+    "queued_provider_bytes": 0,
+    "unacked_audio_bytes": 0,
+    "pending_playback_chunks": 0,
+    "messages": 4,
+    "stt_connection_generation": 1,
+    "dropped_audio_bytes": 0,
+    "metrics": [
+      {
+        "event": "startup",
+        "elapsed_ms": 567,
+        "startup_ms": 567
+      },
+      {
+        "event": "server_clear",
+        "elapsed_ms": 1429,
+        "generation": 2,
+        "dispatch_ms": 0
+      },
+      {
+        "event": "user_end",
+        "elapsed_ms": 1677
+      },
+      {
+        "event": "generation_started",
+        "elapsed_ms": 1677,
+        "generation": 3
+      },
+      {
+        "event": "generation_cancelled",
+        "elapsed_ms": 2089
+      },
+      {
+        "event": "server_clear",
+        "elapsed_ms": 2089,
+        "generation": 4,
+        "dispatch_ms": 0
+      },
+      {
+        "event": "user_end",
+        "elapsed_ms": 4458
+      },
+      {
+        "event": "generation_started",
+        "elapsed_ms": 4458,
+        "generation": 5
+      },
+      {
+        "event": "first_audio",
+        "elapsed_ms": 5863,
+        "generation": 5,
+        "response_ms": 1405
+      },
+      {
+        "event": "closed",
+        "elapsed_ms": 14866
+      }
+    ]
+  },
+  "cleanup_verified": true,
+  "finished_at": "2026-09-24T22:43:52.424Z",
+  "elapsed_ms": 20710.38
+}

@@ -1,0 +1,114 @@
+{
+  "schema": 1,
+  "started_at": "2026-09-24T22:40:33.106Z",
+  "deployment_origin": "https://pipecat-python-do-spike.korinne.workers.dev",
+  "passed": false,
+  "scope": "Actual deployed capability WebSocket and configured STT, LLM, TTS providers; prerecorded input; wall-clock playback-receipt emulation.",
+  "physical_human_voice_acceptance_passed": false,
+  "fixture_provider_requested": false,
+  "input": {
+    "source": "prerecorded-tts",
+    "format": "PCM16 LE mono 16000 Hz",
+    "duration_ms": 3240,
+    "samples": 51840,
+    "nonzero_samples": 51148,
+    "peak": 17467,
+    "rms": 2360.31
+  },
+  "playback": {
+    "method": "serial elapsed PCM duration, no audio device",
+    "received_chunks": 256,
+    "acknowledged_chunks": 116,
+    "acknowledged_duration_ms": 4640,
+    "completed_sentences": 0,
+    "received_audio_duration_ms": 10240,
+    "output_statistics": {
+      "samples": 245760,
+      "nonzero_samples": 240493,
+      "peak": 25503,
+      "rms": 2019.64
+    }
+  },
+  "transcript": {
+    "user_final_count": 1,
+    "assistant_sentence_count": 2
+  },
+  "latency_ms": {
+    "session_create": 2574.06,
+    "ready": 4946.8,
+    "input_start": 4967.08,
+    "first_audio_from_start": 10412.31,
+    "first_audio_after_final_transcript": 1411.29,
+    "first_audio_after_input_end": 2155.2
+  },
+  "end": {
+    "sent": true,
+    "acknowledged": true,
+    "socket_closed": true,
+    "close_code": 1000
+  },
+  "limitations": [
+    "No microphone permissions, capture/resampling, speakers, headphones, echo or audible latency measured.",
+    "No human assessment of intelligibility or semantic correctness; inspect private captures.",
+    "One short response only; interruption, multi-turn memory, concurrent calls and soak acceptance remain untested.",
+    "Zero local resource counts do not prove remote compute or billing stopped."
+  ],
+  "failures": [
+    "server_reported_error"
+  ],
+  "cleanup": {
+    "closed": true,
+    "pipecat_tasks": 0,
+    "provider_tasks": 0,
+    "provider_sockets": 0,
+    "provider_readers": 0,
+    "pending_provider_requests": 0,
+    "queued_provider_bytes": 0,
+    "unacked_audio_bytes": 0,
+    "pending_playback_chunks": 0,
+    "messages": 2,
+    "stt_connection_generation": 1,
+    "dropped_audio_bytes": 0,
+    "metrics": [
+      {
+        "event": "startup",
+        "elapsed_ms": 348,
+        "startup_ms": 348
+      },
+      {
+        "event": "server_clear",
+        "elapsed_ms": 1225,
+        "generation": 2,
+        "dispatch_ms": 0
+      },
+      {
+        "event": "user_end",
+        "elapsed_ms": 4284
+      },
+      {
+        "event": "generation_started",
+        "elapsed_ms": 4284,
+        "generation": 3
+      },
+      {
+        "event": "first_audio",
+        "elapsed_ms": 5825,
+        "generation": 3,
+        "response_ms": 1541
+      },
+      {
+        "event": "server_clear",
+        "elapsed_ms": 10358,
+        "generation": 4,
+        "dispatch_ms": 9133
+      },
+      {
+        "event": "closed",
+        "elapsed_ms": 10457
+      }
+    ]
+  },
+  "cleanup_verified": true,
+  "finished_at": "2026-09-24T22:40:50.346Z",
+  "elapsed_ms": 17239.79
+}

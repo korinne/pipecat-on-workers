@@ -1,0 +1,75 @@
+{
+  "scope": "Four minimal Python Durable Objects, no Pipecat/providers; WebSocket JSON/base64 decode only",
+  "seconds": 30,
+  "burst_per_20ms": 20,
+  "controlled_abort": false,
+  "errors": [],
+  "calls": [
+    {
+      "sent": 27620,
+      "closed": {
+        "code": 1000,
+        "reason": "Completed"
+      },
+      "last": {
+        "type": "ended",
+        "messages": 27620,
+        "decoded_bytes": 17676800,
+        "errors": 0,
+        "peak_queue": 1,
+        "python": "3.13.2",
+        "connected": true
+      }
+    },
+    {
+      "sent": 27620,
+      "closed": {
+        "code": 1000,
+        "reason": "Completed"
+      },
+      "last": {
+        "type": "ended",
+        "messages": 27620,
+        "decoded_bytes": 17676800,
+        "errors": 0,
+        "peak_queue": 1,
+        "python": "3.13.2",
+        "connected": true
+      }
+    },
+    {
+      "sent": 27620,
+      "closed": {
+        "code": 1000,
+        "reason": "Completed"
+      },
+      "last": {
+        "type": "ended",
+        "messages": 27620,
+        "decoded_bytes": 17676800,
+        "errors": 0,
+        "peak_queue": 1,
+        "python": "3.13.2",
+        "connected": true
+      }
+    },
+    {
+      "sent": 27620,
+      "closed": {
+        "code": 1000,
+        "reason": "Completed"
+      },
+      "last": {
+        "type": "ended",
+        "messages": 27620,
+        "decoded_bytes": 17676800,
+        "errors": 0,
+        "peak_queue": 1,
+        "python": "3.13.2",
+        "connected": true
+      }
+    }
+  ],
+  "elapsed_seconds": 30.085,
+  "passed": true
+}

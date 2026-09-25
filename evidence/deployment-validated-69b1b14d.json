@@ -1,0 +1,29 @@
+{
+  "checked_at": "2026-09-24T23:18:48.988Z",
+  "origin": "https://pipecat-python-do-spike.korinne.workers.dev",
+  "health": {
+    "runtime": "Python Worker",
+    "python": "3.14.2",
+    "pyodide": "314.0.6",
+    "pipecat": "1.11.0-patched",
+    "voice_validated": false
+  },
+  "unauthenticated_session_status": 401,
+  "deployment_succeeded": true,
+  "demo_key_configured": true,
+  "version_id": "69b1b14d-e27b-4ebc-8623-33dc94d5c186",
+  "deployed_at": "2026-09-24T23:02:20.666684+00:00",
+  "wrangler_reported_startup_ms": 3500,
+  "fixture_routes_enabled": false,
+  "upload_kib": 8358.75,
+  "gzip_kib": 2173.01,
+  "source_sha256": {
+    "src/entry.py": "bd861c7cda67adec7e78f5ee6befe249db5aa3fabbc3523673c14068c32c29e9",
+    "src/conversation.py": "d61c6eefef3c547a8ed24cd99d140caac308acd8839f0f30dc1d7bfdb82c415f",
+    "src/providers.py": "841c763f0c9765fbe32419929b1e77b7109bbef740bcaad818068c1bfc1da06e",
+    "src/runtime_probe.py": "14d5fafe5fa67f407560246529549325db83088034fff040a7d382906338aa95",
+    "wrangler.jsonc": "9b120c41b64af6b69395bdeb5a39565a83bb449b2c0de93b860643c0ebb92691"
+  },
+  "production_turn_end_grace_ms": 1200,
+  "flux_eot_threshold": "0.9"
+}

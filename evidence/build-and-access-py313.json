@@ -1,0 +1,33 @@
+{
+  "wrangler": "4.139.0",
+  "workerd": "1.20260923.1",
+  "compatibility_date": "2026-08-01",
+  "workers_python": "3.13.2",
+  "local_python": "3.13.15",
+  "workers_py": "1.17.4",
+  "workers_runtime_sdk": "1.9.0",
+  "pipecat": "1.11.0",
+  "pydantic": "2.10.6",
+  "pydantic_core": "2.27.2",
+  "build_dry_run": {
+    "passed": true,
+    "upload_kib": 7902.56,
+    "gzip_kib": 2136.49
+  },
+  "authorization": {
+    "authenticated": false,
+    "reason": "Existing Wrangler OAuth token expired and could not be refreshed; verified by Wrangler 4.119.0 and 4.139.0",
+    "deployment_performed": false
+  },
+  "tests": {
+    "python_cases": 14,
+    "python_subtests": 2,
+    "browser_cases": 20,
+    "real_voice_conversations": 0,
+    "provider_adapter_synthetic_checks": "pass"
+  },
+  "configuration": {
+    "fixture_routes_default": false,
+    "query_strings_redacted": true
+  }
+}

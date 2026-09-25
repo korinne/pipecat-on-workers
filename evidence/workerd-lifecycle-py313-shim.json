@@ -1,0 +1,135 @@
+{
+  "scope": "Actual local workerd Python Durable Objects and network WebSockets; fixture providers, silent PCM; no real voice",
+  "started_at": "2026-09-24T21:24:36.955Z",
+  "checks": [
+    "two distinct DOs have isolated transcript and PCM metadata",
+    "actual socket disconnect/reconnect restores persisted history, creates fresh pipeline",
+    "ctx.abort controlled real DO restart closes call and next socket restores stored history",
+    "End releases both DO pipelines and queued playback accounting",
+    "silent abandoned socket closes and releases pipeline after 30 s"
+  ],
+  "startup_ms": [
+    43,
+    43
+  ],
+  "cleanup": [
+    {
+      "generation": 9,
+      "closed": true,
+      "pipecat_tasks": 0,
+      "unacked_audio_bytes": 0,
+      "pending_playback_chunks": 0,
+      "messages": 7,
+      "metrics": [
+        {
+          "event": "startup",
+          "elapsed_ms": 3,
+          "startup_ms": 3
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 17,
+          "dispatch_ms": 1,
+          "generation": 8
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 28,
+          "turn": "(1, 3)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 30,
+          "generation": 9
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 30,
+          "generation": 9,
+          "response_ms": 0
+        },
+        {
+          "event": "closed",
+          "elapsed_ms": 67,
+          "reason": "ended"
+        }
+      ],
+      "fixture_live_generations": 0,
+      "fixture_live_syntheses": 0,
+      "fixture_provider_closed": true,
+      "fixture_audio_bytes_received": 0
+    },
+    {
+      "generation": 3,
+      "closed": true,
+      "pipecat_tasks": 0,
+      "unacked_audio_bytes": 0,
+      "pending_playback_chunks": 0,
+      "messages": 3,
+      "metrics": [
+        {
+          "event": "startup",
+          "elapsed_ms": 4,
+          "startup_ms": 4
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 14,
+          "dispatch_ms": 1,
+          "generation": 2
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 27,
+          "turn": "(1, 1)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 28,
+          "generation": 3
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 29,
+          "generation": 3,
+          "response_ms": 1
+        },
+        {
+          "event": "closed",
+          "elapsed_ms": 512,
+          "reason": "ended"
+        }
+      ],
+      "fixture_live_generations": 0,
+      "fixture_live_syntheses": 0,
+      "fixture_provider_closed": true,
+      "fixture_audio_bytes_received": 0
+    }
+  ],
+  "abandoned": {
+    "generation": 1,
+    "closed": true,
+    "pipecat_tasks": 0,
+    "unacked_audio_bytes": 0,
+    "pending_playback_chunks": 0,
+    "messages": 1,
+    "metrics": [
+      {
+        "event": "startup",
+        "elapsed_ms": 7,
+        "startup_ms": 7
+      },
+      {
+        "event": "closed",
+        "elapsed_ms": 30020,
+        "reason": "abandoned_timeout"
+      }
+    ],
+    "fixture_live_generations": 0,
+    "fixture_live_syntheses": 0,
+    "fixture_provider_closed": true,
+    "fixture_audio_bytes_received": 0
+  },
+  "passed": true,
+  "finished_at": "2026-09-24T21:25:07.774Z"
+}

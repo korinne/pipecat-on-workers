@@ -1,0 +1,31 @@
+{
+  "scope": "Attempted real Workers AI connection from local Python DO; no synthetic provider",
+  "events": [
+    {
+      "type": "error",
+      "message": "Error: Binding AI needs to be run remotely"
+    }
+  ],
+  "cleanup": {
+    "generation": 1,
+    "closed": true,
+    "pipecat_tasks": 0,
+    "unacked_audio_bytes": 0,
+    "pending_playback_chunks": 0,
+    "messages": 1,
+    "metrics": [
+      {
+        "event": "closed",
+        "elapsed_ms": 13,
+        "reason": "startup_failed"
+      }
+    ],
+    "provider_tasks": 0,
+    "provider_sockets": 0,
+    "provider_readers": 0,
+    "pending_provider_requests": 0,
+    "queued_provider_bytes": 0,
+    "stt_connection_generation": 0,
+    "dropped_audio_bytes": 0
+  }
+}

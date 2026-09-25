@@ -1,0 +1,29 @@
+{
+  "started_at": "2026-09-24T22:51:24.079Z",
+  "passed": false,
+  "fixture_provider_requested": false,
+  "client_audio_sent": false,
+  "close_code": 1000,
+  "abandoned_reason_matched": false,
+  "ready_observed": true,
+  "idle_after_ready_ms": 23008,
+  "elapsed_ms": 24433,
+  "cleanup": {
+    "closed": true,
+    "pipecat_tasks": 0,
+    "provider_tasks": 0,
+    "provider_sockets": 0,
+    "provider_readers": 0,
+    "pending_provider_requests": 0,
+    "queued_provider_bytes": 0,
+    "unacked_audio_bytes": 0,
+    "pending_playback_chunks": 0,
+    "messages": 1,
+    "stt_connection_generation": 3,
+    "dropped_audio_bytes": 0
+  },
+  "failure": "abandon_or_cleanup_not_verified",
+  "provider_errors_observed": 3,
+  "resource_cleanup_verified": true,
+  "observed_provider_error": "Flux rejected an unsupported text KeepAlive message during client inactivity; three upstream connection attempts ended, then application closed with zero local resources."
+}

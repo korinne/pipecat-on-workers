@@ -1,0 +1,31 @@
+{
+  "started_at": "2026-09-24T23:01:51.551Z",
+  "passed": true,
+  "fixture_provider_requested": false,
+  "client_audio_sent": false,
+  "close_code": 1012,
+  "abandoned_reason_matched": true,
+  "ready_observed": true,
+  "idle_after_ready_ms": 29975,
+  "elapsed_ms": 31851,
+  "cleanup": {
+    "closed": true,
+    "pipecat_tasks": 0,
+    "provider_tasks": 0,
+    "provider_sockets": 0,
+    "provider_readers": 0,
+    "pending_provider_requests": 0,
+    "queued_provider_bytes": 0,
+    "unacked_audio_bytes": 0,
+    "pending_playback_chunks": 0,
+    "pending_turn_tasks": 0,
+    "pending_user_fragments": 0,
+    "pending_user_chars": 0,
+    "messages": 1,
+    "stt_connection_generation": 1,
+    "dropped_audio_bytes": 0,
+    "turn_end_grace_ms": 1200
+  },
+  "provider_errors_observed": 0,
+  "deployment_version_id": "69b1b14d-e27b-4ebc-8623-33dc94d5c186"
+}

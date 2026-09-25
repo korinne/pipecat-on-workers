@@ -1,0 +1,13 @@
+{
+  "scope": "Python3.14 local workerd AFTER600-second4-DO soak and cleanup; Inspector Runtime.getHeapUsage, not whole-WASM/isolate or per-DO memory",
+  "sampled_at": "2026-09-24T21:54:36.698Z",
+  "response": {
+    "id": 1,
+    "result": {
+      "usedSize": 41506448,
+      "totalSize": 78921728,
+      "embedderHeapUsedSize": 1181352,
+      "backingStorageSize": 24595587
+    }
+  }
+}

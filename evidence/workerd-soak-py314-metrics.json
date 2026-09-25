@@ -1,0 +1,25 @@
+{
+  "scope": "Two local Python3.14 DO600-second synthetic runs; one fresh and one after standardSDKrestart. Not real voice.",
+  "startup_websocket_to_ready": {
+    "samples": 8,
+    "min_ms": 35.467708,
+    "median_ms": 66.3849995,
+    "p95_ms": 79.397458,
+    "max_ms": 79.397458
+  },
+  "retained_generation_to_first_audio": {
+    "samples": 924,
+    "min_ms": 0,
+    "median_ms": 0.0,
+    "p95_ms": 1,
+    "max_ms": 15
+  },
+  "retained_server_clear_dispatch": {
+    "samples": 1228,
+    "min_ms": 0,
+    "median_ms": 1.0,
+    "p95_ms": 3,
+    "max_ms": 34
+  },
+  "limitation": "Each session retains only its last500 metric events, so response/clear summaries omit early turns. Startup excludes session creation and cold runtime boot. Server clear is not audible silence; response uses silent fixtures. Whole-isolate memory was not measured."
+}

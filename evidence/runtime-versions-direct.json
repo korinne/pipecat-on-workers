@@ -1,0 +1,18 @@
+[
+  {
+    "port": 8788,
+    "runtime": "Python Worker",
+    "python": "3.13.2",
+    "pyodide": "0.28.2",
+    "pipecat": "1.11.0-patched",
+    "voice_validated": false
+  },
+  {
+    "port": 8789,
+    "runtime": "Python Worker",
+    "python": "3.14.2",
+    "pyodide": "314.0.6",
+    "pipecat": "1.11.0-patched",
+    "voice_validated": false
+  }
+]

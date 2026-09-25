@@ -1,0 +1,8 @@
+{
+  "name": "python-do-json-reproducer",
+  "main": "src/entry.py",
+  "compatibility_date": "2026-08-01",
+  "compatibility_flags": ["python_workers"],
+  "durable_objects": {"bindings": [{"name": "SOCKETS", "class_name": "SocketDO"}]},
+  "migrations": [{"tag": "v1", "new_sqlite_classes": ["SocketDO"]}]
+}

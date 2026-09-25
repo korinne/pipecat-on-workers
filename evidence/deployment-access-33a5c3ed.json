@@ -1,0 +1,36 @@
+{
+  "checked_at": "2026-09-24T23:58:08.267Z",
+  "origin": "https://pipecat-python-do-spike.korinne.workers.dev",
+  "health": {
+    "runtime": "Python Worker",
+    "python": "3.14.2",
+    "pyodide": "314.0.6",
+    "pipecat": "1.11.0-patched",
+    "voice_validated": false
+  },
+  "unauthenticated_session_status": 401,
+  "deployment_succeeded": true,
+  "demo_key_configured": true,
+  "version_id": "33a5c3ed-17ba-47a7-9c77-db90cfbf3114",
+  "deployed_at": "2026-09-24T23:58:08.267Z",
+  "wrangler_reported_startup_ms": 2838,
+  "fixture_routes_enabled": false,
+  "upload_kib": 8368.71,
+  "gzip_kib": 2175.5,
+  "source_sha256": {
+    "src/entry.py": "72d1a820c750f8898a920e73e216db3c38b0981a2601cf2f0479f3a2825f6d6d",
+    "src/conversation.py": "d61c6eefef3c547a8ed24cd99d140caac308acd8839f0f30dc1d7bfdb82c415f",
+    "src/providers.py": "ef9e2070bc32dec27da203f5509b83025e24e084aaaac7835868f1b3adad984c",
+    "src/runtime_probe.py": "14d5fafe5fa67f407560246529549325db83088034fff040a7d382906338aa95",
+    "wrangler.jsonc": "9b120c41b64af6b69395bdeb5a39565a83bb449b2c0de93b860643c0ebb92691",
+    "public/app.js": "5e5da0da61eff8238f3ccae7aedfea7abf4543a62c0fec9f48d72f3fe5e36367",
+    "public/index.html": "3803305a0281e75b701048e8e4d367a86350db3243ea70093454c1a40549fa89",
+    "public/style.css": "d4ab0a60fdbe42b966ef3243f6dc00eb9e41c5fe9a30bc62c05dc23fb13b0ac7"
+  },
+  "production_turn_end_grace_ms": 1200,
+  "flux_eot_threshold": "0.9",
+  "deployed_at_note": "Recorded after deployment command completed; approximate completion time",
+  "change": "Distinct authentication errors; key-file import and verification before microphone access; key captured once for session startup",
+  "long_duration_evidence_version": "69b1b14d-e27b-4ebc-8623-33dc94d5c186",
+  "spoken_model_cancellation_evidence_version": "a0fddf09-a341-4b07-bd50-84adcc2ffed1"
+}

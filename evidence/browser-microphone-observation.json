@@ -1,0 +1,40 @@
+{
+  "deployment_version_id": "76eb1ebf-32de-4291-9364-466953c444a1",
+  "browser": "Codex in-app browser",
+  "source": "Visible Session details inspected through browser UI",
+  "at_21_seconds": {
+    "status": "Listening",
+    "sample_rate": "44,100 -> 16,000 Hz",
+    "context": "running",
+    "context_time_seconds": 20.7,
+    "track": "live",
+    "captured_ms": 20200,
+    "sent_ms": 20200,
+    "server_received_ms": 19520,
+    "speech_service_sent_ms": 19520,
+    "peak_input_display": "0.0000",
+    "reconnects": 0,
+    "transcript_present": false
+  },
+  "final": {
+    "status": "Conversation ended",
+    "reason": "15-minute demo limit",
+    "elapsed_display": "14:59",
+    "context": "closed",
+    "captured_ms": 897380,
+    "sent_ms": 897340,
+    "server_received_ms": 894220,
+    "speech_service_sent_ms": 894220,
+    "peak_input_display": "0.0000",
+    "reconnects": 0,
+    "transcript_present": false
+  },
+  "physical_voice_validated": false,
+  "limitations": [
+    "The user confirmed speaking on the preceding deployment. A request to speak during this updated call had no response during the observation.",
+    "The displayed peak is rounded to four decimal places. This establishes no detectable sound at that precision, not an exact zero for every sample.",
+    "Forwarded byte counts establish successful provider send calls, not recognition.",
+    "Native input settings could not be inspected because computer-use permissions were unavailable. The tool request took most of the call duration; the demo limit then closed the call.",
+    "No microphone recording, transcript, key, or session capability is included."
+  ]
+}

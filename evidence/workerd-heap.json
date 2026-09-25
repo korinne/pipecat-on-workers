@@ -1,0 +1,13 @@
+{
+  "scope": "Local workerd Inspector Runtime.getHeapUsage; no production isolate memory claim",
+  "sampled_at": "2026-09-24T21:03:54.457Z",
+  "response": {
+    "id": 1,
+    "result": {
+      "usedSize": 11845116,
+      "totalSize": 24772608,
+      "embedderHeapUsedSize": 131600,
+      "backingStorageSize": 11013479
+    }
+  }
+}

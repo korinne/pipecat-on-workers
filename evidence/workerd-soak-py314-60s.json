@@ -1,0 +1,1382 @@
+{
+  "scope": "Four actual local Python Durable Objects; WebSocket PCM and synthetic provider events; silent fixture output, not real voice",
+  "requested_seconds": 60,
+  "samples": [
+    {
+      "elapsed_seconds": 0.05604333299999999,
+      "turns": 4,
+      "interruptions": 0,
+      "pipecat_tasks": 28,
+      "unacked_bytes": 0,
+      "context_messages": [
+        3,
+        3,
+        3,
+        3
+      ]
+    },
+    {
+      "elapsed_seconds": 58.462538667000004,
+      "turns": 52,
+      "interruptions": 16,
+      "pipecat_tasks": 28,
+      "unacked_bytes": 0,
+      "context_messages": [
+        23,
+        23,
+        23,
+        23
+      ]
+    }
+  ],
+  "voice_tested": false,
+  "errors": [],
+  "startup_ms": [
+    23.581209,
+    32.925709,
+    32.732208,
+    32.61504099999999
+  ],
+  "elapsed_seconds": 60.001931667,
+  "turns": 52,
+  "interruptions": 16,
+  "cleanup": [
+    {
+      "generation": 31,
+      "closed": true,
+      "pipecat_tasks": 0,
+      "unacked_audio_bytes": 0,
+      "pending_playback_chunks": 0,
+      "messages": 23,
+      "metrics": [
+        {
+          "event": "startup",
+          "elapsed_ms": 3,
+          "startup_ms": 3
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 32,
+          "dispatch_ms": 2,
+          "generation": 2
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 41,
+          "turn": "(1, 1)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 42,
+          "generation": 3
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 43,
+          "generation": 3,
+          "response_ms": 1
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 4911,
+          "dispatch_ms": 2,
+          "generation": 4
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 4921,
+          "turn": "(1, 2)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 4922,
+          "generation": 5
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 4923,
+          "generation": 5,
+          "response_ms": 1
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 9767,
+          "dispatch_ms": 2,
+          "generation": 6
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 9776,
+          "turn": "(1, 3)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 9777,
+          "generation": 7
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 9777,
+          "generation": 7,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 9808,
+          "dispatch_ms": 1,
+          "generation": 8
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 14632,
+          "dispatch_ms": 3,
+          "generation": 9
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 14644,
+          "turn": "(1, 4)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 14646,
+          "generation": 10
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 14646,
+          "generation": 10,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 19504,
+          "dispatch_ms": 1,
+          "generation": 11
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 19524,
+          "turn": "(1, 5)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 19525,
+          "generation": 12
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 19526,
+          "generation": 12,
+          "response_ms": 1
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 24359,
+          "dispatch_ms": 3,
+          "generation": 13
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 24373,
+          "turn": "(1, 6)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 24375,
+          "generation": 14
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 24376,
+          "generation": 14,
+          "response_ms": 1
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 24409,
+          "dispatch_ms": 1,
+          "generation": 15
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 29237,
+          "dispatch_ms": 4,
+          "generation": 16
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 29251,
+          "turn": "(1, 7)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 29254,
+          "generation": 17
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 29254,
+          "generation": 17,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 34102,
+          "dispatch_ms": 3,
+          "generation": 18
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 34120,
+          "turn": "(1, 8)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 34122,
+          "generation": 19
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 34122,
+          "generation": 19,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 38964,
+          "dispatch_ms": 3,
+          "generation": 20
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 38980,
+          "turn": "(1, 9)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 38982,
+          "generation": 21
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 38983,
+          "generation": 21,
+          "response_ms": 1
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 39016,
+          "dispatch_ms": 1,
+          "generation": 22
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 43845,
+          "dispatch_ms": 5,
+          "generation": 23
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 43853,
+          "turn": "(1, 10)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 43855,
+          "generation": 24
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 43855,
+          "generation": 24,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 48709,
+          "dispatch_ms": 3,
+          "generation": 25
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 48721,
+          "turn": "(1, 11)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 48723,
+          "generation": 26
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 48724,
+          "generation": 26,
+          "response_ms": 1
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 53564,
+          "dispatch_ms": 3,
+          "generation": 27
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 53580,
+          "turn": "(1, 12)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 53581,
+          "generation": 28
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 53582,
+          "generation": 28,
+          "response_ms": 1
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 53613,
+          "dispatch_ms": 1,
+          "generation": 29
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 58441,
+          "dispatch_ms": 4,
+          "generation": 30
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 58454,
+          "turn": "(1, 13)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 58456,
+          "generation": 31
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 58457,
+          "generation": 31,
+          "response_ms": 0
+        },
+        {
+          "event": "closed",
+          "elapsed_ms": 60040,
+          "reason": "ended"
+        }
+      ],
+      "fixture_live_generations": 0,
+      "fixture_live_syntheses": 0,
+      "fixture_provider_closed": true,
+      "fixture_audio_bytes_received": 1764480
+    },
+    {
+      "generation": 31,
+      "closed": true,
+      "pipecat_tasks": 0,
+      "unacked_audio_bytes": 0,
+      "pending_playback_chunks": 0,
+      "messages": 23,
+      "metrics": [
+        {
+          "event": "startup",
+          "elapsed_ms": 2,
+          "startup_ms": 2
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 22,
+          "dispatch_ms": 1,
+          "generation": 2
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 33,
+          "turn": "(1, 1)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 34,
+          "generation": 3
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 34,
+          "generation": 3,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 4903,
+          "dispatch_ms": 1,
+          "generation": 4
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 4920,
+          "turn": "(1, 2)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 4921,
+          "generation": 5
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 4922,
+          "generation": 5,
+          "response_ms": 1
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 9759,
+          "dispatch_ms": 1,
+          "generation": 6
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 9769,
+          "turn": "(1, 3)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 9770,
+          "generation": 7
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 9770,
+          "generation": 7,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 9807,
+          "dispatch_ms": 0,
+          "generation": 8
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 14627,
+          "dispatch_ms": 2,
+          "generation": 9
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 14638,
+          "turn": "(1, 4)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 14640,
+          "generation": 10
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 14640,
+          "generation": 10,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 19496,
+          "dispatch_ms": 2,
+          "generation": 11
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 19515,
+          "turn": "(1, 5)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 19517,
+          "generation": 12
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 19517,
+          "generation": 12,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 24354,
+          "dispatch_ms": 2,
+          "generation": 13
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 24368,
+          "turn": "(1, 6)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 24370,
+          "generation": 14
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 24370,
+          "generation": 14,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 24411,
+          "dispatch_ms": 2,
+          "generation": 15
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 29233,
+          "dispatch_ms": 3,
+          "generation": 16
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 29246,
+          "turn": "(1, 7)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 29247,
+          "generation": 17
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 29248,
+          "generation": 17,
+          "response_ms": 1
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 34095,
+          "dispatch_ms": 2,
+          "generation": 18
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 34112,
+          "turn": "(1, 8)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 34114,
+          "generation": 19
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 34114,
+          "generation": 19,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 38960,
+          "dispatch_ms": 3,
+          "generation": 20
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 38973,
+          "turn": "(1, 9)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 38975,
+          "generation": 21
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 38975,
+          "generation": 21,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 39007,
+          "dispatch_ms": 1,
+          "generation": 22
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 43841,
+          "dispatch_ms": 3,
+          "generation": 23
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 43860,
+          "turn": "(1, 10)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 43862,
+          "generation": 24
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 43862,
+          "generation": 24,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 48702,
+          "dispatch_ms": 1,
+          "generation": 25
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 48716,
+          "turn": "(1, 11)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 48717,
+          "generation": 26
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 48717,
+          "generation": 26,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 53560,
+          "dispatch_ms": 2,
+          "generation": 27
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 53577,
+          "turn": "(1, 12)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 53578,
+          "generation": 28
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 53579,
+          "generation": 28,
+          "response_ms": 1
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 53614,
+          "dispatch_ms": 1,
+          "generation": 29
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 58435,
+          "dispatch_ms": 1,
+          "generation": 30
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 58447,
+          "turn": "(1, 13)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 58449,
+          "generation": 31
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 58449,
+          "generation": 31,
+          "response_ms": 0
+        },
+        {
+          "event": "closed",
+          "elapsed_ms": 60035,
+          "reason": "ended"
+        }
+      ],
+      "fixture_live_generations": 0,
+      "fixture_live_syntheses": 0,
+      "fixture_provider_closed": true,
+      "fixture_audio_bytes_received": 1764480
+    },
+    {
+      "generation": 31,
+      "closed": true,
+      "pipecat_tasks": 0,
+      "unacked_audio_bytes": 0,
+      "pending_playback_chunks": 0,
+      "messages": 23,
+      "metrics": [
+        {
+          "event": "startup",
+          "elapsed_ms": 3,
+          "startup_ms": 3
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 20,
+          "dispatch_ms": 1,
+          "generation": 2
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 30,
+          "turn": "(1, 1)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 32,
+          "generation": 3
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 32,
+          "generation": 3,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 4900,
+          "dispatch_ms": 1,
+          "generation": 4
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 4918,
+          "turn": "(1, 2)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 4919,
+          "generation": 5
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 4919,
+          "generation": 5,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 9756,
+          "dispatch_ms": 1,
+          "generation": 6
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 9767,
+          "turn": "(1, 3)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 9768,
+          "generation": 7
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 9768,
+          "generation": 7,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 9805,
+          "dispatch_ms": 1,
+          "generation": 8
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 14625,
+          "dispatch_ms": 2,
+          "generation": 9
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 14640,
+          "turn": "(1, 4)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 14642,
+          "generation": 10
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 14642,
+          "generation": 10,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 19480,
+          "dispatch_ms": 3,
+          "generation": 11
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 19493,
+          "turn": "(1, 5)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 19495,
+          "generation": 12
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 19495,
+          "generation": 12,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 24354,
+          "dispatch_ms": 2,
+          "generation": 13
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 24366,
+          "turn": "(1, 6)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 24368,
+          "generation": 14
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 24368,
+          "generation": 14,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 24408,
+          "dispatch_ms": 1,
+          "generation": 15
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 29232,
+          "dispatch_ms": 2,
+          "generation": 16
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 29244,
+          "turn": "(1, 7)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 29246,
+          "generation": 17
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 29246,
+          "generation": 17,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 34094,
+          "dispatch_ms": 2,
+          "generation": 18
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 34110,
+          "turn": "(1, 8)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 34112,
+          "generation": 19
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 34112,
+          "generation": 19,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 38959,
+          "dispatch_ms": 2,
+          "generation": 20
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 38972,
+          "turn": "(1, 9)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 38973,
+          "generation": 21
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 38974,
+          "generation": 21,
+          "response_ms": 1
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 39005,
+          "dispatch_ms": 1,
+          "generation": 22
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 43842,
+          "dispatch_ms": 1,
+          "generation": 23
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 43859,
+          "turn": "(1, 10)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 43861,
+          "generation": 24
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 43861,
+          "generation": 24,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 48701,
+          "dispatch_ms": 2,
+          "generation": 25
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 48714,
+          "turn": "(1, 11)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 48716,
+          "generation": 26
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 48716,
+          "generation": 26,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 53559,
+          "dispatch_ms": 2,
+          "generation": 27
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 53569,
+          "turn": "(1, 12)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 53570,
+          "generation": 28
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 53571,
+          "generation": 28,
+          "response_ms": 1
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 53612,
+          "dispatch_ms": 1,
+          "generation": 29
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 58434,
+          "dispatch_ms": 2,
+          "generation": 30
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 58446,
+          "turn": "(1, 13)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 58447,
+          "generation": 31
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 58447,
+          "generation": 31,
+          "response_ms": 0
+        },
+        {
+          "event": "closed",
+          "elapsed_ms": 60034,
+          "reason": "ended"
+        }
+      ],
+      "fixture_live_generations": 0,
+      "fixture_live_syntheses": 0,
+      "fixture_provider_closed": true,
+      "fixture_audio_bytes_received": 1764480
+    },
+    {
+      "generation": 31,
+      "closed": true,
+      "pipecat_tasks": 0,
+      "unacked_audio_bytes": 0,
+      "pending_playback_chunks": 0,
+      "messages": 23,
+      "metrics": [
+        {
+          "event": "startup",
+          "elapsed_ms": 3,
+          "startup_ms": 3
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 17,
+          "dispatch_ms": 1,
+          "generation": 2
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 28,
+          "turn": "(1, 1)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 29,
+          "generation": 3
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 29,
+          "generation": 3,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 4899,
+          "dispatch_ms": 1,
+          "generation": 4
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 4916,
+          "turn": "(1, 2)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 4917,
+          "generation": 5
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 4917,
+          "generation": 5,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 9753,
+          "dispatch_ms": 1,
+          "generation": 6
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 9764,
+          "turn": "(1, 3)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 9765,
+          "generation": 7
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 9765,
+          "generation": 7,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 9802,
+          "dispatch_ms": 1,
+          "generation": 8
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 14622,
+          "dispatch_ms": 1,
+          "generation": 9
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 14638,
+          "turn": "(1, 4)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 14639,
+          "generation": 10
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 14639,
+          "generation": 10,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 19479,
+          "dispatch_ms": 2,
+          "generation": 11
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 19492,
+          "turn": "(1, 5)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 19493,
+          "generation": 12
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 19494,
+          "generation": 12,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 24352,
+          "dispatch_ms": 1,
+          "generation": 13
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 24364,
+          "turn": "(1, 6)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 24366,
+          "generation": 14
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 24366,
+          "generation": 14,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 24406,
+          "dispatch_ms": 1,
+          "generation": 15
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 29230,
+          "dispatch_ms": 1,
+          "generation": 16
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 29242,
+          "turn": "(1, 7)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 29244,
+          "generation": 17
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 29244,
+          "generation": 17,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 34099,
+          "dispatch_ms": 2,
+          "generation": 18
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 34111,
+          "turn": "(1, 8)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 34112,
+          "generation": 19
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 34113,
+          "generation": 19,
+          "response_ms": 1
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 38957,
+          "dispatch_ms": 1,
+          "generation": 20
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 38971,
+          "turn": "(1, 9)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 38973,
+          "generation": 21
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 38973,
+          "generation": 21,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 39008,
+          "dispatch_ms": 1,
+          "generation": 22
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 43840,
+          "dispatch_ms": 1,
+          "generation": 23
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 43857,
+          "turn": "(1, 10)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 43859,
+          "generation": 24
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 43859,
+          "generation": 24,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 48699,
+          "dispatch_ms": 2,
+          "generation": 25
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 48712,
+          "turn": "(1, 11)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 48714,
+          "generation": 26
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 48714,
+          "generation": 26,
+          "response_ms": 0
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 53557,
+          "dispatch_ms": 1,
+          "generation": 27
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 53567,
+          "turn": "(1, 12)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 53568,
+          "generation": 28
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 53569,
+          "generation": 28,
+          "response_ms": 1
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 53609,
+          "dispatch_ms": 0,
+          "generation": 29
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 58432,
+          "dispatch_ms": 1,
+          "generation": 30
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 58444,
+          "turn": "(1, 13)"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 58445,
+          "generation": 31
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 58445,
+          "generation": 31,
+          "response_ms": 0
+        },
+        {
+          "event": "closed",
+          "elapsed_ms": 60033,
+          "reason": "ended"
+        }
+      ],
+      "fixture_live_generations": 0,
+      "fixture_live_syntheses": 0,
+      "fixture_provider_closed": true,
+      "fixture_audio_bytes_received": 1764480
+    }
+  ],
+  "passed": true
+}

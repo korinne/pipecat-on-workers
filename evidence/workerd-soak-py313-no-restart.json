@@ -1,0 +1,190 @@
+{
+  "scope": "Four actual local Python Durable Objects; WebSocket PCM and synthetic provider events; silent fixture output, not real voice",
+  "started_at": "2026-09-24T21:40:26.956Z",
+  "requested_seconds": 600,
+  "samples": [
+    {
+      "elapsed_seconds": 0.054187165999999704,
+      "turns": 4,
+      "interruptions": 0,
+      "pipecat_tasks": 28,
+      "unacked_bytes": 0,
+      "context_messages": [
+        3,
+        3,
+        3,
+        3
+      ]
+    },
+    {
+      "elapsed_seconds": 63.37611279099999,
+      "turns": 56,
+      "interruptions": 16,
+      "pipecat_tasks": 28,
+      "unacked_bytes": 0,
+      "context_messages": [
+        25,
+        25,
+        25,
+        25
+      ]
+    },
+    {
+      "elapsed_seconds": 126.65820049999999,
+      "turns": 108,
+      "interruptions": 36,
+      "pipecat_tasks": 28,
+      "unacked_bytes": 0,
+      "context_messages": [
+        46,
+        46,
+        46,
+        46
+      ]
+    },
+    {
+      "elapsed_seconds": 190.04343545800003,
+      "turns": 160,
+      "interruptions": 52,
+      "pipecat_tasks": 28,
+      "unacked_bytes": 0,
+      "context_messages": [
+        68,
+        68,
+        68,
+        68
+      ]
+    },
+    {
+      "elapsed_seconds": 253.36084133300002,
+      "turns": 212,
+      "interruptions": 68,
+      "pipecat_tasks": 28,
+      "unacked_bytes": 0,
+      "context_messages": [
+        81,
+        81,
+        81,
+        81
+      ]
+    },
+    {
+      "elapsed_seconds": 312.424874833,
+      "turns": 260,
+      "interruptions": 84,
+      "pipecat_tasks": 28,
+      "unacked_bytes": 0,
+      "context_messages": [
+        81,
+        81,
+        81,
+        81
+      ]
+    },
+    {
+      "elapsed_seconds": 375.796691125,
+      "turns": 312,
+      "interruptions": 104,
+      "pipecat_tasks": 28,
+      "unacked_bytes": 0,
+      "context_messages": [
+        81,
+        81,
+        81,
+        81
+      ]
+    },
+    {
+      "elapsed_seconds": 439.115320583,
+      "turns": 364,
+      "interruptions": 120,
+      "pipecat_tasks": 28,
+      "unacked_bytes": 0,
+      "context_messages": [
+        81,
+        81,
+        81,
+        81
+      ]
+    },
+    {
+      "elapsed_seconds": 502.427513291,
+      "turns": 416,
+      "interruptions": 136,
+      "pipecat_tasks": 28,
+      "unacked_bytes": 0,
+      "context_messages": [
+        81,
+        81,
+        81,
+        81
+      ]
+    }
+  ],
+  "voice_tested": false,
+  "errors": [
+    "Error: Timeout: turn clear"
+  ],
+  "startup_ms": [
+    42.88354200000049,
+    64.2895410000001,
+    64.08050000000003,
+    63.89287500000046
+  ],
+  "elapsed_seconds": 526.997980875,
+  "turns": 424,
+  "attempted_turns": 428,
+  "interruptions": 140,
+  "socket_closes": [
+    {
+      "code": 1006,
+      "reason": "",
+      "elapsed_since_connect_seconds": 516.5443038340001
+    },
+    {
+      "code": 1006,
+      "reason": "",
+      "elapsed_since_connect_seconds": 516.542938875
+    },
+    {
+      "code": 1006,
+      "reason": "",
+      "elapsed_since_connect_seconds": 516.543313041
+    },
+    {
+      "code": 1006,
+      "reason": "",
+      "elapsed_since_connect_seconds": 516.5431553750001
+    }
+  ],
+  "cleanup": [
+    {
+      "diagnostics_failed": "TimeoutError: The operation was aborted due to timeout"
+    },
+    {
+      "diagnostics_failed": "TimeoutError: The operation was aborted due to timeout"
+    },
+    {
+      "diagnostics_failed": "TimeoutError: The operation was aborted due to timeout"
+    },
+    {
+      "diagnostics_failed": "TimeoutError: The operation was aborted due to timeout"
+    }
+  ],
+  "passed": false,
+  "finished_at": "2026-09-24T21:49:29.850Z",
+  "runtime": {
+    "python": "3.13.2",
+    "pyodide": "0.28.2",
+    "compatibility_date": "2026-08-01",
+    "workerd": "1.20260923.1"
+  },
+  "test_conditions": "Fresh frozen Worker process. No controlled restart, debugger, reload, or source edits. Ran in parallel with Python3.14 comparison processes.",
+  "cleanup_limitation": "Runtime crashed; diagnostics after reconstruction do not demonstrate orderly cleanup of the failed pipelines.",
+  "source_sha256": {
+    "src/entry.py": "c10fd46aef78ba389f8f7c7bb5c07f45c047771082cf593a1122da0b2f0b442a",
+    "src/conversation.py": "b61a20279acc515c4593e209606bfb68337c992535732cb7d6504f2dcec5102f",
+    "src/providers.py": "67262c2c883a65ea288d39deda15f233b53e4f9047b6dc5b1d446b739ff96e0e",
+    "src/runtime_probe.py": "352cdae0cc4e4ac8dadee6ba39ce5b9717f488f6ebddf8220bd756dbb6e77479"
+  }
+}

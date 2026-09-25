@@ -1,0 +1,20 @@
+{
+  "checked_at": "2026-09-25T00:19:49.864Z",
+  "deployment_version_id": "76eb1ebf-32de-4291-9364-466953c444a1",
+  "build_and_asset_checks_passed": true,
+  "live_access_status": 200,
+  "live_asset_hash_matches": [
+    "app.js",
+    "index.html",
+    "style.css",
+    "capture-processor.js"
+  ],
+  "browser_fake_io_tests": 29,
+  "python_tests": 23,
+  "python_subtests": 10,
+  "entry_lifecycle_fake_cases": 7,
+  "access_fake_cases": 22,
+  "physical_microphone_validated": false,
+  "physical_speaker_validated": false,
+  "note": "The user reported speech produced no transcript. Physical browser diagnosis remains separate from these automated checks."
+}

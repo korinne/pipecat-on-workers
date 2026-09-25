@@ -1,0 +1,24 @@
+{"elapsed_seconds":0.054132125,"turns":4,"interruptions":0,"pipecat_tasks":28,"unacked_bytes":0,"context_messages":[3,3,3,3]}
+{"elapsed_seconds":63.400031541999994,"turns":56,"interruptions":16,"pipecat_tasks":28,"unacked_bytes":0,"context_messages":[25,25,25,25]}
+{"elapsed_seconds":126.72769841700001,"turns":108,"interruptions":36,"pipecat_tasks":28,"unacked_bytes":0,"context_messages":[46,46,46,46]}
+{"elapsed_seconds":190.092854042,"turns":160,"interruptions":52,"pipecat_tasks":28,"unacked_bytes":0,"context_messages":[68,68,68,68]}
+{"elapsed_seconds":253.550080959,"turns":212,"interruptions":68,"pipecat_tasks":28,"unacked_bytes":0,"context_messages":[81,81,81,81]}
+{"elapsed_seconds":316.960099292,"turns":264,"interruptions":88,"pipecat_tasks":28,"unacked_bytes":0,"context_messages":[81,81,81,81]}
+{"elapsed_seconds":380.383122834,"turns":316,"interruptions":104,"pipecat_tasks":28,"unacked_bytes":0,"context_messages":[81,81,81,81]}
+{"elapsed_seconds":443.856586167,"turns":368,"interruptions":120,"pipecat_tasks":28,"unacked_bytes":0,"context_messages":[81,81,81,81]}
+{"elapsed_seconds":507.269535667,"turns":420,"interruptions":140,"pipecat_tasks":28,"unacked_bytes":0,"context_messages":[81,81,81,81]}
+file://<workspace>/outputs/pipecat-python-do/scripts/soak_worker.mjs:5
+const wait = async (test,label,ms=10000)=>{const end=Date.now()+ms;while(!test()){if(Date.now()>end)throw Error(`Timeout: ${label}`);await sleep(10);}};
+                                                                                                          ^
+
+Error: Timeout: turn clear
+    at wait (file://<workspace>/outputs/pipecat-python-do/scripts/soak_worker.mjs:5:107)
+    at runNextTicks (node:internal/process/task_queues:65:5)
+    at listOnTimeout (node:internal/timers:555:9)
+    at process.processTimers (node:internal/timers:529:7)
+    at async turn (file://<workspace>/outputs/pipecat-python-do/scripts/soak_worker.mjs:14:216)
+    at async file://<workspace>/outputs/pipecat-python-do/scripts/soak_worker.mjs:31:4
+    at async Promise.all (index 0)
+    at async file://<workspace>/outputs/pipecat-python-do/scripts/soak_worker.mjs:28:3
+
+Node.js v22.7.0

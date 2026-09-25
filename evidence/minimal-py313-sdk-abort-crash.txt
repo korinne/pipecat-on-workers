@@ -1,0 +1,199 @@
+
+ ⛅️ wrangler 4.139.0
+────────────────────
+Your Worker has access to the following bindings:
+Binding                     Resource            Mode
+env.SOCKETS (SocketDO)      Durable Object      local
+
+Attaching additional modules:
+┌────────────────────┬──────┬───────────┐
+│ Name               │ Type │ Size      │
+├────────────────────┼──────┼───────────┤
+│ Vendored Modules   │      │ 96.32 KiB │
+├────────────────────┼──────┼───────────┤
+│ Total (20 modules) │      │ 96.32 KiB │
+└────────────────────┴──────┴───────────┘
+⎔ Starting local server...
+Wrangler detected this dev session is running in an AI agent.
+The Local Explorer API is available at http://127.0.0.1:8791/cdn-cgi/local/explorer/api
+Useful routes:
+  GET http://127.0.0.1:8791/cdn-cgi/local/explorer/api/local/workers - local Workers and bindings
+  POST http://127.0.0.1:8791/cdn-cgi/local/explorer/api/local/scheduled?worker=<name> - invoke a Worker's scheduled handler; cron is required (see the OpenAPI schema for the full request)
+  GET http://127.0.0.1:8791/cdn-cgi/local/explorer/api/storage/kv/namespaces - KV namespaces
+  GET http://127.0.0.1:8791/cdn-cgi/local/explorer/api/d1/database - D1 databases
+  GET http://127.0.0.1:8791/cdn-cgi/local/explorer/api/r2/buckets - R2 buckets
+  GET http://127.0.0.1:8791/cdn-cgi/local/explorer/api/workers/durable_objects/namespaces - Durable Object namespaces
+  GET http://127.0.0.1:8791/cdn-cgi/local/explorer/api/workflows - Workflows
+  POST http://127.0.0.1:8791/cdn-cgi/local/explorer/api/local/observability/query - run a read-only SQL query (SELECT/WITH only) over captured request traces and console logs. Tables: spans, logs (read attributes via json(attributes)). Example:
+    curl -X POST http://127.0.0.1:8791/cdn-cgi/local/explorer/api/local/observability/query -H 'Content-Type: application/json' -d '{"sql":"SELECT service, name, outcome, duration_ms FROM spans WHERE parent_id IS NULL LIMIT 20"}'
+  POST http://127.0.0.1:8791/cdn-cgi/local/explorer/api/local/observability/clear - clear all captured traces and logs
+If the routes above don't cover what you need, fetch the full OpenAPI schema (large - use only as a last resort):
+  GET http://127.0.0.1:8791/cdn-cgi/local/explorer/api - OpenAPI schema
+[wrangler:info] Ready on http://127.0.0.1:8791
+[wrangler:info] GET /test-1790284705835-0 101 Switching Protocols (3284ms)
+[wrangler:info] GET /test-1790284705835-3 101 Switching Protocols (3301ms)
+[wrangler:info] GET /test-1790284705835-2 101 Switching Protocols (3301ms)
+[wrangler:info] GET /test-1790284705835-1 101 Switching Protocols (3301ms)
+[wrangler:info] GET /test-1790284775366-2 101 Switching Protocols (15ms)
+[wrangler:info] GET /test-1790284775366-1 101 Switching Protocols (15ms)
+[wrangler:info] GET /test-1790284775366-0 101 Switching Protocols (16ms)
+[wrangler:info] GET /test-1790284775366-3 101 Switching Protocols (19ms)
+[31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mUncaught Error: Minimal controlled abort experiment [0m
+
+
+[31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mUncaught PythonError: Traceback (most recent call last):[0m
+
+    File "introspection.py", line 88, in wrapper_func
+      return python_to_rpc(await result)
+                           ^^^^^^^^^^^^
+    File "/session/metadata/entry.py", line 20, in fetch
+      return await stub.fetch(request)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/session/metadata/python_modules/workers/fetch.py", line 43, in fetch
+      resp = await _pyfetch_patched(resource, **other_options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/lib/python313.zip/pyodide/http.py", line 458, in pyfetch
+      raise AbortError(e) from None
+  pyodide.http.AbortError: Minimal controlled abort experiment
+   Error
+      at new_error (pyodideRuntime-internal:emscriptenSetup:21852:14)
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at wrapper (pyodideRuntime-internal:emscriptenSetup:27018:28)
+      at promisingApply2 (pyodideRuntime-internal:emscriptenSetup:27003:16)
+      at callPyObjectKwargsPromising (pyodideRuntime-internal:emscriptenSetup:24506:60)
+      at Module.callPyObjectMaybePromising (pyodideRuntime-internal:emscriptenSetup:24529:47)
+      at wrapper (pyodideRuntime-internal:emscriptenSetup:22781:29)
+      at e.port1.onmessage (pyodideRuntime-internal:emscriptenSetup:26433:75)
+
+
+[31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mUncaught PythonError: Traceback (most recent call last):[0m
+
+    File "introspection.py", line 88, in wrapper_func
+      return python_to_rpc(await result)
+                           ^^^^^^^^^^^^
+    File "/session/metadata/entry.py", line 20, in fetch
+      return await stub.fetch(request)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/session/metadata/python_modules/workers/fetch.py", line 43, in fetch
+      resp = await _pyfetch_patched(resource, **other_options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/lib/python313.zip/pyodide/http.py", line 458, in pyfetch
+      raise AbortError(e) from None
+  pyodide.http.AbortError: Minimal controlled abort experiment
+   
+
+
+[wrangler:info] POST /test-1790284775366-separate/abort 500 Internal Server Error (25ms)
+[31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mUncaught RuntimeError: memory access out of bounds[0m
+
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at [object Object]
+      at callPyObjectKwargs (pyodideRuntime-internal:emscriptenSetup:24487:37)
+      at Module.callPyObject (pyodideRuntime-internal:emscriptenSetup:24532:18)
+      at apply (pyodideRuntime-internal:emscriptenSetup:25438:60)
+      at apply (pyodideRuntime-internal:emscriptenSetup:25250:22)
+
+
+[31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mUncaught #<ErrnoError> Error[0m
+
+      at mknod (pyodideRuntime-internal:emscriptenSetup:3871:11)
+      at mkdev (pyodideRuntime-internal:emscriptenSetup:3940:19)
+      at createDevice (pyodideRuntime-internal:emscriptenSetup:4754:19)
+      at API.capture_stderr (pyodideRuntime-internal:emscriptenSetup:23869:23)
+      at capture_stderr (pyodideRuntime-internal:emscriptenSetup:21860:11)
+      at [object Object]
+      at [object Object]
+      at callPyObjectKwargs (pyodideRuntime-internal:emscriptenSetup:24487:37)
+      at Module.callPyObject (pyodideRuntime-internal:emscriptenSetup:24532:18)
+      at apply (pyodideRuntime-internal:emscriptenSetup:25438:60)
+      at apply (pyodideRuntime-internal:emscriptenSetup:25250:22)
+
+
+[31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mUncaught Error: Network connection lost. [0m
+
+
+[31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mUncaught Error: Network connection lost. [0m
+
+
+[31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mUncaught #<ErrnoError> Error[0m
+
+      at mknod (pyodideRuntime-internal:emscriptenSetup:3871:11)
+      at mkdev (pyodideRuntime-internal:emscriptenSetup:3940:19)
+      at createDevice (pyodideRuntime-internal:emscriptenSetup:4754:19)
+      at API.capture_stderr (pyodideRuntime-internal:emscriptenSetup:23869:23)
+      at capture_stderr (pyodideRuntime-internal:emscriptenSetup:21860:11)
+      at [object Object]
+      at [object Object]
+      at callPyObjectKwargs (pyodideRuntime-internal:emscriptenSetup:24487:37)
+      at Module.callPyObject (pyodideRuntime-internal:emscriptenSetup:24532:18)
+      at apply (pyodideRuntime-internal:emscriptenSetup:25438:60)
+      at apply (pyodideRuntime-internal:emscriptenSetup:25250:22)
+
+
+[31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mUncaught Error: Network connection lost. [0m
+
+
+[31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mUncaught #<ErrnoError> Error[0m
+
+      at mknod (pyodideRuntime-internal:emscriptenSetup:3871:11)
+      at mkdev (pyodideRuntime-internal:emscriptenSetup:3940:19)
+      at createDevice (pyodideRuntime-internal:emscriptenSetup:4754:19)
+      at API.capture_stderr (pyodideRuntime-internal:emscriptenSetup:23869:23)
+      at capture_stderr (pyodideRuntime-internal:emscriptenSetup:21860:11)
+      at [object Object]
+      at [object Object]
+      at callPyObjectKwargs (pyodideRuntime-internal:emscriptenSetup:24487:37)
+      at Module.callPyObject (pyodideRuntime-internal:emscriptenSetup:24532:18)
+      at apply (pyodideRuntime-internal:emscriptenSetup:25438:60)
+      at apply (pyodideRuntime-internal:emscriptenSetup:25250:22)
+
+
+[31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mUncaught Error: Network connection lost. [0m
+
+
+Attaching additional modules:
+┌────────────────────┬──────┬───────────┐
+│ Name               │ Type │ Size      │
+├────────────────────┼──────┼───────────┤
+│ Vendored Modules   │      │ 96.32 KiB │
+├────────────────────┼──────┼───────────┤
+│ Total (20 modules) │      │ 96.32 KiB │
+└────────────────────┴──────┴───────────┘
+⎔ Reloading local server...
+⎔ Local server updated and ready
+🪵  Logs were written to "<workspace>/work/wrangler-logs/wrangler-2026-09-24_21-18-13_094.log"

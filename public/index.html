@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>pipecat-on-workers · Voice conversation</title>
+  <link rel="stylesheet" href="/style.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <main>
+    <header><span class="brand">pipecat-on-workers</span><span class="badge">Runtime spike</span></header>
+    <section class="intro">
+      <p class="eyebrow">A conversation at the edge</p>
+      <h1>Let’s talk.</h1>
+      <p class="description">Speak naturally, pause, or interrupt. Your agent can help you find a fictional appointment.</p>
+    </section>
+    <section class="conversation" aria-label="Voice conversation">
+      <div class="session-bar"><div class="connection"><span id="status-dot" class="status-dot"></span><span id="status" role="status">Ready when you are</span></div><span id="session-time">00:00</span></div>
+      <div id="transcript" class="transcript" role="log" aria-label="Conversation transcript" aria-live="polite" aria-relevant="additions text">
+        <div id="empty-state" class="empty-state"><div class="voice-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div><p>Your conversation starts here.</p><span>Allow microphone access after pressing Start.</span></div>
+      </div>
+      <div class="access-row"><label for="access-key">Demo access key</label><input id="access-key" type="password" autocomplete="off" spellcheck="false" placeholder="Paste the full key" aria-describedby="key-status"><button id="load-key" type="button">Load key file</button><input id="key-file" type="file" accept=".txt,text/plain" aria-label="Demo access key file" hidden><span id="key-status" class="key-status" role="status"></span></div>
+      <div class="controls"><button id="start" class="primary" type="button"><span aria-hidden="true">↗</span> Start conversation</button><button id="mute" type="button" aria-pressed="false" disabled>Mute microphone</button><button id="end" class="end" type="button" disabled>End</button></div>
+      <div class="microphone-health"><meter id="mic-level" min="0" max="1" value="0" aria-label="Microphone input level"></meter><span id="mic-signal" role="status">Microphone not started</span><button id="resume-audio" type="button" hidden>Resume audio</button></div>
+      <p class="input-hint" id="input-hint">Headphones help keep interruptions accurate.</p>
+    </section>
+    <p id="notice" class="notice" role="alert" hidden></p>
+    <details class="diagnostics"><summary>Session details</summary><dl><div><dt>Startup</dt><dd id="metric-startup">—</dd></div><div><dt>First audio after transcript</dt><dd id="metric-response">—</dd></div><div><dt>Local playback clear</dt><dd id="metric-clear">—</dd></div><div><dt>Audio waiting</dt><dd id="metric-queue">0 ms</dd></div><div><dt>Microphone sample rate</dt><dd id="metric-samplerate">—</dd></div><div><dt>Audio engine</dt><dd id="metric-audio-state">—</dd></div><div><dt>Microphone input</dt><dd id="metric-input-track">—</dd></div><div><dt>Captured audio</dt><dd id="metric-captured">0 ms</dd></div><div><dt>Audio sent</dt><dd id="metric-sent">0 ms</dd></div><div><dt>Server received</dt><dd id="metric-received">0 ms</dd></div><div><dt>Speech service sent</dt><dd id="metric-forwarded">0 ms</dd></div><div><dt>Peak input level</dt><dd id="metric-input-peak">0</dd></div><div><dt>Reconnects</dt><dd id="metric-reconnect">0</dd></div></dl><p>Playback clear measures browser scheduling, not physical speaker silence. First-audio timing starts at the final user transcript, so it excludes recognition latency. Final assistant text may include words that were interrupted.</p><button id="download-metrics" type="button">Download measurements</button></details>
+    <footer>One conversation · one Python Durable Object<br>Audio is sent to remote speech and language services.</footer>
+  </main>
+</body>
+</html>

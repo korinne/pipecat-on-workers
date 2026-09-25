@@ -1,0 +1,32 @@
+{
+  "passed": true,
+  "scope": "CPython core runtime; synthetic frames, no provider audio",
+  "generations": 2,
+  "server_cancellation_ms": 0.318,
+  "interruption_frames": 2,
+  "context": [
+    {
+      "role": "system",
+      "content": "Compatibility check."
+    },
+    {
+      "role": "user",
+      "content": "First question."
+    },
+    {
+      "role": "assistant",
+      "content": "Acknowledged prefix."
+    },
+    {
+      "role": "user",
+      "content": "New question."
+    },
+    {
+      "role": "assistant",
+      "content": "Second reply."
+    }
+  ],
+  "live_pipecat_tasks_after_cancel": [],
+  "forbidden_imports_loaded": [],
+  "threads_created": 0
+}

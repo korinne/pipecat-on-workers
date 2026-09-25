@@ -1,0 +1,41 @@
+{
+  "checked_at": "2026-09-24T23:58:08.253Z",
+  "deployment_version_id": "33a5c3ed-17ba-47a7-9c77-db90cfbf3114",
+  "passed": true,
+  "tests": [
+    {
+      "kind": "missing",
+      "status": 401,
+      "code": "access_key_required",
+      "verified": false,
+      "session_created": false
+    },
+    {
+      "kind": "incorrect",
+      "status": 401,
+      "code": "invalid_access_key",
+      "verified": false,
+      "session_created": false
+    },
+    {
+      "kind": "delivered",
+      "status": 200,
+      "verified": true,
+      "session_created": false
+    },
+    {
+      "kind": "delivered_session",
+      "status": 201,
+      "verified": false,
+      "session_created": true
+    }
+  ],
+  "frontend_tests": 25,
+  "backend_auth_fake_cases": 22,
+  "startup_lifecycle_fake_cases": 7,
+  "provider_calls_started": 0,
+  "browser_file_import_verified": true,
+  "browser_visible_confirmation": "Access key verified. Press Start conversation.",
+  "microphone_started_for_auth_check": false,
+  "credential_printed": false
+}

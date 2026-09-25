@@ -1,0 +1,77 @@
+{
+  "scope": "Four minimal Python Durable Objects, no Pipecat/providers; WebSocket JSON/base64 decode only",
+  "seconds": 30,
+  "burst_per_20ms": 20,
+  "controlled_abort": true,
+  "errors": [
+    "Error: Socket closed before experiment ended"
+  ],
+  "calls": [
+    {
+      "sent": 13540,
+      "closed": {
+        "code": 1006,
+        "reason": ""
+      },
+      "last": {
+        "type": "progress",
+        "messages": 13000,
+        "decoded_bytes": 8320000,
+        "errors": 0,
+        "peak_queue": 1,
+        "python": "3.13.2",
+        "connected": true
+      }
+    },
+    {
+      "sent": 13520,
+      "closed": {
+        "code": 1006,
+        "reason": ""
+      },
+      "last": {
+        "type": "progress",
+        "messages": 13000,
+        "decoded_bytes": 8320000,
+        "errors": 0,
+        "peak_queue": 1,
+        "python": "3.13.2",
+        "connected": true
+      }
+    },
+    {
+      "sent": 13520,
+      "closed": {
+        "code": 1006,
+        "reason": ""
+      },
+      "last": {
+        "type": "progress",
+        "messages": 13000,
+        "decoded_bytes": 8320000,
+        "errors": 0,
+        "peak_queue": 1,
+        "python": "3.13.2",
+        "connected": true
+      }
+    },
+    {
+      "sent": 13520,
+      "closed": {
+        "code": 1006,
+        "reason": ""
+      },
+      "last": {
+        "type": "progress",
+        "messages": 13000,
+        "decoded_bytes": 8320000,
+        "errors": 0,
+        "peak_queue": 1,
+        "python": "3.13.2",
+        "connected": true
+      }
+    }
+  ],
+  "abort_response": 500,
+  "passed": false
+}

@@ -1,0 +1,259 @@
+{
+  "passed": true,
+  "test_kind": "real_pipecat_synthetic_io_soak",
+  "requested_seconds": 600.0,
+  "actual_wall_seconds": 600.001,
+  "ten_minutes_elapsed": true,
+  "simultaneous_sessions": 4,
+  "turns": [
+    119,
+    119,
+    119,
+    119
+  ],
+  "input_audio_frames": [
+    7203,
+    7203,
+    7203,
+    7203
+  ],
+  "input_pcm_bytes": [
+    18439680,
+    18439680,
+    18439680,
+    18439680
+  ],
+  "audio_description": "silent PCM16 fixture, 16 kHz mono; injected turn events and receipts",
+  "playback_interruptions": 316,
+  "stale_receipts_ignored": 948,
+  "cross_session_leaks": 0,
+  "peak_unacked_pcm_bytes_per_session": 14400,
+  "peak_pipecat_tasks_all_sessions": 28,
+  "pipecat_tasks_before_close": [
+    7,
+    7,
+    7,
+    7
+  ],
+  "pipecat_tasks_after_close": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "pending_playback_after_close": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "session_startup": {
+    "samples": 4,
+    "min_ms": 5.851,
+    "median_ms": 7.755,
+    "p95_ms": 9.022,
+    "max_ms": 9.022
+  },
+  "fixture_response_to_first_audio": {
+    "samples": 476,
+    "min_ms": 0.315,
+    "median_ms": 1.239,
+    "p95_ms": 3.666,
+    "max_ms": 5.793
+  },
+  "server_interruption_to_clear_dispatch": {
+    "samples": 476,
+    "min_ms": 1.109,
+    "median_ms": 2.495,
+    "p95_ms": 9.006,
+    "max_ms": 13.841
+  },
+  "samples": [
+    {
+      "elapsed_seconds": 0.019,
+      "turns": 4,
+      "pipeline_tasks": 28,
+      "unacked_pcm_bytes": 38400,
+      "context_messages": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "playback_interruptions": 0,
+      "errors": 0,
+      "cpython_tracemalloc_current_bytes": 14846264,
+      "cpython_tracemalloc_peak_bytes": 17659777
+    },
+    {
+      "elapsed_seconds": 60.094,
+      "turns": 48,
+      "pipeline_tasks": 28,
+      "unacked_pcm_bytes": 0,
+      "context_messages": [
+        17,
+        17,
+        17,
+        17
+      ],
+      "playback_interruptions": 32,
+      "errors": 0,
+      "cpython_tracemalloc_current_bytes": 14974448,
+      "cpython_tracemalloc_peak_bytes": 17659777
+    },
+    {
+      "elapsed_seconds": 120.176,
+      "turns": 96,
+      "pipeline_tasks": 28,
+      "unacked_pcm_bytes": 0,
+      "context_messages": [
+        33,
+        33,
+        33,
+        33
+      ],
+      "playback_interruptions": 64,
+      "errors": 0,
+      "cpython_tracemalloc_current_bytes": 15097815,
+      "cpython_tracemalloc_peak_bytes": 17659777
+    },
+    {
+      "elapsed_seconds": 180.224,
+      "turns": 144,
+      "pipeline_tasks": 28,
+      "unacked_pcm_bytes": 0,
+      "context_messages": [
+        49,
+        49,
+        49,
+        49
+      ],
+      "playback_interruptions": 96,
+      "errors": 0,
+      "cpython_tracemalloc_current_bytes": 15198731,
+      "cpython_tracemalloc_peak_bytes": 17659777
+    },
+    {
+      "elapsed_seconds": 240.263,
+      "turns": 192,
+      "pipeline_tasks": 28,
+      "unacked_pcm_bytes": 0,
+      "context_messages": [
+        65,
+        65,
+        65,
+        65
+      ],
+      "playback_interruptions": 128,
+      "errors": 0,
+      "cpython_tracemalloc_current_bytes": 15263847,
+      "cpython_tracemalloc_peak_bytes": 17659777
+    },
+    {
+      "elapsed_seconds": 300.269,
+      "turns": 240,
+      "pipeline_tasks": 28,
+      "unacked_pcm_bytes": 0,
+      "context_messages": [
+        81,
+        81,
+        81,
+        81
+      ],
+      "playback_interruptions": 160,
+      "errors": 0,
+      "cpython_tracemalloc_current_bytes": 15327980,
+      "cpython_tracemalloc_peak_bytes": 17659777
+    },
+    {
+      "elapsed_seconds": 360.331,
+      "turns": 288,
+      "pipeline_tasks": 28,
+      "unacked_pcm_bytes": 0,
+      "context_messages": [
+        81,
+        81,
+        81,
+        81
+      ],
+      "playback_interruptions": 192,
+      "errors": 0,
+      "cpython_tracemalloc_current_bytes": 15339420,
+      "cpython_tracemalloc_peak_bytes": 17659777
+    },
+    {
+      "elapsed_seconds": 420.377,
+      "turns": 336,
+      "pipeline_tasks": 28,
+      "unacked_pcm_bytes": 0,
+      "context_messages": [
+        81,
+        81,
+        81,
+        81
+      ],
+      "playback_interruptions": 224,
+      "errors": 0,
+      "cpython_tracemalloc_current_bytes": 15373809,
+      "cpython_tracemalloc_peak_bytes": 17659777
+    },
+    {
+      "elapsed_seconds": 480.442,
+      "turns": 381,
+      "pipeline_tasks": 28,
+      "unacked_pcm_bytes": 28800,
+      "context_messages": [
+        81,
+        81,
+        81,
+        81
+      ],
+      "playback_interruptions": 253,
+      "errors": 0,
+      "cpython_tracemalloc_current_bytes": 15384087,
+      "cpython_tracemalloc_peak_bytes": 17659777
+    },
+    {
+      "elapsed_seconds": 540.484,
+      "turns": 428,
+      "pipeline_tasks": 28,
+      "unacked_pcm_bytes": 38400,
+      "context_messages": [
+        81,
+        81,
+        81,
+        81
+      ],
+      "playback_interruptions": 284,
+      "errors": 0,
+      "cpython_tracemalloc_current_bytes": 15395592,
+      "cpython_tracemalloc_peak_bytes": 17659777
+    },
+    {
+      "elapsed_seconds": 600.001,
+      "turns": 476,
+      "pipeline_tasks": 28,
+      "unacked_pcm_bytes": 38400,
+      "context_messages": [
+        81,
+        81,
+        81,
+        81
+      ],
+      "playback_interruptions": 316,
+      "errors": 0,
+      "cpython_tracemalloc_current_bytes": 15403567,
+      "cpython_tracemalloc_peak_bytes": 17659777
+    }
+  ],
+  "errors": [],
+  "python": "3.13.15",
+  "runtime_platform": "Darwin",
+  "actual_voice_conversation": false,
+  "provider_network_tested": false,
+  "audible_interruption_tested": false,
+  "total_runtime_memory_measured": false,
+  "execution_environment": "local CPython, not Cloudflare Durable Object",
+  "memory_limitations": "tracemalloc began before Pipecat import; traced Python allocations only, not process RSS, WASM or isolate memory",
+  "source_version_limitation": "This run imported conversation.py at approximately 13:56 local time. Provider failure handling, playback receipt cap and status generation tagging were revised on disk around 14:02 during the run and were not loaded by the running process. The updated source passed the separate 13-test CPython suite. The run used the same vendored Pipecat 1.11.0 core."
+}
