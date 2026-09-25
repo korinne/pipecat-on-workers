@@ -1,0 +1,62 @@
+{
+  "checked_at": "2026-09-25T17:25:58.412500+00:00",
+  "implementation_commit": "bc38cea4513118fc6c398b45e9f4f0178496a188",
+  "deployed_version": "acc191fa-56ef-4fc7-a4fa-8545061a079d",
+  "deployed_source_hashes_match": true,
+  "runtime_behavior_changed_during_review": false,
+  "scope": "Offline regression and provenance review; no new network/provider/physical acceptance run.",
+  "current_checks": {
+    "python_tests": 41,
+    "browser_tests": 50,
+    "harness_tests": 12,
+    "sfu_entry_cases": 10,
+    "entry_lifecycle_cases": 7,
+    "access_cases": 22,
+    "pipecat_thread_and_native_import_guard": "passed",
+    "provider_adapter_checks": "passed"
+  },
+  "reconstructed_websocket_baseline": {
+    "commit": "c51f437",
+    "runtime_browser_and_config_hashes_match_version": "34485c22-3b1c-442a-894e-46563075710a",
+    "python_tests": 23,
+    "browser_tests": 29,
+    "harness_tests": 12
+  },
+  "source_sha256": {
+    "src/entry.py": "eb445816e2ece486b987bb3fd4d1b5f0fbf234cfc57bb2f69ab740b420c963f0",
+    "src/conversation.py": "463cbff0ee0598f50680e086f10ba8dca208d0e695dc2ef1e8df72ba27ad40af",
+    "src/sfu_transport.py": "ad92c2bc2bf2bc9b4bb3e7f506bb4327e18fd31ee5a7c4fd5a61c7d097e6e1d6",
+    "src/sfu_codec.py": "1e1900fa9f54e6fef5142c846a75dcd09342d912e5f43b07d4d0324122698e57",
+    "src/providers.py": "ef9e2070bc32dec27da203f5509b83025e24e084aaaac7835868f1b3adad984c",
+    "wrangler.jsonc": "a8e28d209ef1aa60e3b6040071e7ec4e8fb9cdff0e0cb450a818c56cbd448bf1",
+    "public/index.html": "86f0185e8971c9940b339e3ba7f6ac518495db447bf3288b5daff419ac321bea",
+    "public/websocket.html": "6394413f91931872fb325c166c8c1c0c69db40c59b58922aa4fa631493cf0910",
+    "public/webrtc.html": "ccc00a0e5b232fa98d891fee7f819969d06b6091fb8679c28012cf7736bdf54d",
+    "public/app.js": "c5df34c1d683b5c796a69e348caace511c1542024875a5eda9c968e5ee51a088",
+    "public/sfu-client.mjs": "6f984fba0a7764cbdc827121fa82192d126d0829e5fc84595e7481cfab39f362",
+    "public/style.css": "6be29bb21d0ac0daa48aa9a252146a276e64b12766f1aeabf3b5d16e761ffd7b",
+    "public/capture-processor.js": "153a2e6c49de42e105833ecfbecb41feee8f398fe03ae12b6642cfb33786089f",
+    "package.json": "27da0f564cba49f24d8a940439d3d63fc640e4c58e9379b556aebc9658b388e4",
+    "package-lock.json": "61e07146ebbbdc37ddeb4751e64bb69dc1e817be6912103b631e9436fc920a90",
+    "pyproject.toml": "9e838dfa51ff0312b1795209bcab9c25797a99138c6005e3f5e1e17d494c1e34",
+    "uv.lock": "bd189efe3d122e07060777525bd95e54cbe54d30c683257fb60f2895982a8965",
+    "public/transport-check.html": "4a8104789baf276007c56ababb93030513e3d42c92c2327065f4202086821162",
+    "public/transport-check.mjs": "c934bbbbe6e643bc1bb8d359df2de4485e80f3a12ad17025e1b919efbebe4f21"
+  },
+  "outstanding": [
+    "Current-source duration, pause, pending-work, idle, and local controlled-restart acceptance reruns",
+    "Structured physical spoken interruption and speaker echo assessment",
+    "SFU assistant-history semantics and server cleanup evidence"
+  ],
+  "log_sha256": {
+    "review-current-python.log": "28108e118906e336b81e2726594366a84dd4ac547a5d4126b1c3ff8a4b0b0cbb",
+    "review-websocket-python.log": "505153aa7d4711923435da2c6d05199b9f344f4b42501fe2bc6079885377ef45",
+    "review-current-js.log": "bbca386ca6c21c0486ab08265741317f8ced37fc23615b9453b79fd1924674f7",
+    "review-websocket-js.log": "2b0e8904b6edbb3ce0160bc7a2814a981a4af576d706b6cc05855e7fada323d5",
+    "review-sfu-entry.log": "58a520a024f15707222afe6575db8a3a9dbe7469c2c156ae0f9979903d48645a",
+    "review-entry.log": "c3a39f89305be21eb2b082225b563bd43522326d8a7b54bcdbb6fc5d0e1e90ed",
+    "review-access.log": "a1668127d80965e4904dfed8cb8dea29bfb695e8c88b529475aec9553bf4385b",
+    "review-providers.log": "b7c9098f70e6d5fa6d2fa12db0b4b9815171bae92ca9648541752cacd332603c",
+    "review-core.log": "a1e2fff50e81cc9912d1955571f62265dc3b5ec6d0038ab7197900876ae4a86f"
+  }
+}

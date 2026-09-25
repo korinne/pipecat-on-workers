@@ -1,5 +1,13 @@
 # Provider and physical-voice acceptance
 
+**Current scope decision:** [ARCHITECTURE-REVIEW.md](ARCHITECTURE-REVIEW.md) proposes
+a smaller closeout for the original spike. The broader device matrix below is
+available for follow-up research; its full sample counts are not required by the
+original brief. The user has not yet agreed the final acceptance scope.
+The speaker-echo issue remains open. SFU currently has only a two-turn recorded
+browser round-trip pass, with incomplete assistant memory and server-cleanup
+validation; it must not inherit WebSocket acceptance results.
+
 **Access-key update:** the application verifies access before opening the
 microphone and supports loading the supplied key text file directly. Missing,
 incorrect, and unconfigured keys now produce distinct messages. The delivered
@@ -43,8 +51,10 @@ case. [REPORT.md](REPORT.md) records the full evidence verdict.
 These are recorded-input provider checks, not physical microphone/speaker
 acceptance. `/api/health` intentionally reports `voice_validated: false` until
 that physical acceptance is established. The updated source also passed
-**23 Python tests and ten additional subtests, 29 browser tests, 12 harness
-tests, seven entry-lifecycle cases, and 22 access-authentication cases**.
+**41 Python tests and the existing ten additional subtests, 50 browser tests,
+12 harness tests, ten SFU entry cases, seven entry-lifecycle cases, and 22
+access-authentication cases** in the current offline review. See
+[evidence/review-checks.json](evidence/review-checks.json).
 Record the deployed version for future runs; these results do not
 validate later edits, indefinite runtime stability, or general speech behavior.
 The concrete outstanding acceptance check is the physical microphone/speaker

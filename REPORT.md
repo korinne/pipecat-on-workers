@@ -1,4 +1,10 @@
-# Evidence and verdict — 24 September 2026
+# Detailed experiments and evidence
+
+**Current review (25 September 2026):** use [ARCHITECTURE-REVIEW.md](ARCHITECTURE-REVIEW.md)
+for the current architecture, acceptance matrix, known SFU gaps, and proposed
+closeout. This document retains earlier version-specific experiments; historical
+results are not a new acceptance run. Both transport examples are now deployed.
+Speaker self-interruption is a reported, unresolved physical-device limitation.
 
 **Access-key update:** the application verifies access before opening the
 microphone and supports loading the supplied key text file directly. Missing,
@@ -64,13 +70,15 @@ timing remain unverified.
 - Persisted conversation text, generation, capability hash, and status. Live
   pipeline tasks, provider connections, and PCM are recreated after reconnect.
 
-Assistant context includes a sentence-sized segment only after every PCM chunk
+In the WebSocket path, assistant context includes a sentence-sized segment only after every PCM chunk
 in that segment receives a browser playback acknowledgment. Interrupted partial
 segments are omitted conservatively, even if some words were heard. Web Audio
 completion is a scheduling receipt, not physical proof of speaker output.
 Generation IDs reject stale audio and receipts; Python cancellation alone cannot
 retract audio already sent to the browser. Reconnect replaces the visible
-transcript with the persisted, acknowledged history.
+transcript with the persisted, acknowledged history. The SFU path omits
+unconfirmed assistant replies from model/restored history; it is not equivalent
+for follow-ups about the assistant’s previous answer.
 
 ## Validation performed
 
@@ -85,8 +93,8 @@ transcript with the persisted, acknowledged history.
 | Disconnect/reconnect | The duration-tested deployed run verified one reconnect restored acknowledged history and completed another turn. Local fixture lifecycle tests also restored history with fresh pipeline/provider objects. |
 | Controlled restart | In a local actual-DO test on the earlier Python 3.14 revision, public `ctx.abort()` closed the call; reconnect restored history and completed another turn. That runtime then passed a ten-minute local soak. This is not a deployed forced-eviction test; seamless continuity is not claimed. |
 | End/abandon cleanup | Both duration-tested deployed sessions ended with zero owned resources, as did the same-revision pause test and earlier local soaks. The idle gate passed at 29.975 seconds after ready with no client audio, no provider errors, one STT connection, and zero owned resources including pending-turn state. |
-| Browser | 29 tests passed with fake browser I/O and real resampling/playback calculations, including microphone diagnostics and startup ownership. Earlier layout was visually inspected. The user later reported basic live success; measured physical-device acceptance remains incomplete. |
-| Local Python regressions | 23 tests plus ten subtests passed on Python 3.14.7, including audio input counters, connection guidance, turn grace, recovery, packetization, and the plural appointment request. Native-import/thread-denial core check and provider-adapter checks passed. Seven entry-lifecycle and 22 access-authentication cases also passed. |
+| Browser | The current review reran 50 tests (see `evidence/review-checks.json`); the earlier microphone revision had 29. Tests use fake browser I/O and real resampling/playback calculations, including microphone diagnostics and startup ownership. Earlier layout was visually inspected. The user later reported basic live success; measured physical-device acceptance remains incomplete. |
+| Local Python regressions | The current review reran 41 tests plus the existing ten subtests (see `evidence/review-checks.json`); the earlier microphone revision had 23. These run on Python 3.14.7, including audio input counters, connection guidance, turn grace, recovery, packetization, and the plural appointment request. Native-import/thread-denial core check and provider-adapter checks passed. Ten SFU routing, seven entry-lifecycle, and 22 access-authentication cases also passed. |
 | Node validation harness | 12 tests passed for the recorded-input validation tools. These test harness behavior, not provider or physical voice acceptance. |
 | Real provider response | A deployed recorded-input smoke completed Flux recognition, Llama generation, and nonzero Aura PCM on an earlier revision. Its 88 chunks represent 8.8 seconds of emulated playback receipts for one complete sentence. See `evidence/real-provider-smoke.json`; this was an integration pass, not a pause pass. |
 | Deployment and access | Dependency synchronization, deployment dry-run, and actual upload/deployment completed. The configured demo key rejects unauthorized session creation with HTTP 401; fixture routes are off. See `evidence/deployment.json`. |
@@ -358,14 +366,17 @@ Pipecat's frame queues, interruption implementation, and external turn machinery
 This remains unsupported spike packaging, not full upstream Pipecat compatibility.
 Native VAD, existing executor-backed HTTP Smart Turn, arbitrary providers/transports,
 RTVI, video, hibernating pipelines, and general model-selected tools are untested
-or intentionally unavailable. The currently documented hosted Smart Turn is v2;
+or intentionally unavailable. The hosted Smart Turn documentation inspected on 24 September 2026 listed v2;
 this spike instead uses Flux turn events with the application grace described
 above. Source details are in `COMPATIBILITY.md` and `RUNTIME-RESEARCH.md`.
 
 The supplied [Cloudflare AI-audio example](https://developers.cloudflare.com/realtime/sfu/examples/ai-audio/)
 informed transport selection. Browser WebSockets avoided SFU provisioning and
-48 kHz stereo conversion while testing Python conversation machinery. This spike
-does not claim SFU integration or WebRTC media guarantees.
+48 kHz stereo conversion while testing Python conversation machinery. The later
+SFU example now bridges real browser WebRTC through two media adapters; two
+recorded-speech turns passed on `acc191fa`. See
+[evidence/sfu-activation.json](evidence/sfu-activation.json). This does not establish
+SFU history parity, physical echo handling, or complete remote cleanup.
 
 Before a supported customer offering:
 

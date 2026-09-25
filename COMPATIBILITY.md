@@ -1,5 +1,9 @@
 # Pipecat compatibility investigation
 
+The current architecture and completion decision are in
+[ARCHITECTURE-REVIEW.md](ARCHITECTURE-REVIEW.md). The detailed runtime findings
+and historical test versions below remain part of the investigation.
+
 **Access-key update:** the application verifies access before opening the
 microphone and supports loading the supplied key text file directly. Missing,
 incorrect, and unconfigured keys now produce distinct messages. The delivered
@@ -107,36 +111,41 @@ an expanded configuration, first run with `--all-python`, run
 `python scripts/check_pipecat_core.py --record-modules scripts/pipecat_modules.txt`,
 and review any additions before regenerating the default narrow bundle.
 
-## Core wiring exercised by the spike
+## Actual application wiring
+
+The deployed application uses two Pipecat processors. Recognition and speech
+transport are custom async I/O adapters around this pipeline:
 
 ```python
-from pipecat.pipeline.pipeline import Pipeline
-from pipecat.pipeline.worker import PipelineWorker, PipelineParams
-from pipecat.processors.frame_processor import FrameProcessor, FrameDirection
-from pipecat.processors.aggregators.llm_context import LLMContext
-from pipecat.processors.aggregators.llm_response_universal import (
-    LLMContextAggregatorPair, LLMUserAggregatorParams,
-)
-from pipecat.turns.user_turn_strategies import ExternalUserTurnStrategies
-from pipecat.utils.asyncio.task_manager import TaskManager
-from pipecat.workers.base_worker import WorkerParams
-
-pair = LLMContextAggregatorPair(
-    LLMContext(messages),
-    user_params=LLMUserAggregatorParams(
-        user_turn_strategies=ExternalUserTurnStrategies(),
-        vad_analyzer=None,
-    ),
-)
+# From ConversationSession in src/conversation.py; session setup owns context,
+# the task manager, and the lifetime of the worker.run() coroutine.
+turn_strategies = ExternalUserTurnStrategies()
+turn_strategies.stop[0].wait_for_transcript = False
+user = LLMUserAggregator(context, params=LLMUserAggregatorParams(
+    user_turn_strategies=turn_strategies,
+    vad_analyzer=None,
+    audio_idle_timeout=0,
+    user_turn_stop_timeout=30,
+))
+processor = GenerateResponse(session)
 worker = PipelineWorker(
-    Pipeline([stt, pair.user(), llm, tts, acknowledged_output, pair.assistant()]),
+    Pipeline([user, processor]),
+    params=PipelineParams(audio_in_sample_rate=16000, audio_out_sample_rate=24000),
     enable_rtvi=False,
     enable_turn_tracking=False,
     enable_import_prewarm=False,
-    params=PipelineParams(enable_metrics=False),
+    idle_timeout_secs=None,
+    cancel_timeout_secs=3,
 )
-await worker.run(WorkerParams(task_manager=TaskManager()))
+await worker.run(WorkerParams(task_manager=manager))
 ```
+
+Flux callbacks enqueue transcription and proposed turn frames. `GenerateResponse`
+awaits model/tool/TTS work inside its frame handler. WebSocket played receipts
+update assistant context explicitly. SFU output has no played receipts and
+currently adds no assistant history. The separate guarded core harness uses an
+`LLMContextAggregatorPair` to investigate upstream assistant aggregation; that
+harness topology should not be confused with the deployed application.
 
 `PipelineTask` still exists in this release as a deprecated subclass alias of
 `PipelineWorker`; the latter is the current name. Use the host's already running
@@ -146,7 +155,10 @@ Feed `ProposedUserStartedSpeakingFrame` / `ProposedUserStoppedSpeakingFrame` to
 the user aggregator. Its external strategy resolves the proposal and lets
 Pipecat broadcast interruption. In contrast, direct `UserStartedSpeakingFrame`
 means the emitter already announced the turn and already performed interruption.
-The stop strategy waits for transcription, guarding late transcript arrival.
+The upstream default stop strategy waits for transcription, guarding late
+transcript arrival. This application supplies transcription before the normal
+stop proposal and sets `wait_for_transcript=False`, allowing a discarded empty
+turn to close without waiting for text that will never arrive.
 
 Custom processors must `await super().process_frame(frame, direction)` and
 forward lifecycle/system frames. Keep generation work in the processing task or
@@ -179,9 +191,10 @@ turn, checks context, and asserts no live Pipecat tasks after cancellation.
 Its cancellation timing is server-side CPython scheduling time with synthetic
 frames, not network latency or audible interruption-to-silence time.
 
-The updated application regression suite passed **23 Python tests with ten
-additional subtests**, **29 browser tests**, **seven entry lifecycle checks**,
-**22 authentication checks**, and **12 harness tests**. These include the
+The current review reran **41 Python tests with the existing ten additional
+subtests**, **50 browser tests**, **ten SFU entry checks**, **seven entry lifecycle
+checks**, **22 authentication checks**, and **12 harness tests**. See
+[evidence/review-checks.json](evidence/review-checks.json) for the source revision. These include the
 microphone diagnostics alongside turn recovery, cancellation, receipt behavior,
 and access handling. No physical-voice or latest deployed-duration result is
 inferred from these offline passes.
