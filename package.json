@@ -1,0 +1,1 @@
+{"name":"pipecat-on-workers","private":true,"type":"module","scripts":{"test:client":"node --test public/*.test.mjs"},"devDependencies":{"wrangler":"4.139.0"}}

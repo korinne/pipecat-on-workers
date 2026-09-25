@@ -1,0 +1,304 @@
+--- a/src/pipecat/__init__.py
++++ b/src/pipecat/__init__.py
+@@ -11,7 +11,7 @@
+ 
+ from loguru import logger
+ 
+-__version__ = lib_version("pipecat-ai")
++__version__ = "1.11.0"  # Source vendored at 3dede06bec0b497bddfdcf047af7495ee9d0726e; see VENDOR_MANIFEST.json.
+ 
+ 
+ def _should_log_version_banner() -> bool:
+--- a/src/pipecat/audio/utils.py
++++ b/src/pipecat/audio/utils.py
+@@ -11,16 +11,11 @@
+ various audio formats used in Pipecat pipelines.
+ """
+ 
+-import audioop
+ import io
+ import wave
+ 
+-import loudness
+-import numpy as np
+ 
+ from pipecat.audio.resamplers.base_audio_resampler import BaseAudioResampler
+-from pipecat.audio.resamplers.soxr_resampler import SOXRAudioResampler
+-from pipecat.audio.resamplers.soxr_stream_resampler import SOXRStreamAudioResampler
+ 
+ # Normal speech usually results in many samples between ±500 to ±5000, depending on loudness and mic gain.
+ # So we are using a threshold that is well below what real speech produces.
+@@ -36,6 +31,7 @@
+     Returns:
+         A configured SOXRAudioResampler instance.
+     """
++    from pipecat.audio.resamplers.soxr_resampler import SOXRAudioResampler
+     return SOXRAudioResampler(**kwargs)
+ 
+ 
+@@ -48,6 +44,7 @@
+     Returns:
+         A configured SOXRStreamAudioResampler instance.
+     """
++    from pipecat.audio.resamplers.soxr_stream_resampler import SOXRStreamAudioResampler
+     return SOXRStreamAudioResampler(**kwargs)
+ 
+ 
+@@ -65,6 +62,7 @@
+     Returns:
+         Mixed audio data as raw bytes with samples clipped to 16-bit range.
+     """
++    import numpy as np
+     data1 = np.frombuffer(audio1, dtype=np.int16)
+     data2 = np.frombuffer(audio2, dtype=np.int16)
+ 
+@@ -96,6 +94,7 @@
+     Returns:
+         Interleaved stereo audio data as raw bytes.
+     """
++    import numpy as np
+     left = np.frombuffer(left_audio, dtype=np.int16)
+     right = np.frombuffer(right_audio, dtype=np.int16)
+ 
+@@ -174,6 +173,8 @@
+     Raises:
+         ValueError: If the audio is shorter than a gating block.
+     """
++    import numpy as np
++    import loudness
+     audio_np = np.frombuffer(audio, dtype=np.int16)
+     audio_float = audio_np.astype(np.float32) / 32768.0
+ 
+@@ -219,6 +220,7 @@
+     Returns:
+         PCM audio data as raw bytes at the specified output rate.
+     """
++    import audioop
+     # Convert μ-law to PCM
+     in_pcm_bytes = audioop.ulaw2lin(ulaw_bytes, 2)
+ 
+@@ -240,6 +242,7 @@
+     Returns:
+         μ-law encoded audio data as raw bytes at the specified output rate.
+     """
++    import audioop
+     # Resample
+     in_pcm_bytes = await resampler.resample(pcm_bytes, in_rate, out_rate)
+ 
+@@ -263,6 +266,7 @@
+     Returns:
+         PCM audio data as raw bytes at the specified output rate.
+     """
++    import audioop
+     # Convert a-law to PCM
+     in_pcm_bytes = audioop.alaw2lin(alaw_bytes, 2)
+ 
+@@ -284,6 +288,7 @@
+     Returns:
+         A-law encoded audio data as raw bytes at the specified output rate.
+     """
++    import audioop
+     # Resample
+     in_pcm_bytes = await resampler.resample(pcm_bytes, in_rate, out_rate)
+ 
+@@ -313,6 +318,7 @@
+         (SPEAKING_THRESHOLD) is set well below typical speech levels to
+         reliably detect silence vs. speech.
+     """
++    import numpy as np
+     # Convert raw audio bytes to a NumPy array of int16 samples
+     audio_data = np.frombuffer(pcm_bytes, dtype=np.int16)
+ 
+@@ -364,6 +370,7 @@
+         The per-channel sample index of speech onset, or None if no sustained
+         onset is present yet.
+     """
++    import numpy as np
+     if sample_rate <= 0:
+         return None
+ 
+--- a/src/pipecat/pipeline/worker.py
++++ b/src/pipecat/pipeline/worker.py
+@@ -10,6 +10,8 @@
+ execution, frame routing, lifecycle management, and monitoring capabilities
+ including heartbeats, idle detection, and observer integration.
+ """
++
++from __future__ import annotations
+ 
+ import asyncio
+ import time
+@@ -74,7 +76,6 @@
+ from pipecat.pipeline.pipeline import Pipeline, PipelineSink, PipelineSource
+ from pipecat.pipeline.worker_observer import WorkerObserver
+ from pipecat.processors.frame_processor import FrameDirection, FrameProcessor, FrameProcessorSetup
+-from pipecat.processors.frameworks.rtvi import RTVIObserver, RTVIObserverParams, RTVIProcessor
+ from pipecat.processors.frameworks.rtvi.frames import RTVIUICommandFrame, RTVIUIJobGroupFrame
+ from pipecat.processors.frameworks.rtvi.models import (
+     UICancelJobGroupMessage,
+@@ -297,6 +298,7 @@
+         enable_turn_tracking: bool = True,
+         handle_flush_frame: bool | None = None,
+         enable_rtvi: bool = True,
++        enable_import_prewarm: bool = True,
+         exclude_frames: tuple[type[Frame], ...] | None = None,
+         idle_timeout_frames: tuple[type[Frame], ...] = (
+             BotSpeakingFrame,
+@@ -430,6 +432,7 @@
+             if app_resources is None:
+                 app_resources = tool_resources
+         self._params = params or PipelineParams()
++        self._enable_import_prewarm = enable_import_prewarm
+         self._additional_span_attributes = additional_span_attributes or {}
+         self._cancel_on_idle_timeout = cancel_on_idle_timeout
+         self._cancel_runner_on_idle_timeout = cancel_runner_on_idle_timeout
+@@ -495,8 +498,19 @@
+         # RTVI support
+         self._rtvi = None
+         prepend_rtvi = False
+-        external_rtvi = self._find_processor(pipeline, RTVIProcessor)
+-        external_observer_found = any(isinstance(o, RTVIObserver) for o in observers)
++        def uses_rtvi(obj):
++            # Preserve detection of explicitly supplied RTVI subclasses.
++            if any(cls.__module__.startswith('pipecat.processors.frameworks.rtvi')
++                   for cls in type(obj).__mro__):
++                return True
++            return any(uses_rtvi(child) for child in getattr(obj, 'processors', []))
++
++        external_rtvi = None
++        external_observer_found = False
++        if enable_rtvi or rtvi_processor is not None or uses_rtvi(pipeline) or any(uses_rtvi(o) for o in observers):
++            from pipecat.processors.frameworks.rtvi import RTVIObserver, RTVIProcessor
++            external_rtvi = self._find_processor(pipeline, RTVIProcessor)
++            external_observer_found = any(isinstance(o, RTVIObserver) for o in observers)
+ 
+         if external_rtvi and not external_observer_found:
+             logger.error(
+@@ -1290,7 +1304,8 @@
+         async def warm_lazy_imports() -> tuple[int, int]:
+             """Warm the deferred imports, reporting when the work ran."""
+             started_at_ns = time.monotonic_ns()
+-            await asyncio.to_thread(warm_deferred_imports)
++            if self._enable_import_prewarm:
++                await asyncio.to_thread(warm_deferred_imports)
+             return started_at_ns, time.monotonic_ns()
+ 
+         lazy_imports_task = self.create_task(warm_lazy_imports())
+--- a/src/pipecat/processors/aggregators/llm_context.py
++++ b/src/pipecat/processors/aggregators/llm_context.py
+@@ -23,7 +23,6 @@
+ from typing import TYPE_CHECKING, Any, Literal, TypeAlias, cast, overload
+ 
+ from loguru import logger
+-from PIL import Image
+ 
+ from pipecat.adapters.schemas.direct_function import DirectFunction
+ from pipecat.adapters.schemas.function_schema import FunctionSchema
+@@ -160,6 +159,7 @@
+                 bytes = image
+             else:
+                 # Encode to JPEG
++                from PIL import Image
+                 buffer = io.BytesIO()
+                 Image.frombytes(format, size, image).save(buffer, format="JPEG")
+                 bytes = buffer.getvalue()
+--- a/src/pipecat/processors/frameworks/rtvi/__init__.py
++++ b/src/pipecat/processors/frameworks/rtvi/__init__.py
+@@ -6,23 +6,10 @@
+ 
+ """RTVI (Real-Time Voice Interface) protocol implementation for Pipecat."""
+ 
+-from pipecat.processors.frameworks.rtvi.frames import (
+-    RTVIClientMessageFrame,
+-    RTVIServerMessageFrame,
+-    RTVIServerResponseFrame,
+-    RTVIUICancelJobGroupFrame,
+-    RTVIUICommandFrame,
+-    RTVIUIEventFrame,
+-    RTVIUIJobGroupFrame,
+-    RTVIUISnapshotFrame,
+-)
+-from pipecat.processors.frameworks.rtvi.models import BotOutputTransformResult, SpokenProgressData
+-from pipecat.processors.frameworks.rtvi.observer import (
+-    RTVIFunctionCallReportLevel,
+-    RTVIObserver,
+-    RTVIObserverParams,
+-)
+-from pipecat.processors.frameworks.rtvi.processor import RTVIProcessor
++
++
++
++
+ 
+ __all__ = [
+     "BotOutputTransformResult",
+@@ -40,3 +27,21 @@
+     "RTVIUISnapshotFrame",
+     "RTVIUIJobGroupFrame",
+ ]
++
++
++# Keep frame/model imports independent of optional transports and services.
++_LAZY_EXPORTS = {'RTVIClientMessageFrame': ('pipecat.processors.frameworks.rtvi.frames', 'RTVIClientMessageFrame'), 'RTVIServerMessageFrame': ('pipecat.processors.frameworks.rtvi.frames', 'RTVIServerMessageFrame'), 'RTVIServerResponseFrame': ('pipecat.processors.frameworks.rtvi.frames', 'RTVIServerResponseFrame'), 'RTVIUICancelJobGroupFrame': ('pipecat.processors.frameworks.rtvi.frames', 'RTVIUICancelJobGroupFrame'), 'RTVIUICommandFrame': ('pipecat.processors.frameworks.rtvi.frames', 'RTVIUICommandFrame'), 'RTVIUIEventFrame': ('pipecat.processors.frameworks.rtvi.frames', 'RTVIUIEventFrame'), 'RTVIUIJobGroupFrame': ('pipecat.processors.frameworks.rtvi.frames', 'RTVIUIJobGroupFrame'), 'RTVIUISnapshotFrame': ('pipecat.processors.frameworks.rtvi.frames', 'RTVIUISnapshotFrame'), 'BotOutputTransformResult': ('pipecat.processors.frameworks.rtvi.models', 'BotOutputTransformResult'), 'SpokenProgressData': ('pipecat.processors.frameworks.rtvi.models', 'SpokenProgressData'), 'RTVIFunctionCallReportLevel': ('pipecat.processors.frameworks.rtvi.observer', 'RTVIFunctionCallReportLevel'), 'RTVIObserver': ('pipecat.processors.frameworks.rtvi.observer', 'RTVIObserver'), 'RTVIObserverParams': ('pipecat.processors.frameworks.rtvi.observer', 'RTVIObserverParams'), 'RTVIProcessor': ('pipecat.processors.frameworks.rtvi.processor', 'RTVIProcessor')}
++
++def __getattr__(name):
++    import importlib
++    if name not in _LAZY_EXPORTS:
++        raise AttributeError(name)
++    module, attribute = _LAZY_EXPORTS[name]
++    try:
++        value = getattr(importlib.import_module(module), attribute)
++    except ImportError:
++        if name != 'KrispVivaIPUserTurnStartStrategy':
++            raise
++        value = None
++    globals()[name] = value
++    return value
+--- a/src/pipecat/turns/user_start/__init__.py
++++ b/src/pipecat/turns/user_start/__init__.py
+@@ -4,17 +4,13 @@
+ # SPDX-License-Identifier: BSD 2-Clause License
+ #
+ 
+-from .base_user_turn_start_strategy import BaseUserTurnStartStrategy, UserTurnStartedParams
+-from .external_user_turn_start_strategy import ExternalUserTurnStartStrategy
+-from .min_words_user_turn_start_strategy import MinWordsUserTurnStartStrategy
+-from .transcription_user_turn_start_strategy import TranscriptionUserTurnStartStrategy
+-from .vad_user_turn_start_strategy import VADUserTurnStartStrategy
+-from .wake_phrase_user_turn_start_strategy import WakePhraseUserTurnStartStrategy
+ 
+-try:
+-    from .krisp_viva_ip_user_turn_start_strategy import KrispVivaIPUserTurnStartStrategy
+-except ImportError:
+-    KrispVivaIPUserTurnStartStrategy = None  # krisp_audio not installed
++
++
++
++
++
++
+ 
+ __all__ = [
+     "BaseUserTurnStartStrategy",
+@@ -26,3 +22,21 @@
+     "VADUserTurnStartStrategy",
+     "WakePhraseUserTurnStartStrategy",
+ ]
++
++
++# Keep frame/model imports independent of optional transports and services.
++_LAZY_EXPORTS = {'BaseUserTurnStartStrategy': ('pipecat.turns.user_start.base_user_turn_start_strategy', 'BaseUserTurnStartStrategy'), 'UserTurnStartedParams': ('pipecat.turns.user_start.base_user_turn_start_strategy', 'UserTurnStartedParams'), 'ExternalUserTurnStartStrategy': ('pipecat.turns.user_start.external_user_turn_start_strategy', 'ExternalUserTurnStartStrategy'), 'MinWordsUserTurnStartStrategy': ('pipecat.turns.user_start.min_words_user_turn_start_strategy', 'MinWordsUserTurnStartStrategy'), 'TranscriptionUserTurnStartStrategy': ('pipecat.turns.user_start.transcription_user_turn_start_strategy', 'TranscriptionUserTurnStartStrategy'), 'VADUserTurnStartStrategy': ('pipecat.turns.user_start.vad_user_turn_start_strategy', 'VADUserTurnStartStrategy'), 'WakePhraseUserTurnStartStrategy': ('pipecat.turns.user_start.wake_phrase_user_turn_start_strategy', 'WakePhraseUserTurnStartStrategy'), 'KrispVivaIPUserTurnStartStrategy': ('pipecat.turns.user_start.krisp_viva_ip_user_turn_start_strategy', 'KrispVivaIPUserTurnStartStrategy')}
++
++def __getattr__(name):
++    import importlib
++    if name not in _LAZY_EXPORTS:
++        raise AttributeError(name)
++    module, attribute = _LAZY_EXPORTS[name]
++    try:
++        value = getattr(importlib.import_module(module), attribute)
++    except ImportError:
++        if name != 'KrispVivaIPUserTurnStartStrategy':
++            raise
++        value = None
++    globals()[name] = value
++    return value
