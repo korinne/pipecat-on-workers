@@ -1,0 +1,76 @@
+{
+  "checked_at": "2026-09-25T17:17:05.221278+00:00",
+  "origin": "https://pipecat-on-workers.korinne.workers.dev",
+  "app_id": "3aa59b0d0b090feea78386fc060a5860",
+  "bindings": [
+    {
+      "name": "AI",
+      "type": "ai"
+    },
+    {
+      "name": "ASSETS",
+      "type": "assets"
+    },
+    {
+      "name": "CONVERSATIONS",
+      "type": "durable_object_namespace"
+    },
+    {
+      "name": "DEMO_ACCESS_KEY",
+      "type": "secret_text"
+    },
+    {
+      "name": "ENABLE_TEST_ROUTES",
+      "type": "plain_text"
+    },
+    {
+      "name": "REALTIME_SFU_APP_ID",
+      "type": "secret_text"
+    },
+    {
+      "name": "REALTIME_SFU_APP_SECRET",
+      "type": "secret_text"
+    }
+  ],
+  "version_id": "acc191fa-56ef-4fc7-a4fa-8545061a079d",
+  "configuration_verified": true,
+  "webrtc_session_created": true,
+  "control_ready": true,
+  "control_ended": true,
+  "live_sfu_media_validated": true,
+  "validation_scope": "Real browser WebRTC, Cloudflare SFU WebSocket adapters, Pipecat and real Workers AI providers; synthetic prerecorded speech; decoded remote audio observed, no physical microphone or speaker acceptance.",
+  "browser_test": {
+    "origin": "https://pipecat-on-workers.korinne.workers.dev/transport-check",
+    "input_source": "Cloudflare Aura-generated neutral astronomy speech",
+    "input_duration_seconds": 3.24,
+    "input_runs": 2,
+    "input_peer_connected": true,
+    "responses": [
+      {
+        "generation": 3,
+        "received_rtp_bytes": 141135,
+        "received_rtp_packets": 291,
+        "nonzero_decoded_windows": 125,
+        "peak_observed_rms": 0.1855
+      },
+      {
+        "generation": 5,
+        "received_rtp_bytes": 97970,
+        "received_rtp_packets": 202,
+        "nonzero_decoded_windows": 86,
+        "peak_observed_rms": 0.1727
+      }
+    ],
+    "end_clicked": true,
+    "final_ui_status": "Check ended. Resources released.",
+    "physical_microphone_used": false,
+    "played_receipts_sent": false,
+    "server_resource_counts_for_browser_call_verified": false
+  },
+  "echo_and_interruption_source_unchanged": true,
+  "limitations": [
+    "Decoded remote audio and transcripts establish a live transport round trip, not acoustic playback quality.",
+    "Speaker echo cancellation and natural spoken interruption remain untested on the physical device.",
+    "The browser End action was verified; this browser call did not export authenticated server cleanup counters."
+  ]
+}

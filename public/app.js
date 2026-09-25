@@ -1,10 +1,15 @@
 import { PlaybackQueue, pcm16ToBase64 } from './audio-player.mjs';
+import { SfuAudioTransport } from './sfu-client.mjs';
+
+const transport = document.body?.dataset.transport === 'webrtc' ? 'webrtc' : 'websocket';
+const usesSfu = transport === 'webrtc';
 
 const $ = id => document.getElementById(id);
 const ui = Object.fromEntries(['start', 'mute', 'end', 'status', 'status-dot', 'transcript', 'empty-state', 'notice', 'input-hint', 'session-time'].map(id => [id, $(id)]));
-const metrics = { startupMs: [], firstAudioAfterTranscriptMs: [], localPlaybackClearMs: [], reconnects: 0, errors: [], events: [] };
+const metrics = { transport, startupMs: [], firstAudioAfterTranscriptMs: [], localPlaybackClearMs: [], reconnects: 0, errors: [], events: [] };
 const MAX_METRICS = 1000;
-let context, stream, capture, inputNode, silentGain, player, socket, session;
+let context, stream, capture, inputNode, silentGain, player, socket, session, sfu;
+let remotePlaybackBlocked = false;
 let active = false, muted = false, serverReady = false, starting = false, lifecycle = 0;
 let startedAt = 0, requestedAt = 0, finalTranscriptAt = null, connectAttempt = 0;
 let reconnectTimer, heartbeatTimer, elapsedTimer, lastPong = 0;
@@ -23,15 +28,16 @@ function updateInputHealth() {
   $('metric-audio-state').textContent = `${state}${context ? ' · '+context.currentTime.toFixed(1)+' s' : ''}`;
   $('metric-input-track').textContent = track ? `${track.readyState || 'live'}${track.muted ? ' · paused' : ''}` : '—';
   $('metric-captured').textContent = `${Math.round(audioStats.capturedBytes / 32)} ms`;
-  $('metric-sent').textContent = `${Math.round(audioStats.sentBytes / 32)} ms`;
+  $('metric-sent').textContent = usesSfu ? 'WebRTC / Opus' : `${Math.round(audioStats.sentBytes / 32)} ms`;
   $('metric-received').textContent = `${Math.round(audioStats.receivedBytes / 32)} ms`;
   $('metric-forwarded').textContent = `${Math.round(audioStats.forwardedBytes / 32)} ms`;
   $('metric-input-peak').textContent = audioStats.maxRms.toFixed(4);
   $('mic-level').value = active && !muted && now-lastCaptureAt < 500 ? Math.min(1, lastRms * 12) : 0;
-  $('resume-audio').hidden = !active || !context || (state === 'running' && !clockStalled);
+  $('resume-audio').hidden = !active || !context || (state === 'running' && !clockStalled && !remotePlaybackBlocked);
   let message = 'Microphone not started';
   if (active && context) {
-    if (muted) message = 'Microphone muted';
+    if (remotePlaybackBlocked) message = 'Tap Resume audio to hear the agent.';
+    else if (muted) message = 'Microphone muted';
     else if (state !== 'running' || clockStalled) message = 'Audio is paused. Tap Resume audio.';
     else if (!stream) message = 'Waiting for microphone access…';
     else if (track?.muted) message = 'Your browser has paused the microphone.';
@@ -118,6 +124,13 @@ function systemMessage(text) {
   });
 }
 function clearPlayback(generation, reason) {
+  if (usesSfu) {
+    if (!sfu) return;
+    if (generation === undefined) generation = Math.max(knownGeneration, sfu.floor) + 1;
+    record('localPlaybackClearMs', sfu.clearOutput(generation), 'metric-clear');
+    event('speaker_detached', { reason, generation });
+    return;
+  }
   if (!player) return;
   if (generation === undefined) generation = Math.max(knownGeneration, player.generation) + 1;
   record('localPlaybackClearMs', player.clear(generation), 'metric-clear');
@@ -151,6 +164,7 @@ function observeMicrophone({ pcm, rms }) {
     loudFrames = 0;
     if (++quietFrames >= 12) speechActive = false;
   }
+  if (usesSfu) return; // WebRTC publishes the microphone track; no PCM on the control socket.
   // Muting emits silence so provider turn detection can finish an utterance.
   if (muted) new Int16Array(pcm).fill(0);
   if (send({ type: 'audio', data: pcm16ToBase64(pcm), sample_rate: 16000 })) { audioStats.sentChunks++; audioStats.sentBytes += pcm.byteLength; }
@@ -161,6 +175,7 @@ async function setupAudio(run) {
   if (!context) prepareAudioContext();
   const thisContext = context;
   await thisContext.resume();
+  if (run !== lifecycle) return;
   const captured = await navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
   if (run !== lifecycle) { captured.getTracks().forEach(track => track.stop()); return; }
   stream = captured;
@@ -176,8 +191,8 @@ async function setupAudio(run) {
   capture.onprocessorerror = () => { if (run === lifecycle) { notice('Microphone processing stopped. Start a new conversation.'); endSession(); } };
   lastCaptureAt = lastClockAdvanceAt = performance.now();
   updateInputHealth();
-  $('metric-samplerate').textContent = `${thisContext.sampleRate.toLocaleString()} → 16,000 Hz`;
-  player = new PlaybackQueue(thisContext, {
+  $('metric-samplerate').textContent = usesSfu ? `${thisContext.sampleRate.toLocaleString()} Hz · WebRTC` : `${thisContext.sampleRate.toLocaleString()} → 16,000 Hz`;
+  if (!usesSfu) player = new PlaybackQueue(thisContext, {
     onPlayed: packet => { send({ type: 'played', ...packet }); event('chunk_played', packet); },
     onChange: seconds => { $('metric-queue').textContent = `${Math.round(seconds * 1000)} ms`; },
     onFirstAudio: ({ generation, chunk_id, scheduledAt }) => {
@@ -262,6 +277,7 @@ async function start() {
   audioStats = { capturedChunks: 0, capturedBytes: 0, sentChunks: 0, sentBytes: 0, maxRms: 0, receivedBytes: 0, forwardedBytes: 0 };
   lastCaptureAt = lastSoundAt = -Infinity; lastRms = 0;
   try {
+    if (usesSfu && !window.RTCPeerConnection) throw new Error('This browser does not support WebRTC. Try the WebSocket example.');
     prepareAudioContext();
     inputHealthTimer = setInterval(updateInputHealth, 250);
     updateInputHealth();
@@ -273,7 +289,7 @@ async function start() {
     if (run !== lifecycle) return;
     status('Starting conversation…');
     const headers = accessHeaders(accessKey);
-    const response = await fetch('/api/session', { method: 'POST', headers, body: '{}', signal: AbortSignal.timeout(20000) });
+    const response = await fetch('/api/session', { method: 'POST', headers, body: JSON.stringify({ transport }), signal: AbortSignal.timeout(20000) });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(data.error || `Session could not start (${response.status}).`);
     if (typeof data.id !== 'string' || typeof data.token !== 'string') throw new Error('The server returned an invalid session.');
@@ -302,6 +318,58 @@ function websocketURL(credentials) {
   url.searchParams.set('token', credentials.token);
   return url;
 }
+function completeReady() {
+  serverReady = true;
+  starting = false;
+  ui.mute.disabled = false;
+  if (!startedAt) {
+    startedAt = performance.now();
+    record('startupMs', startedAt - requestedAt, 'metric-startup');
+    elapsedTimer = setInterval(() => {
+      const seconds = Math.floor((performance.now() - startedAt) / 1000);
+      ui['session-time'].textContent = `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
+    }, 1000);
+  }
+  status(muted ? 'Microphone muted' : 'Listening', 'live');
+  event('ready');
+  send({ type: 'ping' });
+  updateInputHealth();
+}
+function failSfu(error, run, ws) {
+  if (run !== lifecycle || socket !== ws || !active) return;
+  notice(error.name === 'AbortError' ? 'The audio connection timed out. Start again to reconnect.' : error.message);
+  endSession();
+  status('Audio disconnected', 'error');
+}
+async function startSfu(run, ws) {
+  const credentials = session;
+  sfu?.close();
+  status('Connecting WebRTC audio…');
+  let current;
+  try {
+    current = new SfuAudioTransport({
+      stream, audio: $('remote-audio'), PeerConnection: window.RTCPeerConnection, MediaStreamClass: window.MediaStream,
+      signal: async (body, signal) => {
+        const response = await fetch(`/api/session/${encodeURIComponent(credentials.id)}/sfu`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Session-Token': credentials.token },
+          body: JSON.stringify(body), signal,
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.error || `The audio connection could not be negotiated (${response.status}).`);
+        return data;
+      },
+      onState: (role, state) => { if (sfu === current) { $('metric-queue').textContent = `${role === 'input' ? 'Microphone' : 'Speaker'}: ${state}`; event('webrtc_state', { role, state }); } },
+      onError: error => { if (sfu === current) failSfu(error, run, ws); },
+      onPlaybackBlocked: blocked => { if (sfu === current) { remotePlaybackBlocked = blocked; updateInputHealth(); } },
+    });
+    sfu = current;
+    await current.publish();
+    if (run !== lifecycle || socket !== ws || sfu !== current) { current.close(); return; }
+    completeReady();
+  } catch (error) {
+    if (sfu === current && error.name !== 'AbortError') failSfu(error, run, ws);
+  }
+}
 function connect(run) {
   if (!active || run !== lifecycle) return;
   clearTimeout(reconnectTimer);
@@ -327,24 +395,17 @@ function connect(run) {
       switch (packet.type) {
         case 'ready':
           clearTimeout(connectTimeout);
-          serverReady = true;
-          starting = false;
-          ui.mute.disabled = false;
-          if (!startedAt) {
-            startedAt = performance.now();
-            record('startupMs', startedAt - requestedAt, 'metric-startup');
-            elapsedTimer = setInterval(() => {
-              const seconds = Math.floor((performance.now() - startedAt) / 1000);
-              ui['session-time'].textContent = `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
-            }, 1000);
+          if (usesSfu) startSfu(run, ws);
+          else completeReady();
+          break;
+        case 'sfu_track':
+          if (usesSfu && sfu) {
+            const current = sfu;
+            current.subscribe(packet.generation).catch(error => { if (sfu === current && error.name !== 'AbortError') failSfu(error, run, ws); });
           }
-          status(muted ? 'Microphone muted' : 'Listening', 'live');
-          event('ready');
-          send({ type: 'ping' });
-          updateInputHealth();
           break;
         case 'audio':
-          player?.enqueue(packet);
+          if (!usesSfu) player?.enqueue(packet);
           break;
         case 'clear':
           clearPlayback(Number.isSafeInteger(packet.generation) ? packet.generation : undefined, 'server_clear');
@@ -360,6 +421,7 @@ function connect(run) {
           // A reset begins an ordered WebSocket stream epoch. Old socket
           // messages are independently rejected by socket identity above.
           player?.clear();
+          sfu?.clearOutput();
           knownGeneration = Number.isSafeInteger(packet.generation) ? packet.generation : 0;
           if (player) { player.floor = knownGeneration; player.generation = player.floor - 1; }
           partial.clear();
@@ -405,6 +467,7 @@ function connect(run) {
     clearInterval(heartbeatTimer);
     serverReady = false;
     clearPlayback(undefined, 'disconnect');
+    sfu?.close(); sfu = null;
     if (!active) return;
     if (e.code === 1000) {
       // The server uses 1012 for recoverable disconnects and 1000 after ending
@@ -439,6 +502,7 @@ function endSession(tellServer = true) {
   socket = null;
   player?.close();
   player = null;
+  sfu?.close(); sfu = null; remotePlaybackBlocked = false;
   if (capture) { capture.port.onmessage = null; capture.port.close(); capture.disconnect(); }
   inputNode?.disconnect();
   silentGain?.disconnect();
@@ -460,7 +524,12 @@ function endSession(tellServer = true) {
 }
 $('resume-audio').addEventListener('click', async () => {
   if (!context || !active) return;
-  try { await context.resume(); lastClockAdvanceAt = performance.now(); updateInputHealth(); }
+  try {
+    const resumeOutput = sfu?.resumePlayback(); // Both requests begin inside this click gesture.
+    await context.resume();
+    await resumeOutput;
+    lastClockAdvanceAt = performance.now(); updateInputHealth();
+  }
   catch { notice('Audio could not resume. Check microphone access or try your regular browser.'); }
 });
 $('load-key').addEventListener('click', () => $('key-file').click());
@@ -477,7 +546,7 @@ ui.mute.addEventListener('click', () => {
   event(muted ? 'muted' : 'unmuted');
 });
 $('download-metrics').addEventListener('click', () => {
-  const blob = new Blob([JSON.stringify({ ...metrics, exportedAt: new Date().toISOString(), limitations: ['Playback clear is a scheduling measurement, not acoustic silence.', 'First audio starts at final transcript and excludes recognition latency.', 'Only the most recent 1000 events per array are retained.', 'No transcript, audio, capability token, or session identifier is exported.'] }, null, 2)], { type: 'application/json' });
+  const blob = new Blob([JSON.stringify({ ...metrics, exportedAt: new Date().toISOString(), limitations: [usesSfu ? 'Speaker mute detaches the remote track; it does not measure acoustic silence or confirm delivery.' : 'Playback clear is a scheduling measurement, not acoustic silence.', usesSfu ? 'First-audio latency and exact chunk playback are not measured for WebRTC.' : 'First audio starts at final transcript and excludes recognition latency.', 'Only the most recent 1000 events per array are retained.', 'No transcript, audio, capability token, or session identifier is exported.'] }, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;

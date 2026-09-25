@@ -6,6 +6,8 @@ import sys
 import types
 from types import SimpleNamespace as N
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
 
 def stub(name, **attributes):
     module = types.ModuleType(name)

@@ -1,0 +1,123 @@
+{
+  "schema": 1,
+  "started_at": "2026-09-25T17:01:13.561Z",
+  "deployment_origin": "https://pipecat-on-workers.korinne.workers.dev",
+  "passed": true,
+  "scope": "Actual deployed capability WebSocket and configured STT, LLM, TTS providers; prerecorded input; wall-clock playback-receipt emulation.",
+  "physical_human_voice_acceptance_passed": false,
+  "fixture_provider_requested": false,
+  "acceptance_kind": "generic_provider_integration",
+  "pause_acceptance": {
+    "requested": false,
+    "passed": null,
+    "premature_reply_observed": null,
+    "definition": "Exactly one final user transcript and no assistant transcript or audio received before the final input PCM sample completes its paced duration. This checks this recording only, not general natural-speech turn quality."
+  },
+  "input": {
+    "source": "prerecorded-tts",
+    "format": "PCM16 LE mono 16000 Hz",
+    "duration_ms": 3240,
+    "samples": 51840,
+    "nonzero_samples": 51148,
+    "peak": 17467,
+    "rms": 2360.31
+  },
+  "playback": {
+    "method": "serial elapsed PCM duration, no audio device",
+    "received_chunks": 96,
+    "acknowledged_chunks": 52,
+    "acknowledged_duration_ms": 5120,
+    "completed_sentences": 1,
+    "received_audio_duration_ms": 9440,
+    "output_statistics": {
+      "samples": 226560,
+      "nonzero_samples": 223762,
+      "peak": 14815,
+      "rms": 2175.3
+    }
+  },
+  "transcript": {
+    "user_final_count": 1,
+    "assistant_sentence_count": 2
+  },
+  "latency_ms": {
+    "session_create": 3736.17,
+    "ready": 5595.91,
+    "input_start": 5608.44,
+    "first_audio_from_start": 23835.78,
+    "first_audio_after_final_transcript": 13087.71,
+    "first_audio_after_input_end": 14937.44,
+    "input_finish": 8898.34
+  },
+  "latency_definitions": {
+    "first_audio_after_final_transcript": "First accepted audio packet receipt minus the latest final user transcript receipt preceding that packet. The transcript timestamp is frozen when first audio arrives; this is not acoustic response latency."
+  },
+  "end": {
+    "sent": true,
+    "acknowledged": true,
+    "socket_closed": true,
+    "close_code": 1000
+  },
+  "limitations": [
+    "No microphone permissions, capture/resampling, speakers, headphones, echo or audible latency measured.",
+    "No human assessment of intelligibility or semantic correctness; inspect private captures.",
+    "One short response only; interruption, multi-turn memory, concurrent calls and soak acceptance remain untested.",
+    "Zero local resource counts do not prove remote compute or billing stopped."
+  ],
+  "failures": [],
+  "stop_reason": "first_complete_sentence_received_and_elapsed_playback_receipts_sent",
+  "cleanup": {
+    "closed": true,
+    "pipecat_tasks": 0,
+    "provider_tasks": 0,
+    "provider_sockets": 0,
+    "provider_readers": 0,
+    "pending_provider_requests": 0,
+    "queued_provider_bytes": 0,
+    "unacked_audio_bytes": 0,
+    "pending_playback_chunks": 0,
+    "pending_turn_tasks": 0,
+    "pending_user_fragments": 0,
+    "pending_user_chars": 0,
+    "messages": 3,
+    "stt_connection_generation": 1,
+    "dropped_audio_bytes": 0,
+    "turn_end_grace_ms": 1200,
+    "metrics": [
+      {
+        "event": "startup",
+        "elapsed_ms": 463,
+        "startup_ms": 463
+      },
+      {
+        "event": "server_clear",
+        "elapsed_ms": 1412,
+        "generation": 2,
+        "dispatch_ms": 0
+      },
+      {
+        "event": "user_end",
+        "elapsed_ms": 5711
+      },
+      {
+        "event": "generation_started",
+        "elapsed_ms": 5711,
+        "generation": 3
+      },
+      {
+        "event": "first_audio",
+        "elapsed_ms": 18769,
+        "generation": 3,
+        "response_ms": 13058
+      },
+      {
+        "event": "closed",
+        "elapsed_ms": 23996
+      }
+    ]
+  },
+  "cleanup_verified": true,
+  "finished_at": "2026-09-25T17:01:43.796Z",
+  "elapsed_ms": 30231.22,
+  "version_id": "ae7676d0-f24e-49cc-98ab-1d79290f33ed"
+}

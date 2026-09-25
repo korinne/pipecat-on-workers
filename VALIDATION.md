@@ -14,9 +14,10 @@ provider-capacity errors, and immediate startup cancellation. See
 long-duration results below remain tied to their recorded deployment.
 
 **Microphone status:** a user reported speaking while the demo showed Listening
-without receiving a transcript. The cause remains under investigation. The new
-audio-engine startup and delivery diagnostics require physical-device retesting;
-they are not a verified fix for that report.
+without receiving a transcript, then confirmed “okay this is working!” after
+the microphone deployment. This is user-reported basic live success, not a
+measured duration or acoustic acceptance pass. The earlier cause remains
+unconfirmed; the physical-device procedure below is still outstanding.
 
 The [protected demo](https://pipecat-on-workers.korinne.workers.dev) works
 with restrictions in deployed Python 3.14.2 / Pyodide 314.0.6 Durable Objects,
@@ -156,9 +157,10 @@ than interpreting equal totals as successful recognition. No samples suggests
 an audio-engine/capture problem; samples without sound suggests the input device
 or capture processing needs investigation. Continued forwarding without a
 transcript narrows the next check but does not establish a provider fault.
-Export measurements without audio, transcripts, or credentials. The original
-microphone report remains unresolved until this path recognizes actual speech
-and produces an audible response on the user's device.
+Export measurements without audio, transcripts, or credentials. The user has
+since reported basic live success; retain these steps for recurrence and
+structured physical-device acceptance. That confirmation supplies no measured
+duration or acoustic timing result.
 
 ## Physical microphone/speaker procedure
 

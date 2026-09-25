@@ -1,0 +1,38 @@
+{
+  "checked_at": "2026-09-25T00:19:49.855Z",
+  "origin": "https://pipecat-python-do-spike.korinne.workers.dev",
+  "health": {
+    "runtime": "Python Worker",
+    "python": "3.14.2",
+    "pyodide": "314.0.6",
+    "pipecat": "1.11.0-patched",
+    "voice_validated": false
+  },
+  "unauthenticated_session_status": 401,
+  "deployment_succeeded": true,
+  "demo_key_configured": true,
+  "version_id": "76eb1ebf-32de-4291-9364-466953c444a1",
+  "deployed_at": "2026-09-25T00:19:49.862Z",
+  "wrangler_reported_startup_ms": 3390,
+  "fixture_routes_enabled": false,
+  "upload_kib": 8369.41,
+  "gzip_kib": 2175.64,
+  "source_sha256": {
+    "src/entry.py": "40f1f52047d3951234c112fd0eb0202408f8873ec6bf1230eb315d62bf264794",
+    "src/conversation.py": "c41a9bb56f99ec38cb5bcf7db9fb118dce14bac318529d250d6fb6a85a644c8c",
+    "src/providers.py": "ef9e2070bc32dec27da203f5509b83025e24e084aaaac7835868f1b3adad984c",
+    "src/runtime_probe.py": "14d5fafe5fa67f407560246529549325db83088034fff040a7d382906338aa95",
+    "wrangler.jsonc": "9b120c41b64af6b69395bdeb5a39565a83bb449b2c0de93b860643c0ebb92691",
+    "public/app.js": "6c9409f044647b13e059ec68785057fba8084c56db98cf2296e2d0ef775e1b33",
+    "public/index.html": "770c6eb7681804f6706ca6305d449c3ef41c6f5553e2723253e3bf05a0b441fb",
+    "public/style.css": "b1f89380a3759f48a35874b8aa1c98d52f415f176ee40d04ca3941dc7ad18dae",
+    "public/capture-processor.js": "153a2e6c49de42e105833ecfbecb41feee8f398fe03ae12b6642cfb33786089f"
+  },
+  "production_turn_end_grace_ms": 1200,
+  "flux_eot_threshold": "0.9",
+  "deployed_at_note": "Recorded after deployment command completed; approximate completion time",
+  "change": "User-gesture audio startup, Resume audio control, input sound and delivery diagnostics, fresh/restored connection guidance",
+  "long_duration_evidence_version": "69b1b14d-e27b-4ebc-8623-33dc94d5c186",
+  "spoken_model_cancellation_evidence_version": "a0fddf09-a341-4b07-bd50-84adcc2ffed1",
+  "authentication_evidence_version": "33a5c3ed-17ba-47a7-9c77-db90cfbf3114"
+}

@@ -14,8 +14,9 @@ key verification. The browser now shows a live sound meter and separate capture,
 upload, server-received, and provider-forwarded audio counters, offers Resume
 audio, and gives plain guidance for fresh and restored conversations. The user
 reported speaking while the page showed Listening without receiving a transcript.
-Physical microphone capture remains under investigation; these diagnostics do
-not establish that the reported failure is fixed.
+After the microphone deployment, the user confirmed “okay this is working!”
+This is user-reported basic live success. The earlier failure's cause remains
+unconfirmed, and measured duration/acoustic acceptance remains incomplete.
 
 **Capacity update:** the capacity fix adds bounded startup retries, clear
 provider-capacity errors, and immediate startup cancellation. See

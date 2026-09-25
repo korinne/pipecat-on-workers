@@ -13,11 +13,12 @@ provider-capacity errors, and immediate startup cancellation. See
 [CAPACITY-FIX.md](CAPACITY-FIX.md) for its tested version and checks. Earlier
 long-duration results below remain tied to their recorded deployment.
 
-**Microphone investigation:** a user reported speaking while the browser showed
-Listening, with no user or assistant transcript. Physical capture and playback
-remain unvalidated. The updated source adds gesture-time audio-engine resume,
-live input and delivery diagnostics, and a Resume audio action; a successful
-physical microphone retest has not established that this issue is fixed.
+**Microphone update:** after reporting speech without a transcript, the user
+confirmed “okay this is working!” following the microphone deployment. This is
+user-reported basic live success; it does not identify the earlier failure's
+cause or establish measured duration, acoustic delivery, or interruption latency.
+The update adds gesture-time audio-engine resume, live input and delivery
+diagnostics, and a Resume audio action.
 
 **Runtime verdict: works with restrictions, including deployed Workers.** Actual
 Pipecat 1.11.0 runs inside Python 3.14.2 / Pyodide 314.0.6 Cloudflare Durable
@@ -84,7 +85,7 @@ transcript with the persisted, acknowledged history.
 | Disconnect/reconnect | The duration-tested deployed run verified one reconnect restored acknowledged history and completed another turn. Local fixture lifecycle tests also restored history with fresh pipeline/provider objects. |
 | Controlled restart | In a local actual-DO test on the earlier Python 3.14 revision, public `ctx.abort()` closed the call; reconnect restored history and completed another turn. That runtime then passed a ten-minute local soak. This is not a deployed forced-eviction test; seamless continuity is not claimed. |
 | End/abandon cleanup | Both duration-tested deployed sessions ended with zero owned resources, as did the same-revision pause test and earlier local soaks. The idle gate passed at 29.975 seconds after ready with no client audio, no provider errors, one STT connection, and zero owned resources including pending-turn state. |
-| Browser | 29 tests passed with fake browser I/O and real resampling/playback calculations, including microphone diagnostics and startup ownership. Earlier layout was visually inspected; physical microphone capture remains under investigation. |
+| Browser | 29 tests passed with fake browser I/O and real resampling/playback calculations, including microphone diagnostics and startup ownership. Earlier layout was visually inspected. The user later reported basic live success; measured physical-device acceptance remains incomplete. |
 | Local Python regressions | 23 tests plus ten subtests passed on Python 3.14.7, including audio input counters, connection guidance, turn grace, recovery, packetization, and the plural appointment request. Native-import/thread-denial core check and provider-adapter checks passed. Seven entry-lifecycle and 22 access-authentication cases also passed. |
 | Node validation harness | 12 tests passed for the recorded-input validation tools. These test harness behavior, not provider or physical voice acceptance. |
 | Real provider response | A deployed recorded-input smoke completed Flux recognition, Llama generation, and nonzero Aura PCM on an earlier revision. Its 88 chunks represent 8.8 seconds of emulated playback receipts for one complete sentence. See `evidence/real-provider-smoke.json`; this was an integration pass, not a pause pass. |
@@ -125,12 +126,14 @@ blocked by unavailable computer-use permissions. See
 [the visible browser observations](evidence/browser-microphone-observation.json).
 
 Fresh and restored calls now receive plain connection guidance instead of an
-internal pipeline-reset notice. These changes improve startup and diagnosis;
-they are not evidence that the user's physical microphone issue is fixed.
-The next gate is a physical-device retest using
-[the troubleshooting steps](VALIDATION.md#microphone-troubleshooting), followed
-by audible-response and interruption acceptance. Historical duration/provider
-results remain tied to their recorded versions below.
+internal pipeline-reset notice. Following that deployment, the user confirmed
+“okay this is working!” This establishes user-reported basic live success,
+without changing the earlier browser observation or identifying its cause.
+Structured physical-device acceptance, duration, and acoustic interruption
+measurements remain outstanding; use
+[the troubleshooting steps](VALIDATION.md#microphone-troubleshooting) if the
+symptom recurs. Historical duration/provider results remain tied to their
+recorded versions below.
 
 ## What the deployed provider trials changed
 
@@ -366,8 +369,8 @@ does not claim SFU integration or WebRTC media guarantees.
 
 Before a supported customer offering:
 
-1. Resolve the reported microphone capture/transcription failure, complete
-   physical real-voice acceptance, and repeat current-version provider
+1. Follow the user-reported basic live success with structured physical
+   real-voice acceptance and repeat current-version provider
    duration/load checks. Broaden pause/latency/interruption/error
    distributions with sample sizes. Recorded-input integration does not validate
    natural conversation.

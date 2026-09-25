@@ -1,0 +1,61 @@
+{
+  "checked_at": "2026-09-25T16:59:52.203Z",
+  "version_id": "ae7676d0-f24e-49cc-98ab-1d79290f33ed",
+  "origin": "https://pipecat-on-workers.korinne.workers.dev",
+  "assets_match": true,
+  "websocket": {
+    "ready": true,
+    "ended": true,
+    "close_code": 1000
+  },
+  "websocket_closed_diagnostics": {
+    "generation": 1,
+    "closed": true,
+    "pipecat_tasks": 0,
+    "pending_turn_tasks": 0,
+    "pending_user_fragments": 0,
+    "pending_user_chars": 0,
+    "turn_end_grace_ms": 1200,
+    "input_audio_chunks": 0,
+    "input_audio_bytes": 0,
+    "forwarded_audio_bytes": 0,
+    "unacked_audio_bytes": 0,
+    "pending_playback_chunks": 0,
+    "messages": 1,
+    "metrics": [
+      {
+        "event": "startup",
+        "elapsed_ms": 341,
+        "startup_ms": 341
+      },
+      {
+        "event": "closed",
+        "elapsed_ms": 409,
+        "reason": "ended"
+      }
+    ],
+    "transport": "websocket",
+    "provider_tasks": 0,
+    "provider_sockets": 0,
+    "provider_readers": 0,
+    "pending_provider_requests": 0,
+    "queued_provider_bytes": 0,
+    "stt_connection_generation": 1,
+    "dropped_audio_bytes": 0
+  },
+  "unauthenticated_session_status": 401,
+  "unknown_transport_status": 400,
+  "sfu_session_status": 503,
+  "sfu_configured": false,
+  "sfu_live_media_validated": false,
+  "offline_checks": {
+    "python_tests": 41,
+    "browser_tests": 50,
+    "harness_tests": 12,
+    "sfu_entry_tests": 10,
+    "access_cases": 22,
+    "startup_cases": 7
+  },
+  "websocket_recorded_speech_smoke": "websocket-two-examples-smoke.json",
+  "websocket_recorded_speech_smoke_passed": true
+}

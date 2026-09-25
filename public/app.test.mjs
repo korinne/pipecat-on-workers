@@ -5,8 +5,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import { PlaybackQueue, pcm16ToBase64 } from './audio-player.mjs';
+const settle = () => new Promise(resolve => setImmediate(resolve));
 
-function harness({ fetchSession, fetchAccess } = {}) {
+function harness({ fetchSession, fetchAccess, transport = 'websocket', publish } = {}) {
   class Element {
     children = []; listeners = {}; hidden = false; disabled = false;
     classList = { toggle() {} }; attributes = {}; textContent = '';
@@ -28,7 +29,16 @@ function harness({ fetchSession, fetchAccess } = {}) {
   const requests = [];
   const timers = new Map();
   let nextTimer = 0;
-  const contexts = [], sockets = [], nodes = [], mediaRequests = [];
+  const contexts = [], sockets = [], nodes = [], mediaRequests = [], sfus = [];
+  class SfuAudioTransport {
+    floor = -1; generations = []; closed = false;
+    constructor(options) { this.options = options; sfus.push(this); }
+    async publish() { if (publish) await publish(this); }
+    async subscribe(generation) { if (generation >= this.floor) this.generations.push(generation); }
+    clearOutput(generation) { this.floor = Math.max(this.floor, generation ?? this.floor+1); return 0; }
+    close() { this.closed = true; }
+    async resumePlayback() { this.options.onPlaybackBlocked(false); }
+  }
   const track = { enabled: true, stopped: false, addEventListener() {}, stop() { this.stopped = true; } };
   class Node {
     gain = {}; port = { close() { this.closed = true; } };
@@ -58,9 +68,9 @@ function harness({ fetchSession, fetchAccess } = {}) {
   }
   const windowListeners = {};
   const sandbox = vm.createContext({
-    PlaybackQueue, pcm16ToBase64,
-    document: { getElementById: element, createElement: () => new Element() },
-    window: { AudioContext, AudioWorkletNode: Node, addEventListener(type, fn) { windowListeners[type] = fn; } },
+    PlaybackQueue, pcm16ToBase64, SfuAudioTransport,
+    document: { body: {dataset: {transport}}, getElementById: element, createElement: () => new Element() },
+    window: { AudioContext, RTCPeerConnection: class {}, MediaStream: class {}, AudioWorkletNode: Node, addEventListener(type, fn) { windowListeners[type] = fn; } },
     navigator: { mediaDevices: { async getUserMedia(options) { mediaRequests.push(options); return { getTracks: () => [track], getAudioTracks: () => [track] }; } } },
     AudioWorkletNode: Node, WebSocket: Socket, URL, AbortSignal, Int16Array,
     location: { href: 'https://voice.example/', protocol: 'https:' },
@@ -74,9 +84,9 @@ function harness({ fetchSession, fetchAccess } = {}) {
     setInterval(fn, delay) { const id = ++nextTimer; timers.set(id, { fn, delay, interval: true }); return id; },
     clearTimeout(id) { timers.delete(id); }, clearInterval(id) { timers.delete(id); },
   });
-  const code = fs.readFileSync(new URL('./app.js', import.meta.url), 'utf8').replace(/^import .*\n/, '');
+  const code = fs.readFileSync(new URL('./app.js', import.meta.url), 'utf8').replace(/^import .*\n/gm, '');
   vm.runInContext(code, sandbox);
-  return { element, sockets, contexts, nodes, timers, track, requests, mediaRequests, run: code => vm.runInContext(code, sandbox), windowListeners };
+  return { element, sockets, contexts, nodes, timers, track, requests, mediaRequests, sfus, run: code => vm.runInContext(code, sandbox), windowListeners };
 }
 
 test('Start, ready, mute, and End release all client resources', async () => {
@@ -327,4 +337,58 @@ test('resume remains reachable while initial audio startup is waiting', async ()
   assert.equal(h.mediaRequests.length, 1);
   h.element('end').click();
   assert.equal(h.timers.size, 0);
+});
+
+
+test('SFU mode sends microphone over WebRTC and leaves the control socket audio-free', async () => {
+  const h = harness({transport:'webrtc'});
+  await h.element('start').click();
+  assert.equal(JSON.parse(h.requests.find(r=>r.url==='/api/session').options.body).transport, 'webrtc');
+  const socket = h.sockets[0]; socket.open(); socket.receive({type:'ready',transport:'webrtc',generation:0});
+  await settle();
+  assert.equal(h.sfus.length,1);
+  assert.equal(h.element('status').textContent,'Listening');
+  assert.equal(h.run('player'),undefined);
+  h.run('observeMicrophone({pcm:new Int16Array(320).fill(4000).buffer,rms:.12}); updateInputHealth()');
+  assert.equal(h.element('metric-captured').textContent,'20 ms');
+  assert.equal(h.element('metric-sent').textContent,'WebRTC / Opus');
+  assert.equal(socket.sent.filter(p=>p.type==='audio'||p.type==='played').length,0);
+  h.element('mute').click(); assert.equal(h.track.enabled,false);
+  h.element('end').click(); assert.equal(h.sfus[0].closed,true); assert.equal(h.track.stopped,true);
+  assert.equal(h.timers.size,0);
+});
+test('SFU output replaces by generation and local speech clears it without fake receipts', async () => {
+  const h = harness({transport:'webrtc'}); await h.element('start').click();
+  const socket=h.sockets[0]; socket.open(); socket.receive({type:'ready',generation:2});
+  await settle();
+  socket.receive({type:'sfu_track',generation:2});
+  socket.receive({type:'status',state:'speaking',generation:2});
+  for(let i=0;i<3;i++) h.run('observeMicrophone({pcm:new Int16Array(320).buffer,rms:.1})');
+  assert.equal(h.sfus[0].floor,3);
+  socket.receive({type:'sfu_track',generation:2});
+  socket.receive({type:'sfu_track',generation:3});
+  assert.deepEqual(h.sfus[0].generations,[2,3]);
+  assert.equal(socket.sent.filter(p=>p.type==='interrupt').length,1);
+  assert.equal(socket.sent.filter(p=>p.type==='played').length,0);
+  h.element('end').click();
+});
+test('SFU reconnect closes peers and rejects old startup completion', async () => {
+  let finish; const h=harness({transport:'webrtc',publish:()=>new Promise(resolve=>{finish=resolve;})});
+  await h.element('start').click(); const first=h.sockets[0]; first.open(); first.receive({type:'ready'});
+  const finishOld=finish, old=h.sfus[0]; first.close(); assert.equal(old.closed,true);
+  const retry=[...h.timers].find(([,t])=>t.delay===500); h.timers.delete(retry[0]); retry[1].fn();
+  const next=h.sockets[1]; next.open(); next.receive({type:'ready'});
+  finishOld(); await settle();
+  assert.notEqual(h.element('status').textContent,'Listening');
+  finish(); await settle();
+  assert.equal(h.element('status').textContent,'Listening');
+  h.element('end').click(); assert.equal(h.sfus[1].closed,true);
+});
+test('SFU failures release all client resources and preserve the visible explanation', async () => {
+  const h=harness({transport:'webrtc',publish:async()=>{throw new Error('The SFU is not configured.');}});
+  await h.element('start').click(); const socket=h.sockets[0]; socket.open(); socket.receive({type:'ready'});
+  await settle();
+  assert.equal(h.element('notice').textContent,'The SFU is not configured.');
+  assert.equal(h.track.stopped,true); assert.equal(h.sfus[0].closed,true);
+  assert.equal(socket.sent.at(-1).type,'end'); assert.equal(h.timers.size,0);
 });

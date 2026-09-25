@@ -7,6 +7,8 @@ import sys
 import types
 from types import SimpleNamespace as N
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
 
 def stub(name, **attributes):
     module = types.ModuleType(name)
@@ -21,11 +23,14 @@ class Base:
 class Response:
     def __init__(self, body=None, *, status=200, headers=None, **kwargs):
         self.body, self.status, self.headers = body, status, headers or {}
+        self.web_socket = kwargs.get("web_socket")
 
 
 class Request:
     def __init__(self, url, *, method="GET", headers=None, body=None):
         self.url, self.method, self.headers, self.body = url, method, headers or {}, body
+    async def text(self): return self.body or ""
+    async def json(self): return json.loads(await self.text())
 
 
 stub("js", WebSocketPair=N())

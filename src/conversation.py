@@ -67,12 +67,13 @@ class GenerateResponse(FrameProcessor):
 
 class ConversationSession:
     def __init__(self, state, provider_factory, send, save, *, tool=lookup_availability,
-                 on_fatal=None, turn_end_grace_ms=0):
+                 on_fatal=None, turn_end_grace_ms=0, audio_transport=None):
         self.state = state
         self.send = send
         self.save = save
         self.tool = tool
         self.on_fatal = on_fatal
+        self.audio_transport = audio_transport
         self.turn_end_grace_ms = max(0, int(turn_end_grace_ms))
         self._turn_lock = asyncio.Lock()
         self._turn_commit_task = None
@@ -80,7 +81,11 @@ class ConversationSession:
         self._turn_fragments = []
         self._turn_chars = 0
         self._turn_key = None
-        self.context = LLMContext(copy.deepcopy(state.get("messages") or [{"role": "system", "content": SYSTEM}]))
+        system = SYSTEM if audio_transport is None else SYSTEM.replace(
+            'Assistant history includes only fully played sentences; an interrupted sentence may be absent.',
+            'Audio playback cannot be confirmed for this call. Prior assistant replies are omitted from history; '
+            'do not assume the user heard any prior reply.')
+        self.context = LLMContext(copy.deepcopy(state.get("messages") or [{"role": "system", "content": system}]))
         self.generation = int(state.get("generation", 0)) + 1
         self.next_chunk = 0
         self.pending = {}
@@ -293,6 +298,8 @@ class ConversationSession:
         self.sentence_parts = []
         self.credit.set()
         await self.send({"type": "clear", "generation": self.generation, "reason": reason})
+        if self.audio_transport:
+            await self.audio_transport.clear(self.generation)
         delay = None if self.last_interrupt is None else (time.monotonic() - self.last_interrupt) * 1000
         self.measure("server_clear", {"dispatch_ms": None if delay is None else round(delay, 3), "generation": self.generation})
         await self.persist()
@@ -337,6 +344,8 @@ class ConversationSession:
                     await self.speak(text.strip(), generation, started)
             finally:
                 await stream.aclose()
+            if self.audio_transport and not self.closed and generation == self.generation:
+                await self.audio_transport.finish_generation(generation)
         finally:
             self.responding = False
             if not self.closed and generation == self.generation:
@@ -378,6 +387,18 @@ class ConversationSession:
             await stream.aclose()
 
     async def output_audio(self, pcm, generation, text, sentence_ids, started):
+        if self.audio_transport:
+            if self.closed or generation != self.generation:
+                raise asyncio.CancelledError()
+            if not await self.audio_transport.send_audio(pcm, generation):
+                raise asyncio.CancelledError()
+            self.next_chunk += 1
+            # Submission is observable; it is never evidence of playback. No
+            # receipt ledger or confirmed assistant history is created here.
+            if not any(m["event"] == "first_audio_submitted" and m.get("generation") == generation for m in self.metrics):
+                self.measure("first_audio_submitted", {"generation": generation,
+                    "response_ms": round((time.monotonic()-started)*1000, 3)})
+            return self.next_chunk
         if len(self.pending) >= MAX_PENDING_RECEIPTS:
             raise ValueError("Speech segment exceeded the 256-chunk receipt limit")
         while self.unacked_bytes + len(pcm) > MAX_UNACKED_BYTES:
@@ -397,6 +418,8 @@ class ConversationSession:
         return chunk
 
     async def played(self, generation, chunk):
+        if self.audio_transport:
+            return
         item = self.pending.get(chunk)
         if generation != self.generation or not item or item["played"] or item["generation"] != generation:
             return
@@ -432,7 +455,9 @@ class ConversationSession:
                 "forwarded_audio_bytes": self.forwarded_audio_bytes,
                 "unacked_audio_bytes": self.unacked_bytes, "pending_playback_chunks": len(self.pending),
                 "messages": len(self.context.get_messages()), "metrics": self.metrics,
-                **self.provider.diagnostics()}
+                "transport": "webrtc" if self.audio_transport else "websocket",
+                **self.provider.diagnostics(),
+                **(self.audio_transport.diagnostics() if self.audio_transport else {})}
 
     async def close(self, reason="ended"):
         if self.closed:
@@ -444,6 +469,8 @@ class ConversationSession:
             with contextlib.suppress(asyncio.TimeoutError, asyncio.CancelledError):
                 await asyncio.wait_for(self.run_task, 5)
         await self.provider.close()
+        if self.audio_transport:
+            await self.audio_transport.close()
         self.pending.clear()
         self.unacked_bytes = 0
         self.credit.set()

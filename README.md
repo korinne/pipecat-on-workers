@@ -1,4 +1,21 @@
-# Pipecat inside a Cloudflare Python Durable Object
+# pipecat-on-workers
+
+Pipecat running inside a Cloudflare Python Durable Object.
+
+**Two examples:** open `/websocket` for direct browser–DO audio or `/webrtc`
+for browser WebRTC through Cloudflare Realtime SFU. The home page is a chooser.
+Both share the same Pipecat conversation engine and Workers AI providers.
+See [TWO-EXAMPLES.md](TWO-EXAMPLES.md) for architecture, code locations, SFU
+credentials, testing, and the difference in playback/history guarantees.
+The SFU app is configured with encrypted Worker secrets. Two generated-speech
+turns passed through real browser WebRTC, the SFU, Pipecat, and Workers AI, with
+nonzero decoded response audio. See [SFU activation evidence](evidence/sfu-activation.json).
+This does not establish physical speaker echo cancellation or audible interruption.
+
+**Project rename:** the project and Worker are now named **pipecat-on-workers**.
+The live demo URL is [pipecat-on-workers.korinne.workers.dev](https://pipecat-on-workers.korinne.workers.dev).
+See [rename evidence](evidence/project-rename.json). Historical evidence retains
+its original deployment URLs and version IDs.
 
 **Access-key update:** the application verifies access before opening the
 microphone and supports loading the supplied key text file directly. Missing,
@@ -14,15 +31,18 @@ provider-capacity errors, and immediate startup cancellation. See
 long-duration results below remain tied to their recorded deployment.
 
 **Microphone troubleshooting update:** a user reported speaking while the demo
-showed Listening but received no transcript. This remains under investigation.
+showed Listening but received no transcript. After the microphone update, the
+user confirmed “okay this is working!”—a user-reported basic live success.
 The updated source requests audio-engine resume directly in the Start handler,
 before the authentication wait, and adds a live sound meter, **Resume audio**,
 and separate capture, upload, server-receipt, and provider-forwarding counters.
-These diagnostics do not yet establish that the physical microphone issue is fixed.
+The confirmation does not establish the earlier failure's cause or a measured
+duration/acoustic acceptance pass.
 
 A small voice-agent spike with one Python Durable Object and one actual Pipecat
 pipeline per conversation. There is no agent server, container, Cloudflare Voice
-Agents package, SFU, or browser turn-completion model.
+Agents package, or browser turn-completion model. Only the WebRTC example uses
+an SFU, as a media transport.
 
 **Runtime verdict: works with restrictions in deployed Python Durable Objects.**
 The [protected demo](https://pipecat-on-workers.korinne.workers.dev) runs real
@@ -51,7 +71,7 @@ the public SDK without a private restart workaround. See [REPORT.md](REPORT.md)
 for pending-work/tool results and remaining limits, and
 [COMPATIBILITY.md](COMPATIBILITY.md) for the implementation findings.
 
-## What runs where
+## What runs where (WebSocket example)
 
 ```mermaid
 flowchart LR
@@ -122,9 +142,9 @@ connection cleanup, with explicitly synthetic providers and silent PCM. It
 writes `evidence/workerd-lifecycle.json`. It accepts a different development URL
 as its first argument.
 
-The updated application passed **23 Python tests with ten additional subtests**,
-**29 browser tests**, **12 harness tests**, **seven entry-lifecycle cases**, and
-**22 access-authentication cases**. These offline checks do not replace
+The updated application passed **41 Python tests with ten additional subtests**,
+**50 browser tests**, **12 harness tests**, **seven entry-lifecycle cases**, and
+**22 access-authentication cases**, and **ten SFU entry cases**. These offline checks do not replace
 real-provider or physical-device acceptance on the latest deployed version.
 
 To reproduce the ten-scenario in-DO probe and save its runtime report, use the

@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-09-25T17:10:50.092Z",
+  "checked_at": "2026-09-25T16:59:52.203Z",
   "origin": "https://pipecat-on-workers.korinne.workers.dev",
   "health": {
     "runtime": "Python Worker",
@@ -11,8 +11,8 @@
   "unauthenticated_session_status": 401,
   "deployment_succeeded": true,
   "demo_key_configured": true,
-  "version_id": "acc191fa-56ef-4fc7-a4fa-8545061a079d",
-  "deployed_at": "2026-09-25T17:10:50.092Z",
+  "version_id": "ae7676d0-f24e-49cc-98ab-1d79290f33ed",
+  "deployed_at": "2026-09-25T16:59:52.203Z",
   "wrangler_reported_startup_ms": 3016,
   "fixture_routes_enabled": false,
   "upload_kib": 8411.37,
@@ -41,14 +41,12 @@
   "production_turn_end_grace_ms": 1200,
   "flux_eot_threshold": "0.9",
   "deployed_at_note": "Recorded after deployment command completed; approximate completion time",
-  "change": "Configure approved Cloudflare Realtime SFU application with encrypted app ID and app secret; no source or echo/interruption changes",
+  "change": "Two examples sharing one Pipecat engine: direct WebSocket audio and Cloudflare Realtime SFU WebRTC audio",
   "long_duration_evidence_version": "69b1b14d-e27b-4ebc-8623-33dc94d5c186",
   "spoken_model_cancellation_evidence_version": "a0fddf09-a341-4b07-bd50-84adcc2ffed1",
   "authentication_evidence_version": "33a5c3ed-17ba-47a7-9c77-db90cfbf3114",
   "project_name": "pipecat-on-workers",
   "microphone_update_version": "76eb1ebf-32de-4291-9364-466953c444a1",
-  "sfu_configured": true,
-  "sfu_live_media_validated": true,
-  "sfu_activation_evidence": "sfu-activation.json",
-  "source_unchanged_during_sfu_activation": true
+  "sfu_configured": false,
+  "sfu_live_media_validated": false
 }

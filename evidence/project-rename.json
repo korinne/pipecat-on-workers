@@ -1,0 +1,55 @@
+{
+  "checked_at": "2026-09-25T00:47:05.843Z",
+  "project_name": "pipecat-on-workers",
+  "origin": "https://pipecat-on-workers.korinne.workers.dev",
+  "version_id": "34485c22-3b1c-442a-894e-46563075710a",
+  "previous_name": "pipecat-python-do-spike",
+  "worker_identity_preserved": true,
+  "durable_object_namespace_preserved": true,
+  "secret_binding_names_preserved": true,
+  "existing_access_key_status": 200,
+  "unauthenticated_access_status": 401,
+  "session_creation_status": 201,
+  "session": {
+    "ready": true,
+    "ended": true,
+    "close_code": 1000,
+    "start_and_end_ms": 2213
+  },
+  "closed_diagnostics": {
+    "generation": 1,
+    "closed": true,
+    "pipecat_tasks": 0,
+    "pending_turn_tasks": 0,
+    "pending_user_fragments": 0,
+    "pending_user_chars": 0,
+    "turn_end_grace_ms": 1200,
+    "input_audio_chunks": 0,
+    "input_audio_bytes": 0,
+    "forwarded_audio_bytes": 0,
+    "unacked_audio_bytes": 0,
+    "pending_playback_chunks": 0,
+    "messages": 1,
+    "metrics": [
+      {
+        "event": "startup",
+        "elapsed_ms": 502,
+        "startup_ms": 502
+      },
+      {
+        "event": "closed",
+        "elapsed_ms": 599,
+        "reason": "ended"
+      }
+    ],
+    "provider_tasks": 0,
+    "provider_sockets": 0,
+    "provider_readers": 0,
+    "pending_provider_requests": 0,
+    "queued_provider_bytes": 0,
+    "stt_connection_generation": 1,
+    "dropped_audio_bytes": 0
+  },
+  "live_assets_match": true,
+  "note": "Rename and startup check only; earlier voice/duration evidence remains tied to its original deployment. No microphone capture or spoken test was performed for this rename."
+}

@@ -68,3 +68,24 @@ footer { text-align: center; font-size: 10px; color: #95a08c; margin-top: 26px; 
 .microphone-health { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 9px; margin: 15px 20px 0; font-size: 11px; color: #657261; }
 .microphone-health meter { width: 64px; height: 12px; }
 .microphone-health button { font-size: 11px; min-height: 34px; padding: 6px 12px; }
+
+/* Shared example navigation and entry page. */
+a { color: inherit; }
+a.brand { text-decoration: none; }
+a:focus-visible { outline: 3px solid #83a373; outline-offset: 5px; }
+.example-nav { display: flex; gap: 7px; margin: 0 0 18px; font-size: 12px; }
+.example-nav a { padding: 7px 12px; border-radius: 9px; text-decoration: none; color: #69726b; }
+.example-nav a[aria-current="page"] { color: #3d5635; background: #e5ebdf; font-weight: 650; }
+.chooser-intro { padding-top: 58px; padding-bottom: 32px; }
+.chooser-intro h1 { font-size: clamp(34px, 6.5vw, 47px); }
+.example-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 17px; }
+.example-card { display: flex; flex-direction: column; align-items: flex-start; text-decoration: none; background: #fff; border: 1px solid #dde3d7; border-radius: 20px; padding: 25px; }
+.example-card:hover { border-color: #8fa87f; background: #fcfdfb; }
+.example-card .eyebrow { margin-bottom: 18px; font-size: 10px; }
+.example-card h2 { margin: 0; font-size: 23px; font-weight: 550; letter-spacing: -.035em; }
+.example-card p { font-size: 13px; color: #69726b; line-height: 1.65; margin: 14px 0 20px; }
+.example-route { display: block; font-size: 10px; color: #75806f; margin-top: auto; margin-bottom: 23px; }
+.example-link { font-size: 12px; font-weight: 600; color: #3d5635; }
+.example-link span { margin-left: 5px; }
+.chooser-note { font-size: 12px; color: #75806f; line-height: 1.7; margin: 24px 4px; }
+@media (max-width: 520px) { .example-grid { grid-template-columns: 1fr; } .chooser-intro { padding-top: 38px; } .example-card { padding: 23px; } }
