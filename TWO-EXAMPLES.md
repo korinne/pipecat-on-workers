@@ -1,10 +1,11 @@
 # Two Pipecat transports on Workers
 
-Current scope and known defects are summarized in
-[ARCHITECTURE-REVIEW.md](ARCHITECTURE-REVIEW.md). The WebRTC path is an experimental
-second example, with different history and cleanup guarantees from WebSockets.
+This document describes the implemented transport protocol. See
+[SFU status and remaining work](docs/SFU-STATUS.md) for current gaps and acceptance
+criteria. WebRTC remains experimental, with different history and cleanup
+guarantees from WebSockets.
 
-The home page links to two complete browser clients that share the same real
+The home page links to two browser clients that share the same real
 Pipecat pipeline in a Python Durable Object:
 
 | Example | Browser audio path | Control messages |
@@ -51,7 +52,8 @@ into an SFU, container, or separate Python server.
 7. Interruption clears browser playback immediately and retires the old output
    publication. A fresh receiving peer for each reply prevents late packets
    from an interrupted reply becoming audio for a later reply.
-8. End closes peer connections, adapters, owned tracks, providers, and Pipecat.
+8. End closes local peers, providers, and Pipecat, and attempts to close owned
+   SFU adapters and tracks. Failed remote closes remain a known cleanup gap.
 
 SFU app credentials stay on the Worker. Browser signaling only selects actions
 on this conversation's owned resources; it cannot supply arbitrary SFU session
@@ -81,24 +83,10 @@ for the complete WebRTC example. Never commit `.dev.vars` or app credentials.
 
 ## Limits of this spike
 
-- `playback_ready` and submitted-byte counts are **not playback receipts**.
-  The SFU path persists user history but omits unconfirmed assistant replies
-  from restored/model history. The visible transcript shows generated text.
-  The WebSocket path retains its sentence-level receipt behavior.
-- A fresh output peer per reply adds negotiation latency. This is a simple
-  stale-audio isolation baseline, not an optimized media-session design.
-- SFU interruption currently waits for remote cleanup after sending browser
-  clear, which can delay the next turn. Its `server_clear.dispatch_ms` therefore
-  includes cleanup time and must not be interpreted as dispatch-only latency.
-- Final remote cleanup is best effort. Failed closes are visible in diagnostics,
-  but no durable owner retries them after End. The browser activation test did
-  not export server resource counters for that call.
-- The browser uses Cloudflare STUN; there is no separately provisioned TURN
-  fallback in this spike. Test restrictive networks before wider use.
-- Cloudflare's WebSocket media adapter is beta. Cleanup diagnostics distinguish
-  known owned resources from uncertain allocations after a lost API response.
-- Existing long-duration evidence is for the WebSocket implementation and its
-  recorded version, not automatic validation of the new SFU path.
+Assistant history, interruption delays, final cleanup ownership, and transient
+media recovery remain open. Latency, speaker echo, and restrictive-network
+coverage also need measurement. The [SFU status checklist](docs/SFU-STATUS.md)
+contains the code references, proposed changes, and acceptance criteria.
 
 ## Verification
 
@@ -115,8 +103,9 @@ The unlinked `/transport-check.html` developer page accepts a key text file and
 a prerecorded speech WAV. It publishes a synthetic WebAudio track via real
 WebRTC, shows received RTP and nonzero decoded-audio counters, and supports
 interrupt/replay/End without opening a physical microphone. It never sends
-playback receipts. SFU credentials are now configured on the deployed Worker; counts alone do
-not establish audible playback.
+playback receipts. The activation record confirms credentials for that
+deployment. Counters alone do not establish audible playback or current
+deployment health.
 
 ```sh
 node --test public/*.test.mjs

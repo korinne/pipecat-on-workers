@@ -1,45 +1,8 @@
 # Pipecat compatibility investigation
 
-The current architecture and completion decision are in
-[ARCHITECTURE-REVIEW.md](ARCHITECTURE-REVIEW.md). The detailed runtime findings
-and historical test versions below remain part of the investigation.
-
-**Access-key update:** the application verifies access before opening the
-microphone and supports loading the supplied key text file directly. Missing,
-incorrect, and unconfigured keys now produce distinct messages. The delivered
-key and the browser file-loading flow were both verified successfully. See
-[evidence/access-key-fix.json](evidence/access-key-fix.json). The key stays in
-memory and is sent only in authentication headers; it is not saved in browser
-storage or included in the source archive.
-
-**Microphone troubleshooting update:** Start requests AudioContext resume
-synchronously before awaiting authentication; microphone access still follows
-key verification. The browser now shows a live sound meter and separate capture,
-upload, server-received, and provider-forwarded audio counters, offers Resume
-audio, and gives plain guidance for fresh and restored conversations. The user
-reported speaking while the page showed Listening without receiving a transcript.
-After the microphone deployment, the user confirmed “okay this is working!”
-This is user-reported basic live success. The earlier failure's cause remains
-unconfirmed, and measured duration/acoustic acceptance remains incomplete.
-
-**Capacity update:** the capacity fix adds bounded startup retries, clear
-provider-capacity errors, and immediate startup cancellation. See
-[CAPACITY-FIX.md](CAPACITY-FIX.md) for its tested version and checks. Earlier
-long-duration results below remain tied to their recorded deployment.
-
-**Deployed verdict: works with restrictions.** The earlier validated version
-`69b1b14d-e27b-4ebc-8623-33dc94d5c186` passed a 600.011-second actual-provider
-run with two simultaneous Python Durable Object calls, 20 recordings, ten
-interruptions and ten recoveries, one history reconnect, no reported errors,
-and zero retained live resources. See [duration evidence](evidence/real-provider-soak-summary.json).
-Recorded one-second pause and idle-cleanup checks also passed on that same
-duration-tested version. Physical
-microphone/speaker acceptance remains outstanding; the health endpoint's
-`voice_validated: false` deliberately preserves that distinction.
-Pending-tool cancellation passed on the duration-tested revision. The later
-capacity-fix version `a0fddf09-a341-4b07-bd50-84adcc2ffed1` also passed [pending-model cancellation and spoken recovery](evidence/real-provider-model-cancellation-capacity-fix.json),
-with no canceled audio after clear and zero owned-resource counters at End.
-The earlier startup HTTP 429 failures remain preserved separately.
+This document records the vendored-source changes and runtime investigation.
+See [the README](README.md) for setup and [SFU status](docs/SFU-STATUS.md) for
+current transport gaps. Measurements below apply to their recorded revisions.
 
 The spike pins **Pipecat 1.11.0**, the current release inspected on 2026-09-24. The
 GitHub tag points to `3dede06bec0b497bddfdcf047af7495ee9d0726e`. Source is taken from

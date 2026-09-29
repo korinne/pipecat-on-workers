@@ -1,66 +1,26 @@
 # Provider and physical-voice acceptance
 
-**Current scope decision:** [ARCHITECTURE-REVIEW.md](ARCHITECTURE-REVIEW.md) proposes
-a smaller closeout for the original spike. The broader device matrix below is
-available for follow-up research; its full sample counts are not required by the
-original brief. The user has not yet agreed the final acceptance scope.
-The speaker-echo issue remains open. SFU currently has only a two-turn recorded
-browser round-trip pass, with incomplete assistant memory and server-cleanup
-validation; it must not inherit WebSocket acceptance results.
+Use this guide for recorded-input provider checks and physical-device testing.
+The Node provider harnesses below exercise **direct WebSocket audio**. They do
+not test SFU signaling, WebRTC peers, or SFU adapter recovery. Use the
+[SFU acceptance checklist](docs/SFU-STATUS.md#acceptance-still-missing) for that path.
 
-**Access-key update:** the application verifies access before opening the
-microphone and supports loading the supplied key text file directly. Missing,
-incorrect, and unconfigured keys now produce distinct messages. The delivered
-key and the browser file-loading flow were both verified successfully. See
-[evidence/access-key-fix.json](evidence/access-key-fix.json). The key stays in
-memory and is sent only in authentication headers; it is not saved in browser
-storage or included in the source archive.
+## Existing evidence
 
-**Capacity update:** the application includes bounded startup retries, clear
-provider-capacity errors, and immediate startup cancellation. See
-[CAPACITY-FIX.md](CAPACITY-FIX.md) for its tested version and checks. Earlier
-long-duration results below remain tied to their recorded deployment.
+- [SFU activation](evidence/sfu-activation.json): two recorded-speech browser
+  turns with decoded response audio on September 25. Physical playback and
+  authenticated server cleanup counts were not verified for that call.
+- [WebSocket duration](evidence/real-provider-soak-summary.json): a historical
+  600.011-second, two-call run on deployment `69b1b14d`, with interruptions,
+  recovery, and cleanup. It is not a current-source SFU duration test.
+- [Review checks](evidence/review-checks.json): offline checks and source hashes
+  recorded on September 25. These are separate from device acceptance.
 
-**Microphone status:** a user reported speaking while the demo showed Listening
-without receiving a transcript, then confirmed “okay this is working!” after
-the microphone deployment. This is user-reported basic live success, not a
-measured duration or acoustic acceptance pass. The earlier cause remains
-unconfirmed; the physical-device procedure below is still outstanding.
-
-The [protected demo](https://pipecat-on-workers.korinne.workers.dev) works
-with restrictions in deployed Python 3.14.2 / Pyodide 314.0.6 Durable Objects,
-with fixture routes off. The earlier validated version `69b1b14d-e27b-4ebc-8623-33dc94d5c186`
-passed a [600.011-second actual-provider run](evidence/real-provider-soak-summary.json)
-with two simultaneous calls, 20 recorded inputs, ten interruptions and ten
-successful recoveries, one verified history reconnect, zero retained resources,
-and no reported errors. The [strict one-second pause](evidence/real-provider-pause-1s.json)
-and [30-second idle cleanup](evidence/real-provider-abandon.json) checks also passed.
-The [normal tool smoke](evidence/real-provider-tool.json) also passed, returning
-the fixed fictional Tuesday 10 AM / Thursday 2 PM availability. The combined
-pending-work run passed tool cancellation but failed at Flux startup with HTTP
-429 before input in the thinking session; both sessions released their resources.
-Keep [that failed combined run](evidence/real-provider-pending-capacity-429.json)
-distinct from the [isolated thinking retry](evidence/real-provider-model-cancellation.json),
-which also failed STT startup with HTTP 429 before any input and cleaned up all
-resources. A subsequent [capacity-fix model-cancellation check](evidence/real-provider-model-cancellation-capacity-fix.json)
-passed on version `a0fddf09-a341-4b07-bd50-84adcc2ffed1` with a complete spoken
-recovery response and zero owned resources. These startup failures
-neither exercise model cancellation nor invalidate the passing tool-cancellation
-case. [REPORT.md](REPORT.md) records the full evidence verdict.
-
-These are recorded-input provider checks, not physical microphone/speaker
-acceptance. `/api/health` intentionally reports `voice_validated: false` until
-that physical acceptance is established. The updated source also passed
-**41 Python tests and the existing ten additional subtests, 50 browser tests,
-12 harness tests, ten SFU entry cases, seven entry-lifecycle cases, and 22
-access-authentication cases** in the current offline review. See
-[evidence/review-checks.json](evidence/review-checks.json).
-Record the deployed version for future runs; these results do not
-validate later edits, indefinite runtime stability, or general speech behavior.
-The concrete outstanding acceptance check is the physical microphone/speaker
-procedure below, including natural pauses and acoustic interruption timing.
-The earlier ten-minute trial has not been repeated on the capacity-fix or
-microphone-diagnostics revisions.
+The earlier [architecture review](ARCHITECTURE-REVIEW.md) maps additional results
+to their revisions. [CAPACITY-FIX.md](CAPACITY-FIX.md) records provider-startup
+retry behavior and historical 429 failures. Repeat acceptance on one identified
+revision after behavior changes. `/api/health` keeps `voice_validated: false`
+because physical-voice acceptance remains incomplete.
 
 ## Automated checks with recorded speech
 
