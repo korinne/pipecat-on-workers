@@ -1,8 +1,12 @@
 # Detailed experiments and evidence
 
-**Current review (25 September 2026):** use [ARCHITECTURE-REVIEW.md](ARCHITECTURE-REVIEW.md)
-for the current architecture, acceptance matrix, known SFU gaps, and proposed
-closeout. This document retains earlier version-specific experiments; historical
+> Historical investigation: results apply to the source and deployment versions
+> recorded below. Start with [the README](README.md) and [SFU status](docs/SFU-STATUS.md)
+> for setup and current implementation gaps.
+
+**Architecture review (25 September 2026):** see [ARCHITECTURE-REVIEW.md](ARCHITECTURE-REVIEW.md)
+for the architecture and evidence matrix recorded then. This document retains
+earlier version-specific experiments; historical
 results are not a new acceptance run. Both transport examples are now deployed.
 Speaker self-interruption is a reported, unresolved physical-device limitation.
 

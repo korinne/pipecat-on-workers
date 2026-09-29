@@ -1,10 +1,10 @@
-# Architecture review and proposed spike closeout
+# Architecture and evidence review — September 25, 2026
 
 Reviewed 25 September 2026. Implementation commit: `bc38cea`.
 Deployed version: `acc191fa-56ef-4fc7-a4fa-8545061a079d`.
-**Decision status: proposed; final acceptance scope and next implementation work
-have not yet been agreed with the user.** This review changes documentation and
-organizes commits; it changes no deployed audio or interruption behavior.
+This document preserves the September 25 architecture review and its evidence.
+For the September 29 source review and actionable SFU completion checklist, see
+[SFU status](docs/SFU-STATUS.md). No audio behavior was changed by either review.
 
 ## Verdict against the original question
 
@@ -134,7 +134,7 @@ interrupt after roughly 60 ms above its amplitude threshold; Flux can also
 independently detect echoed speech. The actual cancellation effectiveness and
 natural spoken interruption have not been measured. Headphones avoid this
 acoustic feedback path; half-duplex listening would sacrifice spoken barge-in.
-The prior explanation-only request remains respected: no echo behavior changed.
+Echo behavior was not changed during this review.
 
 ## Evidence for this revision
 
@@ -155,7 +155,7 @@ but cover different source revisions.
 | Memory and timing | [Local heap sample](evidence/workerd-heap-py314-after-soak.json), historical server/browser scheduling metrics | Whole deployed isolate memory and acoustic interruption-to-silence remain unmeasured. |
 | Regression tests | [Review checks](evidence/review-checks.json): 41 Python, 50 browser, 12 harness, ten SFU routing, seven lifecycle, 22 auth; core/provider guards pass | These are offline checks, not new physical or ten-minute results. |
 
-## Proposed next steps: awaiting agreement
+## Original WebSocket closeout proposal
 
 **Recommended scope:** close the original runtime spike using WebSockets as the
 acceptance baseline; retain the requested SFU example as an explicitly limited
@@ -183,10 +183,10 @@ echo handling, then run the same acceptance suite on both transports. Do not
 start a persistent-track rewrite or production platform work ahead of those
 decisions.
 
-## Logical commits
+## Source provenance
 
-The folder previously had no Git history. These commits were created now; they
-are not backdated development history. The WebSocket baseline was recovered
+The original folder had no Git history. These commits were assembled for the
+September 25 review from saved work. The WebSocket baseline was recovered
 from the saved pre-SFU archive, and its runtime/browser/config hashes were
 checked against deployed version `34485c22`. Current files were preserved while
 that baseline was staged, then the existing SFU changes were committed separately.
@@ -198,5 +198,5 @@ that baseline was staged, then the existing SFU changes were committed separatel
 | `bc38cea` | SFU codec/transport/client, two-example UI, tests, and activation evidence. |
 | Review documentation commit | This review, concise run instructions, corrected current/historical claims, regression evidence. |
 
-Commits are local. No remote repository or push was requested. Credentials,
-recordings, caches, environments, and scratch work are excluded.
+These commits are now published in this repository. Credentials, recordings,
+caches, environments, and scratch work are excluded.
