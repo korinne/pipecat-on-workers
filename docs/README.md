@@ -2,7 +2,7 @@
 
 Build a supported voice application on Python Workers using Pipecat, with Workers AI handling speech recognition, hosted Pipecat Smart Turn, GPT-OSS-120B language generation, and Aura-2 speech synthesis. Support two ways to carry audio: a direct browser WebSocket and Cloudflare Realtime SFU.
 
-The repository contains a working prototype and a plan for bringing it to that target. Its current code uses vendored Pipecat, Nova-3 with hosted Smart Turn, and custom assistant-history logic. The turn integration passes controlled tests; live verification and the remaining implementation tasks are still open.
+The repository contains a working prototype and a plan for bringing it to that target. Its current code uses vendored Pipecat, Nova-3 with hosted Smart Turn, GPT-OSS and the standard speech/output/assistant-context path. The [speech integration](SPEECH-CONTEXT.md) and [package investigation](PACKAGE-CANDIDATE.md) distinguish implemented behavior from release support.
 
 Both voice examples start without a demo access key. Anyone with the URL can create a call using the deployment’s Workers AI and SFU resources. Each call still uses a private session token.
 
@@ -14,9 +14,9 @@ Both voice examples start without a demo access key. Anyone with the URL can cre
 | [Conversation behavior](CONVERSATION.md) | Agree to use Pipecat's normal speech/output and assistant-context path, including interruption and recovery. |
 | [Transport integration](TRANSPORTS.md) | Agree how the two existing audio routes connect to the same conversation. |
 | [Acceptance plan](ACCEPTANCE.md) | Agree what observations count as success and which limits still need values. |
-| [Implementation order](IMPLEMENTATION-PLAN.md) | Give each fresh coding session one bounded task and a stopping point. |
+| [Implementation order](IMPLEMENTATION-PLAN.md) | Track the remaining implementation and verification work. |
 
-Task 1 has recorded the [reference configuration](GOALS.md#task-1-reference-configuration), [speech/output observations](CONVERSATION.md#task-1-speech-reference), and [reproducible gaps](EVIDENCE.md#task-1-reference-investigation). Task 2 has implemented and tested the turn adapter locally. Cloudflare login is restored and [the Task 2 deployment](EVIDENCE.md#task-2-deployment-follow-up) passes startup, page and access checks. A [Nova request-format fix](EVIDENCE.md#nova-startup-http-400) now passes real speech-service connection and cleanup checks on both routes. Spoken turns, hosted Smart Turn and playback still need live verification. Task 3, GPT-OSS and standard assistant context, is next. Set performance thresholds before judging live performance.
+Task 1 recorded the reference configuration and speech/output behavior. The continuation adds live Nova/Smart Turn investigation, GPT-OSS streaming, standard assistant context on both adapters, and bounded cleanup ownership. Historical checks remain in [Evidence](EVIDENCE.md). Published Pipecat packages still cannot satisfy the Workers installation requirement, so B1 remains open. The user has deferred performance acceptance and agreed to a laptop microphone/playback check.
 
 ## Supporting material
 

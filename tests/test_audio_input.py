@@ -44,7 +44,7 @@ class AudioInputTests(unittest.IsolatedAsyncioTestCase):
         history = [{"role": "user", "content": "Earlier conversation"}]
         for restored in (False, True):
             with self.subTest(restored=restored):
-                state = {"messages": [{"role": "system", "content": SYSTEM}] + history} if restored else None
+                state = {"context_schema": 2, "messages": [{"role": "system", "content": SYSTEM}] + history} if restored else None
                 h = await Harness(state=state).start()
                 try:
                     reset = next(event for event in h.events if event["type"] == "reset")

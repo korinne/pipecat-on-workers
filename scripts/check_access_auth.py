@@ -105,7 +105,12 @@ async def main():
     for headers in ({"X-Session-Token": token}, {}):
         url = base + "/diagnostics" + ("?token=" + token if not headers else "")
         result = await obj.fetch(Request(url, headers=headers))
-        assert result.status == 200 and json.loads(result.body) == {"live": False, "status": "created"}
+        assert result.status == 200
+        assert json.loads(result.body) == {
+            "live": False, "status": "created", "sfu_retired_connections": 0,
+            "sfu_cleanup_records": [], "sfu_cleanup_persistence_failed": False,
+        }
+        assert token not in result.body
         checks += 1
     for suffix in ("/probe", "/restart"):
         result = await obj.fetch(Request(base+suffix, method="POST", headers={"X-Session-Token": token}))

@@ -183,3 +183,13 @@ No supported Workers package candidate has been accepted. Task 1 adds a normal C
 Every new result must identify its source, artifacts, deployment/runtime, models, transport, inputs, workload, raw observations, and agreed thresholds. Keep local simulation, actual runtime execution, live network tests, and physical audio measurements distinct. Preserve failures and mark missing evidence untested.
 
 For a package claim, test the actual installed artifact. For an application claim, rerun the relevant observation against the changed code. For a platform claim, exercise the required platform operation. The [acceptance plan](ACCEPTANCE.md) defines these tests; the [implementation plan](IMPLEMENTATION-PLAN.md) limits each coding session's work. [DEVELOPMENT.md](DEVELOPMENT.md) explains how to repeat diagnostics without overwriting the original records.
+
+## Continuation: selected providers and standard speech
+
+The [live turn investigation](TURN-LIVE.md) preserves real Nova events, hosted float32 requests, an HTTP 429, the old deployed split-turn failure and the later empty-silence correction. One assembled pause/resume fixture still receives INCOMPLETE. No model decision was overridden.
+
+[GPT-OSS](GPT-OSS.md) records real Python binding request and stream shapes, answer/reasoning separation, completion outcomes, the 2,048-token probe budget and active cancellation. [Speech/context](SPEECH-CONTEXT.md) connects the standard pinned service/output/assistant components on both adapters. [Storage handling](PERSISTENCE.md) defines acknowledged commits and fatal save failure. The [integration report](../audit/results/task3-speech-integration.json) separates controlled tests from a local Python Worker using live providers; the latter completed one spoken question and response after the silence correction. These precommit checks do not substitute for final revision verification.
+
+[Transport extraction](TRANSPORT-ADAPTERS.md) and [cleanup ownership](CLEANUP.md) remain separately reviewable. [Published-package results](PACKAGE-CANDIDATE.md) leave B1 open. [Vendored speech provenance](VENDORED-SPEECH.md) identifies the code and compatibility changes actually loaded by this prototype.
+
+The user approved testing on their laptop and explicitly deferred performance acceptance. Capacity, sustained load, platform CPU, whole-isolate memory, numeric latency targets and cost acceptance remain untested. Physical microphone and audible playback need the user's participation on the final deployment.

@@ -12,7 +12,8 @@ import platform
 import time
 import traceback
 
-from conversation import ConversationSession, MAX_UNACKED_BYTES
+from conversation import ConversationSession, MAX_UNACKED_BYTES, MAX_PENDING_RECEIPTS
+from speech_pipeline import MAX_QUEUED_AUDIO_BYTES
 
 
 async def wait_for(predicate, description, timeout=4):
@@ -205,8 +206,11 @@ class Harness:
         await self.finish(text, index)
 
     async def response(self, count=1):
-        await wait_for(lambda: len(self.provider.generations) >= count and self.audio() and
-                       not self.session.responding, "complete fixture response")
+        await wait_for(lambda: len(self.provider.generations) >= count
+                       and self.audio(self.session.generation) and not self.session.responding
+                       and any(event["type"] == "status" and event.get("state") == "listening"
+                               and event.get("generation") == self.session.generation
+                               for event in self.events), "complete fixture response")
 
     async def acknowledge(self, events=None):
         for event in events if events is not None else self.audio():
@@ -230,19 +234,19 @@ async def receipts_and_context():
         await h.turn("alpha", 0)
         await h.response()
         audio = h.audio()
-        assert len(audio) == 3
-        assert not h.assistant(), "Unplayed generated text entered conversation history"
-        # Final chunk alone is insufficient; every preceding PCM chunk is required.
-        await h.acknowledge([audio[-1], audio[0]])
-        assert not h.assistant(), "Partly played sentence was committed"
-        await h.acknowledge([audio[1]])
+        assert len(audio) == 15
+        assert all(event["text"] == "" for event in audio)
         assert h.assistant() == ["fixture reply to alpha."]
         saved = copy.deepcopy(h.saved[-1])
+        # Receipts release flow-control credit without writing assistant history.
+        await h.acknowledge([audio[-1], audio[0]])
+        assert len(h.session.pending) == len(audio) - 2
+        assert h.saved[-1] == saved
         await h.acknowledge(audio)
         assert h.saved[-1] == saved, "Duplicate receipts changed history"
         assert h.session.unacked_bytes == 0
-        return {"audio_chunks": 3, "played_sentence_commits": 1,
-                "duplicate_receipts_ignored": 3, "partial_sentence_committed": False}
+        return {"audio_chunks": len(audio), "standard_assistant_commits": 1,
+                "receipt_dependent_context": False, "duplicate_receipts_ignored": 2}
     finally:
         await h.close()
 
@@ -356,19 +360,22 @@ async def repeated_playback_interruptions():
     try:
         for index in range(4):
             await h.turn(f"turn {index}", index)
-            await h.response(index + 1)
-            current = h.audio(h.session.generation)
-            assert len(current) == 3
             if index < 3:
-                # One played chunk is deliberately less than the full sentence.
+                await wait_for(lambda: bool(h.audio(h.session.generation)), "first output chunk")
+                current = h.audio(h.session.generation)
+                assert len(current) < 15, "Fixture missed the mid-sentence interruption window"
                 await h.acknowledge([current[0]])
                 interrupted.extend(current)
-                assert not h.assistant()
+                assert not h.assistant(), "Sentence text progressed before its queued audio"
+            else:
+                await h.response(index + 1)
         current_generation = h.session.generation
         bytes_before = h.session.unacked_bytes
+        saved_before = copy.deepcopy(h.saved[-1])
         await h.acknowledge(interrupted)
         assert h.session.unacked_bytes == bytes_before
-        assert not h.assistant(), "Old receipt resurrected interrupted speech"
+        assert h.saved[-1] == saved_before, "Old receipts changed committed context"
+        assert h.assistant() == ["fixture reply to turn 3."]
         await h.acknowledge(h.audio(current_generation))
         assert h.assistant() == ["fixture reply to turn 3."]
         return {"playback_interruptions": 3, "stale_receipts_ignored": len(interrupted),
@@ -426,8 +433,10 @@ async def backpressure_and_cleanup():
     h = await Harness(pcm_chunks=1000).start()
     try:
         await h.turn("long reply", 0)
-        await wait_for(lambda: h.session.unacked_bytes == MAX_UNACKED_BYTES,
-                       "bounded playback buffer filling")
+        await wait_for(lambda: len(h.session.pending) == MAX_PENDING_RECEIPTS,
+                       "bounded playback buffer filling", timeout=8)
+        assert h.session.unacked_bytes <= MAX_UNACKED_BYTES
+        assert h.session.queued_output_bytes <= MAX_QUEUED_AUDIO_BYTES
         assert h.provider.live_syntheses == 1
         before = len(h.audio())
         await asyncio.sleep(0.03)
@@ -436,7 +445,8 @@ async def backpressure_and_cleanup():
         await asyncio.wait_for(h.provider.synthesis_cancelled.wait(), 4)
         await wait_for(lambda: h.session.unacked_bytes == 0, "interruption clearing playback buffer")
         assert h.session.pending == {}
-        return {"max_unacked_pcm_bytes": MAX_UNACKED_BYTES, "audio_chunks_before_backpressure": before,
+        return {"configured_max_unacked_pcm_bytes": MAX_UNACKED_BYTES, "max_pending_receipts": MAX_PENDING_RECEIPTS,
+                "audio_chunks_before_backpressure": before,
                 "blocked_synthesis_canceled": True}
     finally:
         await h.close()
@@ -557,7 +567,7 @@ async def run_soak(duration_seconds=600, turn_interval_seconds=5, sessions=4,
         current = h.audio(h.session.generation)
         peak_unacked = max(peak_unacked, h.session.unacked_bytes)
         # Two in three replies are only partly acknowledged and are then
-        # interrupted by the next turn. The third commits one full sentence.
+        # interrupted by the next turn. Standard context already follows output text.
         await h.acknowledge(current if turns[i] % 3 == 2 else current[:1])
         turns[i] += 1
         next_turns[i] = time.monotonic() + turn_interval_seconds

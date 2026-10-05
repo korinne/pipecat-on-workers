@@ -1,6 +1,6 @@
 # Implementation order and coding session scope
 
-Use the [goals](GOALS.md) as the scope boundary. The target is one Workers AI voice configuration using GPT-OSS-120B and Pipecat's existing conversation behavior through direct WebSocket and SFU. The plan has six tasks. Task 1 established the reference; Task 2 now has an implementation candidate for Nova-3 and hosted Smart Turn. The selected GPT-OSS and standard assistant-output/context path remain Task 3 work. No complete Workers support claim has been established.
+Use the [goals](GOALS.md) as the scope boundary. The target is one Workers AI voice configuration using GPT-OSS-120B and Pipecat's existing conversation behavior through direct WebSocket and SFU. The plan has six tasks. Task 1 established the reference. The continuation implements GPT-OSS, standard speech/context, transport ownership and cleanup, with live turn corrections and a published-package investigation. Final verification records remaining failures and untested checks. No complete Workers support claim has been established.
 
 ## Before starting a coding session
 
@@ -13,7 +13,7 @@ Each fresh session gets a short brief naming:
 - The relevant documents and tests, with the intended observations.
 - Its completion condition and any decisions still needed.
 
-Finish that task and report the changed behavior, test evidence, and remaining limitations. Do not automatically start the next task. A necessary local implementation detail is within scope; changing the supported configuration or adding a product feature requires a separate decision.
+The earlier per-task stopping rule was superseded by the user’s continuation request on 4 October 2026. Continue through the remaining tasks, reporting changed behavior, evidence and limitations in coherent commits. A necessary local implementation detail is within scope; changing the supported configuration or adding a product feature requires a separate decision.
 
 ## 1 Establish the reference configuration
 
@@ -45,7 +45,7 @@ Task 2 implementation candidate: [the turn adapter](../src/smart_turn.py) maps N
 
 The implementation has a five-second pause-to-readiness deadline, a two-second hosted binding wait, and at most one unresolved hosted request per provider instance. An incomplete decision waits for resumed speech; failure or missing readiness discards the pending turn and asks the user to repeat it. These are bounded test settings, not latency targets. The transcript-range audio snapshot and final-transcript coverage rule have the timing limits described in [Conversation](CONVERSATION.md#task-2-user-turn-coordination).
 
-Task 2 implementation and controlled verification are complete: 58 Python tests, 62 JavaScript tests and the supporting offline checks passed. A final focused rerun covers the retained audio window and decision diagnostics. See [the scoped results](EVIDENCE.md#task-2-turn-integration). The [initial access check](../audit/results/task2-live-access.json) could not refresh authentication. Login was later restored and [Task 2 was deployed](EVIDENCE.md#task-2-deployment-follow-up), passing imports/startup and public HTTP checks. A later [Nova startup correction](EVIDENCE.md#nova-startup-http-400) fixed rejected WebSocket parameter types; real deployed Python connections now reach ready and end cleanly on both routes. Nova transcription events, hosted turn decisions, SFU media and physical audio remain untested. The next bounded implementation is Task 3. Starting it requires a separate task instruction.
+Task 2 implementation and controlled verification are complete: 58 Python tests, 62 JavaScript tests and the supporting offline checks passed. A final focused rerun covers the retained audio window and decision diagnostics. See [the scoped results](EVIDENCE.md#task-2-turn-integration). The [initial access check](../audit/results/task2-live-access.json) could not refresh authentication. Login was later restored and [Task 2 was deployed](EVIDENCE.md#task-2-deployment-follow-up), passing imports/startup and public HTTP checks. A later [Nova startup correction](EVIDENCE.md#nova-startup-http-400) fixed rejected WebSocket parameter types; real deployed Python connections now reach ready and end cleanly on both routes. Nova transcription events, hosted turn decisions, SFU media and physical audio remain untested. The continuation request authorizes Tasks 3–6. The paragraph above records the earlier Task 2 handoff; newer live evidence is in [TURN-LIVE](TURN-LIVE.md).
 
 ## 3 Connect GPT-OSS and standard assistant context
 
@@ -92,3 +92,7 @@ Verification task done when: each requirement has a result for the declared conf
 The [local runner](DEVELOPMENT.md) retains the baseline diagnostic probes. Its older generated-context checks expose receipt-dependent history; they do not prescribe retaining every generated word after interruption. The original results retain their old checklist entries; the current runner lists outstanding checks for the agreed scope. Preserve those result files and add new results for the agreed behavior when implementing it.
 
 Use [the evidence map](EVIDENCE.md) to separate application bugs from package/runtime gaps. Report a capability as required only when the selected configuration needs it and a reproducible check identifies the missing behavior.
+
+## Continuation status
+
+The current application uses [GPT-OSS](GPT-OSS.md) and [standard speech/context](SPEECH-CONTEXT.md). [Transport adapters](TRANSPORT-ADAPTERS.md) and [cleanup](CLEANUP.md) have separate changes and tests. The [package investigation](PACKAGE-CANDIDATE.md) found reproducible published-artifact blockers, so B1 remains open. Performance acceptance is deferred at the user’s request; final testing is limited to bounded functional checks and an available laptop microphone/playback check. Historical evidence above remains under its original scope.

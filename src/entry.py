@@ -160,8 +160,8 @@ class Conversation(DurableObject):
     async def save(self, state):
         async with self.save_lock:
             state["sfu_cleanup"] = self.cleanup_records()
-            self.state = state
             await self.ctx.storage.put("conversation", json.dumps(state))
+            self.state = state
 
     async def send(self, message):
         if self.socket is not None and self.socket.readyState == 1:
@@ -433,8 +433,13 @@ class Conversation(DurableObject):
         if bridge and not bridge.closed:
             await bridge.close()
         if self.state:
-            self.state["status"] = "disconnected" if recoverable else "ended"
-            await self.save(self.state)
+            final_state = dict(self.state, status="disconnected" if recoverable else "ended")
+            try:
+                await self.save(final_state)
+            except Exception:
+                # A rejected final write must not leave the control socket or
+                # its listeners alive after conversation resources are closed.
+                self.cleanup_persistence_failed = True
         if self.socket:
             socket, self.socket = self.socket, None
             with contextlib.suppress(Exception):

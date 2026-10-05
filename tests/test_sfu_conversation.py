@@ -68,23 +68,24 @@ class SfuHarness(Harness):
 
 
 class SfuConversationTests(unittest.IsolatedAsyncioTestCase):
-    async def test_completed_response_uses_sfu_without_receipts_or_assistant_history(self):
+    async def test_completed_response_commits_standard_context_without_receipts(self):
         # More audio than the WS credit window: SFU must not wait for WS acks.
         harness = await SfuHarness(pcm_chunks=90).start()
         try:
             await harness.turn("hello", 1)
             await wait_for(lambda: bool(harness.transport.finished), "SFU EOS")
-            self.assertEqual(len(harness.transport.sent), 90)
+            self.assertEqual(len(harness.transport.sent), 450)
+            self.assertTrue(all(len(pcm) == 960 for pcm, _ in harness.transport.sent))
             self.assertEqual(harness.audio(), [])
             self.assertEqual(harness.session.pending, {})
             self.assertEqual(harness.session.unacked_bytes, 0)
-            self.assertEqual(harness.assistant(), [])
+            self.assertEqual(harness.assistant(), ["fixture reply to hello."])
             self.assertTrue(any(event["type"] == "transcript" and event.get("role") == "assistant" for event in harness.events))
-            # A forged receipt cannot upgrade submitted speech into heard speech.
+            # Receipts cannot alter standard assistant context on either route.
             await harness.session.played(harness.session.generation, harness.session.next_chunk)
-            self.assertEqual(harness.assistant(), [])
-            self.assertFalse(any(message["role"] == "assistant" for saved in harness.saved for message in saved["messages"]))
-            self.assertIn("Audio playback cannot be confirmed", harness.session.context.get_messages()[0]["content"])
+            self.assertEqual(harness.assistant(), ["fixture reply to hello."])
+            self.assertTrue(any(message["role"] == "assistant" for saved in harness.saved for message in saved["messages"]))
+            self.assertNotIn("Audio playback cannot be confirmed", harness.session.context.get_messages()[0]["content"])
             self.assertEqual(harness.session.diagnostics()["transport"], "webrtc")
             self.assertFalse(harness.session.diagnostics()["sfu_delivery_confirmed"])
             eos_index = next(i for i, value in enumerate(harness.timeline) if value[0] == "eos")

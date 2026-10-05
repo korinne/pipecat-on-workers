@@ -6,56 +6,44 @@ import unittest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "src"))
 from runtime_probe import Harness, wait_for
-from conversation import MAX_PENDING_RECEIPTS
+from conversation import MAX_PENDING_RECEIPTS, MAX_UNACKED_BYTES
+from speech_pipeline import MAX_QUEUED_AUDIO_BYTES
 
 
 class ProviderFailureTests(unittest.IsolatedAsyncioTestCase):
-    async def test_long_speech_receipts_are_bounded_and_uncommitted(self):
-        for leave_last_unplayed in (False, True):
-            with self.subTest(leave_last_unplayed=leave_last_unplayed):
-                h = await Harness(pcm_chunks=1000).start()
-                original_send = h.session.send
-                peak_pending = 0
-
-                async def send_with_receipts(event):
-                    nonlocal peak_pending
-                    await original_send(event)
-                    if event["type"] == "audio":
-                        peak_pending = max(peak_pending, len(h.session.pending))
-                        if not (leave_last_unplayed and len(h.audio()) == MAX_PENDING_RECEIPTS):
-                            await h.session.played(event["generation"], event["chunk_id"])
-
-                h.session.send = send_with_receipts
-                try:
-                    await h.turn("overlong speech segment", 0)
-                    await wait_for(lambda: any(e["type"] == "clear" and
-                        e.get("reason") == "response_error" for e in h.events), "receipt-limit failure")
-                    self.assertEqual(len(h.audio()), MAX_PENDING_RECEIPTS)
-                    self.assertEqual(peak_pending, MAX_PENDING_RECEIPTS)
-                    errors = [e["message"] for e in h.events if e["type"] == "error"]
-                    self.assertEqual(len(errors), 1)
-                    self.assertIn("256-chunk receipt limit", errors[0])
-                    self.assertEqual(h.session.pending, {})
-                    self.assertEqual(h.session.unacked_bytes, 0)
-                    self.assertEqual(h.provider.live_generations, 0)
-                    self.assertEqual(h.provider.live_syntheses, 0)
-                    self.assertTrue(h.provider.synthesis_cancelled.is_set())
-                    self.assertEqual(h.assistant(), [])
-                    self.assertFalse(any(m["role"] == "assistant"
-                        for state in h.saved for m in state.get("messages", [])))
-                    # Late receipts cannot revive the discarded sentence.
-                    await h.acknowledge()
-                    self.assertEqual(h.assistant(), [])
-                    # The failed response does not make the next turn unusable.
-                    h.session.send = original_send
-                    h.provider.pcm_chunks = 3
-                    await h.turn("normal follow-up", 1)
-                    await h.response(2)
-                    self.assertEqual(h.assistant(), [])
-                    await h.acknowledge()
-                    self.assertEqual(h.assistant(), ["fixture reply to normal follow-up."])
-                finally:
-                    await h.close()
+    async def test_slow_receiver_bounds_output_and_allows_interruption_recovery(self):
+        h = await Harness(pcm_chunks=1000).start()
+        try:
+            await h.turn("long speech segment", 0)
+            await wait_for(lambda: len(h.session.pending) == MAX_PENDING_RECEIPTS,
+                           "slow receiver credit exhaustion", timeout=8)
+            self.assertLessEqual(h.session.unacked_bytes, MAX_UNACKED_BYTES)
+            self.assertLessEqual(h.session.queued_output_bytes, MAX_QUEUED_AUDIO_BYTES)
+            before = len(h.audio())
+            await asyncio.sleep(0.05)
+            self.assertEqual(len(h.audio()), before)
+            self.assertEqual(h.assistant(), [])
+            # Credit released by three old packets admits exactly three more.
+            await h.acknowledge(h.audio()[:3])
+            await wait_for(lambda: len(h.audio()) == before + 3, "released output credit")
+            await asyncio.sleep(0.05)
+            self.assertEqual(len(h.audio()), before + 3)
+            self.assertEqual(len(h.session.pending), MAX_PENDING_RECEIPTS)
+            old_audio = list(h.audio())
+            await h.session.interrupt()
+            await asyncio.wait_for(h.provider.synthesis_cancelled.wait(), 4)
+            await wait_for(lambda: not h.session.pending, "interruption releases credit")
+            self.assertEqual(h.session.unacked_bytes, 0)
+            self.assertEqual(h.assistant(), [])
+            await h.acknowledge(old_audio)
+            self.assertEqual(h.assistant(), [])
+            h.provider.pcm_chunks = 3
+            await h.turn("normal follow-up", 1)
+            await h.response(2)
+            self.assertEqual(h.assistant(), ["fixture reply to normal follow-up."])
+            self.assertEqual([e for e in h.events if e["type"] == "error"], [])
+        finally:
+            await h.close()
 
     async def test_terminal_failure_without_owner_closes_pending_pipeline(self):
         h = await Harness(hold_generation=True).start()

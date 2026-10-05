@@ -248,5 +248,33 @@ class SfuEntryTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(diagnostics["sfu_cleanup_persistence_failed"])
         self.assertEqual(diagnostics["sfu_cleanup_records"][0]["adapters"], ["owned-after-failure"])
 
+    async def test_rejected_context_save_preserves_last_acknowledged_state(self):
+        old = dict(self.obj.state, messages=[{"role": "user", "content": "Saved."}])
+        self.obj.state = old
+        candidate = dict(old, messages=old["messages"] + [{"role": "assistant", "content": "Unsaved."}])
+        async def fail_put(key, value):
+            raise RuntimeError("controlled storage failure")
+        self.obj.ctx.storage.put = fail_put
+        with self.assertRaises(RuntimeError):
+            await self.obj.save(candidate)
+        self.assertIs(self.obj.state, old)
+        self.assertEqual(len(self.obj.state["messages"]), 1)
+
+    async def test_failed_final_status_write_still_closes_control_socket(self):
+        async def fail_put(key, value):
+            raise RuntimeError("controlled final write failure")
+        self.obj.ctx.storage.put = fail_put
+        self.obj.session = None
+        socket = self.obj.socket = Socket()
+        self.obj.incoming = asyncio.Queue()
+        self.obj.listeners = []
+        old = dict(self.obj.state)
+        await self.obj.shutdown("ended", recoverable=False)
+        self.assertTrue(socket.closes)
+        self.assertIsNone(self.obj.socket)
+        self.assertIsNone(self.obj.incoming)
+        self.assertEqual(self.obj.state, old)
+        self.assertTrue(self.obj.diagnostics()["sfu_cleanup_persistence_failed"])
+
 
 if __name__ == "__main__": unittest.main()

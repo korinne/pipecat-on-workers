@@ -1,0 +1,793 @@
+{
+  "events": [
+    {
+      "type": "reset",
+      "generation": 1,
+      "history": [],
+      "message": "Connected. Say hello to start."
+    },
+    {
+      "type": "ready",
+      "generation": 1
+    },
+    {
+      "type": "clear",
+      "generation": 2,
+      "reason": "pipecat_interruption"
+    },
+    {
+      "type": "transcript",
+      "role": "user",
+      "text": "is the capital",
+      "final": false
+    },
+    {
+      "type": "transcript",
+      "role": "user",
+      "text": "what is the capital of france",
+      "final": false
+    },
+    {
+      "type": "transcript",
+      "role": "user",
+      "text": "what is the capital of france",
+      "final": true
+    },
+    {
+      "type": "status",
+      "state": "thinking",
+      "generation": 3
+    },
+    {
+      "type": "status",
+      "state": "speaking",
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "audio",
+      "bytes": 960,
+      "generation": 3
+    },
+    {
+      "type": "transcript",
+      "role": "assistant",
+      "text": "Paris is the capital of France.",
+      "final": true
+    },
+    {
+      "type": "status",
+      "state": "listening",
+      "generation": 3
+    },
+    {
+      "type": "ended"
+    }
+  ],
+  "diagnostics": {
+    "generation": 3,
+    "closed": true,
+    "pipecat_tasks": 0,
+    "pending_turn_tasks": 0,
+    "pending_user_fragments": 0,
+    "pending_user_chars": 0,
+    "turn_audio_bytes": 0,
+    "turn_revision": 3,
+    "turn_timeout_secs": 5,
+    "input_audio_chunks": 306,
+    "input_audio_bytes": 195662,
+    "forwarded_audio_bytes": 195662,
+    "unacked_audio_bytes": 0,
+    "pending_playback_chunks": 0,
+    "messages": 3,
+    "metrics": [
+      {
+        "event": "turn_discarded",
+        "elapsed_ms": 597,
+        "reason": "stt_connection_changed"
+      },
+      {
+        "event": "startup",
+        "elapsed_ms": 600,
+        "startup_ms": 599
+      },
+      {
+        "event": "nova_observed",
+        "elapsed_ms": 808,
+        "kind": "SpeechStarted",
+        "start": null,
+        "duration": null,
+        "final": null,
+        "cursor": 1920,
+        "words": []
+      },
+      {
+        "event": "speech_started",
+        "elapsed_ms": 809,
+        "revision": 2
+      },
+      {
+        "event": "server_clear",
+        "elapsed_ms": 820,
+        "dispatch_ms": 11,
+        "generation": 2
+      },
+      {
+        "event": "nova_observed",
+        "elapsed_ms": 2403,
+        "kind": "Results",
+        "start": 0,
+        "duration": 1,
+        "final": false,
+        "cursor": 16960,
+        "words": [
+          {
+            "word": "is",
+            "start": 0.16,
+            "end": 0.39999998,
+            "confidence": 0.7734375
+          },
+          {
+            "word": "the",
+            "start": 0.39999998,
+            "end": 0.56,
+            "confidence": 0.99902344
+          },
+          {
+            "word": "capital",
+            "start": 0.56,
+            "end": 0.88,
+            "confidence": 0.93603516
+          }
+        ]
+      },
+      {
+        "event": "nova_observed",
+        "elapsed_ms": 3631,
+        "kind": "Results",
+        "start": 0,
+        "duration": 2.13,
+        "final": true,
+        "cursor": 35431,
+        "words": [
+          {
+            "word": "what",
+            "start": 0,
+            "end": 0.24,
+            "confidence": 0.7675781
+          },
+          {
+            "word": "is",
+            "start": 0.24,
+            "end": 0.39999998,
+            "confidence": 0.9892578
+          },
+          {
+            "word": "the",
+            "start": 0.39999998,
+            "end": 0.56,
+            "confidence": 0.9980469
+          },
+          {
+            "word": "capital",
+            "start": 0.56,
+            "end": 0.96,
+            "confidence": 0.9604492
+          },
+          {
+            "word": "of",
+            "start": 0.96,
+            "end": 1.28,
+            "confidence": 1
+          },
+          {
+            "word": "france",
+            "start": 1.28,
+            "end": 1.68,
+            "confidence": 0.9765625
+          }
+        ]
+      },
+      {
+        "event": "turn_pause",
+        "elapsed_ms": 3631,
+        "revision": 2,
+        "snapshot_samples": 26880,
+        "transcript_end_sample": 34080,
+        "audio_end_sample": 26880
+      },
+      {
+        "event": "smart_turn",
+        "elapsed_ms": 4295,
+        "revision": 2,
+        "complete": true,
+        "probability": 0.7103848457336426
+      },
+      {
+        "event": "user_end",
+        "elapsed_ms": 4296,
+        "revision": 2
+      },
+      {
+        "event": "generation_started",
+        "elapsed_ms": 4299,
+        "generation": 3
+      },
+      {
+        "event": "nova_observed",
+        "elapsed_ms": 4691,
+        "kind": "Results",
+        "start": 2.13,
+        "duration": 1.0044374,
+        "final": false,
+        "cursor": 51751,
+        "words": []
+      },
+      {
+        "event": "first_audio",
+        "elapsed_ms": 5545,
+        "generation": 3,
+        "response_ms": 1247
+      },
+      {
+        "event": "nova_observed",
+        "elapsed_ms": 5702,
+        "kind": "Results",
+        "start": 2.13,
+        "duration": 2.0044374,
+        "final": false,
+        "cursor": 67111,
+        "words": []
+      },
+      {
+        "event": "nova_observed",
+        "elapsed_ms": 6758,
+        "kind": "Results",
+        "start": 2.13,
+        "duration": 3.0044374,
+        "final": false,
+        "cursor": 83111,
+        "words": []
+      },
+      {
+        "event": "turn_discarded",
+        "elapsed_ms": 7727,
+        "reason": "closed"
+      },
+      {
+        "event": "closed",
+        "elapsed_ms": 7735,
+        "reason": "ended"
+      }
+    ],
+    "transport": "websocket",
+    "queued_output_bytes": 0,
+    "context_schema": 2,
+    "history_reset": false,
+    "provider_tasks": 0,
+    "provider_sockets": 0,
+    "provider_readers": 0,
+    "pending_provider_requests": 0,
+    "pending_turn_requests": 0,
+    "queued_provider_bytes": 0,
+    "stt_connection_generation": 1,
+    "dropped_audio_bytes": 0,
+    "sfu_retired_connections": 0,
+    "sfu_cleanup_records": [],
+    "sfu_cleanup_persistence_failed": false
+  }
+}

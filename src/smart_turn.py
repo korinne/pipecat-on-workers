@@ -109,8 +109,19 @@ class HostedUserAggregator(LLMUserAggregator):
         super().__init__(*args, **kwargs)
         self.coordinator = coordinator
 
+    async def _on_user_turn_started(self, controller, strategy, params):
+        before_interrupt = getattr(self, "before_interrupt", None)
+        if before_interrupt:
+            before_interrupt()
+        await super()._on_user_turn_started(controller, strategy, params)
+
     async def process_frame(self, frame, direction):
         if isinstance(frame, ReadyTurnFrame):
+            if not self.coordinator.ready(frame.revision):
+                return
+            before_commit = getattr(self, "before_commit", None)
+            if before_commit:
+                await before_commit()
             if not self.coordinator.ready(frame.revision):
                 return
             await super().process_frame(TranscriptionFrame(
