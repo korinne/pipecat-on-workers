@@ -377,8 +377,8 @@ function connect(run) {
           if (player) { player.floor = knownGeneration; player.generation = player.floor - 1; }
           partial.clear();
           if (Array.isArray(packet.history)) {
-            // The server's reconstructed history replaces generated transcript
-            // text, including interrupted words that never received playback receipts.
+            // Committed speech context replaces the visible transcript after reconnect.
+            // It follows Pipecat text progress, independently of playback receipts.
             ui.transcript.replaceChildren(ui['empty-state']);
             ui['empty-state'].hidden = false;
           }
