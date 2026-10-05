@@ -70,6 +70,10 @@ function status(text, kind = '') {
   ui.status.textContent = text;
   ui['status-dot'].className = `status-dot ${kind}`;
 }
+function resetResponseState() {
+  serverState = 'listening';
+  if (serverReady) status(muted ? 'Microphone muted' : 'Listening', 'live');
+}
 function notice(message) {
   ui.notice.textContent = message;
   ui.notice.hidden = !message;
@@ -359,6 +363,7 @@ function connect(run) {
           if (!usesSfu) player?.enqueue(packet);
           break;
         case 'clear':
+          if (!Number.isSafeInteger(packet.generation) || packet.generation >= knownGeneration) resetResponseState();
           clearPlayback(Number.isSafeInteger(packet.generation) ? packet.generation : undefined, 'server_clear');
           break;
         case 'transcript': transcript(packet); break;
@@ -396,6 +401,7 @@ function connect(run) {
           updateInputHealth();
           break;
         case 'error':
+          resetResponseState();
           notice(packet.message || 'The server reported an error.');
           event('server_error');
           if (packet.recoverable === false) {

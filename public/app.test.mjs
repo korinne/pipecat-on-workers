@@ -387,3 +387,39 @@ test('SFU failures release all client resources and preserve the visible explana
   assert.equal(h.track.stopped,true); assert.equal(h.sfus[0].closed,true);
   assert.equal(socket.sent.at(-1).type,'end'); assert.equal(h.timers.size,0);
 });
+
+test('clear and recoverable error stop stale response states from interrupting resumed speech', async () => {
+  for (const transport of ['websocket','webrtc']) for (const stop of ['clear','error']) {
+    const h=harness({transport}); await h.element('start').click();
+    const socket=h.sockets[0]; socket.open(); socket.receive({type:'ready',generation:4}); await settle();
+    socket.receive({type:'status',state:stop==='clear'?'thinking':'speaking',generation:4});
+    const loud=()=>h.run('observeMicrophone({pcm:new Int16Array(320).buffer,rms:.1})');
+    const resume=()=>{
+      for(let i=0;i<12;i++) h.run('observeMicrophone({pcm:new Int16Array(320).buffer,rms:0})');
+      h.run('lastInterrupt=-Infinity'); // The next onset is beyond the debounce window.
+      for(let i=0;i<3;i++) loud();
+    };
+    for(let i=0;i<3;i++) loud();
+    assert.equal(socket.sent.filter(p=>p.type==='interrupt').length,1);
+    const clears=h.run('metrics.localPlaybackClearMs.length');
+    socket.receive(stop==='clear'?{type:'clear',generation:5}:{type:'error',message:'Repeat the last turn.',recoverable:true});
+    assert.equal(h.run('serverState'),'listening');
+    assert.equal(h.element('status').textContent,'Listening');
+    assert.equal(h.run('metrics.localPlaybackClearMs.length'),clears+(stop==='clear'?1:0));
+    resume(); assert.equal(socket.sent.filter(p=>p.type==='interrupt').length,1);
+    assert.equal(h.track.stopped,false); assert.equal(h.sockets.length,1); assert.equal(h.requests.length,1);
+    if(stop==='error') assert.equal(h.element('notice').textContent,'Repeat the last turn.');
+    // A later real response must still be interruptible.
+    socket.receive({type:'status',state:'thinking',generation:6});
+    resume(); assert.equal(socket.sent.filter(p=>p.type==='interrupt').length,2);
+    h.element('end').click();
+  }
+});
+test('an old clear cannot reset the state of a newer response',async()=>{
+  const h=harness(); await h.element('start').click();
+  const socket=h.sockets[0]; socket.open(); socket.receive({type:'ready',generation:4});
+  socket.receive({type:'status',state:'thinking',generation:6});
+  socket.receive({type:'clear',generation:5});
+  assert.equal(h.run('serverState'),'thinking');
+  h.element('end').click();
+});
