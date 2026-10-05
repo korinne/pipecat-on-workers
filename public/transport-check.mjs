@@ -16,7 +16,7 @@ const RESOURCE_KEYS = ['pipecat_tasks','provider_tasks','provider_sockets','prov
   'sfu_cleanup_tasks','sfu_retired_connections'];
 let generation = -1, partial = new Map(), outcome, boundedTimeout, completionTimeout;
 let capture, captureChunks = [], captureBytes = 0, captureNonzero = 0, captureURL;
-let userFinals = 0, assistantFinals = 0, replyGeneration = -1, listeningGeneration = -1, finishing = false, cleanupPending = false;
+let userFinals = 0, assistantFinals = 0, replyGeneration = -1, listeningGeneration = -1, assistantGeneration = -1, finishing = false, cleanupPending = false;
 function report() { if (bounded && outcome) $('result').textContent = JSON.stringify(outcome, null, 2); }
 function safeResources(data) {
   const result = {closed: data.closed === true};
@@ -89,11 +89,11 @@ function finishBounded(reason) {
 }
 function maybeComplete() {
   if (!bounded || finishing || source || userFinals !== 1 || !assistantFinals || !counts.nonzero || !counts.rtpBytes || !captureNonzero) return;
-  if (replyGeneration !== generation || listeningGeneration !== generation || completionTimeout) return;
+  if (replyGeneration !== generation || listeningGeneration !== generation || assistantGeneration !== generation || completionTimeout) return;
   const expectedGeneration = generation;
   completionTimeout = setTimeout(()=> {
     completionTimeout = null;
-    if (generation === expectedGeneration && replyGeneration === generation && listeningGeneration === generation && userFinals === 1 && !source) finishBounded('completed');
+    if (generation === expectedGeneration && replyGeneration === generation && listeningGeneration === generation && assistantGeneration === generation && userFinals === 1 && !source) finishBounded('completed');
   },1000);
 }
 $('audio').volume = silent ? 0 : 1;
@@ -175,7 +175,12 @@ function transcript(packet) {
   if (packet.final) {
     partial.delete(packet.role);
     if (packet.role === 'user') userFinals++;
-    else { assistantFinals++; replyGeneration = packet.generation; }
+    else {
+      assistantFinals++;
+      // Standard assistant text is untagged; the ordered response status owns
+      // its generation. A clear invalidates that association.
+      if (replyGeneration === generation) assistantGeneration = replyGeneration;
+    }
     if (bounded && userFinals > 1) finishBounded('multiple_user_turns');
   }
   while ($('transcript').children.length > 100) $('transcript').firstElementChild.remove();
@@ -279,10 +284,16 @@ function connectControl(epoch) {
         $('summary').textContent='Waiting for decoded audio in this response generation.';
         $('rtp-bytes').textContent = $('rtp-packets').textContent = '0';
         media.subscribe(packet.generation).catch(error => { if (current(epoch) && media === transport && error.name !== 'AbortError') fail(error,epoch); });
-      } else if (packet.type === 'clear') { transport?.clearOutput(packet.generation); detachMonitor(); }
+      } else if (packet.type === 'clear') {
+        transport?.clearOutput(packet.generation); detachMonitor();
+        if (packet.generation === generation) replyGeneration = listeningGeneration = assistantGeneration = -1;
+      }
       else if (packet.type === 'transcript') transcript(packet);
       else if (packet.type === 'status') {
-        if (packet.state === 'listening') listeningGeneration = packet.generation;
+        if (Number.isSafeInteger(packet.generation) && packet.generation === generation) {
+          if (['thinking','speaking'].includes(packet.state)) replyGeneration = packet.generation;
+          if (packet.state === 'listening') listeningGeneration = packet.generation;
+        }
         if (!source) status(String(packet.state || 'Listening'));
       }
       else if (packet.type === 'pong') {
@@ -302,7 +313,7 @@ async function start() {
   if (!wav) { notice('Choose a speech WAV.'); return; }
   const epoch = ++run; active = true; ready = false; generation = -1; inputDone = 0;
   counts = { inputRuns:0,rtpBytes:0,rtpPackets:0,windows:0,nonzero:0,peak:0 };
-  finishing = false; userFinals = assistantFinals = 0; replyGeneration = listeningGeneration = -1;
+  finishing = false; userFinals = assistantFinals = 0; replyGeneration = listeningGeneration = assistantGeneration = -1;
   captureChunks = []; captureBytes = captureNonzero = 0;
   if (captureURL) URL.revokeObjectURL(captureURL); captureURL = null; $('capture').hidden = true;
   if (bounded) {

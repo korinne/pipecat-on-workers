@@ -98,6 +98,7 @@ test('End during session creation retires the late capability without starting a
 async function startBounded(h) {
   await h.element('check-start').click();
   const ws=h.sockets[0]; ws.open(); ws.receive({type:'ready'}); await settle();
+  ws.receive({type:'status',state:'thinking',generation:2});
   ws.receive({type:'sfu_track',generation:2}); await settle(); await h.run('measure(run)'); await settle();
   return ws;
 }
@@ -113,7 +114,7 @@ test('bounded SFU mode requires captured decoded audio, a complete response, and
   assert.equal(h.sources.length,1); h.element('check-replay').click(); assert.equal(h.sources.length,1);
   h.sources[0].onended();
   ws.receive({type:'transcript',role:'user',text:'Hi.',final:true,generation:2});
-  ws.receive({type:'transcript',role:'assistant',text:'Hello.',final:true,generation:2});
+  ws.receive({type:'transcript',role:'assistant',text:'Hello.',final:true});
   ws.receive({type:'status',state:'listening',generation:2});
   await h.run('measure(run)'); assert.equal([...h.timers.values()].some(t=>t.delay===1000),false);
   h.run('capture.port.onmessage({data:{pcm:new Int16Array([1,0,-1]).buffer}})');
@@ -143,7 +144,7 @@ test('bounded completion cannot succeed after a newer generation supersedes its 
   const h=harness({bounded:true}), ws=await startBounded(h);
   h.sources[0].onended(); h.run('capture.port.onmessage({data:{pcm:new Int16Array([1]).buffer}})');
   ws.receive({type:'transcript',role:'user',text:'Hi.',final:true,generation:2});
-  ws.receive({type:'transcript',role:'assistant',text:'Hello.',final:true,generation:2});
+  ws.receive({type:'transcript',role:'assistant',text:'Hello.',final:true});
   ws.receive({type:'status',state:'listening',generation:2}); await h.run('measure(run)');
   const finish=[...h.timers.values()].find(t=>t.delay===1000).fn;
   ws.receive({type:'clear',generation:3}); finish();
@@ -166,4 +167,24 @@ test('bounded capture stops at its memory limit and retains unresolved remote ow
   assert.equal(result.cleanup.status,'unresolved');
   assert.equal(result.cleanup.resources.sfu_owned_adapters,1);
   assert.equal(result.cleanup.attempts,8); assert.equal(h.element('check-start').disabled,false);
+});
+
+test('bounded SFU completion requires untagged assistant text from the current tagged response',async()=>{
+  const h=harness({bounded:true}), ws=await startBounded(h);
+  h.sources[0].onended(); h.run('capture.port.onmessage({data:{pcm:new Int16Array([1]).buffer}})');
+  ws.receive({type:'transcript',role:'user',text:'Hi.',final:true});
+  ws.receive({type:'transcript',role:'assistant',text:'Old answer.',final:true});
+  ws.receive({type:'clear',generation:3});
+  ws.receive({type:'status',state:'thinking',generation:3});
+  ws.receive({type:'sfu_track',generation:3}); await settle(); await h.run('measure(run)'); await settle();
+  ws.receive({type:'status',state:'listening',generation:3}); await h.run('measure(run)');
+  assert.equal([...h.timers.values()].some(t=>t.delay===1000),false);
+  // An older status cannot change the current response's ownership.
+  ws.receive({type:'status',state:'thinking',generation:2});
+  ws.receive({type:'transcript',role:'assistant',text:'Current answer.',final:true}); await h.run('measure(run)');
+  const finish=[...h.timers.values()].find(t=>t.delay===1000);
+  assert.ok(finish); finish.fn(); await settle();
+  const result=JSON.parse(h.element('check-result').textContent);
+  assert.equal(result.status,'completed'); assert.equal(result.generation,3);
+  assert.equal(result.assistant_finals,2);
 });
