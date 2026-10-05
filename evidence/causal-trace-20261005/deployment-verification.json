@@ -1,0 +1,30 @@
+{
+  "source_commit": "39fe5b0d78770ba78d9f087c751907b8e0c37cef",
+  "version_id": "425815d1-a965-47bc-b863-4dad470ad0a1",
+  "recorded_at": "2026-10-05T20:46:51.785Z",
+  "assets": {
+    "app.js": {
+      "status": 200,
+      "sha256": "8229ae8d7364aa07a0ce7dc3a3f50c6ae7a176c89b3ae6760ea2b6ab2a178032",
+      "matches_source": true
+    },
+    "session-measurements.mjs": {
+      "status": 200,
+      "sha256": "eabf01d1da1b0961e6727fb6c6427c600fffad35966a7cabf009ba1039d0eb5a",
+      "matches_source": true
+    }
+  },
+  "initial_read_failure": {
+    "client": "Python urllib",
+    "path": "/app.js",
+    "status": 403
+  },
+  "health_status": 200,
+  "active_versions": [
+    {
+      "version_id": "425815d1-a965-47bc-b863-4dad470ad0a1",
+      "percentage": 100
+    }
+  ],
+  "deployment_created_on": "2026-10-05T20:45:53.635982Z"
+}

@@ -1,5 +1,10 @@
 # Evidence and remaining unknowns
 
+## Diagnostic update, 5 October 2026
+
+The diagnostic-only revision `39fe5b0` is now deployed as `425815d1-a965-47bc-b863-4dad470ad0a1`. The export retains all seven abort reasons and bounded SFU/Nova/provider timing. Independent checks and one direct synthetic provider call pass; the failed laptop call still lacks its actual trace. Conversation behavior and the unapproved silence fallback are unchanged. See [causal diagnostics and next capture](CAUSAL-DIAGNOSTICS.md). The earlier deployment and findings below are preserved as history.
+
+
 The application baseline is [6c17c0805f13f7609ba0a93ea8bf4c945797de18](https://github.com/korinne/pipecat-on-workers/tree/6c17c0805f13f7609ba0a93ea8bf4c945797de18). This handoff changes documentation and diagnostic scope, not the voice application. Recorded evidence retains its original source, environment, and test expectations.
 
 The release target is one Pipecat voice configuration using Workers AI for hosted Smart Turn, STT, GPT-OSS-120B, and Aura-2 through direct WebSocket and SFU. [GOALS.md](GOALS.md) defines that target. No complete acceptance result exists for it. A bug in custom application code does not establish a missing Pipecat or Cloudflare feature.

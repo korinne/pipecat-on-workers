@@ -1,0 +1,194 @@
+TAP version 13
+# Subtest: Start, ready, mute, and End release all client resources
+ok 1 - Start, ready, mute, and End release all client resources
+  ---
+  duration_ms: 434.821333
+  ...
+# Subtest: disconnect clears playback and reconnect reuses capability with a bounded retry budget
+ok 2 - disconnect clears playback and reconnect reuses capability with a bounded retry budget
+  ---
+  duration_ms: 9.892708
+  ...
+# Subtest: reset creates a new stream epoch and stale socket messages are ignored
+ok 3 - reset creates a new stream epoch and stale socket messages are ignored
+  ---
+  duration_ms: 5.405291
+  ...
+# Subtest: failed session creation closes microphone and shows a recoverable error
+ok 4 - failed session creation closes microphone and shows a recoverable error
+  ---
+  duration_ms: 2.101083
+  ...
+# Subtest: both transports create a session without a demo key and keep its capability
+ok 5 - both transports create a session without a demo key and keep its capability
+  ---
+  duration_ms: 7.343875
+  ...
+# Subtest: speech onset during pending generation rejects its delayed first audio
+ok 6 - speech onset during pending generation rejects its delayed first audio
+  ---
+  duration_ms: 81.331833
+  ...
+# Subtest: reset replaces visible history and excludes restored turns from response metrics
+ok 7 - reset replaces visible history and excludes restored turns from response metrics
+  ---
+  duration_ms: 5.690417
+  ...
+# Subtest: terminal server close releases microphone without futile reconnect
+ok 8 - terminal server close releases microphone without futile reconnect
+  ---
+  duration_ms: 13.971542
+  ...
+# Subtest: server session time limit is explained and releases resources
+ok 9 - server session time limit is explained and releases resources
+  ---
+  duration_ms: 8.563083
+  ...
+# Subtest: terminal startup error preserves explanation and releases microphone without reconnect
+ok 10 - terminal startup error preserves explanation and releases microphone without reconnect
+  ---
+  duration_ms: 4.35125
+  ...
+# Subtest: microphone permission denial creates no session and releases the audio engine
+ok 11 - microphone permission denial creates no session and releases the audio engine
+  ---
+  duration_ms: 3.838375
+  ...
+# Subtest: End while microphone permission is pending stops a late track without creating a session
+ok 12 - End while microphone permission is pending stops a late track without creating a session
+  ---
+  duration_ms: 25.681625
+  ...
+# Subtest: End during session creation retires the late capability and leaves audio stopped
+ok 13 - End during session creation retires the late capability and leaves audio stopped
+  ---
+  duration_ms: 3.785583
+  ...
+# Subtest: audio engine resumes inside the Start click before asynchronous microphone setup
+ok 14 - audio engine resumes inside the Start click before asynchronous microphone setup
+  ---
+  duration_ms: 3.456333
+  ...
+# Subtest: capture, upload and server delivery counters distinguish each stage without audio capture
+ok 15 - capture, upload and server delivery counters distinguish each stage without audio capture
+  ---
+  duration_ms: 5.581875
+  ...
+# Subtest: paused audio exposes resume action and fatal worklet errors stop the call
+ok 16 - paused audio exposes resume action and fatal worklet errors stop the call
+  ---
+  duration_ms: 2.556125
+  ...
+# Subtest: resume remains reachable while initial audio startup is waiting
+ok 17 - resume remains reachable while initial audio startup is waiting
+  ---
+  duration_ms: 2.342958
+  ...
+# Subtest: SFU mode sends microphone over WebRTC and leaves the control socket audio-free
+ok 18 - SFU mode sends microphone over WebRTC and leaves the control socket audio-free
+  ---
+  duration_ms: 24.429875
+  ...
+# Subtest: SFU output replaces by generation and local speech clears it without fake receipts
+ok 19 - SFU output replaces by generation and local speech clears it without fake receipts
+  ---
+  duration_ms: 13.750417
+  ...
+# Subtest: SFU reconnect closes peers and rejects old startup completion
+ok 20 - SFU reconnect closes peers and rejects old startup completion
+  ---
+  duration_ms: 17.9625
+  ...
+# Subtest: SFU failures release all client resources and preserve the visible explanation
+ok 21 - SFU failures release all client resources and preserve the visible explanation
+  ---
+  duration_ms: 7.3465
+  ...
+# Subtest: clear and recoverable error stop stale response states from interrupting resumed speech
+ok 22 - clear and recoverable error stop stale response states from interrupting resumed speech
+  ---
+  duration_ms: 25.564042
+  ...
+# Subtest: an old clear cannot reset the state of a newer response
+ok 23 - an old clear cannot reset the state of a newer response
+  ---
+  duration_ms: 2.286542
+  ...
+# Subtest: late tagged errors preserve interruption of the current response on both routes
+ok 24 - late tagged errors preserve interruption of the current response on both routes
+  ---
+  duration_ms: 5.337708
+  ...
+# Subtest: reconnect clears stale response state before the first idle microphone onset on both routes
+ok 25 - reconnect clears stale response state before the first idle microphone onset on both routes
+  ---
+  duration_ms: 13.8625
+  ...
+# Subtest: SFU readiness cannot overwrite a current response received during publishing
+ok 26 - SFU readiness cannot overwrite a current response received during publishing
+  ---
+  duration_ms: 3.5855
+  ...
+# Subtest: explicitly stale clear and terminal error leave current audio and receiver intact
+ok 27 - explicitly stale clear and terminal error leave current audio and receiver intact
+  ---
+  duration_ms: 8.9195
+  ...
+# Subtest: measurement export requests private diagnostics and excludes their internal fields
+not ok 28 - measurement export requests private diagnostics and excludes their internal fields
+  ---
+  duration_ms: 2.244833
+  location: '/private/tmp/pipecat-causal-20261005/public/app.test.mjs:497:1'
+  failureType: 'testCodeFailure'
+  error: 'shareableBrowserErrors is not defined'
+  code: 'ERR_TEST_FAILURE'
+  name: 'ReferenceError'
+  stack: |-
+    Object.click (evalmachine.<anonymous>:514:3)
+    Element.click (file:///private/tmp/pipecat-causal-20261005/public/app.test.mjs:22:44)
+    TestContext.<anonymous> (file:///private/tmp/pipecat-causal-20261005/public/app.test.mjs:506:39)
+    async Test.run (node:internal/test_runner/test:935:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:633:7)
+  ...
+# Subtest: failed diagnostics still export the frozen browser snapshot across End and a new call
+not ok 29 - failed diagnostics still export the frozen browser snapshot across End and a new call
+  ---
+  duration_ms: 4.518917
+  location: '/private/tmp/pipecat-causal-20261005/public/app.test.mjs:515:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/pipecat-causal-20261005/public/app.test.mjs:522:10)
+    async Test.run (node:internal/test_runner/test:935:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:633:7)
+  ...
+# Subtest: ended call measurements explicitly mark missing server snapshot
+not ok 30 - ended call measurements explicitly mark missing server snapshot
+  ---
+  duration_ms: 2.724625
+  location: '/private/tmp/pipecat-causal-20261005/public/app.test.mjs:534:1'
+  failureType: 'testCodeFailure'
+  error: 'shareableBrowserErrors is not defined'
+  code: 'ERR_TEST_FAILURE'
+  name: 'ReferenceError'
+  stack: |-
+    Object.click (evalmachine.<anonymous>:514:3)
+    Element.click (file:///private/tmp/pipecat-causal-20261005/public/app.test.mjs:22:44)
+    TestContext.<anonymous> (file:///private/tmp/pipecat-causal-20261005/public/app.test.mjs:536:39)
+    async Test.run (node:internal/test_runner/test:935:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:633:7)
+  ...
+# Subtest: a speech-start error leaves the current assistant response interruptible
+ok 31 - a speech-start error leaves the current assistant response interruptible
+  ---
+  duration_ms: 11.504042
+  ...

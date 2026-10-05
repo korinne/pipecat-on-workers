@@ -1,10 +1,15 @@
 # Debug the failing laptop call
 
+## Diagnostic update, 5 October 2026
+
+The diagnostic-only revision `39fe5b0` is now deployed as `425815d1-a965-47bc-b863-4dad470ad0a1`. The export retains all seven abort reasons and bounded SFU/Nova/provider timing. Independent checks and one direct synthetic provider call pass; the failed laptop call still lacks its actual trace. Conversation behavior and the unapproved silence fallback are unchanged. See [causal diagnostics and next capture](CAUSAL-DIAGNOSTICS.md). The earlier deployment and findings below are preserved as history.
+
+
 Investigate one failed real browser call and establish its cause before making another conversation-behavior change. The user reports inconsistent WebSocket replies and missed follow-ups, an earlier SFU setup error, then SFU calls with no reply or transcript. The latest screenshot explicitly shows “Speech turn could not be completed; please repeat your request.” Prior controlled fixes and one recorded WebSocket round trip have not established that the user's SFU conversation works.
 
 ## Starting state
 
-Repository: `/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers`. Branch: `codex/transport-contract`. The checkout was clean at `6468022` before this documentation-only handoff. Verify the current checkout and preserve unrelated work. Application source is `f8835e8623040c0d0e8b264c1ac28486255f5f63`, deployed as `3b1dcd04-5515-4b83-9fe4-27511b619c03`. Rollback is `06111df0-88ce-4142-96e7-4158a9a6e7a9`. Do not restart implementation from the original `58ccef5` commit.
+Repository: `/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers`. Branch: `codex/transport-contract`. This investigation began clean at `8d3f1964093372a21b581d5aa9a594ddd92024f9`. Current application source is `39fe5b0d78770ba78d9f087c751907b8e0c37cef`, deployed as `425815d1-a965-47bc-b863-4dad470ad0a1`; later commits record evidence and handoff only. Verify the checkout and preserve unrelated work. The previous deployment is `3b1dcd04-5515-4b83-9fe4-27511b619c03`. Retain rollback `06111df0-88ce-4142-96e7-4158a9a6e7a9`. Do not restart implementation from the original `58ccef5` commit.
 
 Read [Continuation handoff](CONTINUATION-HANDOFF.md), [Silent input](SILENT-INPUT.md), [latest report](../evidence/sfu-turn-error-20261005/user-report.json), and the original GOALS, IMPLEMENTATION-PLAN, CONVERSATION, CAPABILITY-REQUEST, ACCEPTANCE and EVIDENCE documents. Use BASELINE, TRANSPORTS and DEVELOPMENT for reproduction. Apply Humanizer to written explanations.
 
@@ -16,7 +21,7 @@ On `f8835e8`, the exact message has one emitter: `NovaTurnCoordinator.abort()` i
 
 Seven reasons can reach this message: `invalid_nova_event`, `transcript_beyond_pause`, `pause_audio_unavailable`, `detector_busy`, `smart_turn_failed`, `turn_readiness_timeout`, and `pipecat_turn_closed`. Do not assume an INCOMPLETE Smart Turn decision caused this particular call. The visible Listening label is reset by the error handler; the 00:01 clock begins at browser readiness, not at server turn onset.
 
-The private diagnostics endpoint retains the abort reason. The browser's `session-measurements.mjs` export currently drops four legitimate reason values: `transcript_beyond_pause`, `pause_audio_unavailable`, `detector_busy`, and `smart_turn_failed`. It leaves their `turn_discarded` event without its reason. Correct that finite allowlist and test privacy filtering if the available export cannot identify the cause. Some timing fields and raw Nova events are also absent; add only the bounded, sanitized instrumentation needed for a causal trace. Keep credentials, personal transcripts and recordings out of shared logs.
+The private diagnostics endpoint retains the abort reason. The old `f8835e8` browser export dropped four valid reasons. Revision `39fe5b0` corrects that allowlist and adds sanitized Nova, SFU, forwarded-cursor, snapshot and hosted-request tracing, with privacy regressions. See [current field meanings and verification](CAUSAL-DIAGNOSTICS.md). The reported laptop call still has no exported trace. Capture a new failed call before changing behavior; the passing direct probe does not identify the laptop's abort cause.
 
 ## Investigation sequence
 

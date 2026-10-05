@@ -1,5 +1,10 @@
 # SFU call with no visible transcript
 
+## Diagnostic update, 5 October 2026
+
+The diagnostic-only revision `39fe5b0` is now deployed as `425815d1-a965-47bc-b863-4dad470ad0a1`. The export retains all seven abort reasons and bounded SFU/Nova/provider timing. Independent checks and one direct synthetic provider call pass; the failed laptop call still lacks its actual trace. Conversation behavior and the unapproved silence fallback are unchanged. See [causal diagnostics and next capture](CAUSAL-DIAGNOSTICS.md). The earlier deployment and findings below are preserved as history.
+
+
 The user reported speaking without any visible response. The [second screenshot](../evidence/silent-input-20261005/user-report.json) shows Listening at 00:06, no transcript and a local microphone activity message. The earlier screenshot containing “hello hello” is a separate attempt. The new image establishes local sound detection, but does not establish SFU delivery or Nova recognition. The exact cause of this call remains unknown without its counters or events.
 
 Controlled tests reproduced two ways the application could fail without a useful explanation:

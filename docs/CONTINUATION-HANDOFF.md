@@ -1,6 +1,11 @@
 # Continuation handoff
 
-The checkout remains on `codex/transport-contract`. It started clean at `58ccef54653acdd7b8622e789021362a40725f4c`. The deployed application is `f8835e8623040c0d0e8b264c1ac28486255f5f63`, version `3b1dcd04-5515-4b83-9fe4-27511b619c03`, at [the existing Worker](https://pipecat-on-workers.korinne.workers.dev). Immediate rollback is `06111df0-88ce-4142-96e7-4158a9a6e7a9`; original rollback `3f8bd208-8e4a-4f2d-96cb-d9a0e51f9542` is retained. Later commits record evidence and this handoff.
+## Diagnostic update, 5 October 2026
+
+The diagnostic-only revision `39fe5b0` is now deployed as `425815d1-a965-47bc-b863-4dad470ad0a1`. The export retains all seven abort reasons and bounded SFU/Nova/provider timing. Independent checks and one direct synthetic provider call pass; the failed laptop call still lacks its actual trace. Conversation behavior and the unapproved silence fallback are unchanged. See [causal diagnostics and next capture](CAUSAL-DIAGNOSTICS.md). The earlier deployment and findings below are preserved as history.
+
+
+The checkout remains on `codex/transport-contract`. This investigation began clean at `8d3f1964093372a21b581d5aa9a594ddd92024f9`. Application source `39fe5b0d78770ba78d9f087c751907b8e0c37cef` is deployed as `425815d1-a965-47bc-b863-4dad470ad0a1` at [the existing Worker](https://pipecat-on-workers.korinne.workers.dev). The immediately previous version is `3b1dcd04-5515-4b83-9fe4-27511b619c03`; retain rollback `06111df0-88ce-4142-96e7-4158a9a6e7a9` and original rollback `3f8bd208-8e4a-4f2d-96cb-d9a0e51f9542`. Later commits record evidence and this handoff.
 
 The application uses Nova-3, hosted Smart Turn v2, GPT-OSS-120B with low reasoning and the 2,048-token probe budget, and Aura-2 Luna. The selected Pipecat TTS, output and assistant aggregator now own speech context on both transports. Committed context is persisted before the next request; old saved dialogue is reset under the documented migration. Browser receipts control direct output buffering. Transport adapters and cleanup ownership have separate commits, including late-allocation ownership, bounded retries and accurate unresolved-resource reporting. Public creation, private call tokens and SFU media authorization remain in place; fixture routes remain disabled.
 
@@ -12,13 +17,15 @@ B1 remains blocked: evaluated published Pipecat packages cannot resolve the sele
 
 ## Next action
 
-Start with the [fresh debugging brief](DEBUGGING-BRIEF.md). The latest SFU screenshot shows the generic active-turn abort error. Seven causes can emit it, and the current browser export strips four of their reason names. Capture the failing call and establish its exact cause before another behavior change. The latest failed screenshot is preserved separately; no application change or deployment accompanied this handoff.
+Start with the [fresh debugging brief](DEBUGGING-BRIEF.md). The latest SFU screenshot shows the generic active-turn abort error. Seven causes can emit it. The diagnostic-only deployment now preserves all of them and the surrounding event sequence. Capture the failing Chrome call and establish its exact cause before a behavior change. The original failed screenshot remains preserved; no fresh laptop measurement export has arrived. See [the current diagnostic report](CAUSAL-DIAGNOSTICS.md).
 
 The first [SFU retry](../evidence/sfu-laptop-20261005/user-report.json) showed recognized speech, but a [later attempt](../evidence/silent-input-20261005/user-report.json) showed no transcript at all. The exact causes remain unknown. [Controlled silent-input fixes](SILENT-INPUT.md) are now deployed: SFU readiness requires current callback PCM; rejected Nova onsets/results report a bounded error; exported measurements include safe server counters/events. Independent tests and one direct real-provider response pass. Ask the user to reload the current SFU page and download measurements while the failed call is still active if the problem recurs. The requested input counters, network type and VPN/filter conditions have not been supplied. Physical conversation acceptance remains open.
 
 Resolve the pending turn-policy choice before integrating the saved proposal. If approved, adapt it to the current source in a separate commit, rerun affected checks on that exact revision, deploy, repeat the original live failures, then ask for another short physical check on both routes. If the strict positive-decision rule is retained, the recorded turn failures remain unresolved. The fallback's successful proposal tests cannot be counted as a production pass. All task-owned local test servers have been stopped.
 
 ## Commit sequence
+
+This investigation adds `b85efeb` (shared diagnostic export/privacy) and `39fe5b0` (bounded causal tracing). Both leave conversation policy unchanged.
 
 The final evidence/manifest commit follows the commits listed below.
 
