@@ -1,0 +1,801 @@
+{
+  "application_revision": "d2c0656cd2b018405a1850ddabac6266507c590e",
+  "deployment_version": "13762ff7-679d-477a-bafc-dcf37df2d5f4",
+  "started_at": "2026-10-05T05:26:54.287Z",
+  "scope": "Four prerecorded turns; live providers; elapsed receipts; no physical audio or performance acceptance",
+  "inputs": [
+    {
+      "sha256": "c97884eb23ad91e268731e685839924e624a221061371d385d25d1c0c28f0794",
+      "seconds": 1.8344375
+    },
+    {
+      "sha256": "36addda33af2be3e269151300b499eb6f3fb79ba40a46036e10acac7f567f919",
+      "seconds": 1.8111875
+    },
+    {
+      "sha256": "59d00e6ae3ef2252394e6891fb87a5e4a218fdb44831f8255b799e4a6c74dbe7",
+      "seconds": 1.7415625
+    }
+  ],
+  "passed": false,
+  "model_input_observation": "Restored persisted context and context-dependent answer; provider request arguments are verified by controlled tests, not captured by this live harness",
+  "calls": [
+    {
+      "initial": {
+        "user": "what is the capital of france",
+        "answer": "Paris.",
+        "audio_bytes": 36480
+      },
+      "connections": [
+        [
+          {
+            "type": "reset",
+            "generation": 1,
+            "history": [],
+            "message": "Connected. Say hello to start."
+          },
+          {
+            "type": "ready",
+            "generation": 1
+          },
+          {
+            "type": "clear",
+            "generation": 2,
+            "reason": "pipecat_interruption"
+          },
+          {
+            "type": "transcript",
+            "role": "user",
+            "text": "is the capital",
+            "final": false
+          },
+          {
+            "type": "transcript",
+            "role": "user",
+            "text": "what is the capital of france",
+            "final": false
+          },
+          {
+            "type": "transcript",
+            "role": "user",
+            "text": "what is the capital of france",
+            "final": true
+          },
+          {
+            "type": "status",
+            "state": "thinking",
+            "generation": 3
+          },
+          {
+            "type": "status",
+            "state": "speaking",
+            "generation": 3
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "transcript",
+            "role": "assistant",
+            "text": "Paris.",
+            "final": true
+          },
+          {
+            "type": "status",
+            "state": "listening",
+            "generation": 3
+          },
+          {
+            "type": "pong",
+            "audio": {
+              "input_audio_chunks": 206,
+              "input_audio_bytes": 131662,
+              "forwarded_audio_bytes": 131662
+            }
+          }
+        ],
+        [
+          {
+            "type": "reset",
+            "generation": 4,
+            "history": [
+              {
+                "role": "user",
+                "content": "what is the capital of france"
+              },
+              {
+                "role": "assistant",
+                "content": "Paris."
+              }
+            ],
+            "message": "Reconnected. Your conversation history is restored."
+          },
+          {
+            "type": "ready",
+            "generation": 4
+          },
+          {
+            "type": "clear",
+            "generation": 5,
+            "reason": "pipecat_interruption"
+          },
+          {
+            "type": "transcript",
+            "role": "user",
+            "text": "what country is that",
+            "final": false
+          },
+          {
+            "type": "transcript",
+            "role": "user",
+            "text": "what country is that city in",
+            "final": false
+          },
+          {
+            "type": "error",
+            "message": "Speech turn could not be completed; please repeat your request."
+          },
+          {
+            "type": "ended"
+          }
+        ]
+      ],
+      "restored_history": [
+        {
+          "role": "user",
+          "content": "what is the capital of france"
+        },
+        {
+          "role": "assistant",
+          "content": "Paris."
+        }
+      ],
+      "turn_metrics": [
+        {
+          "event": "turn_discarded",
+          "elapsed_ms": 478,
+          "reason": "stt_connection_changed"
+        },
+        {
+          "event": "turn_pause",
+          "elapsed_ms": 2947,
+          "revision": 2,
+          "snapshot_samples": 26880,
+          "transcript_end_sample": 32800,
+          "audio_end_sample": 26880
+        },
+        {
+          "event": "smart_turn",
+          "elapsed_ms": 3662,
+          "revision": 2,
+          "complete": false,
+          "probability": 0.013067709282040596
+        },
+        {
+          "event": "turn_discarded",
+          "elapsed_ms": 7947,
+          "reason": "turn_readiness_timeout"
+        },
+        {
+          "event": "turn_discarded",
+          "elapsed_ms": 8197,
+          "reason": "closed"
+        }
+      ],
+      "cleanup": {
+        "closed": true,
+        "pipecat_tasks": 0,
+        "provider_tasks": 0,
+        "provider_sockets": 0,
+        "provider_readers": 0,
+        "pending_provider_requests": 0,
+        "pending_turn_requests": 0,
+        "queued_output_bytes": 0,
+        "unacked_audio_bytes": 0,
+        "pending_playback_chunks": 0
+      }
+    },
+    {
+      "initial": {
+        "user": "what is the capital of germany",
+        "answer": "Berlin.",
+        "audio_bytes": 40320
+      },
+      "connections": [
+        [
+          {
+            "type": "reset",
+            "generation": 1,
+            "history": [],
+            "message": "Connected. Say hello to start."
+          },
+          {
+            "type": "ready",
+            "generation": 1
+          },
+          {
+            "type": "clear",
+            "generation": 2,
+            "reason": "pipecat_interruption"
+          },
+          {
+            "type": "transcript",
+            "role": "user",
+            "text": "is the capital",
+            "final": false
+          },
+          {
+            "type": "transcript",
+            "role": "user",
+            "text": "what is the capital of germany",
+            "final": false
+          },
+          {
+            "type": "transcript",
+            "role": "user",
+            "text": "what is the capital of germany",
+            "final": true
+          },
+          {
+            "type": "status",
+            "state": "thinking",
+            "generation": 3
+          },
+          {
+            "type": "status",
+            "state": "speaking",
+            "generation": 3
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "transcript",
+            "role": "assistant",
+            "text": "Berlin.",
+            "final": true
+          },
+          {
+            "type": "status",
+            "state": "listening",
+            "generation": 3
+          },
+          {
+            "type": "pong",
+            "audio": {
+              "input_audio_chunks": 224,
+              "input_audio_bytes": 143078,
+              "forwarded_audio_bytes": 143078
+            }
+          },
+          {
+            "type": "ended"
+          }
+        ]
+      ],
+      "turn_metrics": [
+        {
+          "event": "turn_discarded",
+          "elapsed_ms": 323,
+          "reason": "stt_connection_changed"
+        },
+        {
+          "event": "turn_pause",
+          "elapsed_ms": 2685,
+          "revision": 2,
+          "snapshot_samples": 26880,
+          "transcript_end_sample": 33920,
+          "audio_end_sample": 26880
+        },
+        {
+          "event": "smart_turn",
+          "elapsed_ms": 3165,
+          "revision": 2,
+          "complete": true,
+          "probability": 0.9030161499977112
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 3165,
+          "generation": 3
+        },
+        {
+          "event": "turn_discarded",
+          "elapsed_ms": 17653,
+          "reason": "closed"
+        }
+      ],
+      "cleanup": {
+        "closed": true,
+        "pipecat_tasks": 0,
+        "provider_tasks": 0,
+        "provider_sockets": 0,
+        "provider_readers": 0,
+        "pending_provider_requests": 0,
+        "pending_turn_requests": 0,
+        "queued_output_bytes": 0,
+        "unacked_audio_bytes": 0,
+        "pending_playback_chunks": 0
+      }
+    }
+  ],
+  "checks": [],
+  "failure": "turn_error",
+  "finished_at": "2026-10-05T05:27:22.271Z",
+  "harness_revision": "4ffc5a9",
+  "original_capture_sha256": "7f43c0f5119fd634ddc1c6f5e9c8c1231efe4f4d1731b52a2830de8a33568bd3"
+}

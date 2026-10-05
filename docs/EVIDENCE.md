@@ -193,3 +193,9 @@ The [live turn investigation](TURN-LIVE.md) preserves real Nova events, hosted f
 [Transport extraction](TRANSPORT-ADAPTERS.md) and [cleanup ownership](CLEANUP.md) remain separately reviewable. [Published-package results](PACKAGE-CANDIDATE.md) leave B1 open. [Vendored speech provenance](VENDORED-SPEECH.md) identifies the code and compatibility changes actually loaded by this prototype.
 
 The user approved testing on their laptop and explicitly deferred performance acceptance. Capacity, sustained load, platform CPU, whole-isolate memory, numeric latency targets and cost acceptance remain untested. Physical microphone and audible playback need the user's participation on the final deployment.
+
+## Deployed candidate d2c0656
+
+[Independent verification](FINAL-VERIFICATION.md) records passing offline checks and local Workers lifecycle checks, followed by actual provider checks on deployment `13762ff7-679d-477a-bafc-dcf37df2d5f4`. Ordinary direct speech, explicit interruption/recovery and one alternate context-dependent question pass. The original follow-up question and paused recording fail hosted turn completion. The user also reports inconsistent answers and the same turn error in a real direct-route call. This candidate is not accepted for normal conversation.
+
+The strict adapter omitted the pinned reference's three-second max-silence completion path. A guarded draft is being tested separately pending the user's turn-policy decision. The current deployment still requires a positive hosted decision. Later fixes and checks need new source and evidence identities.

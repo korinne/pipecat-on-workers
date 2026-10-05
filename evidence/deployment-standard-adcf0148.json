@@ -1,0 +1,13 @@
+{
+  "source_commit": "670fa94a3179283c44ff907d18435111a09358c8",
+  "version_id": "adcf0148-71a6-43b0-a358-167b7a95c520",
+  "origin": "https://pipecat-on-workers.korinne.workers.dev",
+  "rollback_version": "3f8bd208-8e4a-4f2d-96cb-d9a0e51f9542",
+  "tag": "standard-670fa94",
+  "deployed_at": "2026-10-05T05:21:42.480Z",
+  "worker_startup_ms": 2537,
+  "wrangler": "4.139.0",
+  "fixture_routes_enabled": false,
+  "verified": "Successful upload/startup only; no live conversation was run on this intermediate version. A browser wording fix is deployed separately.",
+  "supported_release": false
+}
