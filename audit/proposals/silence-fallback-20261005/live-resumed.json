@@ -1,0 +1,139 @@
+{
+  "schema": 2,
+  "started_at": "2026-10-05T05:41:09.062Z",
+  "deployment_origin": "http://127.0.0.1:8797",
+  "passed": true,
+  "scope": "Isolated local Python Worker proposal using real Workers AI providers; prerecorded input and timed software receipts. Not deployed, physical audio or performance acceptance.",
+  "physical_human_voice_acceptance_passed": false,
+  "fixture_provider_requested": false,
+  "acceptance_kind": "single_user_turn_pause_check",
+  "pause_acceptance": {
+    "requested": true,
+    "passed": true,
+    "premature_reply_observed": false,
+    "definition": "Exactly one final user transcript and no assistant transcript or audio received before the final input PCM sample completes its paced duration. This checks this recording only, not general natural-speech turn quality."
+  },
+  "input": {
+    "source": "macos-say",
+    "format": "PCM16 LE mono 16000 Hz",
+    "duration_ms": 4970.6875,
+    "samples": 79531,
+    "nonzero_samples": 62299,
+    "peak": 25250,
+    "rms": 4148.45
+  },
+  "playback": {
+    "method": "serial elapsed PCM duration, no audio device",
+    "received_chunks": 134,
+    "acknowledged_chunks": 134,
+    "acknowledged_duration_ms": 2680,
+    "completed_responses": 1,
+    "received_audio_duration_ms": 2680,
+    "output_statistics": {
+      "samples": 64320,
+      "nonzero_samples": 63026,
+      "peak": 13295,
+      "rms": 1309.87
+    }
+  },
+  "transcript": {
+    "user_final_count": 1,
+    "assistant_sentence_count": 1
+  },
+  "latency_ms": {
+    "session_create": 45.71,
+    "ready": 481.97,
+    "input_start": 502.1,
+    "first_audio_from_start": 10161.13,
+    "first_audio_after_final_transcript": 1113.68,
+    "first_audio_after_input_end": 4611.93,
+    "input_finish": 5549.2
+  },
+  "latency_definitions": {
+    "first_audio_after_final_transcript": "First accepted audio packet receipt minus the latest final user transcript receipt preceding that packet. The transcript timestamp is frozen when first audio arrives; this is not acoustic response latency."
+  },
+  "end": {
+    "sent": true,
+    "acknowledged": true,
+    "socket_closed": true,
+    "close_code": 1000
+  },
+  "limitations": [
+    "No microphone permissions, capture/resampling, speakers, headphones, echo or audible latency measured.",
+    "No human assessment of intelligibility or semantic correctness; inspect private captures.",
+    "One short response only; interruption, multi-turn memory, concurrent calls and soak acceptance remain untested.",
+    "Zero local resource counts do not prove remote compute or billing stopped."
+  ],
+  "failures": [],
+  "stop_reason": "response_completed_and_all_received_audio_elapsed_receipts_sent",
+  "cleanup": {
+    "closed": true,
+    "pipecat_tasks": 0,
+    "provider_tasks": 0,
+    "provider_sockets": 0,
+    "provider_readers": 0,
+    "pending_provider_requests": 0,
+    "pending_turn_requests": 0,
+    "queued_output_bytes": 0,
+    "queued_provider_bytes": 0,
+    "unacked_audio_bytes": 0,
+    "pending_playback_chunks": 0,
+    "pending_turn_tasks": 0,
+    "pending_user_fragments": 0,
+    "pending_user_chars": 0,
+    "messages": 3,
+    "stt_connection_generation": 1,
+    "dropped_audio_bytes": 0,
+    "turn_timeout_secs": 5,
+    "metrics": [
+      {
+        "event": "startup",
+        "elapsed_ms": 417,
+        "startup_ms": 417
+      },
+      {
+        "event": "server_clear",
+        "elapsed_ms": 567,
+        "generation": 2,
+        "dispatch_ms": 2
+      },
+      {
+        "event": "user_end",
+        "elapsed_ms": 8983
+      },
+      {
+        "event": "generation_started",
+        "elapsed_ms": 8985,
+        "generation": 3
+      },
+      {
+        "event": "first_audio",
+        "elapsed_ms": 10098,
+        "generation": 3,
+        "response_ms": 1114
+      },
+      {
+        "event": "closed",
+        "elapsed_ms": 13359
+      }
+    ]
+  },
+  "cleanup_verified": true,
+  "finished_at": "2026-10-05T05:41:22.514Z",
+  "elapsed_ms": 13451.2,
+  "application_source": "live-provenance.json",
+  "proposal_approved": false,
+  "production_changed": false,
+  "synthetic_transcripts": [
+    {
+      "elapsed_ms": 9047.45,
+      "role": "user",
+      "text": "if i wanted to visit france what city is the capital"
+    },
+    {
+      "elapsed_ms": 13380.55,
+      "role": "assistant",
+      "text": "Paris is the capital city of France."
+    }
+  ]
+}

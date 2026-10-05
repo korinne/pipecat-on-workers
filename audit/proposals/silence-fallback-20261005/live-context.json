@@ -1,0 +1,2486 @@
+{
+  "application_revision": "4ffc5a9-plus-unapproved-silence-draft",
+  "deployment_version": "local-workers-proposal",
+  "started_at": "2026-10-05T05:40:23.657Z",
+  "scope": "Isolated local Python Worker proposal using real Workers AI providers; prerecorded input and timed software receipts. Not deployed, physical audio or performance acceptance.",
+  "inputs": [
+    {
+      "sha256": "c97884eb23ad91e268731e685839924e624a221061371d385d25d1c0c28f0794",
+      "seconds": 1.8344375
+    },
+    {
+      "sha256": "36addda33af2be3e269151300b499eb6f3fb79ba40a46036e10acac7f567f919",
+      "seconds": 1.8111875
+    },
+    {
+      "sha256": "59d00e6ae3ef2252394e6891fb87a5e4a218fdb44831f8255b799e4a6c74dbe7",
+      "seconds": 1.7415625
+    }
+  ],
+  "passed": true,
+  "model_input_observation": "Restored persisted context and context-dependent answer; provider request arguments are verified by controlled tests, not captured by this live harness",
+  "calls": [
+    {
+      "initial": {
+        "user": "what is the capital of france",
+        "answer": "Paris is the capital of France.",
+        "audio_bytes": 99840
+      },
+      "connections": [
+        [
+          {
+            "type": "reset",
+            "generation": 1,
+            "history": [],
+            "message": "Connected. Say hello to start."
+          },
+          {
+            "type": "ready",
+            "generation": 1
+          },
+          {
+            "type": "clear",
+            "generation": 2,
+            "reason": "pipecat_interruption"
+          },
+          {
+            "type": "transcript",
+            "role": "user",
+            "text": "is the capital",
+            "final": false
+          },
+          {
+            "type": "transcript",
+            "role": "user",
+            "text": "what is the capital of france",
+            "final": false
+          },
+          {
+            "type": "transcript",
+            "role": "user",
+            "text": "what is the capital of france",
+            "final": true
+          },
+          {
+            "type": "status",
+            "state": "thinking",
+            "generation": 3
+          },
+          {
+            "type": "status",
+            "state": "speaking",
+            "generation": 3
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "transcript",
+            "role": "assistant",
+            "text": "Paris is the capital of France.",
+            "final": true
+          },
+          {
+            "type": "status",
+            "state": "listening",
+            "generation": 3
+          },
+          {
+            "type": "pong",
+            "audio": {
+              "input_audio_chunks": 341,
+              "input_audio_bytes": 218062,
+              "forwarded_audio_bytes": 218062
+            }
+          }
+        ],
+        [
+          {
+            "type": "reset",
+            "generation": 4,
+            "history": [
+              {
+                "role": "user",
+                "content": "what is the capital of france"
+              },
+              {
+                "role": "assistant",
+                "content": "Paris is the capital of France."
+              }
+            ],
+            "message": "Reconnected. Your conversation history is restored."
+          },
+          {
+            "type": "ready",
+            "generation": 4
+          },
+          {
+            "type": "clear",
+            "generation": 5,
+            "reason": "pipecat_interruption"
+          },
+          {
+            "type": "transcript",
+            "role": "user",
+            "text": "what country is that",
+            "final": false
+          },
+          {
+            "type": "transcript",
+            "role": "user",
+            "text": "what country is that city in",
+            "final": false
+          },
+          {
+            "type": "transcript",
+            "role": "user",
+            "text": "what country is that city in",
+            "final": true
+          },
+          {
+            "type": "status",
+            "state": "thinking",
+            "generation": 6
+          },
+          {
+            "type": "status",
+            "state": "speaking",
+            "generation": 6
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "transcript",
+            "role": "assistant",
+            "text": "Paris is in France.",
+            "final": true
+          },
+          {
+            "type": "status",
+            "state": "listening",
+            "generation": 6
+          },
+          {
+            "type": "pong",
+            "audio": {
+              "input_audio_chunks": 448,
+              "input_audio_bytes": 286130,
+              "forwarded_audio_bytes": 286130
+            }
+          },
+          {
+            "type": "pong",
+            "audio": {
+              "input_audio_chunks": 448,
+              "input_audio_bytes": 286130,
+              "forwarded_audio_bytes": 286130
+            }
+          },
+          {
+            "type": "ended"
+          }
+        ]
+      ],
+      "restored_history": [
+        {
+          "role": "user",
+          "content": "what is the capital of france"
+        },
+        {
+          "role": "assistant",
+          "content": "Paris is the capital of France."
+        }
+      ],
+      "followup": {
+        "user": "what country is that city in",
+        "answer": "Paris is in France.",
+        "audio_bytes": 69120
+      },
+      "turn_metrics": [
+        {
+          "event": "turn_discarded",
+          "elapsed_ms": 597,
+          "reason": "stt_connection_changed"
+        },
+        {
+          "event": "turn_pause",
+          "elapsed_ms": 2866,
+          "revision": 2,
+          "snapshot_samples": 26880,
+          "transcript_end_sample": 32800,
+          "audio_end_sample": 26880
+        },
+        {
+          "event": "smart_turn",
+          "elapsed_ms": 3579,
+          "revision": 2,
+          "complete": false,
+          "probability": 0.013067709282040596
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 7083,
+          "revision": 2,
+          "completion_reason": "silence_timeout"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 7085,
+          "generation": 6
+        },
+        {
+          "event": "turn_discarded",
+          "elapsed_ms": 20913,
+          "reason": "closed"
+        }
+      ],
+      "cleanup": {
+        "closed": true,
+        "pipecat_tasks": 0,
+        "provider_tasks": 0,
+        "provider_sockets": 0,
+        "provider_readers": 0,
+        "pending_provider_requests": 0,
+        "pending_turn_requests": 0,
+        "queued_output_bytes": 0,
+        "unacked_audio_bytes": 0,
+        "pending_playback_chunks": 0
+      }
+    },
+    {
+      "initial": {
+        "user": "what is the capital of germany",
+        "answer": "Berlin.",
+        "audio_bytes": 38400
+      },
+      "connections": [
+        [
+          {
+            "type": "reset",
+            "generation": 1,
+            "history": [],
+            "message": "Connected. Say hello to start."
+          },
+          {
+            "type": "ready",
+            "generation": 1
+          },
+          {
+            "type": "clear",
+            "generation": 2,
+            "reason": "pipecat_interruption"
+          },
+          {
+            "type": "transcript",
+            "role": "user",
+            "text": "is the capital",
+            "final": false
+          },
+          {
+            "type": "transcript",
+            "role": "user",
+            "text": "what is the capital of germany",
+            "final": false
+          },
+          {
+            "type": "transcript",
+            "role": "user",
+            "text": "what is the capital of germany",
+            "final": true
+          },
+          {
+            "type": "status",
+            "state": "thinking",
+            "generation": 3
+          },
+          {
+            "type": "status",
+            "state": "speaking",
+            "generation": 3
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 3,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "transcript",
+            "role": "assistant",
+            "text": "Berlin.",
+            "final": true
+          },
+          {
+            "type": "status",
+            "state": "listening",
+            "generation": 3
+          },
+          {
+            "type": "pong",
+            "audio": {
+              "input_audio_chunks": 240,
+              "input_audio_bytes": 153318,
+              "forwarded_audio_bytes": 153318
+            }
+          }
+        ],
+        [
+          {
+            "type": "reset",
+            "generation": 4,
+            "history": [
+              {
+                "role": "user",
+                "content": "what is the capital of germany"
+              },
+              {
+                "role": "assistant",
+                "content": "Berlin."
+              }
+            ],
+            "message": "Reconnected. Your conversation history is restored."
+          },
+          {
+            "type": "ready",
+            "generation": 4
+          },
+          {
+            "type": "clear",
+            "generation": 5,
+            "reason": "pipecat_interruption"
+          },
+          {
+            "type": "transcript",
+            "role": "user",
+            "text": "what country is that",
+            "final": false
+          },
+          {
+            "type": "transcript",
+            "role": "user",
+            "text": "what country is that city in",
+            "final": false
+          },
+          {
+            "type": "transcript",
+            "role": "user",
+            "text": "what country is that city in",
+            "final": true
+          },
+          {
+            "type": "status",
+            "state": "thinking",
+            "generation": 6
+          },
+          {
+            "type": "status",
+            "state": "speaking",
+            "generation": 6
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "pong",
+            "audio": {
+              "input_audio_chunks": 474,
+              "input_audio_bytes": 302770,
+              "forwarded_audio_bytes": 302770
+            }
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "audio",
+            "generation": 6,
+            "bytes": 960,
+            "nonzero": true
+          },
+          {
+            "type": "transcript",
+            "role": "assistant",
+            "text": "Berlin is the capital city of Germany.",
+            "final": true
+          },
+          {
+            "type": "status",
+            "state": "listening",
+            "generation": 6
+          },
+          {
+            "type": "ended"
+          }
+        ]
+      ],
+      "restored_history": [
+        {
+          "role": "user",
+          "content": "what is the capital of germany"
+        },
+        {
+          "role": "assistant",
+          "content": "Berlin."
+        }
+      ],
+      "followup": {
+        "user": "what country is that city in",
+        "answer": "Berlin is the capital city of Germany.",
+        "audio_bytes": 115200
+      },
+      "turn_metrics": [
+        {
+          "event": "turn_discarded",
+          "elapsed_ms": 456,
+          "reason": "stt_connection_changed"
+        },
+        {
+          "event": "turn_pause",
+          "elapsed_ms": 2773,
+          "revision": 2,
+          "snapshot_samples": 26880,
+          "transcript_end_sample": 32800,
+          "audio_end_sample": 26880
+        },
+        {
+          "event": "smart_turn",
+          "elapsed_ms": 3723,
+          "revision": 2,
+          "complete": false,
+          "probability": 0.013067709282040596
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 7002,
+          "revision": 2,
+          "completion_reason": "silence_timeout"
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 7004,
+          "generation": 6
+        },
+        {
+          "event": "turn_discarded",
+          "elapsed_ms": 10602,
+          "reason": "closed"
+        }
+      ],
+      "cleanup": {
+        "closed": true,
+        "pipecat_tasks": 0,
+        "provider_tasks": 0,
+        "provider_sockets": 0,
+        "provider_readers": 0,
+        "pending_provider_requests": 0,
+        "pending_turn_requests": 0,
+        "queued_output_bytes": 0,
+        "unacked_audio_bytes": 0,
+        "pending_playback_chunks": 0
+      }
+    }
+  ],
+  "checks": [
+    "Each call restored its exact prior assistant answer after disconnect",
+    "No other call assistant answer appeared in restored context",
+    "Context-dependent follow-up correctly identified France and Germany",
+    "Each spoken turn produced exactly one final user transcript and nonzero response PCM"
+  ],
+  "finished_at": "2026-10-05T05:40:59.140Z",
+  "application_source": "live-provenance.json",
+  "proposal_approved": false,
+  "production_changed": false
+}
