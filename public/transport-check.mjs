@@ -274,6 +274,8 @@ function connectControl(epoch) {
     try {
       if (typeof event.data !== 'string' || event.data.length > 2_100_000) throw new Error('Invalid control message.');
       const packet = JSON.parse(event.data);
+      if (['clear','error','transcript'].includes(packet.type) && Object.hasOwn(packet,'generation')
+          && (!Number.isSafeInteger(packet.generation) || packet.generation < generation)) return;
       if (Number.isSafeInteger(packet.generation)) { generation = Math.max(generation,packet.generation); $('generation').textContent = `Generation ${generation}`; }
       if (packet.type === 'ready') connectMedia(epoch,ws);
       else if (packet.type === 'sfu_track' && transport) {

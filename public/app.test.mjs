@@ -30,11 +30,11 @@ function harness({ fetchSession, capture, transport = 'websocket', publish } = {
   let nextTimer = 0;
   const contexts = [], sockets = [], nodes = [], mediaRequests = [], sfus = [];
   class SfuAudioTransport {
-    floor = -1; generations = []; closed = false;
+    floor = -1; generations = []; closed = false; output = null;
     constructor(options) { this.options = options; sfus.push(this); }
     async publish() { if (publish) await publish(this); }
-    async subscribe(generation) { if (generation >= this.floor) this.generations.push(generation); }
-    clearOutput(generation) { this.floor = Math.max(this.floor, generation ?? this.floor+1); return 0; }
+    async subscribe(generation) { if (generation >= this.floor) { this.generations.push(generation); this.output = {generation}; } }
+    clearOutput(generation) { this.floor = Math.max(this.floor, generation ?? this.floor+1); this.output = null; return 0; }
     close() { this.closed = true; }
     async resumePlayback() { this.options.onPlaybackBlocked(false); }
   }
@@ -422,4 +422,66 @@ test('an old clear cannot reset the state of a newer response',async()=>{
   socket.receive({type:'clear',generation:5});
   assert.equal(h.run('serverState'),'thinking');
   h.element('end').click();
+});
+
+test('late tagged errors preserve interruption of the current response on both routes',async()=>{
+  for(const transport of ['websocket','webrtc']) {
+    const h=harness({transport}); await h.element('start').click();
+    const socket=h.sockets[0]; socket.open(); socket.receive({type:'ready',generation:4}); await settle();
+    socket.receive({type:'status',state:'speaking',generation:6});
+    socket.receive({type:'error',generation:5,recoverable:true,message:'Old response failed.'});
+    assert.equal(h.run('serverState'),'speaking'); assert.equal(h.element('status').textContent,'Speaking');
+    for(let i=0;i<3;i++) h.run('observeMicrophone({pcm:new Int16Array(320).buffer,rms:.1})');
+    assert.equal(socket.sent.filter(p=>p.type==='interrupt').length,1);
+    assert.equal(h.run('active'),true);
+    h.element('end').click();
+  }
+});
+test('reconnect clears stale response state before the first idle microphone onset on both routes',async()=>{
+  for(const transport of ['websocket','webrtc']) {
+    const h=harness({transport}); await h.element('start').click();
+    const first=h.sockets[0]; first.open(); first.receive({type:'ready',generation:4}); await settle();
+    first.receive({type:'status',state:'speaking',generation:4}); first.close();
+    const retry=[...h.timers].find(([,t])=>t.delay===500); h.timers.delete(retry[0]); retry[1].fn();
+    const next=h.sockets[1]; next.open();
+    next.receive({type:'reset',generation:5,history:[{role:'assistant',content:'Saved answer.'}]});
+    next.receive({type:'ready',generation:5}); await settle();
+    assert.equal(h.element('status').textContent,'Listening'); assert.equal(h.run('serverState'),'listening');
+    for(let i=0;i<3;i++) h.run('observeMicrophone({pcm:new Int16Array(320).buffer,rms:.1})');
+    assert.equal(next.sent.filter(p=>p.type==='interrupt').length,0);
+    assert.deepEqual(h.element('transcript').children.map(row=>row.lastElementChild?.textContent).filter(Boolean),['Saved answer.']);
+    h.element('end').click();
+  }
+});
+test('SFU readiness cannot overwrite a current response received during publishing',async()=>{
+  let ready; const h=harness({transport:'webrtc',publish:()=>new Promise(resolve=>{ready=resolve;})});
+  await h.element('start').click(); const socket=h.sockets[0]; socket.open();
+  socket.receive({type:'reset',generation:4,history:[]}); socket.receive({type:'ready',generation:4});
+  socket.receive({type:'status',state:'thinking',generation:5}); ready(); await settle();
+  assert.equal(h.run('serverState'),'thinking');
+  for(let i=0;i<3;i++) h.run('observeMicrophone({pcm:new Int16Array(320).buffer,rms:.1})');
+  assert.equal(socket.sent.filter(p=>p.type==='interrupt').length,1);
+  h.element('end').click();
+});
+
+test('explicitly stale clear and terminal error leave current audio and receiver intact',async()=>{
+  for(const transport of ['websocket','webrtc']) {
+    const h=harness({transport}); await h.element('start').click();
+    try {
+      const socket=h.sockets[0]; socket.open(); socket.receive({type:'ready',generation:4}); await settle();
+      socket.receive({type:'status',state:'speaking',generation:6});
+      if(transport==='websocket') socket.receive({type:'audio',generation:6,chunk_id:1,sample_rate:16000,data:pcm16ToBase64(new Int16Array(1600).buffer)});
+      else socket.receive({type:'sfu_track',generation:6});
+      const receiver=h.sfus[0]?.output, clearCount=h.run('metrics.localPlaybackClearMs.length');
+      socket.receive({type:'clear',generation:5});
+      socket.receive({type:'error',generation:5,recoverable:false,message:'Old response failed.'});
+      socket.receive({type:'transcript',generation:5,role:'assistant',text:'Old answer.',final:true});
+      assert.equal(h.run('active'),true); assert.equal(h.run('serverState'),'speaking');
+      assert.equal(h.run('metrics.localPlaybackClearMs.length'),clearCount);
+      assert.equal(h.element('notice').textContent,'');
+      assert.equal(h.element('transcript').children.some(row=>row.lastElementChild?.textContent==='Old answer.'),false);
+      if(transport==='websocket') assert.equal(h.run('player.hasPending'),true);
+      else { assert.ok(receiver); assert.equal(h.sfus[0].output,receiver); }
+    } finally { h.element('end').click(); }
+  }
 });

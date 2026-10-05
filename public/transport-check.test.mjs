@@ -188,3 +188,34 @@ test('bounded SFU completion requires untagged assistant text from the current t
   assert.equal(result.status,'completed'); assert.equal(result.generation,3);
   assert.equal(result.assistant_finals,2);
 });
+
+test('explicit stale or invalid transcript tags cannot complete a current SFU response',async()=>{
+  const h=harness({bounded:true}), ws=await startBounded(h);
+  h.sources[0].onended(); h.run('capture.port.onmessage({data:{pcm:new Int16Array([1]).buffer}})');
+  ws.receive({type:'transcript',role:'user',text:'Hi.',final:true});
+  ws.receive({type:'clear',generation:3}); ws.receive({type:'status',state:'thinking',generation:3});
+  ws.receive({type:'sfu_track',generation:3}); await settle(); await h.run('measure(run)'); await settle();
+  ws.receive({type:'status',state:'listening',generation:3});
+  for(const generation of [2,null,'3']) {
+    ws.receive({type:'transcript',role:'assistant',text:'Rejected answer.',final:true,generation});
+    await h.run('measure(run)');
+    assert.equal(h.run('assistantFinals'),0);
+    assert.equal([...h.timers.values()].some(t=>t.delay===1000),false);
+  }
+  ws.receive({type:'transcript',role:'assistant',text:'Current answer.',final:true,generation:3});
+  await h.run('measure(run)');
+  const finish=[...h.timers.values()].find(t=>t.delay===1000); assert.ok(finish); finish.fn(); await settle();
+  const result=JSON.parse(h.element('check-result').textContent);
+  assert.equal(result.status,'completed'); assert.equal(result.generation,3); assert.equal(result.assistant_finals,1);
+});
+
+test('stale clear and error cannot detach the bounded SFU receiver or end its check',async()=>{
+  const h=harness({bounded:true}), ws=await startBounded(h);
+  const receiver=h.transports[0].output;
+  ws.receive({type:'clear',generation:1});
+  ws.receive({type:'error',generation:1,message:'Old error.'});
+  assert.equal(h.transports[0].output,receiver);
+  assert.equal(JSON.parse(h.element('check-result').textContent).status,'running');
+  assert.equal(ws.sent.some(packet=>packet.type==='end'),false);
+  h.element('check-end').click();
+});

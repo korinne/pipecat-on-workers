@@ -329,6 +329,7 @@ function connect(run) {
   if (!active || run !== lifecycle) return;
   clearTimeout(reconnectTimer);
   serverReady = false;
+  serverState = 'listening';
   const ws = new WebSocket(websocketURL(session));
   socket = ws;
   const connectTimeout = setTimeout(() => { if (!serverReady && socket === ws) ws.close(4000, 'Startup timeout'); }, 35000);
@@ -346,6 +347,8 @@ function connect(run) {
     try {
       if (typeof e.data !== 'string' || e.data.length > 2_100_000) throw new Error('Invalid server message.');
       const packet = JSON.parse(e.data);
+      if (['clear','error','transcript'].includes(packet.type) && Object.hasOwn(packet,'generation')
+          && (!Number.isSafeInteger(packet.generation) || packet.generation < knownGeneration)) return;
       if (packet.type !== 'reset' && Number.isSafeInteger(packet.generation)) knownGeneration = Math.max(knownGeneration, packet.generation);
       switch (packet.type) {
         case 'ready':
@@ -363,7 +366,7 @@ function connect(run) {
           if (!usesSfu) player?.enqueue(packet);
           break;
         case 'clear':
-          if (!Number.isSafeInteger(packet.generation) || packet.generation >= knownGeneration) resetResponseState();
+          resetResponseState();
           clearPlayback(Number.isSafeInteger(packet.generation) ? packet.generation : undefined, 'server_clear');
           break;
         case 'transcript': transcript(packet); break;
@@ -374,6 +377,7 @@ function connect(run) {
           break;
         }
         case 'reset':
+          resetResponseState();
           // A reset begins an ordered WebSocket stream epoch. Old socket
           // messages are independently rejected by socket identity above.
           player?.clear();
