@@ -23,6 +23,7 @@ FRAME_BYTES = 3840  # 20 ms, 48000 Hz, stereo, PCM16
 READY_TIMEOUT = 35  # One shared deadline for callback + browser SDP/ICE readiness.
 MAX_SDP_BYTES = 65536
 API_TIMEOUT = 16
+INPUT_READY_TIMEOUT = 18  # Allocation + first PCM; browser signaling waits 20 seconds.
 CLEANUP_REQUEST_TIMEOUT = 3
 CLOSE_TIMEOUT = 5
 CLEANUP_ATTEMPTS = 3
@@ -125,6 +126,9 @@ class SfuTransport:
         self.input_needs_answer = False
         self.input_socket = None
         self.input_pump = None
+        self.input_ready_event = asyncio.Event()
+        self.input_pcm_ready = False
+        self.input_failure = None
         self.input_lock = asyncio.Lock()
         self.output_lock = asyncio.Lock()
         self.cleanup_lock = asyncio.Lock()
@@ -317,20 +321,67 @@ class SfuTransport:
         async with self.input_lock:
             if self.closed:
                 raise SfuError("This Realtime call has ended")
+            if self.input_failure:
+                raise SfuError(self.input_failure)
             if not self.input_session or self.input_needs_answer:
                 raise SfuError("Microphone negotiation is incomplete")
-            if self.input_adapter:
-                return {"ok": True}
+            deadline = asyncio.get_running_loop().time() + INPUT_READY_TIMEOUT
+            try:
+                while True:
+                    remaining = deadline - asyncio.get_running_loop().time()
+                    if remaining <= 0:
+                        raise asyncio.TimeoutError
+                    socket = await asyncio.wait_for(self._task(self._activate_input()), remaining)
+                    if self.closed or self.input_failure:
+                        raise SfuError(self.input_failure or "This Realtime call has ended")
+                    # A callback can replace the socket after the activation
+                    # task returns but before this waiter resumes.
+                    if self.input_socket is socket and not socket.closed and self.input_pcm_ready:
+                        return {"ok": True}
+            except asyncio.CancelledError:
+                if self.closed:
+                    raise SfuError("This Realtime call has ended") from None
+                raise
+            except asyncio.TimeoutError:
+                message = "Realtime microphone audio did not arrive. End the call and start again."
+                await self._fail_input(message)
+                raise SfuError(message) from None
+            except SfuError:
+                if not self.closed:
+                    await self._fail_input("Realtime microphone media could not start. End the call and start again.")
+                raise
+
+    async def _activate_input(self):
+        if not self.input_adapter:
             result = await self._api("POST", "adapters/websocket/new", {"tracks": [{
                 "location": "remote", "sessionId": self.input_session,
                 "trackName": "microphone", "endpoint": self.input_endpoint,
                 "outputCodec": "pcm"}]}, lambda body: self._record_adapters("input", None, body))
             adapter = self._one_track(result)
-            if self.closed:
-                self._schedule_cleanup()
-                raise SfuError("This Realtime call has ended")
             self.input_adapter = _identifier(adapter.get("adapterId"))
-            return {"ok": True}
+        while True:
+            if self.closed or self.input_failure:
+                self._schedule_cleanup()
+                raise SfuError(self.input_failure or "This Realtime call has ended")
+            if self.input_socket and not self.input_socket.closed and self.input_pcm_ready:
+                return self.input_socket
+            await self.input_ready_event.wait()
+            self.input_ready_event.clear()
+
+    async def _fail_input(self, message):
+        if self.closed or self.input_failure:
+            return
+        self.input_failure = message
+        self.input_pcm_ready = False
+        self.input_ready_event.set()
+        if self.input_socket:
+            self.input_socket.close()
+            self.input_socket = None
+        if self.input_pump and self.input_pump is not asyncio.current_task():
+            self.input_pump.cancel()
+        self._schedule_cleanup()
+        await self._emit({"type": "error", "message": message,
+                          "code": "sfu_input_disconnected", "recoverable": False})
 
     async def _subscribe(self, state):
         if state["receiver"]:
@@ -356,7 +407,7 @@ class SfuTransport:
     def attach_socket(self, role, ws, generation=None):
         """Accept an already-authenticated SFU callback, owning its listeners."""
         state = self.output
-        valid = not self.closed and (role == "input" and self.input_session or
+        valid = not self.closed and (role == "input" and self.input_session and not self.input_failure or
                 role == "output" and state and state["generation"] == generation and self._alive(state))
         if not valid:
             raise SfuError("This Realtime media endpoint is no longer active")
@@ -371,6 +422,8 @@ class SfuTransport:
             if self.input_pump:
                 self.input_pump.cancel()
             self.input_socket = socket
+            self.input_pcm_ready = False
+            self.input_ready_event.clear()
             self.input_pump = self._task(self._read_input(socket))
         else:
             if state["socket"]:
@@ -407,12 +460,14 @@ class SfuTransport:
                     result = self.on_audio(pcm)
                     if inspect.isawaitable(result):
                         await result
+                    if not self.closed and self.input_socket is socket:
+                        self.input_pcm_ready = True
+                        self.input_ready_event.set()
         except asyncio.CancelledError:
             raise
         except Exception:
             if not self.closed and self.input_socket is socket:
-                await self._emit({"type": "error", "message": "Realtime microphone media disconnected. End the call and start again.",
-                                  "code": "sfu_input_disconnected", "recoverable": False})
+                await self._fail_input("Realtime microphone media disconnected. End the call and start again.")
         finally:
             socket.close()
             if self.input_socket is socket:
@@ -635,7 +690,8 @@ class SfuTransport:
 
     def _retired(self, role_generation):
         role, generation = role_generation
-        return self.closed or role == "output" and generation < self.generation_floor
+        return (self.closed or role == "input" and bool(self.input_failure)
+                or role == "output" and generation < self.generation_floor)
 
     async def _cleanup_retired(self):
         async with self.cleanup_lock:
@@ -727,6 +783,8 @@ class SfuTransport:
         deadline = asyncio.get_running_loop().time() + CLOSE_TIMEOUT
         if not self.closed:
             self.closed = True
+            self.input_pcm_ready = False
+            self.input_ready_event.set()
             if self.input_socket:
                 self.input_socket.close()
                 self.input_socket = None
@@ -774,6 +832,9 @@ class SfuTransport:
 
     def diagnostics(self):
         return {"sfu_input_bytes": self.received_bytes, "sfu_submitted_bytes": self.submitted_bytes,
+                "sfu_input_socket_open": bool(self.input_socket and not self.input_socket.closed),
+                "sfu_input_pcm_ready": self.input_pcm_ready,
+                "sfu_input_failed": bool(self.input_failure),
                 "sfu_dropped_packets": self.dropped_packets, "sfu_owned_adapters": len(self.adapters),
                 "sfu_owned_tracks": len(self.tracks), "sfu_cleanup_failures": self.cleanup_failures,
                 "sfu_owned_sessions": len(self.sessions),
