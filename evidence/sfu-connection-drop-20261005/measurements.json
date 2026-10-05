@@ -1,0 +1,102 @@
+{
+  "transport": "webrtc",
+  "startupMs": [
+    16237
+  ],
+  "firstAudioAfterTranscriptMs": [],
+  "localPlaybackClearMs": [
+    1,
+    0
+  ],
+  "reconnects": 3,
+  "errors": [],
+  "events": [
+    {
+      "event": "session_created",
+      "elapsedMs": 2748
+    },
+    {
+      "event": "session_reset",
+      "elapsedMs": 5234
+    },
+    {
+      "event": "webrtc_state",
+      "elapsedMs": 14140,
+      "role": "input",
+      "state": "connecting"
+    },
+    {
+      "event": "webrtc_state",
+      "elapsedMs": 14567,
+      "role": "input",
+      "state": "connected"
+    },
+    {
+      "event": "webrtc_state",
+      "elapsedMs": 16237,
+      "role": "input",
+      "state": "connected"
+    },
+    {
+      "event": "ready",
+      "elapsedMs": 16237
+    },
+    {
+      "event": "speaker_detached",
+      "elapsedMs": 18232,
+      "reason": "server_clear",
+      "generation": 2
+    },
+    {
+      "event": "user_transcript_final",
+      "elapsedMs": 19688
+    },
+    {
+      "event": "speaker_detached",
+      "elapsedMs": 22870,
+      "reason": "disconnect",
+      "generation": 4
+    },
+    {
+      "event": "reconnect",
+      "elapsedMs": 22871,
+      "attempt": 1,
+      "code": 1013
+    },
+    {
+      "event": "reconnect",
+      "elapsedMs": 24610,
+      "attempt": 2,
+      "code": 1006
+    },
+    {
+      "event": "reconnect",
+      "elapsedMs": 45752,
+      "attempt": 3,
+      "code": 1006
+    }
+  ],
+  "audioInput": {
+    "capturedChunks": 2430,
+    "capturedBytes": 1555200,
+    "sentChunks": 0,
+    "sentBytes": 0,
+    "maxRms": 0.17401997332107305,
+    "receivedBytes": 125440,
+    "forwardedBytes": 125440,
+    "contextState": "running",
+    "contextTime": 50.155102040816324,
+    "trackState": "live",
+    "trackMuted": false
+  },
+  "measurementSchema": 2,
+  "exportedAt": "2026-10-05T20:53:07.828Z",
+  "serverDiagnosticsStatus": "unavailable",
+  "limitations": [
+    "Speaker mute detaches the remote track; it does not measure acoustic silence or confirm delivery.",
+    "First-audio latency and exact chunk playback are not measured for WebRTC.",
+    "Only the most recent 1000 events per array are retained.",
+    "Server diagnostics are a later snapshot of this call; absent events do not prove they never occurred.",
+    "No transcript, audio, capability token, or session identifier is exported."
+  ]
+}

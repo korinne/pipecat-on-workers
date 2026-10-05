@@ -1,5 +1,7 @@
 # Trace the failed laptop call
 
+The newer [laptop export and connection-drop investigation](SFU-CONNECTION-DROP.md) supersede the missing-export status below. It shows local capture continuing after a 1013 close; its server trace remains unavailable. Current diagnostic source is `cdd8a55`, deployed as `742a8942-84b6-4247-a3b0-e193af3855b4`. The original generic-abort investigation below remains historical evidence.
+
 The exact cause of the reported SFU failure remains unknown. The preserved screenshot and user report contain no server events, call capability, or measurements. On the reviewed deployed source, the visible error requires an active Nova turn but does not identify which of seven abort reasons fired. No conversation behavior was changed in this investigation.
 
 One diagnostic defect is established and fixed: the browser export removed `transcript_beyond_pause`, `pause_audio_unavailable`, `detector_busy`, and `smart_turn_failed`. New regression tests fail on the starting source and preserve all seven reasons after the correction. The failure logs and [investigation record](../evidence/causal-trace-20261005/investigation.json) are retained.

@@ -1,0 +1,69 @@
+{
+  "started_from": "3ebc9eec5fe372ce771fe5139678ce475e6f9118",
+  "branch": "codex/transport-contract",
+  "clean_at_start": true,
+  "source_commit": "cdd8a55051295401a5d7bdc3f33b1233ab7bc02d",
+  "user_export": "measurements.json",
+  "user_report": "user-report.json",
+  "established_failure_mode": "Control connection dropped after final user transcript; microphone sample capture continued through reconnect attempts.",
+  "runtime_root_cause": "unknown",
+  "previous_generic_turn_abort_reason": "unknown; this export has no turn_abort error or server event trace",
+  "established_diagnostic_defect": "Fetch failures were all exported as unavailable, hiding HTTP status and failure class.",
+  "regression": {
+    "before_source": "3ebc9ee",
+    "new_tests_passed": 0,
+    "new_tests_failed": 5,
+    "before_total_passed": 31,
+    "before_total_failed": 5,
+    "before_log": "export-regression-before.log",
+    "after_source": "cdd8a55051295401a5d7bdc3f33b1233ab7bc02d",
+    "after_total_passed": 111,
+    "after_total_failed": 0,
+    "after_log": "export-checks-after.log",
+    "initial_harness_note": "Initial failing run kept test handles open; task-owned process stopped and bounded red run retained."
+  },
+  "historical_logs": {
+    "http_status": 403,
+    "provider_error_code": 10000,
+    "reason": "Existing unexpired CLI OAuth access did not authorize stored Observability query.",
+    "query_scope": "Only pipecat-on-workers, 2026-10-05 20:50\u201320:54 UTC; read-only dry query.",
+    "raw_response_shared": false
+  },
+  "live_tail": {
+    "attached": true,
+    "verified_before_and_after_deployment": true,
+    "last_checked_at": "2026-10-05T21:04:09Z",
+    "captured_events": 3,
+    "captured_call_requests": 0,
+    "captured_runtime_exceptions": 0,
+    "observed_routes": [
+      "/api/health",
+      "/api/test/fixtures"
+    ],
+    "outcomes": [
+      "ok"
+    ],
+    "process_session_id": 16746,
+    "private_log_path": "/private/tmp/pipecat-sfu-laptop-live-tail.private.jsonl",
+    "state": "Attached for requested user repeat; no call observed yet. Check live state before relying on it."
+  },
+  "missing_observation": "Runtime outcome/exception for the real SFU control/media connection closing1013; preceding private server audio/Nova/turn events remain unavailable.",
+  "excluded_inferences": [
+    "1013 does not uniquely identify CPU exhaustion or overload.",
+    "Local sample capture does not establish SFU delivery.",
+    "SFU first-audio array does not measure playback.",
+    "Final transcript on reviewed source is not evidence of an INCOMPLETE turn rejection."
+  ],
+  "source_refs": {
+    "close_code_registry": "https://www.iana.org/assignments/websocket",
+    "runtime_cpu_refresh": "https://github.com/cloudflare/workerd/blob/1bdf7f1fbeeae04a78ba7bbcbc3a8a6ca920ef48/src/workerd/api/web-socket.c%2B%2B#L1253"
+  },
+  "screenshot_copied": false,
+  "personal_transcript_copied": false,
+  "audio_copied": false,
+  "browser_automation_used": false,
+  "conversation_behavior_changed": false,
+  "silence_fallback_enabled": false,
+  "performance_acceptance": "deferred",
+  "B1": "blocked"
+}

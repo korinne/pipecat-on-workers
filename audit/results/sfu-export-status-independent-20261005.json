@@ -1,0 +1,56 @@
+{
+  "revision": "cdd8a55051295401a5d7bdc3f33b1233ab7bc02d",
+  "base_revision": "3ebc9eec5fe372ce771fe5139678ce475e6f9118",
+  "source": "independent git archive of exact revision",
+  "scope": [
+    "public/app.js",
+    "public/app.test.mjs"
+  ],
+  "scope_matches_commit_diff": true,
+  "check": "node --test public/*.test.mjs scripts/*.test.mjs",
+  "runtime": "Node.js v22.7.0",
+  "result": "pass",
+  "counts": {
+    "tests": 111,
+    "passed": 111,
+    "failed": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "privacy_review": {
+    "result": "pass",
+    "http_status": "integer 100 through 599 only",
+    "failure_categories": [
+      "http_error",
+      "timeout",
+      "network_error",
+      "invalid_response"
+    ],
+    "reconnect_code": "integer 1000 through 4999 only",
+    "reconnect_was_clean": "boolean only",
+    "excluded": [
+      "URLs",
+      "exception messages",
+      "response bodies on HTTP failure",
+      "arbitrary close reasons",
+      "tokens",
+      "audio",
+      "transcript text"
+    ],
+    "existing_error_sanitizer_preserved": true
+  },
+  "behavior_review": {
+    "conversation_and_control_flow_unchanged": true,
+    "reconnect_policy_and_timing_unchanged": true,
+    "session_and_media_authorization_unchanged": true,
+    "diagnostics_request_header_and_timeout_unchanged": true,
+    "visible_notices_unchanged": true
+  },
+  "limits": [
+    "No live browser, microphone, provider, playback, or performance acceptance established by these tests"
+  ],
+  "log": "evidence/sfu-connection-drop-20261005/export-checks-after.log",
+  "deployed": false,
+  "repository_modified": false
+}

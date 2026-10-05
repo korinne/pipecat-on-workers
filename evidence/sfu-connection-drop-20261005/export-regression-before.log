@@ -1,0 +1,268 @@
+TAP version 13
+# Subtest: Start, ready, mute, and End release all client resources
+ok 1 - Start, ready, mute, and End release all client resources
+  ---
+  duration_ms: 14.537167
+  ...
+# Subtest: disconnect clears playback and reconnect reuses capability with a bounded retry budget
+ok 2 - disconnect clears playback and reconnect reuses capability with a bounded retry budget
+  ---
+  duration_ms: 4.774
+  ...
+# Subtest: reset creates a new stream epoch and stale socket messages are ignored
+ok 3 - reset creates a new stream epoch and stale socket messages are ignored
+  ---
+  duration_ms: 2.928958
+  ...
+# Subtest: failed session creation closes microphone and shows a recoverable error
+ok 4 - failed session creation closes microphone and shows a recoverable error
+  ---
+  duration_ms: 1.044083
+  ...
+# Subtest: both transports create a session without a demo key and keep its capability
+ok 5 - both transports create a session without a demo key and keep its capability
+  ---
+  duration_ms: 2.857542
+  ...
+# Subtest: speech onset during pending generation rejects its delayed first audio
+ok 6 - speech onset during pending generation rejects its delayed first audio
+  ---
+  duration_ms: 1.938667
+  ...
+# Subtest: reset replaces visible history and excludes restored turns from response metrics
+ok 7 - reset replaces visible history and excludes restored turns from response metrics
+  ---
+  duration_ms: 1.763292
+  ...
+# Subtest: terminal server close releases microphone without futile reconnect
+ok 8 - terminal server close releases microphone without futile reconnect
+  ---
+  duration_ms: 1.591666
+  ...
+# Subtest: server session time limit is explained and releases resources
+ok 9 - server session time limit is explained and releases resources
+  ---
+  duration_ms: 2.419958
+  ...
+# Subtest: terminal startup error preserves explanation and releases microphone without reconnect
+ok 10 - terminal startup error preserves explanation and releases microphone without reconnect
+  ---
+  duration_ms: 1.555583
+  ...
+# Subtest: microphone permission denial creates no session and releases the audio engine
+ok 11 - microphone permission denial creates no session and releases the audio engine
+  ---
+  duration_ms: 1.172041
+  ...
+# Subtest: End while microphone permission is pending stops a late track without creating a session
+ok 12 - End while microphone permission is pending stops a late track without creating a session
+  ---
+  duration_ms: 8.894875
+  ...
+# Subtest: End during session creation retires the late capability and leaves audio stopped
+ok 13 - End during session creation retires the late capability and leaves audio stopped
+  ---
+  duration_ms: 1.684166
+  ...
+# Subtest: audio engine resumes inside the Start click before asynchronous microphone setup
+ok 14 - audio engine resumes inside the Start click before asynchronous microphone setup
+  ---
+  duration_ms: 1.04625
+  ...
+# Subtest: capture, upload and server delivery counters distinguish each stage without audio capture
+ok 15 - capture, upload and server delivery counters distinguish each stage without audio capture
+  ---
+  duration_ms: 1.150625
+  ...
+# Subtest: paused audio exposes resume action and fatal worklet errors stop the call
+ok 16 - paused audio exposes resume action and fatal worklet errors stop the call
+  ---
+  duration_ms: 1.20325
+  ...
+# Subtest: resume remains reachable while initial audio startup is waiting
+ok 17 - resume remains reachable while initial audio startup is waiting
+  ---
+  duration_ms: 1.277208
+  ...
+# Subtest: SFU mode sends microphone over WebRTC and leaves the control socket audio-free
+ok 18 - SFU mode sends microphone over WebRTC and leaves the control socket audio-free
+  ---
+  duration_ms: 2.818584
+  ...
+# Subtest: SFU output replaces by generation and local speech clears it without fake receipts
+ok 19 - SFU output replaces by generation and local speech clears it without fake receipts
+  ---
+  duration_ms: 1.362792
+  ...
+# Subtest: SFU reconnect closes peers and rejects old startup completion
+ok 20 - SFU reconnect closes peers and rejects old startup completion
+  ---
+  duration_ms: 1.498208
+  ...
+# Subtest: SFU failures release all client resources and preserve the visible explanation
+ok 21 - SFU failures release all client resources and preserve the visible explanation
+  ---
+  duration_ms: 1.199792
+  ...
+# Subtest: clear and recoverable error stop stale response states from interrupting resumed speech
+ok 22 - clear and recoverable error stop stale response states from interrupting resumed speech
+  ---
+  duration_ms: 7.276917
+  ...
+# Subtest: an old clear cannot reset the state of a newer response
+ok 23 - an old clear cannot reset the state of a newer response
+  ---
+  duration_ms: 0.972458
+  ...
+# Subtest: late tagged errors preserve interruption of the current response on both routes
+ok 24 - late tagged errors preserve interruption of the current response on both routes
+  ---
+  duration_ms: 2.442
+  ...
+# Subtest: reconnect clears stale response state before the first idle microphone onset on both routes
+ok 25 - reconnect clears stale response state before the first idle microphone onset on both routes
+  ---
+  duration_ms: 2.799833
+  ...
+# Subtest: SFU readiness cannot overwrite a current response received during publishing
+ok 26 - SFU readiness cannot overwrite a current response received during publishing
+  ---
+  duration_ms: 1.345208
+  ...
+# Subtest: explicitly stale clear and terminal error leave current audio and receiver intact
+ok 27 - explicitly stale clear and terminal error leave current audio and receiver intact
+  ---
+  duration_ms: 3.221375
+  ...
+# Subtest: measurement export requests private diagnostics and excludes their internal fields
+ok 28 - measurement export requests private diagnostics and excludes their internal fields
+  ---
+  duration_ms: 2.32675
+  ...
+# Subtest: failed diagnostics still export the frozen browser snapshot across End and a new call
+ok 29 - failed diagnostics still export the frozen browser snapshot across End and a new call
+  ---
+  duration_ms: 1.387625
+  ...
+# Subtest: ended call measurements explicitly mark missing server snapshot
+ok 30 - ended call measurements explicitly mark missing server snapshot
+  ---
+  duration_ms: 1.171208
+  ...
+# Subtest: diagnostic export distinguishes HTTP rejection without exposing response content
+not ok 31 - diagnostic export distinguishes HTTP rejection without exposing response content
+  ---
+  duration_ms: 2.426208
+  location: '/private/tmp/pipecat-export-status.bNKGtJ/public/app.test.mjs:545:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    undefined !== 403
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 403
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/pipecat-export-status.bNKGtJ/public/app.test.mjs:555:12)
+    async Test.run (node:internal/test_runner/test:879:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:590:7)
+  ...
+# Subtest: diagnostic export distinguishes timeout, network, invalid JSON and invalid diagnostic shape
+not ok 32 - diagnostic export distinguishes timeout, network, invalid JSON and invalid diagnostic shape
+  ---
+  duration_ms: 1.409875
+  location: '/private/tmp/pipecat-export-status.bNKGtJ/public/app.test.mjs:564:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + undefined
+    - 'timeout'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'timeout'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/pipecat-export-status.bNKGtJ/public/app.test.mjs:579:12)
+    async Test.run (node:internal/test_runner/test:879:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:590:7)
+  ...
+# Subtest: diagnostic HTTP status only exports integer values in the HTTP range
+not ok 33 - diagnostic HTTP status only exports integer values in the HTTP range
+  ---
+  duration_ms: 1.070667
+  location: '/private/tmp/pipecat-export-status.bNKGtJ/public/app.test.mjs:588:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + undefined
+    - 'http_error'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'http_error'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/pipecat-export-status.bNKGtJ/public/app.test.mjs:594:12)
+    async Test.run (node:internal/test_runner/test:879:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:590:7)
+  ...
+# Subtest: reconnect diagnostics retain bounded close code and cleanliness without reason text
+not ok 34 - reconnect diagnostics retain bounded close code and cleanliness without reason text
+  ---
+  duration_ms: 1.050833
+  location: '/private/tmp/pipecat-export-status.bNKGtJ/public/app.test.mjs:599:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + undefined
+    - true
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/pipecat-export-status.bNKGtJ/public/app.test.mjs:604:41)
+    async Test.run (node:internal/test_runner/test:879:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:590:7)
+  ...
+# Subtest: malformed close metadata cannot leak into reconnect diagnostics
+not ok 35 - malformed close metadata cannot leak into reconnect diagnostics
+  ---
+  duration_ms: 1.024167
+  location: '/private/tmp/pipecat-export-status.bNKGtJ/public/app.test.mjs:612:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    true !== false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/pipecat-export-status.bNKGtJ/public/app.test.mjs:618:12)
+    async Test.run (node:internal/test_runner/test:879:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:590:7)
+  ...
+# Subtest: a speech-start error leaves the current assistant response interruptible
+ok 36 - a speech-start error leaves the current assistant response interruptible
+  ---
+  duration_ms: 8.819667
+  ...
+1..36
+# tests 36
+# suites 0
+# pass 31
+# fail 5
+# cancelled 0
+# skipped 0
+# todo 0

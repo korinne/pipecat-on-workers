@@ -1,8 +1,8 @@
 # Evidence and remaining unknowns
 
-## Diagnostic update, 5 October 2026
+## Latest laptop evidence, 5 October 2026
 
-The diagnostic-only revision `39fe5b0` is now deployed as `425815d1-a965-47bc-b863-4dad470ad0a1`. The export retains all seven abort reasons and bounded SFU/Nova/provider timing. Independent checks and one direct synthetic provider call pass; the failed laptop call still lacks its actual trace. Conversation behavior and the unapproved silence fallback are unchanged. See [causal diagnostics and next capture](CAUSAL-DIAGNOSTICS.md). The earlier deployment and findings below are preserved as history.
+The new browser export records 48.6 seconds of local capture, a final user transcript event, then a control close 1013 and two failed reconnects with code 1006. The last pong confirms at least 3.92 seconds of server-received and locally forwarded audio. Server diagnostics were unavailable, so the cause remains unknown; this is not evidence of an INCOMPLETE Smart Turn rejection. Diagnostic-only source `cdd8a55` is deployed as `742a8942-84b6-4247-a3b0-e193af3855b4` and now preserves diagnostic HTTP failures and close cleanliness. All 111 JavaScript checks pass in an independent archive, and served assets match. No fresh physical conversation pass exists. See [the failed call, limits and next observation](SFU-CONNECTION-DROP.md). Conversation policy and the unapproved silence fallback are unchanged. Earlier findings below retain their historical scope.
 
 
 The application baseline is [6c17c0805f13f7609ba0a93ea8bf4c945797de18](https://github.com/korinne/pipecat-on-workers/tree/6c17c0805f13f7609ba0a93ea8bf4c945797de18). This handoff changes documentation and diagnostic scope, not the voice application. Recorded evidence retains its original source, environment, and test expectations.
