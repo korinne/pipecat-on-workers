@@ -250,13 +250,13 @@ curl --fail-with-body -H 'Content-Type: application/json' --data-binary "@$TASK2
 
 The Nova probe sends 20 ms packets, adds one second of generated silence and sends `Finalize`. It records up to 128 selected events with provider timestamps, transcript text and the sent-audio cursor. Its three-second `Finalize` wait is bounded, and an absent acknowledgement does not mean transcript readiness: the provider does not guarantee that acknowledgement. The Smart Turn probe submits normalized float32 base64 for the supplied audio. These probe waits differ from the application limits and must not be presented as application latency measurements. The probe's synthetic silence suffix is for observing Nova endpoint events; the application does not append that suffix to a detector snapshot.
 
-Repeat with completed speech, a mid-thought pause and speech resuming after a pause. Compare provider ranges to known fixture offsets. The application takes detector audio through the Nova transcript-range cursor, not the latest buffer tail; verify that this conservative slice works for the hosted model. Final transcript coverage and onset/word timing alignment also need real captures. [Primary source contracts and open questions](../audit/reference/task2_turn_sources.json)
+Repeat with completed speech, a mid-thought pause and speech resuming after a pause. Compare provider ranges to known fixture offsets. The application takes detector audio through the observed last word boundary within the final transcript range; the live investigation found that endpoint silence could alter a semantic decision. Final transcript coverage and onset/word timing alignment also need real captures. [Primary source contracts and open questions](../audit/reference/task2_turn_sources.json)
 
-Only syntax and pure event-sanitizer checks have run for this isolated probe. Its imports, startup, model requests and cancellation remain untested. Record the exact application, runtime and tool versions with new results. Do not deploy the probe or merge it into production routes. A successful request capture would still leave end-to-end Pipecat execution, both real transports, physical audio and workload acceptance to verify.
+[The later live captures](TURN-LIVE.md) include Python imports/startup, Nova transcription and hosted decisions, with failed attempts preserved. Record the exact application, runtime and tool versions with new results. Do not deploy the probe or merge it into production routes. A successful request capture would still leave end-to-end Pipecat execution, both real transports, physical audio and workload acceptance to verify.
 
 ## Test actual speech providers
 
-Historical live-script results exercised Flux, Llama and Aura through direct WebSocket. The current source selects Nova/Smart Turn while retaining Llama/Aura, so a fresh deployment and new captures are required. Use the browser SFU procedure below for the other route. The scripts alone do not establish GPT-OSS or the standard assistant speech/output/context integration; those remain Task 3 checks under [AI2](ACCEPTANCE.md#ai2-stream-gpt-oss-answers-into-speech). Use a deployment you own, record its exact source revision, and keep new evidence in a fresh directory.
+Historical live-script results exercised Flux, Llama and Aura through direct WebSocket. The current source selects Nova/Smart Turn, GPT-OSS and Aura-2 Luna through the standard speech pipeline, so a fresh deployment and new captures are required. Use the browser SFU procedure below for the other route. The scripts test their declared integration cases; they do not replace the separate provider stream checks, reference-context tests or physical checks under [AI2](ACCEPTANCE.md#ai2-stream-gpt-oss-answers-into-speech). Use a deployment you own, record its exact source revision, and keep new evidence in a fresh directory.
 
 Inputs are headerless PCM16 little-endian, mono, 16 kHz, between 0.2 and 15 seconds. Container files such as WAV are rejected. Prepare two distinct short questions, a question about appointment availability, and an utterance with an internal one-second pause. Use `prerecorded-human` for a human recording or `prerecorded-tts` for generated speech.
 
@@ -303,3 +303,18 @@ Follow the scenarios in [Acceptance](ACCEPTANCE.md): ordinary speech, a mid-thou
 Controlled Durable Object restart tests belong in an isolated fixture deployment. They deliberately abort a running object and can yield a failed request before recovery. Restoring saved context into a fresh pipeline is the recovery being tested; it is not seamless continuation of live tasks or buffered speech.
 
 If a required platform metric, such as whole-isolate memory or CPU accounting, is unavailable, report it as unavailable. A narrower heap measurement is not an equivalent substitute. Record model identifiers and version details where exposed; a model name alone does not identify immutable weights.
+
+## Bounded continuation checks
+
+The user selected Chrome with headphones on their laptop and deferred performance acceptance. [The functional test record](../audit/acceptance/laptop-functional-20261005.json) leaves physical execution pending. Do not use the duration harness's default workload to claim performance acceptance.
+
+The live context probe uses four short prerecorded turns across two calls. Prepare PCM16 LE mono at 16 kHz: “What is the capital of France?”, “What is the capital of Germany?”, and “What country is that city in?”. It checks exact persisted answers on reconnect, isolation of those answers, the dependent follow-ups, one final transcript per turn and End counters. Its synthetic dialogue appears in the result; it saves no session capabilities or raw audio. It observes restored context and answers; controlled tests separately inspect exact provider request messages.
+
+```sh
+APPLICATION_REVISION=EXACT_SOURCE_COMMIT DEPLOYMENT_VERSION=EXACT_WORKER_VERSION \
+  node audit/reference/live_context.mjs https://YOUR-WORKER.workers.dev \
+  /private/path/france.pcm /private/path/germany.pcm /private/path/followup.pcm \
+  /private/path/fresh-context-result.json
+```
+
+Use a fresh result path for every run, including failures. These observations do not establish microphone capture, audible output, acoustic interruption timing or workload limits.

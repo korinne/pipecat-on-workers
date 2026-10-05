@@ -1,0 +1,20 @@
+{
+  "scope": "Bounded functional verification only",
+  "user_decisions": {
+    "device": "user laptop",
+    "browser": "Chrome",
+    "audio_output": "headphones",
+    "physical_participation": "user agreed; execution pending",
+    "network": "current laptop network; exact type not yet recorded",
+    "performance": "Keep performance acceptance untested for now"
+  },
+  "workload_policy": "Short functional probes only; no duration/capacity/cost acceptance workloads",
+  "thresholds": "Original resource-contract.json remains undecided; no performance pass",
+  "physical_checks": [
+    "ordinary spoken turn",
+    "context follow-up",
+    "mid-thought pause and resumed speech",
+    "interrupt and continue",
+    "End on direct WebSocket and Realtime SFU"
+  ]
+}
