@@ -1,0 +1,21 @@
+{
+  "task": 2,
+  "mode": "smart-turn",
+  "python": "3.14.2",
+  "fixture_label": "incomplete-word-end",
+  "fixture_sha256": "11b29b884f29b7205db278abb7f7ffadba9cc9557baacef355f6e07afc8b53ba",
+  "fixture_seconds": 1.12,
+  "audio_format": "PCM16 LE, 16000 Hz, mono",
+  "events": [],
+  "remote_compute_canceled": "unverified",
+  "model": "@cf/pipecat-ai/smart-turn-v2",
+  "python_response_type": "JsDict",
+  "result_keys": [
+    "is_complete",
+    "probability"
+  ],
+  "is_complete": false,
+  "probability": 0.15859492123126984,
+  "outcome": "decision_received",
+  "elapsed_seconds": 0.9070000648498535
+}

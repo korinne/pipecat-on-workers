@@ -1,0 +1,113 @@
+{
+  "task": 2,
+  "mode": "nova",
+  "python": "3.14.2",
+  "fixture_label": "macOS Samantha synthetic: What is the capital of France?",
+  "fixture_sha256": "c97884eb23ad91e268731e685839924e624a221061371d385d25d1c0c28f0794",
+  "fixture_seconds": 1.8344375,
+  "audio_format": "PCM16 LE, 16000 Hz, mono",
+  "events": [
+    {
+      "type": "SpeechStarted",
+      "timestamp": 0.09,
+      "received_after_seconds": 0.6059997081756592,
+      "audio_sent_seconds": 0.16
+    },
+    {
+      "type": "Results",
+      "start": 0.0,
+      "duration": 1.0,
+      "is_final": false,
+      "speech_final": false,
+      "from_finalize": false,
+      "transcript": "is the capital",
+      "transcript_truncated": false,
+      "words": [
+        {
+          "start": 0.16,
+          "end": 0.39999998
+        },
+        {
+          "start": 0.39999998,
+          "end": 0.56
+        },
+        {
+          "start": 0.56,
+          "end": 0.88
+        }
+      ],
+      "received_after_seconds": 1.622999668121338,
+      "audio_sent_seconds": 1.06
+    },
+    {
+      "type": "Results",
+      "start": 0.0,
+      "duration": 2.13,
+      "is_final": true,
+      "speech_final": true,
+      "from_finalize": false,
+      "transcript": "what is the capital of france",
+      "transcript_truncated": false,
+      "words": [
+        {
+          "start": 0.0,
+          "end": 0.24
+        },
+        {
+          "start": 0.24,
+          "end": 0.39999998
+        },
+        {
+          "start": 0.39999998,
+          "end": 0.56
+        },
+        {
+          "start": 0.56,
+          "end": 0.96
+        },
+        {
+          "start": 0.96,
+          "end": 1.28
+        },
+        {
+          "start": 1.28,
+          "end": 1.68
+        }
+      ],
+      "received_after_seconds": 3.119999885559082,
+      "audio_sent_seconds": 2.24
+    },
+    {
+      "type": "Results",
+      "start": 2.13,
+      "duration": 0.7044375,
+      "is_final": true,
+      "speech_final": true,
+      "from_finalize": true,
+      "transcript": "",
+      "transcript_truncated": false,
+      "words": [],
+      "received_after_seconds": 3.9619998931884766,
+      "audio_sent_seconds": 2.8344375
+    }
+  ],
+  "remote_compute_canceled": "unverified",
+  "model": "@cf/deepgram/nova-3",
+  "inputs": {
+    "encoding": "linear16",
+    "sample_rate": "16000",
+    "channels": "1",
+    "language": "en-US",
+    "interim_results": "true",
+    "vad_events": "true",
+    "endpointing": "200"
+  },
+  "appended_silence_seconds": 1,
+  "finalize_sent": true,
+  "from_finalize_received": true,
+  "event_limit_reached": false,
+  "connected_after_seconds": 0.40799999237060547,
+  "finalize_after_seconds": 3.819000005722046,
+  "outcome": "capture_finished",
+  "elapsed_seconds": 3.9649999141693115
+}

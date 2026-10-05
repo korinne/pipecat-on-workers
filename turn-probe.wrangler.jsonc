@@ -1,0 +1,14 @@
+{
+  "name": "task2-turn-reference-local",
+  "main": "audit/reference/task2_turn_binding.py",
+  "compatibility_date": "2026-09-24",
+  "compatibility_flags": [
+    "python_workers"
+  ],
+  "ai": {
+    "binding": "AI",
+    "remote": true
+  },
+  "workers_dev": false,
+  "preview_urls": false
+}

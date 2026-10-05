@@ -193,7 +193,8 @@ class Harness:
         start, duration = self.segments[(self.provider.connection_generation, index)]
         return {"type": "Results", "start": start, "duration": duration,
                 "is_final": final, "speech_final": pause,
-                "channel": {"alternatives": [{"transcript": text}]},
+                "channel": {"alternatives": [{"transcript": text, "words":
+                    [{"start": start, "end": start + duration}] if text else []}]},
                 "connection_generation": self.provider.connection_generation}
 
     async def finish(self, text, index, *, final=True, pause=True):

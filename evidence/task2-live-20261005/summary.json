@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-05",
+  "starting_commit": "58ccef54653acdd7b8622e789021362a40725f4c",
+  "deployed_application_commit": "195792064d61eb1f60a4817f87f42f506acd5437",
+  "deployment_version": "3f8bd208-8e4a-4f2d-96cb-d9a0e51f9542",
+  "python_workers": "3.14.2",
+  "wrangler": "4.139.0",
+  "speech_source": "macOS say Samantha, rate155 complete/rate150 prefix+suffix; no microphone/device playback",
+  "live_inference": true,
+  "inputs": {
+    "complete": {
+      "sha256": "c97884eb23ad91e268731e685839924e624a221061371d385d25d1c0c28f0794",
+      "seconds": 1.8344375,
+      "encoding": "PCM16 LE mono16000"
+    },
+    "incomplete": {
+      "sha256": "bbd619fca73743b3d7538c75d0e800ccda524dd7a0fc786e17416707ea4bb26e",
+      "seconds": 1.2306875,
+      "encoding": "PCM16 LE mono16000"
+    },
+    "resumed": {
+      "sha256": "86331702d0c07356d0b4b4abbafa66b8f27927a61432619f2fc1a65c4c4ff70c",
+      "seconds": 4.9706875,
+      "encoding": "PCM16 LE mono16000"
+    }
+  },
+  "observations": {
+    "complete_deployed_websocket": "one final transcript, synthesized nonzero PCM, clean owned resources after End",
+    "resumed_deployed_websocket": "FAILED: If I wanted to + one-second silence + visit France what city is the capital split into two turns; one unresolved model request at End",
+    "nova_first_attempt": "HTTP429 without audio, preserved",
+    "smart_first_attempt": "probe JSON.stringify on SDK JsDict lost dictionary fields; corrected .to_py; application provider already uses correct conversion",
+    "probe_setup_failure": "historical subdirectory config omitted external Workers SDK; temporary project with normal workers-py packaging fixed setup",
+    "probe_reload_failure": "one smart-turn HTTP503 due to source reload; no semantic conclusion",
+    "word_boundary": "same incomplete phrase through1.53s transcript cursor -> COMPLETE0.7685; through1.12s observed word end -> INCOMPLETE0.1586",
+    "correction": "snapshot ends at final observed word end; finalized result ranges still govern transcript coverage; absent/invalid word timestamps fail visibly"
+  },
+  "limits": [
+    "full corrected application still needs final deployed checks",
+    "SFU media not exercised by these probes",
+    "physical microphone/output and performance untested",
+    "synthetic stale-result tests separate from live observations"
+  ]
+}

@@ -214,7 +214,7 @@ class SmartTurnTests(unittest.IsolatedAsyncioTestCase):
             await c.event({"type":"SpeechStarted", "timestamp":0, "connection_generation":1})
             c.append_audio(b'\x01\x00' * 8000 + b'\x02\x00' * 8000)
             await c.event({"type":"Results", "start":0, "duration":0.5, "is_final":True,
-                           "speech_final":True, "channel":{"alternatives":[{"transcript":"done"}]},
+                           "speech_final":True, "channel":{"alternatives":[{"transcript":"done", "words":[{"start":0,"end":0.5}]}]},
                            "connection_generation":1})
             await wait_for(lambda: bool(snapshots), "snapshot")
             self.assertEqual(snapshots, [b'\x01\x00' * 8000])

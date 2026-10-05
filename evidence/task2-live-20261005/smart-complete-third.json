@@ -1,0 +1,21 @@
+{
+  "task": 2,
+  "mode": "smart-turn",
+  "python": "3.14.2",
+  "fixture_label": "macOS Samantha synthetic: What is the capital of France?",
+  "fixture_sha256": "c97884eb23ad91e268731e685839924e624a221061371d385d25d1c0c28f0794",
+  "fixture_seconds": 1.8344375,
+  "audio_format": "PCM16 LE, 16000 Hz, mono",
+  "events": [],
+  "remote_compute_canceled": "unverified",
+  "model": "@cf/pipecat-ai/smart-turn-v2",
+  "python_response_type": "JsDict",
+  "result_keys": [
+    "is_complete",
+    "probability"
+  ],
+  "is_complete": true,
+  "probability": 0.7979915738105774,
+  "outcome": "decision_received",
+  "elapsed_seconds": 1.0750000476837158
+}

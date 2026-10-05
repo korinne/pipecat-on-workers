@@ -1,0 +1,21 @@
+{
+  "task": 2,
+  "mode": "smart-turn",
+  "python": "3.14.2",
+  "fixture_label": "cursor-complete macOS Samantha synthetic speech",
+  "fixture_sha256": "281ea2d41aa3c2e4871c2ed67e35ce377f5be112dd3285e39bd7b6bc42995b4f",
+  "fixture_seconds": 2.13,
+  "audio_format": "PCM16 LE, 16000 Hz, mono",
+  "events": [],
+  "remote_compute_canceled": "unverified",
+  "model": "@cf/pipecat-ai/smart-turn-v2",
+  "python_response_type": "JsDict",
+  "result_keys": [
+    "is_complete",
+    "probability"
+  ],
+  "is_complete": true,
+  "probability": 0.8701809644699097,
+  "outcome": "decision_received",
+  "elapsed_seconds": 0.5799999237060547
+}

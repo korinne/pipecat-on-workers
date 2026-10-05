@@ -111,7 +111,9 @@ class Default(WorkerEntrypoint):
                     report["model"], js({"audio": base64.b64encode(floats).decode("ascii"),
                                           "dtype": "float32"}),
                     js({"signal": controller.signal})), 10)
-                value = json.loads(str(JSON.stringify(raw(response))))
+                value = raw(response)
+                if hasattr(value, "to_py"):
+                    value = value.to_py()
                 report["result_keys"] = sorted(value) if isinstance(value, dict) else []
                 if isinstance(value, dict) and type(value.get("is_complete")) is bool:
                     report["is_complete"] = value["is_complete"]

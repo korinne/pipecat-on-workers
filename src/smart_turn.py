@@ -1,7 +1,7 @@
 """Bounded Nova/hosted Smart Turn coordination; no model or inference threads.
 
 Nova transcript ranges are coverage evidence, not a trailing-silence clock.
-Snapshots end at the pause event's transcript-range cursor, without guessed silence.
+Snapshots end at the observed final word boundary, without endpointing silence.
 """
 import asyncio
 import math
@@ -139,6 +139,7 @@ class NovaTurnCoordinator:
         self.latest_onset = -1
         self.pause_end = None
         self.segments = {}
+        self.word_ends = {}
         self.decision = None
         self.queued = False
         self.tasks = set()
@@ -163,6 +164,7 @@ class NovaTurnCoordinator:
         self._cancel_pending()
         self.active = self.speaking = self.queued = False
         self.segments.clear()
+        self.word_ends.clear()
         self.pause_end = self.decision = None
         self.consumed = self.cursor
         self.measure("turn_discarded", {"reason": reason})
@@ -224,6 +226,7 @@ class NovaTurnCoordinator:
         self._cancel_pending()
         if not self.active:
             self.segments.clear()
+            self.word_ends.clear()
             self.start = timestamp
         self.active = self.speaking = True
         self.pause_end = self.decision = None
@@ -248,10 +251,25 @@ class NovaTurnCoordinator:
             return
         if type(event.get("is_final")) is not bool or type(event.get("speech_final")) is not bool:
             raise ValueError("Missing Nova flags")
-        text = event["channel"]["alternatives"][0]["transcript"]
+        alternative = event["channel"]["alternatives"][0]
+        text = alternative["transcript"]
         if not isinstance(text, str) or len(text) > MAX_CHARS:
             raise ValueError("Invalid transcript")
         text = text.strip()
+        words = alternative.get("words", [])
+        word_end = None
+        if words:
+            if not isinstance(words, list):
+                raise ValueError("Invalid Nova words")
+            previous = start
+            for word in words:
+                left, right = self._sample(word["start"]), self._sample(word["end"])
+                if left < start or right < left or right > end or left < previous:
+                    raise ValueError("Invalid Nova word timing")
+                previous = right
+            word_end = previous
+        if text and word_end is None:
+            raise ValueError("Missing Nova word timing")
         if event["is_final"]:
             key = (start, end)
             old = self.segments.get(key)
@@ -261,6 +279,8 @@ class NovaTurnCoordinator:
                 if any(start < b and end > a for a, b in self.segments):
                     raise ValueError("Overlapping finalized transcript")
                 self.segments[key] = text
+                if word_end is not None:
+                    self.word_ends[key] = word_end
             if len(self.segments) > MAX_FRAGMENTS or len(self.text()) > MAX_CHARS:
                 raise ValueError("Turn text limit")
         if text:
@@ -274,7 +294,10 @@ class NovaTurnCoordinator:
             await self.queue(VADUserStoppedSpeakingFrame())
             # Transcript end bounds the snapshot; it is NOT a processed-audio
             # or trailing-silence watermark. Do not include later queued speech.
-            right = end
+            # Nova's result range includes endpointing silence. Hosted Smart
+            # Turn falsely completed the recorded incomplete clause when that
+            # silence was included. Use its observed final word boundary.
+            right = word_end or max(self.word_ends.values(), default=0)
             buffer_start = self.cursor - len(self.audio) // 2
             left = max(self.start - RATE // 5, right - RATE * 8, buffer_start, 0)
             if end > self.cursor or right <= left:
@@ -343,6 +366,7 @@ class NovaTurnCoordinator:
         self.consumed = self.pause_end
         self.active = self.speaking = False
         self.segments.clear()
+        self.word_ends.clear()
         self._cancel_pending()
         self.measure("user_end", {"revision": revision})
         return True

@@ -1,0 +1,235 @@
+{
+  "task": 2,
+  "mode": "nova",
+  "python": "3.14.2",
+  "fixture_label": "resumed macOS Samantha synthetic speech",
+  "fixture_sha256": "86331702d0c07356d0b4b4abbafa66b8f27927a61432619f2fc1a65c4c4ff70c",
+  "fixture_seconds": 4.9706875,
+  "audio_format": "PCM16 LE, 16000 Hz, mono",
+  "events": [
+    {
+      "type": "SpeechStarted",
+      "timestamp": 0.08,
+      "received_after_seconds": 1.3299999237060547,
+      "audio_sent_seconds": 0.14
+    },
+    {
+      "type": "Results",
+      "start": 0.0,
+      "duration": 1.0,
+      "is_final": false,
+      "speech_final": false,
+      "from_finalize": false,
+      "transcript": "if i wanted to",
+      "transcript_truncated": false,
+      "words": [
+        {
+          "start": 0.0,
+          "end": 0.24
+        },
+        {
+          "start": 0.24,
+          "end": 0.39999998
+        },
+        {
+          "start": 0.39999998,
+          "end": 0.71999997
+        },
+        {
+          "start": 0.71999997,
+          "end": 0.88
+        }
+      ],
+      "received_after_seconds": 2.4130001068115234,
+      "audio_sent_seconds": 1.1
+    },
+    {
+      "type": "Results",
+      "start": 0.0,
+      "duration": 1.53,
+      "is_final": true,
+      "speech_final": true,
+      "from_finalize": false,
+      "transcript": "if i wanted to",
+      "transcript_truncated": false,
+      "words": [
+        {
+          "start": 0.0,
+          "end": 0.24
+        },
+        {
+          "start": 0.24,
+          "end": 0.39999998
+        },
+        {
+          "start": 0.39999998,
+          "end": 0.79999995
+        },
+        {
+          "start": 0.79999995,
+          "end": 1.12
+        }
+      ],
+      "received_after_seconds": 3.0320000648498535,
+      "audio_sent_seconds": 1.66
+    },
+    {
+      "type": "SpeechStarted",
+      "timestamp": 2.32,
+      "received_after_seconds": 3.9589998722076416,
+      "audio_sent_seconds": 2.38
+    },
+    {
+      "type": "Results",
+      "start": 1.53,
+      "duration": 1.01,
+      "is_final": false,
+      "speech_final": false,
+      "from_finalize": false,
+      "transcript": "visit",
+      "transcript_truncated": false,
+      "words": [
+        {
+          "start": 2.17,
+          "end": 2.49
+        }
+      ],
+      "received_after_seconds": 4.203999757766724,
+      "audio_sent_seconds": 2.6
+    },
+    {
+      "type": "Results",
+      "start": 1.53,
+      "duration": 1.97,
+      "is_final": false,
+      "speech_final": false,
+      "from_finalize": false,
+      "transcript": "visit france",
+      "transcript_truncated": false,
+      "words": [
+        {
+          "start": 1.53,
+          "end": 2.65
+        },
+        {
+          "start": 2.65,
+          "end": 3.1299999
+        }
+      ],
+      "received_after_seconds": 5.298999786376953,
+      "audio_sent_seconds": 3.56
+    },
+    {
+      "type": "Results",
+      "start": 1.53,
+      "duration": 2.97,
+      "is_final": false,
+      "speech_final": false,
+      "from_finalize": false,
+      "transcript": "visit france what city is the",
+      "transcript_truncated": false,
+      "words": [
+        {
+          "start": 1.53,
+          "end": 2.65
+        },
+        {
+          "start": 2.65,
+          "end": 3.4499998
+        },
+        {
+          "start": 3.4499998,
+          "end": 3.6899998
+        },
+        {
+          "start": 3.6899998,
+          "end": 4.01
+        },
+        {
+          "start": 4.01,
+          "end": 4.17
+        },
+        {
+          "start": 4.17,
+          "end": 4.33
+        }
+      ],
+      "received_after_seconds": 6.4649999141693115,
+      "audio_sent_seconds": 4.6
+    },
+    {
+      "type": "Results",
+      "start": 1.53,
+      "duration": 3.72,
+      "is_final": true,
+      "speech_final": true,
+      "from_finalize": false,
+      "transcript": "visit france what city is the capital",
+      "transcript_truncated": false,
+      "words": [
+        {
+          "start": 2.17,
+          "end": 2.65
+        },
+        {
+          "start": 2.65,
+          "end": 3.4499998
+        },
+        {
+          "start": 3.4499998,
+          "end": 3.77
+        },
+        {
+          "start": 3.77,
+          "end": 4.01
+        },
+        {
+          "start": 4.01,
+          "end": 4.25
+        },
+        {
+          "start": 4.25,
+          "end": 4.41
+        },
+        {
+          "start": 4.41,
+          "end": 4.81
+        }
+      ],
+      "received_after_seconds": 7.313999891281128,
+      "audio_sent_seconds": 5.34
+    },
+    {
+      "type": "Results",
+      "start": 5.25,
+      "duration": 0.7206874,
+      "is_final": true,
+      "speech_final": true,
+      "from_finalize": true,
+      "transcript": "",
+      "transcript_truncated": false,
+      "words": [],
+      "received_after_seconds": 8.114999771118164,
+      "audio_sent_seconds": 5.9706875
+    }
+  ],
+  "remote_compute_canceled": "unverified",
+  "model": "@cf/deepgram/nova-3",
+  "inputs": {
+    "encoding": "linear16",
+    "sample_rate": "16000",
+    "channels": "1",
+    "language": "en-US",
+    "interim_results": "true",
+    "vad_events": "true",
+    "endpointing": "200"
+  },
+  "appended_silence_seconds": 1,
+  "finalize_sent": true,
+  "from_finalize_received": true,
+  "event_limit_reached": false,
+  "connected_after_seconds": 1.190999984741211,
+  "finalize_after_seconds": 8.025000095367432,
+  "outcome": "capture_finished",
+  "elapsed_seconds": 8.115999698638916
+}
