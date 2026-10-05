@@ -157,6 +157,7 @@ class NovaTurnCoordinator:
         self.detector = None
         self.detectors = set()
         self.deadline = None
+        self.input_anomaly_reported = False
 
     def _task(self, coroutine):
         task = asyncio.create_task(coroutine)
@@ -188,6 +189,16 @@ class NovaTurnCoordinator:
             if notify:
                 await self.send({"type": "error", "message": "Speech turn could not be completed; please repeat your request."})
 
+    async def _reject_inactive_event(self, reason):
+        # Reject this audio range before notifying. A late onset cannot revive
+        # the orphaned transcript; recovery requires a fresh accepted onset.
+        self.discard(reason)
+        if self.input_anomaly_reported or self.closed:
+            return
+        self.input_anomaly_reported = True
+        await self.send({"type": "error", "code": "speech_turn_start_error", "recoverable": True,
+                         "message": "Speech recognition lost track of this turn. Please pause and repeat your request."})
+
     async def connected(self, generation):
         if type(generation) is not int or generation < 1:
             return
@@ -195,6 +206,7 @@ class NovaTurnCoordinator:
             return
         await self.abort("stt_connection_changed", notify=False)
         self.connection = generation
+        self.input_anomaly_reported = False
         self.cursor = self.consumed = 0
         self.latest_onset = -1
         self.audio.clear()
@@ -225,7 +237,11 @@ class NovaTurnCoordinator:
             elif event.get("type") == "Results":
                 await self._results(event)
         except (ValueError, TypeError, KeyError, IndexError, OverflowError):
-            await self.abort("invalid_nova_event")
+            if self.active:
+                self.input_anomaly_reported = True
+                await self.abort("invalid_nova_event")
+            else:
+                await self._reject_inactive_event("invalid_nova_event")
 
     async def _onset(self, timestamp):
         if timestamp > self.cursor:
@@ -233,6 +249,7 @@ class NovaTurnCoordinator:
         if timestamp < self.consumed or timestamp <= self.latest_onset:
             return
         self.latest_onset = timestamp
+        self.input_anomaly_reported = False
         self.revision += 1
         self._cancel_pending()
         if not self.active:
@@ -246,8 +263,6 @@ class NovaTurnCoordinator:
         self.measure("speech_started", {"revision": self.revision})
 
     async def _results(self, event):
-        if not self.active:
-            return
         start = self._sample(event["start"])
         duration = self._sample(event["duration"])
         end = start + duration
@@ -264,7 +279,7 @@ class NovaTurnCoordinator:
         if not isinstance(text, str) or len(text) > MAX_CHARS:
             raise ValueError("Invalid transcript")
         text = text.strip()
-        if self.pause_end is not None and end > self.pause_end:
+        if self.active and self.pause_end is not None and end > self.pause_end:
             # Nova emits empty interim/final Results while silence continues.
             # They add no transcript and must not invalidate a held decision.
             if text:
@@ -284,6 +299,10 @@ class NovaTurnCoordinator:
             word_end = previous
         if text and word_end is None:
             raise ValueError("Missing Nova word timing")
+        if not self.active:
+            if text:
+                await self._reject_inactive_event("results_without_speech_start")
+            return
         if event["is_final"]:
             key = (start, end)
             old = self.segments.get(key)

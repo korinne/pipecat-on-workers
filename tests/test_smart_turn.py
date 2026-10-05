@@ -9,6 +9,152 @@ from smart_turn import NovaTurnCoordinator, ReadyTurnFrame, MAX_AUDIO, MAX_BUFFE
 
 
 class SmartTurnTests(unittest.IsolatedAsyncioTestCase):
+    async def test_orphan_results_report_once_without_inference_then_recover(self):
+        h = await Harness().start()
+        try:
+            await h.input_segment(0)
+            for final in (False, True, True):
+                await h.finish("Unaccepted words.", 0, final=final)
+            for index in range(1, 6):
+                await h.input_segment(index)
+                await h.finish("More unaccepted words.", index)
+            errors = [event for event in h.events if event["type"] == "error"]
+            self.assertEqual(len(errors), 1)
+            self.assertEqual(errors[0]["code"], "speech_turn_start_error")
+            self.assertTrue(errors[0]["recoverable"])
+            self.assertFalse(any(event["type"] == "transcript" for event in h.events))
+            self.assertEqual(h.provider.turn_checks, [])
+            self.assertEqual(h.provider.generations, [])
+            self.assertFalse(any(message["role"] != "system" for message in h.session.context.get_messages()))
+            self.assertEqual(h.session.turn.diagnostics()["pending_user_fragments"], 0)
+            self.assertEqual(h.session.turn.diagnostics()["pending_turn_tasks"], 0)
+            # An onset for the rejected range cannot revive its transcript.
+            await h.session.provider_event({"type":"SpeechStarted", "timestamp":0,
+                                            "connection_generation":1})
+            await h.finish("Unaccepted words.", 0)
+            self.assertFalse(h.session.turn.active)
+            await h.turn("A fresh request.", 6)
+            await h.response()
+            self.assertEqual(h.provider.generations[0][-1]["content"], "A fresh request.")
+            self.assertEqual([message["content"] for message in h.session.context.get_messages()
+                              if message["role"] == "user"], ["A fresh request."])
+            # A duplicate committed final stays quiet. A new orphan after an
+            # accepted turn is a new failure, so it gets its own single notice.
+            await h.finish("A fresh request.", 6)
+            self.assertEqual(len([event for event in h.events if event["type"] == "error"]), 1)
+            await h.input_segment(7)
+            await h.finish("New orphan.", 7)
+            self.assertEqual(len([event for event in h.events if event["type"] == "error"]), 2)
+            self.assertEqual(len(h.provider.generations), 1)
+        finally:
+            await h.close()
+
+    async def test_invalid_initial_onsets_report_once_and_allow_later_valid_turn(self):
+        for timestamp in (None, True, -1, float("nan"), 1):
+            with self.subTest(timestamp=timestamp):
+                h = await Harness().start()
+                try:
+                    await h.input_segment(0)
+                    event = {"type":"SpeechStarted", "timestamp":timestamp, "connection_generation":1}
+                    for _ in range(3):
+                        await h.session.provider_event(event)
+                    await h.input_segment(1)
+                    await h.finish("Orphan after invalid onset.", 1)
+                    errors = [event for event in h.events if event["type"] == "error"]
+                    self.assertEqual(len(errors), 1)
+                    self.assertEqual(errors[0]["code"], "speech_turn_start_error")
+                    self.assertEqual(h.provider.generations, [])
+                    self.assertEqual(h.provider.turn_checks, [])
+                    self.assertFalse(h.session.turn.active)
+                    await h.turn("Valid new turn.", 2)
+                    await h.response()
+                    self.assertEqual(h.provider.generations[0][-1]["content"], "Valid new turn.")
+                finally:
+                    await h.close()
+
+    async def test_invalid_onset_during_active_turn_aborts_once_without_inference(self):
+        h = await Harness().start()
+        try:
+            await h.begin("", 0)
+            invalid = {"type":"SpeechStarted", "timestamp":10, "connection_generation":1}
+            await h.session.provider_event(invalid)
+            await h.session.provider_event(invalid)
+            await h.input_segment(1)
+            await h.finish("Discarded after invalid onset.", 1)
+            self.assertEqual(len([event for event in h.events if event["type"] == "error"]), 1)
+            self.assertEqual(h.provider.generations, [])
+            self.assertEqual(h.provider.turn_checks, [])
+            self.assertFalse(h.session.turn.active)
+            await h.turn("Valid recovery.", 2)
+            await h.response()
+            self.assertEqual(h.provider.generations[0][-1]["content"], "Valid recovery.")
+        finally:
+            await h.close()
+
+    async def test_orphan_notice_does_not_cancel_an_existing_assistant_response(self):
+        h = await Harness(hold_generation=True).start()
+        try:
+            await h.turn("Accepted request.", 0)
+            await asyncio.wait_for(h.provider.generation_started.wait(), 2)
+            generation = h.session.generation
+            await h.input_segment(1)
+            await h.finish("Orphan while the assistant is thinking.", 1)
+            errors = [event for event in h.events if event["type"] == "error"]
+            self.assertEqual(len(errors), 1)
+            self.assertEqual(errors[0]["code"], "speech_turn_start_error")
+            self.assertEqual(h.session.generation, generation)
+            self.assertFalse(h.provider.generation_cancelled.is_set())
+            self.assertEqual(len(h.provider.generations), 1)
+            h.provider.generation_gate.set()
+            await h.response()
+            self.assertEqual(h.assistant(), ["fixture reply to Accepted request.."])
+        finally:
+            h.provider.generation_gate.set()
+            await h.close()
+
+    async def test_idle_empty_results_and_old_connections_do_not_report_anomalies(self):
+        h = await Harness().start()
+        try:
+            await h.input_segment(0)
+            for final in (False, True):
+                await h.finish("", 0, final=final)
+            stale = h.result("Wrong connection.", 0)
+            stale["connection_generation"] = 0
+            await h.session.provider_event(stale)
+            self.assertFalse(any(event["type"] in ("transcript", "error") for event in h.events))
+            self.assertFalse(h.session.turn.input_anomaly_reported)
+            self.assertEqual(h.provider.turn_checks, [])
+            await h.turn("Valid first turn.", 1)
+            await h.response()
+            self.assertEqual(h.provider.generations[0][-1]["content"], "Valid first turn.")
+        finally:
+            await h.close()
+
+    async def test_reconnect_resets_anomaly_notice_without_reviving_old_audio(self):
+        h = await Harness().start()
+        try:
+            await h.input_segment(0)
+            old = h.result("First orphan.", 0)
+            await h.session.provider_event(old)
+            await h.provider.reconnect()
+            self.assertFalse(h.session.turn.input_anomaly_reported)
+            self.assertEqual(h.session.turn.cursor, 0)
+            await h.session.provider_event(old)
+            await h.input_segment(0)
+            await h.finish("Second connection orphan.", 0)
+            # A duplicate connected event does not reopen the notice latch.
+            await h.provider.start()
+            await h.input_segment(1)
+            await h.finish("Repeated orphan.", 1)
+            self.assertEqual(len([event for event in h.events if event["type"] == "error"]), 2)
+            self.assertEqual(h.provider.generations, [])
+            self.assertEqual(h.provider.turn_checks, [])
+            await h.turn("Recovered connection.", 2)
+            await h.response()
+            self.assertEqual(h.provider.generations[0][-1]["content"], "Recovered connection.")
+        finally:
+            await h.close()
+
     async def test_completion_waits_for_final_transcript(self):
         h = await Harness().start()
         try:
