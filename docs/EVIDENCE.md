@@ -209,3 +209,7 @@ The [separate proposal](../audit/proposals/silence-fallback-20261005/PROPOSAL.md
 ## SFU gathering correction
 
 [The SFU setup report and investigation](SFU-GATHERING.md) preserve the user's failed route-discovery attempt, a native STUN check, failing pre-fix fixtures, current primary-source contracts and passing controlled/independent checks. Commit `3f62b68` is deployed as `06111df0-88ce-4142-96e7-4158a9a6e7a9`. The served client hash matches and a direct provider regression passes. Chrome SFU verification after the fix remains pending. No TURN relay or silence-policy change was introduced.
+
+## SFU laptop retry
+
+The [later user report and screenshot](../evidence/sfu-laptop-20261005/user-report.json) show an SFU call with microphone activity and the recognized words “hello hello.” The user was not wearing headphones and reported no reply. This establishes observed speech input for that attempt, while a completed turn and audible output remain unverified. The active deployment was rechecked as `06111df0-88ce-4142-96e7-4158a9a6e7a9`; the screenshot does not identify its loaded assets. No specific cause is assigned without the call events or error details. The application and pending turn policy remain unchanged.
