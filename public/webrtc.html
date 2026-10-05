@@ -22,7 +22,6 @@
       <div id="transcript" class="transcript" role="log" aria-label="Conversation transcript" aria-live="polite" aria-relevant="additions text">
         <div id="empty-state" class="empty-state"><div class="voice-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div><p>Your conversation starts here.</p><span>Allow microphone access after pressing Start.</span></div>
       </div>
-      <div class="access-row"><label for="access-key">Demo access key</label><input id="access-key" type="password" autocomplete="off" spellcheck="false" placeholder="Paste the full key" aria-describedby="key-status"><button id="load-key" type="button">Load key file</button><input id="key-file" type="file" accept=".txt,text/plain" aria-label="Demo access key file" hidden><span id="key-status" class="key-status" role="status"></span></div>
       <div class="controls"><button id="start" class="primary" type="button"><span aria-hidden="true">↗</span> Start conversation</button><button id="mute" type="button" aria-pressed="false" disabled>Mute microphone</button><button id="end" class="end" type="button" disabled>End</button></div>
       <audio id="remote-audio" autoplay playsinline hidden></audio>
       <div class="microphone-health"><meter id="mic-level" min="0" max="1" value="0" aria-label="Microphone input level"></meter><span id="mic-signal" role="status">Microphone not started</span><button id="resume-audio" type="button" hidden>Resume audio</button></div>

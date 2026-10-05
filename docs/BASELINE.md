@@ -48,7 +48,7 @@ The prototype's `server_clear.dispatch_ms` metric includes subsequent cleanup wo
 
 ## Session and audio protocol
 
-Requests use the same origin. Session creation requires `X-Demo-Key`. It returns a session ID and capability token; the browser keeps the capability in memory. SFU app credentials stay on the Worker.
+Requests use the same origin. Session creation is public and returns a unique session ID and private capability token; the browser keeps that capability in memory. Reading diagnostics, controlling a call and SFU signaling still require its token. SFU app credentials stay on the Worker. The former `DEMO_ACCESS_KEY` secret is ignored; `/api/access` remains a successful compatibility response for older clients.
 
 | Endpoint or message | Meaning |
 | --- | --- |
@@ -80,7 +80,7 @@ Media callback URLs are signed capabilities tied to the role, path, generation, 
 
 ## Browser lifecycle and current limits
 
-The browser requests microphone access after accepting the demo key. Start creates and resumes its audio engine during the button action; Resume audio lets the user recover a suspended engine. HTTPS or localhost is required for microphone capture.
+The browser requests microphone access when the user starts a conversation. Start creates and resumes its audio engine during the button action; Resume audio lets the user recover a suspended engine. HTTPS or localhost is required for microphone capture.
 
 Direct-route mute sends silence. Local speech detection can request interruption after roughly 60 ms above RMS 0.018. This is a client optimization, separate from the provider's turn completion. Use headphones for initial checks: the browser requests echo cancellation, but speaker output can still be mistaken for new speech.
 
@@ -90,7 +90,7 @@ The server also enforces a 15-minute limit on a live session when processing the
 
 The baseline provides STUN configuration and no separately provisioned TURN fallback. Acceptance must declare the networks and devices tested; this baseline is not evidence that every network works.
 
-The developer page `/transport-check.html` accepts a demo-key file and a speech RIFF/WAVE file, up to 20 MB and 60 seconds. It publishes synthetic WebAudio through the real SFU and receives the response in the same browser transport. It supports interrupt, replay, and End, and stops on disconnect instead of reconnecting automatically. RTP counters and nonzero decoded samples show arriving media, not intelligibility or exact words played.
+The developer page `/transport-check.html` accepts a speech RIFF/WAVE file, up to 20 MB and 60 seconds. It publishes synthetic WebAudio through the real SFU and receives the response in the same browser transport. It supports interrupt, replay, and End, and stops on disconnect instead of reconnecting automatically. RTP counters and nonzero decoded samples show arriving media, not intelligibility or exact words played.
 
 Session details expose capture, provider, and media progress for diagnosis. Their exported allowlist excludes credentials, audio, transcripts, and session IDs. See [development and testing](DEVELOPMENT.md) for private diagnostics and the limitations of each measurement.
 

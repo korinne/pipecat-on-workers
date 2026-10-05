@@ -14,11 +14,10 @@ uv run pywrangler sync
 
 The repository contains selected Pipecat 1.11.0 source. Installing the full package over it would make it unclear which code is running. Use an isolated candidate environment for the supported-package investigation below.
 
-For a new deployment, authenticate and enter the demo key at the private secret prompt. Session creation requires this key.
+Authenticate with Cloudflare before deploying. Both voice examples allow session creation without a shared demo key.
 
 ```sh
 npx wrangler login
-npx wrangler secret put DEMO_ACCESS_KEY
 ```
 
 For the SFU route, create a Realtime SFU app and enter its app ID and secret:
@@ -34,9 +33,9 @@ Deploy after configuring the secrets for your selected route:
 uv run pywrangler deploy
 ```
 
-The SFU secret is different from the browser demo key. Workers AI uses the `AI` binding; these provider calls do not use separate provider keys. Keep credentials in Wrangler secrets or an ignored local `.dev.vars` file. Leave fixture routes disabled in production. Review the Worker name and account before deploying; these commands create or update a real service.
+SFU credentials remain private Worker secrets. Workers AI uses the `AI` binding; these provider calls do not use separate provider keys. Keep credentials in Wrangler secrets or an ignored local `.dev.vars` file. Leave fixture routes disabled in production. Review the Worker name and account before deploying; these commands create or update a real service.
 
-Open `/websocket` or `/webrtc`, provide the demo key, select Start conversation, and allow microphone access. Use headphones for the first check. The appointment example returns fixed fictional availability. Mute, End, and Resume audio are available on the call page.
+Open `/websocket` or `/webrtc`, select Start conversation, and allow microphone access. Use headphones for the first check. The appointment example returns fixed fictional availability. Mute, End, and Resume audio are available on the call page.
 
 ## Run offline checks
 
@@ -59,7 +58,7 @@ Existing regressions preserve some known limitations, including missing SFU assi
 Start the local Worker and Durable Object runtime:
 
 ```sh
-uv run pywrangler dev --local --var ENABLE_TEST_ROUTES:true --var ALLOW_UNAUTHENTICATED_LOCAL:true
+uv run pywrangler dev --local --var ENABLE_TEST_ROUTES:true
 ```
 
 In another terminal, use the port printed by Wrangler and a new result path:
@@ -248,13 +247,9 @@ Historical live-script results exercised Flux, Llama and Aura through direct Web
 
 Inputs are headerless PCM16 little-endian, mono, 16 kHz, between 0.2 and 15 seconds. Container files such as WAV are rejected. Prepare two distinct short questions, a question about appointment availability, and an utterance with an internal one-second pause. Use `prerecorded-human` for a human recording or `prerecorded-tts` for generated speech.
 
-Enter the demo key privately. Captures contain transcripts, provider error details, and output PCM. `--capture-root` must be outside `outputs/`; retain only sanitized evidence in a shared handoff.
+The current deployment requires no demo key. Captures contain transcripts, provider error details, and output PCM. `--capture-root` must be outside `outputs/`; retain only sanitized evidence in a shared handoff.
 
 ```sh
-printf 'Demo access key: '
-read -r -s DEMO_ACCESS_KEY
-printf '\n'
-export DEMO_ACCESS_KEY
 export VOICE_BASE="https://your-worker.example"
 export VOICE_CHECK_WORK="$(mktemp -d "${TMPDIR:-/tmp}/pipecat-voice-check.XXXXXX")"
 export VOICE_PCM_DIR="/absolute/path/to/your/recordings"
@@ -270,7 +265,6 @@ node scripts/check_real_pending.mjs --base "$VOICE_BASE" --pcm "$VOICE_PCM_DIR/n
 node scripts/check_real_voice.mjs --base "$VOICE_BASE" --pcm "$VOICE_PCM_DIR/normal.pcm" --pcm-second "$VOICE_PCM_DIR/second.pcm" --duration-ms 600000 --sessions 2 --capture-root "$VOICE_CHECK_WORK" --evidence "$VOICE_CHECK_WORK/duration.json"
 
 node scripts/check_real_idle.mjs "$VOICE_BASE" "$VOICE_CHECK_WORK/idle.json" "$VOICE_CHECK_WORK/idle-errors.private.json"
-unset DEMO_ACCESS_KEY
 ```
 
 The ten-minute, two-session command reproduces an earlier workload. It is not an approved release target. The smoke, pending, and duration scripts accept `--validate-input` to check input files without network requests. A pending-work retry may select `--case tool` or `--case thinking`; use a new evidence filename and retain earlier failures. A startup HTTP 429 means cancellation was never exercised in that attempt.

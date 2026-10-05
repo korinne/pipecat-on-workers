@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 const base = process.argv[2] || 'http://127.0.0.1:8787';
 const sleep = ms => new Promise(r=>setTimeout(r,ms));
 const wait = async (test,label,ms=10000)=>{const end=Date.now()+ms;while(!test()){if(Date.now()>end)throw Error(`Timeout: ${label}`);await sleep(10);}};
-async function create(){const r=await fetch(base+'/api/session',{method:'POST',headers:{'X-Demo-Key':process.env.DEMO_ACCESS_KEY||''}});if(!r.ok)throw Error('Session create '+r.status);return r.json();}
+async function create(){const r=await fetch(base+'/api/session',{method:'POST'});if(!r.ok)throw Error('Session create '+r.status);return r.json();}
 function url(s,suffix=''){return `${base}/api/session/${s.id}${suffix}?token=${encodeURIComponent(s.token)}`;}
 async function connect(s){
  const events=[];const ws=new WebSocket(url(s).replace(/^http/,'ws')+'&fixture=1');const start=performance.now();

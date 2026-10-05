@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /** Actual-provider duration/interruption check. Node 22+, no dependencies.
  * Raw PCM16 LE, mono, 16 kHz; no microphone or speaker is opened.
- * DEMO_ACCESS_KEY is read only from the environment. Never selects fixtures.
+ * Sessions need no shared key. Never selects fixtures.
  */
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -79,7 +79,7 @@ export class ReceiptQueue {
 export async function main(args = process.argv.slice(2)) {
   const opt = options(args);
   if (opt.help) {
-    console.log('Usage: node scripts/check_real_voice.mjs --base https://HOST --pcm PATH [--pcm-second PATH] [--evidence PATH] [--duration-ms 600000] [--sessions 2] [--capture-root PATH] [--validate-input]\nDEMO_ACCESS_KEY: environment only. PCM: raw PCM16 LE mono 16000 Hz, 0.2–15 seconds. Duration: 3–12 minutes, at most 24 input turns. Private captures must be outside outputs/. Playback receipts emulate elapsed audio duration; no microphone/speaker measurement.');
+    console.log('Usage: node scripts/check_real_voice.mjs --base https://HOST --pcm PATH [--pcm-second PATH] [--evidence PATH] [--duration-ms 600000] [--sessions 2] [--capture-root PATH] [--validate-input]\nPCM: raw PCM16 LE mono 16000 Hz, 0.2–15 seconds. Duration: 3–12 minutes, at most 24 input turns. Private captures must be outside outputs/. Playback receipts emulate elapsed audio duration; no microphone/speaker measurement.');
     return;
   }
   if (!opt.pcm) fail('pcm_path_required');
@@ -97,7 +97,6 @@ export async function main(args = process.argv.slice(2)) {
   try { origin = new URL(opt.base); } catch { fail('invalid_base'); }
   if (origin.username || origin.password || origin.search || origin.hash || origin.pathname !== '/'
     || !(origin.protocol === 'https:' || (origin.protocol === 'http:' && ['localhost', '127.0.0.1', '[::1]'].includes(origin.hostname)))) fail('base_must_be_https_or_loopback_origin');
-  if (!process.env.DEMO_ACCESS_KEY) fail('demo_access_key_environment_required');
   if (typeof WebSocket === 'undefined') fail('node_22_or_newer_required');
   const outsideOutputs = p => { const r = path.relative(OUTPUTS, p); if (!r || (r !== '..' && !r.startsWith('..' + path.sep) && !path.isAbsolute(r))) fail('capture_root_must_be_outside_outputs'); };
   const captureRoot = path.resolve(opt.captureRoot || path.join(process.cwd(), 'work'));
@@ -121,7 +120,7 @@ export async function main(args = process.argv.slice(2)) {
     while (!test()) { if (checkFatal && fatal) throw fatal; if (performance.now() >= until) fail(code); await sleep(20); }
     if (checkFatal && fatal) throw fatal;
   };
-  const redact = value => { let s = String(value); for (const key of [process.env.DEMO_ACCESS_KEY, ...calls.flatMap(c => [c.session?.token, c.session?.id])]) if (key) s = s.replaceAll(key, '[redacted]'); return s.slice(0, 12000); };
+  const redact = value => { let s = String(value); for (const key of calls.flatMap(c => [c.session?.token, c.session?.id])) if (key) s = s.replaceAll(key, '[redacted]'); return s.slice(0, 12000); };
   const urlFor = (c, suffix = '') => { const u = new URL(`/api/session/${c.session.id}${suffix}`, origin); u.searchParams.set('token', c.session.token); return u; };
   const send = (c, msg) => {
     if (c.ws?.readyState !== WebSocket.OPEN) fail('websocket_not_open');
@@ -180,7 +179,7 @@ export async function main(args = process.argv.slice(2)) {
       const c = { result, playback: new ReceiptQueue(), transcripts: [], errors: [], audio: [], audioBytes: 0,
         ready: false, offset: inputs[i].length, input: inputs[i], clears: 0, state: '', receiptTexts: [] };
       calls.push(c); evidence.sessions.push(result);
-      const r = await fetch(new URL('/api/session', origin), { method: 'POST', headers: { 'X-Demo-Key': process.env.DEMO_ACCESS_KEY }, redirect: 'error', signal: AbortSignal.timeout(10000) }).catch(() => fail('session_create_transport_failed'));
+      const r = await fetch(new URL('/api/session', origin), { method: 'POST', redirect: 'error', signal: AbortSignal.timeout(10000) }).catch(() => fail('session_create_transport_failed'));
       if (!r.ok) fail(`session_create_http_${r.status}`);
       c.session = await r.json().catch(() => fail('session_create_invalid_json'));
       if (!/^[a-f0-9]{32}$/.test(c.session.id) || !/^[A-Za-z0-9_-]{32,128}$/.test(c.session.token)) fail('session_create_invalid_capability');

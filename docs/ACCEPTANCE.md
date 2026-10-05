@@ -72,7 +72,7 @@ Existing repo tools supply some of the simulated test inputs. Use a disposable c
 
 ```sh
 # In a disposable copy of the pinned repository, after its documented setup.
-uv run pywrangler dev --local --var ENABLE_TEST_ROUTES:true --var ALLOW_UNAUTHENTICATED_LOCAL:true
+uv run pywrangler dev --local --var ENABLE_TEST_ROUTES:true
 
 # In another terminal; use the actual printed port.
 node scripts/check_worker.mjs http://127.0.0.1:8787 /absolute/path/to/new-lifecycle.json

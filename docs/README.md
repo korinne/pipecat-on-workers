@@ -4,6 +4,8 @@ Build a supported voice application on Python Workers using Pipecat, with Worker
 
 The repository contains a working prototype and a plan for bringing it to that target. Its current code uses vendored Pipecat, Nova-3 with hosted Smart Turn, and custom assistant-history logic. The turn integration passes controlled tests; live verification and the remaining implementation tasks are still open.
 
+Both voice examples start without a demo access key. Anyone with the URL can create a call using the deployment’s Workers AI and SFU resources. Each call still uses a private session token.
+
 ## Review before coding
 
 | Read in this order | Decision it supports |

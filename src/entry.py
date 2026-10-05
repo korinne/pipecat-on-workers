@@ -43,34 +43,14 @@ async def json_body(request, limit):
     return value
 
 
-def access_rejection(env, request):
-    """Shared access check; never include credential values in responses."""
-    key = str(getattr(env, "DEMO_ACCESS_KEY", "") or "")
-    if not key:
-        if enabled(env, "ALLOW_UNAUTHENTICATED_LOCAL"):
-            return None
-        return reply({"error": "This demo is not configured to accept connections yet. Please contact its owner.",
-                      "code": "access_not_configured"}, 503)
-    supplied = request.headers.get("X-Demo-Key", "")
-    if not supplied:
-        return reply({"error": "Enter the demo access key to continue.",
-                      "code": "access_key_required"}, 401)
-    if not hmac.compare_digest(key.encode("utf-8"), supplied.encode("utf-8")):
-        return reply({"error": "That access key was not accepted. Copy the complete key and try again.",
-                      "code": "invalid_access_key"}, 401)
-    return None
-
-
 class Default(WorkerEntrypoint):
     async def fetch(self, request):
         path = urlparse(request.url).path
         if path == "/api/health":
             return reply({"runtime": "Python Worker", "python": platform.python_version(), "pyodide": pyodide.__version__, "pipecat": "1.11.0-patched", "voice_validated": False})
         if path in ("/api/session", "/api/access") and request.method == "POST":
-            rejected = access_rejection(self.env, request)
-            if rejected is not None:
-                return rejected
             if path == "/api/access":
+                # Compatibility for older clients; new calls need no shared key.
                 return reply({"ok": True})
             try:
                 options = await json_body(request, 1024)

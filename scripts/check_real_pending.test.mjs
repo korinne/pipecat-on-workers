@@ -31,7 +31,7 @@ test('only a newer generation proves cancellation; late canceled audio fails eve
   assert.equal(model.clearAt, 20);
 });
 
-test('arguments keep credentials environment-only and require values', () => {
+test('arguments reject session token overrides and require values', () => {
   assert.deepEqual(options(['--pcm', 'normal.pcm', '--tool-pcm', 'tool.pcm']), { pcm: 'normal.pcm', toolPcm: 'tool.pcm' });
   assert.throws(() => options(['--token', 'secret']), /invalid_arguments/);
   assert.throws(() => options(['--tool-pcm']), /invalid_arguments/);

@@ -116,18 +116,18 @@ class SfuEntryTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_missing_sfu_config_does_not_allocate_conversation(self):
         conversations = Conversations()
-        worker = entry.Default(None, N(DEMO_ACCESS_KEY="test-access", CONVERSATIONS=conversations))
+        worker = entry.Default(None, N(CONVERSATIONS=conversations))
         response = await worker.fetch(Request("https://voice.example/api/session", method="POST",
-            headers={"X-Demo-Key": "test-access"}, body=json.dumps({"transport": "webrtc"})))
+            body=json.dumps({"transport": "webrtc"})))
         self.assertEqual(response.status, 503)
         self.assertEqual(json.loads(response.body)["code"], "sfu_not_configured")
         self.assertEqual(conversations.lookups, 0)
 
     async def test_unknown_transport_does_not_allocate_conversation(self):
         conversations = Conversations()
-        worker = entry.Default(None, N(DEMO_ACCESS_KEY="test-access", CONVERSATIONS=conversations))
+        worker = entry.Default(None, N(CONVERSATIONS=conversations))
         response = await worker.fetch(Request("https://voice.example/api/session", method="POST",
-            headers={"X-Demo-Key": "test-access"}, body=json.dumps({"transport": "anything"})))
+            body=json.dumps({"transport": "anything"})))
         self.assertEqual(response.status, 400)
         self.assertEqual(conversations.lookups, 0)
 

@@ -109,7 +109,7 @@ function end(tellServer = true, message = 'Check ended. Resources released.') {
   ctx?.close().catch(() => {});
   ctx = destination = silence = silenceGain = buffer = null;
   statsBusy = false; partial.clear();
-  $('start').disabled = $('key').disabled = $('wav').disabled = false;
+  $('start').disabled = $('wav').disabled = false;
   $('replay').disabled = $('interrupt').disabled = $('end').disabled = true;
   $('resume').hidden = true;
   $('input-ms').textContent = `${Math.round(inputDone * 1000)} ms`;
@@ -192,11 +192,11 @@ function connectControl(epoch) {
 }
 async function start() {
   if (active) return;
-  const keyFile = $('key').files?.[0], wav = $('wav').files?.[0];
-  if (!keyFile || !wav) { notice('Choose both the key text file and a speech WAV.'); return; }
+  const wav = $('wav').files?.[0];
+  if (!wav) { notice('Choose a speech WAV.'); return; }
   const epoch = ++run; active = true; ready = false; generation = -1; inputDone = 0;
   counts = { inputRuns:0,rtpBytes:0,rtpPackets:0,windows:0,nonzero:0,peak:0 };
-  $('start').disabled = $('key').disabled = $('wav').disabled = true; $('end').disabled = false;
+  $('start').disabled = $('wav').disabled = true; $('end').disabled = false;
   $('transcript').replaceChildren(); partial.clear(); notice();
   for (const id of ['input-ms','server-ms','provider-ms']) $(id).textContent='0 ms';
   for (const id of ['input-runs','rtp-bytes','rtp-packets','sample-windows','nonzero-windows']) $(id).textContent='0';
@@ -209,14 +209,9 @@ async function start() {
     audioContext.resume().catch(() => {}); // Preserve the Start click gesture.
     ctx.onstatechange = () => { if (current(epoch)) $('resume').hidden = ctx.state === 'running'; };
     $('resume').hidden = ctx.state === 'running';
-    status('Reading files and checking access…');
-    if (keyFile.size > 4096 || wav.size > 20*1024*1024) throw new Error('Use a small key file and a WAV under 20 MB.');
-    const key = (await keyFile.text()).trim();
-    if (!current(epoch)) return;
-    if (!key || /[\r\n\x00-\x1f\x7f]/.test(key)) throw new Error('The key file must contain one access key.');
-    const headers = {'Content-Type':'application/json','X-Demo-Key':key};
-    await responseJSON(await fetch('/api/access',{method:'POST',headers,signal:AbortSignal.timeout(15000)}));
-    if (!current(epoch)) return;
+    status('Reading recording…');
+    if (wav.size > 20*1024*1024) throw new Error('Choose a WAV under 20 MB.');
+    const headers = {'Content-Type':'application/json'};
     const bytes = await wav.arrayBuffer();
     if (!current(epoch)) return;
     const header = new Uint8Array(bytes,0,Math.min(12,bytes.byteLength));

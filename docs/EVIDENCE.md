@@ -118,6 +118,12 @@ The first HTTP verifier was rejected by Cloudflare with 403/error 1010 before re
 
 Cloudflare CLI access is restored. Deployment and HTTP checks establish imports/startup and access protection only: no live model request, authenticated voice call, SFU media check or physical playback check was made. The existing demo key value was unavailable in the scoped test environment and was not reset. Nova/Smart Turn request acceptance, timestamp alignment and end-to-end behavior remain untested. The isolated local binding probe can now be run with the restored CLI access; Task 3 has not started.
 
+## Keyless demo access
+
+At the user's request, both voice pages and the developer transport page no longer ask for a shared demo key. Session creation is public, so anyone with the URL can start calls using this Worker's AI and SFU resources. Each new call still gets its own private capability token. Existing call access, diagnostics, SFU signaling and signed media callbacks retain their checks; production fixture routes remain disabled. The old `/api/access` endpoint returns success for client compatibility, and any configured `DEMO_ACCESS_KEY` is ignored.
+
+The [offline verification](../audit/results/keyless-access-offline.json) passed 58 Python tests, 62 JavaScript tests, 48 creation/access cases, 10 SFU-entry checks and seven entry lifecycle cases. It covers starting both browser routes without a key, microphone denial and cancellation, malformed requests before allocation, unique call credentials, rejection of missing/wrong/cross-call credentials, and unchanged media authorization. These checks use fake SDK/provider/media I/O; they make no live voice or playback claim. Earlier reports retain their original access expectations.
+
 ## Recorded local results
 
 The [original audit](../audit/results/current-audit.json) recorded 5 observations supported within its scope, 6 gaps, 10 untested entries, and no test errors. Those counts belong to its original checklist. They are not a release score. Its existing regression run passed 41 Python and 62 JavaScript tests. Some of those tests preserve the prototype's known limitations.

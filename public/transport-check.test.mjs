@@ -13,7 +13,6 @@ function harness({publish,fetchSession}={}) {
     click(){return this.listeners.click?.();} pause(){} async play(){}
   }
   const element=id=>{if(!elements.has(id))elements.set(id,new Element());return elements.get(id);};
-  element('check-key').files=[{size:20,text:async()=> 'not-a-real-key\n'}];
   element('check-wav').files=[{size:12,arrayBuffer:async()=>Uint8Array.from([82,73,70,70,0,0,0,0,87,65,86,69]).buffer}];
   class Node {
     gain={}; fftSize=2048; stopped=false;
@@ -56,7 +55,11 @@ test('developer check publishes synthetic audio and starts the WAV only after in
   let ready;const h=harness({publish:()=>new Promise(resolve=>{ready=resolve;})});
   await h.element('check-start').click();const ws=h.sockets[0];ws.open();ws.receive({type:'ready'});await settle();
   assert.equal(h.sources.length,0);assert.equal(h.transports.length,1);
-  assert.equal(JSON.parse(h.requests[1].options.body).transport,'webrtc');
+  assert.equal(h.requests.length,1);
+  assert.equal(h.requests[0].url,'/api/session');
+  assert.deepEqual(Object.keys(h.requests[0].options.headers),['Content-Type']);
+  assert.equal(JSON.parse(h.requests[0].options.body).transport,'webrtc');
+  assert.match(ws.url,/\?token=test-token$/);
   ready();await settle();assert.equal(h.sources.length,1);assert.equal(h.sources[0].started,true);
   assert.equal(h.element('check-input-runs').textContent,'1');
   assert.equal(ws.sent.some(p=>p.type==='audio'||p.type==='played'),false);

@@ -2,7 +2,6 @@
 /**
  * One bounded, actual-provider turn. Node 22+, no added dependencies.
  *
- * DEMO_ACCESS_KEY must be supplied through the environment, never an argument.
  * node scripts/smoke_real_voice.mjs --base https://YOUR-WORKER.workers.dev \
  *   --pcm work/prompt.pcm --speech-source macos-say
  *
@@ -98,7 +97,7 @@ function safeDiagnostics(d) {
 async function main() {
   const opt = options(process.argv.slice(2));
   if (opt.help) {
-    console.log('Usage: DEMO_ACCESS_KEY=<environment only> node PATH/TO/scripts/smoke_real_voice.mjs --base https://HOST --pcm work/prompt.pcm [--speech-source macos-say|prerecorded-tts|prerecorded-human|prerecorded-unspecified] [--capture-root PATH] [--evidence PATH] [--validate-input] [--expect-single-user-turn]\nHeaderless PCM16 LE, mono, 16000 Hz, 0.2–15 seconds. The single-turn flag requires exactly one final user transcript and no assistant transcript/audio before the paced input ends. No audio device playback/recording. Private captures default to the working directory/work and must be outside outputs/.');
+    console.log('Usage: node PATH/TO/scripts/smoke_real_voice.mjs --base https://HOST --pcm work/prompt.pcm [--speech-source macos-say|prerecorded-tts|prerecorded-human|prerecorded-unspecified] [--capture-root PATH] [--evidence PATH] [--validate-input] [--expect-single-user-turn]\nHeaderless PCM16 LE, mono, 16000 Hz, 0.2–15 seconds. The single-turn flag requires exactly one final user transcript and no assistant transcript/audio before the paced input ends. No audio device playback/recording. Private captures default to the working directory/work and must be outside outputs/.');
     return;
   }
   if (!opt.pcm) fail('pcm_path_required');
@@ -116,7 +115,6 @@ async function main() {
   let origin;
   try { origin = new URL(opt.base); } catch { fail('invalid_base'); }
   if (origin.protocol !== 'https:' || origin.username || origin.password || origin.search || origin.hash || origin.pathname !== '/') fail('base_must_be_https_origin_without_credentials_or_query');
-  if (!process.env.DEMO_ACCESS_KEY) fail('demo_access_key_environment_required');
   if (typeof WebSocket === 'undefined') fail('node_22_or_newer_required');
   const workDir = path.resolve(opt.captureRoot || path.resolve(process.cwd(), 'work'));
   const ensureOutsideOutputs = directory => {
@@ -178,7 +176,7 @@ async function main() {
   process.on('SIGINT', interrupted); process.on('SIGTERM', interrupted);
   try {
     const response = await fetch(new URL('/api/session', origin), {
-      method: 'POST', headers: { 'X-Demo-Key': process.env.DEMO_ACCESS_KEY }, redirect: 'error', signal: AbortSignal.timeout(10000),
+      method: 'POST', redirect: 'error', signal: AbortSignal.timeout(10000),
     }).catch(() => fail('session_create_transport_failed'));
     if (!response.ok) fail(`session_create_http_${response.status}`);
     session = await response.json().catch(() => fail('session_create_invalid_json'));
@@ -200,8 +198,8 @@ async function main() {
           if (privateErrors.length < 8 && typeof message.message === 'string') {
             let detail = message.message;
             // Preserve bounded provider diagnostics privately, without retaining
-            // our known access key or session capability even if echoed upstream.
-            for (const secret of [session?.token, process.env.DEMO_ACCESS_KEY]) {
+            // session identifiers and capabilities even if echoed upstream.
+            for (const secret of [session?.token, session?.id]) {
               if (secret) detail = detail.replaceAll(secret, '[redacted]');
             }
             privateErrors.push({ elapsed_ms: round(elapsed()), message: detail.slice(0, 4096), truncated: detail.length > 4096 });

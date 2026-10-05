@@ -2,7 +2,7 @@
 /** Two prerecorded inputs per selected fresh actual-provider session. No fixture events.
  * Interrupt at tool/thinking status before audio, reject canceled output, recover,
  * emulate one complete sentence's playback duration, then verify End cleanup.
- * DEMO_ACCESS_KEY is environment-only. No microphone or speaker is opened.
+ * No microphone or speaker is opened.
  */
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -52,7 +52,7 @@ export class PendingCancellation {
 export async function main(args = process.argv.slice(2)) {
   const opt = options(args);
   if (opt.help) {
-    console.log('Usage: node scripts/check_real_pending.mjs --base https://HOST --pcm RECOVERY.pcm --tool-pcm APPOINTMENT.pcm [--case all|tool|thinking] [--evidence PATH] [--capture-root PATH] [--validate-input]\nDEMO_ACCESS_KEY: environment only. Inputs: headerless PCM16 LE mono 16000 Hz, 0.2–15 seconds. Two inputs per fresh session; four total for default --case all, two for one selected case. Wall-clock playback receipts only; no physical microphone/speaker measurement. Active checks stop at 165 seconds; cleanup stops by 175 seconds. Private captures must be outside outputs/.');
+    console.log('Usage: node scripts/check_real_pending.mjs --base https://HOST --pcm RECOVERY.pcm --tool-pcm APPOINTMENT.pcm [--case all|tool|thinking] [--evidence PATH] [--capture-root PATH] [--validate-input]\nInputs: headerless PCM16 LE mono 16000 Hz, 0.2–15 seconds. Two inputs per fresh session; four total for default --case all, two for one selected case. Wall-clock playback receipts only; no physical microphone/speaker measurement. Active checks stop at 165 seconds; cleanup stops by 175 seconds. Private captures must be outside outputs/.');
     return;
   }
   const targets = !opt.case || opt.case === 'all' ? ['tool', 'thinking'] : [opt.case];
@@ -71,7 +71,6 @@ export async function main(args = process.argv.slice(2)) {
   try { origin = new URL(opt.base); } catch { fail('invalid_base'); }
   if (origin.username || origin.password || origin.search || origin.hash || origin.pathname !== '/'
     || !(origin.protocol === 'https:' || (origin.protocol === 'http:' && ['localhost', '127.0.0.1', '[::1]'].includes(origin.hostname)))) fail('base_must_be_https_or_loopback_origin');
-  if (!process.env.DEMO_ACCESS_KEY) fail('demo_access_key_environment_required');
   if (typeof WebSocket === 'undefined') fail('node_22_or_newer_required');
   const outsideOutputs = p => { const r = path.relative(OUTPUTS, p); if (!r || (r !== '..' && !r.startsWith('..' + path.sep) && !path.isAbsolute(r))) fail('capture_root_must_be_outside_outputs'); };
   const captureRoot = path.resolve(opt.captureRoot || path.join(process.cwd(), 'work'));
@@ -108,11 +107,11 @@ export async function main(args = process.argv.slice(2)) {
       const transcripts = [], privateErrors = [], audio = [];
       let session, ws, ready = false, closing = false, stopInput = false, inputTask, receiptTimer;
       let phase = 'pending', clip = target === 'tool' ? tool : normal, offset = clip.length, received = 0, bytes = 0, closeCode;
-      const redact = value => { let text = String(value); for (const secret of [session?.token, session?.id, process.env.DEMO_ACCESS_KEY]) if (secret) text = text.replaceAll(secret, '[redacted]'); return text.slice(0, 12000); };
+      const redact = value => { let text = String(value); for (const secret of [session?.token, session?.id]) if (secret) text = text.replaceAll(secret, '[redacted]'); return text.slice(0, 12000); };
       const sessionURL = suffix => { const u = new URL(`/api/session/${session.id}${suffix}`, origin); u.searchParams.set('token', session.token); return u; };
       const send = value => { if (ws?.readyState !== WebSocket.OPEN) fail('websocket_not_open'); if (ws.bufferedAmount > 262144) fail('upload_backpressure'); ws.send(JSON.stringify(value)); };
       try {
-        const r = await fetch(new URL('/api/session', origin), { method: 'POST', headers: { 'X-Demo-Key': process.env.DEMO_ACCESS_KEY }, redirect: 'error', signal: AbortSignal.timeout(5000) }).catch(() => fail('session_create_transport_failed'));
+        const r = await fetch(new URL('/api/session', origin), { method: 'POST', redirect: 'error', signal: AbortSignal.timeout(5000) }).catch(() => fail('session_create_transport_failed'));
         if (!r.ok) fail(`session_create_http_${r.status}`);
         session = await r.json().catch(() => fail('session_create_invalid_json'));
         if (!/^[a-f0-9]{32}$/.test(session.id) || !/^[A-Za-z0-9_-]{32,128}$/.test(session.token)) fail('session_create_invalid_capability');

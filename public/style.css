@@ -33,10 +33,8 @@ p { text-wrap: pretty; }
 .utterance p { margin: 0; font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; white-space: pre-wrap; }
 .utterance.partial p { color: #879080; }
 .system-message { color: #879080; font-size: 12px; padding: 8px 0; }
-.access-row { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; padding: 15px 18px 0; border-top: 1px solid #edf0e9; font-size: 11px; color: #657261; }
-.access-row label span { color: #879080; }
-.access-row input[type="password"] { font: inherit; background: #fafbf8; border: 1px solid #dce3d6; border-radius: 8px; min-height: 40px; padding: 8px 10px; width: 200px; color: #28342d; }
-.access-row input:focus-visible { outline: 3px solid #83a373; outline-offset: 2px; }
+.recording-row { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; padding: 15px 18px 0; border-top: 1px solid #edf0e9; font-size: 11px; color: #657261; }
+.recording-row input:focus-visible { outline: 3px solid #83a373; outline-offset: 2px; }
 .controls { display: flex; justify-content: center; flex-wrap: wrap; gap: 9px; padding: 15px 18px 0; }
 button { font: inherit; font-weight: 550; font-size: 12px; min-height: 44px; padding: 10px 16px; background: #f7f8f5; color: #54604f; border: none; border-radius: 10px; cursor: pointer; box-shadow: 0 0 0 1px #dce3d6 inset; transition: background-color 120ms, opacity 120ms, transform 120ms; }
 button:hover:enabled { background: #edf0e8; }
@@ -61,10 +59,6 @@ footer { text-align: center; font-size: 10px; color: #95a08c; margin-top: 26px; 
 [hidden] { display: none !important; }
 @media (max-width: 520px) { main { padding: 24px 16px; } .intro { padding-top: 36px; } .transcript { height: 310px; padding: 20px; } .controls { gap: 8px; } button { padding: 10px 12px; } button.primary { flex: 1 1 100%; } dl { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { button { transition: none; } button:active:enabled { transform: none; } }
-
-.key-status { flex-basis: 100%; text-align: center; color: #3d5635; }
-.key-status:empty { display: none; }
-
 .microphone-health { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 9px; margin: 15px 20px 0; font-size: 11px; color: #657261; }
 .microphone-health meter { width: 64px; height: 12px; }
 .microphone-health button { font-size: 11px; min-height: 34px; padding: 6px 12px; }

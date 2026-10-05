@@ -7,7 +7,7 @@ import vm from 'node:vm';
 import { PlaybackQueue, pcm16ToBase64 } from './audio-player.mjs';
 const settle = () => new Promise(resolve => setImmediate(resolve));
 
-function harness({ fetchSession, fetchAccess, transport = 'websocket', publish } = {}) {
+function harness({ fetchSession, capture, transport = 'websocket', publish } = {}) {
   class Element {
     children = []; listeners = {}; hidden = false; disabled = false;
     classList = { toggle() {} }; attributes = {}; textContent = '';
@@ -25,7 +25,6 @@ function harness({ fetchSession, fetchAccess, transport = 'websocket', publish }
   const elements = new Map();
   const element = id => { if (!elements.has(id)) elements.set(id, new Element()); return elements.get(id); };
   element('transcript').append(element('empty-state'));
-  element('access-key').value = 'demo-key';
   const requests = [];
   const timers = new Map();
   let nextTimer = 0;
@@ -71,13 +70,13 @@ function harness({ fetchSession, fetchAccess, transport = 'websocket', publish }
     PlaybackQueue, pcm16ToBase64, SfuAudioTransport,
     document: { body: {dataset: {transport}}, getElementById: element, createElement: () => new Element() },
     window: { AudioContext, RTCPeerConnection: class {}, MediaStream: class {}, AudioWorkletNode: Node, addEventListener(type, fn) { windowListeners[type] = fn; } },
-    navigator: { mediaDevices: { async getUserMedia(options) { mediaRequests.push(options); return { getTracks: () => [track], getAudioTracks: () => [track] }; } } },
+    navigator: { mediaDevices: { async getUserMedia(options) { mediaRequests.push(options); return capture ? capture(track) : { getTracks: () => [track], getAudioTracks: () => [track] }; } } },
     AudioWorkletNode: Node, WebSocket: Socket, URL, AbortSignal, Int16Array,
     location: { href: 'https://voice.example/', protocol: 'https:' },
     performance, Date, Blob, console,
     fetch: async (url, options) => {
       requests.push({url, options});
-      if (url === '/api/access') return fetchAccess ? fetchAccess(url, options) : {ok:true, json:async()=>({ok:true})};
+      assert.equal(url, '/api/session');
       return fetchSession ? fetchSession(url, options) : { ok: true, json: async () => ({ id: 'session-id', token: 'secret-token' }) };
     },
     setTimeout(fn, delay) { const id = ++nextTimer; timers.set(id, { fn, delay, interval: false }); return id; },
@@ -154,14 +153,17 @@ test('failed session creation closes microphone and shows a recoverable error', 
   assert.equal(h.contexts[0].state, 'closed');
   assert.equal(h.element('start').disabled, false);
 });
-test('access key stays in authentication headers and out of capability URLs', async () => {
-  let request;
-  const h = harness({ fetchSession: async (url, options) => { request = options; return { ok: true, json: async () => ({ id: 'id', token: 'capability' }) }; } });
-  h.element('access-key').value = 'demo-key';
-  await h.element('start').click();
-  assert.equal(request.headers['X-Demo-Key'], 'demo-key');
-  assert.doesNotMatch(h.sockets[0].url, /demo-key/);
-  h.element('end').click();
+test('both transports create a session without a demo key and keep its capability', async () => {
+  for (const transport of ['websocket', 'webrtc']) {
+    const h = harness({transport});
+    await h.element('start').click();
+    assert.equal(h.requests.length, 1);
+    assert.equal(h.requests[0].url, '/api/session');
+    assert.deepEqual(Object.keys(h.requests[0].options.headers), ['Content-Type']);
+    assert.equal(JSON.parse(h.requests[0].options.body).transport, transport);
+    assert.match(h.sockets[0].url, /\?token=secret-token$/);
+    h.element('end').click();
+  }
 });
 test('speech onset during pending generation rejects its delayed first audio', async () => {
   const h = harness();
@@ -233,63 +235,56 @@ test('terminal startup error preserves explanation and releases microphone witho
   assert.equal(h.element('start').disabled, false);
 });
 
-test('rejected key does not open the microphone or create a session', async () => {
-  const h = harness({ fetchAccess: async () => ({ok:false, status:401, json:async()=>({error:'That access key was not accepted.'})}) });
+test('microphone permission denial creates no session and releases the audio engine', async () => {
+  const h = harness({capture: async () => { const error = new Error('denied'); error.name = 'NotAllowedError'; throw error; }});
   await h.element('start').click();
-  assert.equal(h.requests.length, 1);
-  assert.equal(h.requests[0].url, '/api/access');
-  assert.equal(h.contexts.length, 1);
+  assert.equal(h.requests.length, 0);
   assert.equal(h.contexts[0].state, 'closed');
-  assert.equal(h.mediaRequests.length, 0);
   assert.equal(h.sockets.length, 0);
-  assert.equal(h.element('access-key').focused, true);
-  assert.equal(h.element('access-key').selected, true);
-  assert.equal(h.element('notice').textContent, 'That access key was not accepted.');
-});
-test('key is trimmed and captured before asynchronous permission setup', async () => {
-  let h;
-  h = harness({fetchAccess: async () => {
-    h.element('access-key').value = 'changed-during-setup';
-    return {ok:true, json:async()=>({ok:true})};
-  }});
-  h.element('access-key').value = '  Original_Key-42  \n';
-  await h.element('start').click();
-  assert.equal(h.requests.length, 2);
-  assert.ok(h.requests.every(r => r.options.headers['X-Demo-Key'] === 'Original_Key-42'));
-  h.element('end').click();
-});
-test('loading the key file verifies access without microphone, session, or persistent storage', async () => {
-  const h = harness();
-  h.element('key-file').files = [{size:44, text:async()=> 'file-key\n'}];
-  await h.element('key-file').listeners.change();
-  assert.equal(h.element('access-key').value, 'file-key');
-  assert.match(h.element('key-status').textContent, /Access key verified/);
-  assert.equal(h.requests.length, 1);
-  assert.equal(h.requests[0].options.headers['X-Demo-Key'], 'file-key');
-  assert.equal(h.contexts.length, 0);
-  assert.equal(h.sockets.length, 0);
+  assert.match(h.element('notice').textContent, /Microphone permission was denied/);
   assert.equal(h.element('start').disabled, false);
+  assert.equal(h.timers.size, 0);
 });
-test('oversized or multiline key files are rejected before any request', async () => {
-  for (const file of [{size:5000, text:async()=> 'too big'}, {size:20,text:async()=> 'key\nsecond-line'}]) {
-    const h = harness(); h.element('key-file').files = [file];
-    await h.element('key-file').listeners.change();
-    assert.equal(h.requests.length, 0);
-    assert.equal(h.contexts.length, 0);
-    assert.notEqual(h.element('notice').textContent, '');
-  }
+test('End while microphone permission is pending stops a late track without creating a session', async () => {
+  let finish;
+  const h = harness({capture: track => new Promise(resolve => {
+    finish = () => resolve({getTracks: () => [track], getAudioTracks: () => [track]});
+  })});
+  const starting = h.element('start').click();
+  await settle();
+  h.element('end').click();
+  finish(); await starting;
+  assert.equal(h.track.stopped, true);
+  assert.equal(h.contexts[0].state, 'closed');
+  assert.equal(h.requests.length, 0);
+  assert.equal(h.sockets.length, 0);
+  assert.equal(h.timers.size, 0);
 });
-
-test('audio engine is prepared before the authentication await, microphone after it', async () => {
-  let h;
-  h = harness({fetchAccess: async () => {
-    assert.equal(h.contexts.length, 1);
-    assert.equal(h.contexts[0].state, 'running');
-    assert.equal(h.mediaRequests.length, 0);
-    return {ok:true, json:async()=>({ok:true})};
-  }});
-  await h.element('start').click();
+test('End during session creation retires the late capability and leaves audio stopped', async () => {
+  let finish;
+  const h = harness({fetchSession: () => new Promise(resolve => { finish = resolve; })});
+  const starting = h.element('start').click();
+  await settle();
+  h.element('end').click();
+  finish({ok:true, json:async()=>({id:'late-id',token:'late-token'})});
+  await starting;
+  assert.equal(h.track.stopped, true);
+  assert.equal(h.contexts[0].state, 'closed');
+  assert.equal(h.sockets.length, 1);
+  assert.match(h.sockets[0].url, /late-id\?token=late-token$/);
+  h.sockets[0].open();
+  assert.deepEqual(h.sockets[0].sent, [{type:'end'}]);
+  assert.equal(h.timers.size, 0);
+});
+test('audio engine resumes inside the Start click before asynchronous microphone setup', async () => {
+  const h = harness();
+  const starting = h.element('start').click();
+  assert.equal(h.contexts.length, 1);
+  assert.equal(h.contexts[0].state, 'running');
+  assert.equal(h.mediaRequests.length, 0);
+  await starting;
   assert.equal(h.mediaRequests.length, 1);
+  assert.equal(h.requests.length, 1);
   h.element('end').click();
 });
 test('capture, upload and server delivery counters distinguish each stage without audio capture', async () => {

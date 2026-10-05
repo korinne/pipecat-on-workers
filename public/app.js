@@ -16,7 +16,6 @@ let reconnectTimer, heartbeatTimer, elapsedTimer, lastPong = 0;
 let loudFrames = 0, quietFrames = 0, speechActive = false, lastInterrupt = -Infinity;
 let serverState = '', partial = new Map();
 let knownGeneration = -1;
-let loadingAccess = false;
 let inputHealthTimer, lastCaptureAt = 0, lastSoundAt = 0, lastRms = 0;
 let audioStats = { capturedChunks: 0, capturedBytes: 0, sentChunks: 0, sentBytes: 0, maxRms: 0, receivedBytes: 0, forwardedBytes: 0 };
 let lastAudioClock = 0, lastClockAdvanceAt = 0;
@@ -52,8 +51,7 @@ function prepareAudioContext() {
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   if (!AudioContextClass) throw new Error('This browser does not support voice playback.');
   context = new AudioContextClass({ latencyHint: 'interactive' });
-  // Run resume synchronously inside the Start click, before authentication awaits.
-  // Microphone access is still requested only after the key has been verified.
+  // Run resume synchronously inside the Start click, before asynchronous setup.
   context.resume().catch(() => {});
   context.onstatechange = updateInputHealth;
   lastAudioClock = context.currentTime; lastClockAdvanceAt = performance.now();
@@ -209,49 +207,8 @@ async function setupAudio(run) {
   });
 }
 
-function accessHeaders(accessKey) {
-  const headers = { 'Content-Type': 'application/json' };
-  if (accessKey) headers['X-Demo-Key'] = accessKey;
-  return headers;
-}
-async function verifyAccess(accessKey) {
-  const response = await fetch('/api/access', { method: 'POST', headers: accessHeaders(accessKey), signal: AbortSignal.timeout(15000) });
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    const error = new Error(data.error || 'The access key could not be verified. Please try again.');
-    error.accessRejected = true;
-    throw error;
-  }
-}
-async function loadKeyFile() {
-  const file = $('key-file').files?.[0];
-  if (!file || active || loadingAccess) return;
-  loadingAccess = true;
-  ui.start.disabled = $('load-key').disabled = true;
-  notice('');
-  $('key-status').textContent = 'Checking key…';
-  try {
-    if (file.size > 4096) throw new Error('Choose the small text file containing only your demo access key.');
-    const key = (await file.text()).trim();
-    if (!key || /[\r\n\x00-\x1f\x7f]/.test(key)) throw new Error('The key file must contain one complete access key on a single line.');
-    $('access-key').value = key;
-    await verifyAccess(key);
-    $('key-status').textContent = 'Access key verified. Press Start conversation.';
-  } catch (error) {
-    $('key-status').textContent = '';
-    notice(error.message);
-    $('access-key').focus();
-  } finally {
-    loadingAccess = false;
-    ui.start.disabled = active;
-    $('load-key').disabled = active;
-    $('key-file').value = '';
-  }
-}
-
 async function start() {
-  if (active || starting || loadingAccess) return;
-  const accessKey = $('access-key').value?.trim() || '';
+  if (active || starting) return;
   const run = ++lifecycle;
   active = starting = true;
   muted = false;
@@ -267,13 +224,12 @@ async function start() {
   ui['empty-state'].hidden = false;
   ui['session-time'].textContent = '00:00';
   ui.start.disabled = true;
-  $('load-key').disabled = $('access-key').disabled = true;
   ui.end.disabled = false;
   ui.mute.disabled = true;
   ui.mute.textContent = 'Mute microphone';
   ui.mute.setAttribute('aria-pressed', 'false');
   notice('');
-  status('Checking access key…');
+  status('Opening microphone…');
   audioStats = { capturedChunks: 0, capturedBytes: 0, sentChunks: 0, sentBytes: 0, maxRms: 0, receivedBytes: 0, forwardedBytes: 0 };
   lastCaptureAt = lastSoundAt = -Infinity; lastRms = 0;
   try {
@@ -281,14 +237,10 @@ async function start() {
     prepareAudioContext();
     inputHealthTimer = setInterval(updateInputHealth, 250);
     updateInputHealth();
-    await verifyAccess(accessKey);
-    if (run !== lifecycle) return;
-    $('key-status').textContent = 'Access key verified.';
-    status('Opening microphone…');
     await setupAudio(run);
     if (run !== lifecycle) return;
     status('Starting conversation…');
-    const headers = accessHeaders(accessKey);
+    const headers = { 'Content-Type': 'application/json' };
     const response = await fetch('/api/session', { method: 'POST', headers, body: JSON.stringify({ transport }), signal: AbortSignal.timeout(20000) });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(data.error || `Session could not start (${response.status}).`);
@@ -309,7 +261,6 @@ async function start() {
     notice(error.name === 'NotAllowedError' ? 'Microphone permission was denied. Allow it in your browser, then start again.' : error.message);
     endSession(false);
     status('Could not start', 'error');
-    if (error.accessRejected) { $('key-status').textContent = ''; $('access-key').focus(); $('access-key').select(); }
   } finally { if (run === lifecycle) starting = false; }
 }
 function websocketURL(credentials) {
@@ -515,7 +466,6 @@ function endSession(tellServer = true) {
   speechActive = false;
   serverState = '';
   ui.start.disabled = false;
-  $('load-key').disabled = $('access-key').disabled = false;
   ui.start.innerHTML = '<span aria-hidden="true">↗</span> Start conversation';
   ui.mute.disabled = ui.end.disabled = true;
   status('Conversation ended');
@@ -532,9 +482,6 @@ $('resume-audio').addEventListener('click', async () => {
   }
   catch { notice('Audio could not resume. Check microphone access or try your regular browser.'); }
 });
-$('load-key').addEventListener('click', () => $('key-file').click());
-$('key-file').addEventListener('change', loadKeyFile);
-$('access-key').addEventListener('input', () => { $('key-status').textContent = ''; });
 ui.start.addEventListener('click', start);
 ui.end.addEventListener('click', () => endSession());
 ui.mute.addEventListener('click', () => {
