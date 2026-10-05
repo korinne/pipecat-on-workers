@@ -1,0 +1,29 @@
+{
+  "recorded_at_utc": "2026-10-05T05:43:40.845030+00:00",
+  "base_commit": "a5fa113b84e264fba65c6e43f8a2752a626f328c",
+  "classification": "reproduced_test_helper_failure",
+  "scope": "Controlled real SFU cleanup with simulated REST; no live media or application behavior change.",
+  "cause": "cleanup_settled returned after the old cleanup worker finished but before its done callback scheduled draining of a cached late result.",
+  "deterministic_observation": {
+    "observations": [
+      {
+        "cached_results": 1,
+        "retained_adapters": 1,
+        "pending_requests": 0
+      }
+    ],
+    "final_adapters": 0,
+    "final_cached_results": 0
+  },
+  "regression": {
+    "command": ".venv/bin/python -m unittest tests.test_sfu_transport.SfuTransportTests.test_final_retry_drains_result_that_settles_during_session_inspection -q",
+    "exit_code": 1,
+    "output": "======================================================================\nFAIL: test_final_retry_drains_result_that_settles_during_session_inspection (tests.test_sfu_transport.SfuTransportTests.test_final_retry_drains_result_that_settles_during_session_inspection)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/korinne/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/asyncio/runners.py\", line 128, in run\n    return self._loop.run_until_complete(task)\n           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^\n  File \"/Users/korinne/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/asyncio/base_events.py\", line 720, in run_until_complete\n    return future.result()\n           ~~~~~~~~~~~~~^^\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/tests/test_sfu_transport.py\", line 438, in test_final_retry_drains_result_that_settles_during_session_inspection\n    self.assertEqual(settlement_snapshots, [(0, 0)])\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Lists differ: [(1, 1)] != [(0, 0)]\n\nFirst differing element 0:\n(1, 1)\n(0, 0)\n\n- [(1, 1)]\n?   ^  ^\n\n+ [(0, 0)]\n?   ^  ^\n\n\n----------------------------------------------------------------------\nRan 1 test in 0.023s\n\nFAILED (failures=1)\n"
+  },
+  "initial_full_suite": {
+    "scope": "Temporary silence-policy proposal draft based on 4ffc5a9, prior to its final additional policy cases; no draft application changes applied to main.",
+    "log": "audit/results/task4-cleanup-helper-initial-suite.log",
+    "tests": 180,
+    "failures": 1
+  }
+}

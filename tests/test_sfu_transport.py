@@ -125,7 +125,8 @@ class SfuTransportTests(unittest.IsolatedAsyncioTestCase):
     async def cleanup_settled(self):
         for _ in range(200):
             task = self.transport.cleanup_task
-            if not self.transport.requests and not self.transport.cleanup_requests and (not task or task.done()):
+            if (not self.transport.requests and not self.transport.cleanup_requests
+                    and not self.transport.cleanup_results and (not task or task.done())):
                 return
             await asyncio.sleep(.001)
         self.fail("cleanup did not settle")
@@ -411,12 +412,31 @@ class SfuTransportTests(unittest.IsolatedAsyncioTestCase):
             await asyncio.sleep(.001)
             return 200, {"tracks": []}
 
+        settlement_checks = []
+        settlement_snapshots = []
+        run_cleanup = self.transport._run_cleanup
+
+        async def observe_settlement():
+            await self.cleanup_settled()
+            settlement_snapshots.append((len(self.transport.cleanup_results),
+                                         len(self.transport.adapters)))
+
+        async def cleanup_with_observer():
+            await run_cleanup()
+            if self.transport.cleanup_results:
+                # Run the helper before task completion schedules the cached
+                # result drain. A finished worker alone does not mean settled.
+                settlement_checks.append(asyncio.create_task(observe_settlement()))
+
+        self.transport._run_cleanup = cleanup_with_observer
         self.transport.request = request
         self.transport.adapters["owned-adapter"] = ("output", 1)
         self.transport.sessions["owned-session"] = ("output", 1)
         with patch("sfu_transport.CLEANUP_REQUEST_TIMEOUT", .005):
             await self.transport.clear(2)
             await self.cleanup_settled()
+            await asyncio.gather(*settlement_checks)
+        self.assertEqual(settlement_snapshots, [(0, 0)])
         self.assertEqual(self.transport.adapters, {})
         self.assertEqual(self.transport.cleanup_results, {})
         self.assertEqual(calls, {"adapter": 3, "session": 3})
