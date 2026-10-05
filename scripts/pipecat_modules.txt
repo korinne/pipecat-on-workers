@@ -1,6 +1,8 @@
-# Pipecat1.11.0 module closure exercised by check_pipecat_core.py
+# Pipecat 1.11.0 core and standard TTS/output/assistant module closure.
+# Local English Punkt loader is generated separately by vendor_pipecat.py.
 __init__.py
 adapters/__init__.py
+adapters/base_llm_adapter.py
 adapters/schemas/__init__.py
 adapters/schemas/direct_function.py
 adapters/schemas/function_schema.py
@@ -8,6 +10,10 @@ adapters/schemas/tools_schema.py
 audio/__init__.py
 audio/dtmf/__init__.py
 audio/dtmf/types.py
+audio/filters/__init__.py
+audio/filters/base_audio_filter.py
+audio/mixers/__init__.py
+audio/mixers/base_audio_mixer.py
 audio/resamplers/__init__.py
 audio/resamplers/base_audio_resampler.py
 audio/turn/__init__.py
@@ -64,11 +70,19 @@ registry/__init__.py
 registry/registry.py
 registry/types.py
 services/__init__.py
+services/ai_service.py
+services/llm_service.py
 services/settings.py
 services/stt_latency.py
+services/tts_service.py
+services/websocket_service.py
 transcriptions/__init__.py
 transcriptions/language.py
+transports/__init__.py
+transports/base_output.py
+transports/base_transport.py
 turns/__init__.py
+turns/speculation_gate.py
 turns/types.py
 turns/user_idle_controller.py
 turns/user_mute/__init__.py
@@ -96,19 +110,30 @@ turns/user_turn_completion_mixin.py
 turns/user_turn_controller.py
 turns/user_turn_strategies.py
 utils/__init__.py
+utils/async_tool_cancellation.py
 utils/asyncio/__init__.py
 utils/asyncio/task_manager.py
 utils/base_object.py
 utils/context/__init__.py
+utils/context/aggregated_frame_sequencer.py
 utils/context/llm_context_summarization.py
+utils/context/text_segment_map.py
+utils/context/word_completion_tracker.py
 utils/deprecation.py
 utils/errors.py
 utils/frame_queue.py
+utils/network.py
 utils/prewarm.py
 utils/startup.py
 utils/string.py
 utils/text/__init__.py
+utils/text/alnum_utils.py
 utils/text/base_text_aggregator.py
+utils/text/base_text_filter.py
+utils/text/markup_utils.py
+utils/text/pattern_pair_aggregator.py
+utils/text/simple_text_aggregator.py
+utils/text/word_timestamp_utils.py
 utils/time.py
 utils/tracing/__init__.py
 utils/tracing/setup.py

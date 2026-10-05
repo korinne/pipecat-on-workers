@@ -4,9 +4,28 @@
   "commit": "3dede06bec0b497bddfdcf047af7495ee9d0726e",
   "archive_url": "https://files.pythonhosted.org/packages/source/p/pipecat-ai/pipecat_ai-1.11.0.tar.gz",
   "archive_sha256": "49e7532a1f035e8884c47448a06d998a1b7f0943d11eae9bc8600a9e749a2a04",
-  "python_files": 119,
-  "python_source_bytes": 1027709,
-  "policy": "Module allowlist exercised by the guarded core runtime check; unrelated transports/providers and all model/data assets omitted.",
+  "python_files": 144,
+  "python_source_bytes": 1785440,
+  "policy": "Pinned module allowlist for the core and standard TTS/output/assistant flow; unrelated provider/transport implementations and local inference assets omitted. Local compatibility edits and bundled English Punkt tables remain a vendored prototype, not a supported package installation.",
+  "local_additions": [
+    {
+      "file": "utils/text/english_punkt.py",
+      "sha256": "98c6fbd852136637b89276c1f2de14365eced32d4d513ca1ea0e44ab8faa7f6d",
+      "purpose": "Load unchanged English Punkt tables through normal NLTK without runtime data files or downloads.",
+      "provenance": {
+        "archive_url": "https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages/tokenizers/punkt_tab.zip",
+        "archive_sha256": "e57f64187974277726a3417ca6f181ec5403676c717672eef6a748a7b20e0106",
+        "table_sha256": {
+          "abbrev_types.txt": "92a3e070f43d9b4c5534758ca40ad7343b04e7e29bfe0c2eb658a39445a4f779",
+          "collocations.tab": "8e2da1225e4dd2cc9dba261ee231ccb134859e21b46006e7f472c5ee269af0cf",
+          "ortho_context.tab": "4bbcca25ed3d3f06c02402abf8419b9f033b8adc06e7b482eca4e45f81a5dc4c",
+          "sent_starters.txt": "f3f8535483e1dba487241b764945168123bca3209a9645e59acd1225dc76edac"
+        },
+        "readme_sha256": "d3251cae66a9359bd68c039e3a46172a05ca9df0b27dcdfa23ae594d68d27ec4",
+        "template_sha256": "597dc6f615158aa5086076a6e55feec2d8c8bb8acc1f15c1c0a85aec8fd5c265"
+      }
+    }
+  ],
   "patches": [
     {
       "file": "__init__.py",
@@ -19,10 +38,11 @@
     {
       "file": "audio/utils.py",
       "changes": [
-        "Defer native audio/resampling dependencies until their functions are used."
+        "Defer native audio/resampling dependencies until their functions are used.",
+        "Use signed PCM16 little-endian samples for output silence detection without NumPy; empty audio is silent and -32768 is correctly non-silent."
       ],
       "upstream_sha256": "708ca93eca9e4c4751d76a3ae20d2adbe9fa863e78c9a314b0a6b137bbfd4b9b",
-      "patched_sha256": "5e4698dfeb1339a87299b797869510942b2974e34b337f4f773c2ba04659321e"
+      "patched_sha256": "3a9d44a0b0bed33783cc57205f8b43c4efb7dba79f82670c45215d496046f6a8"
     },
     {
       "file": "pipeline/worker.py",
@@ -50,17 +70,44 @@
       "patched_sha256": "9f61a77b64a9946e0f7722239db8d9ebb84a27f42cf67b039b4f77ca4c057f7b"
     },
     {
+      "file": "services/tts_service.py",
+      "changes": [
+        "Delay native resampler creation until the provider audio rate differs from the TTS rate."
+      ],
+      "upstream_sha256": "ff470bf5b57f6c35ef399581e8cf1fc99313a019ad61b319af2982566731e00b",
+      "patched_sha256": "84f22a9e02dbb411426ee08f978d3b430049b342a4a5dd840f49d7c84af5486e"
+    },
+    {
+      "file": "transports/base_output.py",
+      "changes": [
+        "Import Pillow only when resizing an output image; video remains outside the selected configuration.",
+        "Delay native resampler creation until sample rates differ; preserve the upstream resampling path, flush and reset when instantiated.",
+        "Reject audio DTMF explicitly because its tone assets and file/native helpers are outside the selected configuration."
+      ],
+      "upstream_sha256": "c1d28cc7968916839d7b72dcd68e180d17902716f85aaf5db2cc93f40a650d4d",
+      "patched_sha256": "9c23d1d4bfdb09c157f373fc4abbec5c80945b83ae944e27eae601325954bdf1"
+    },
+    {
       "file": "turns/user_start/__init__.py",
       "changes": [
         "Resolve unchanged public exports lazily so unused optional features do not eagerly load native transports, NumPy, or provider SDKs."
       ],
       "upstream_sha256": "583aeb83317ae304a2d999fe32c160b805a659fb9be78f43f175bad45a4e66fe",
       "patched_sha256": "4866abd7a0f0ec65588fa806ba17ddb5bb8a3093973df18048e1c2bbd6db41b1"
+    },
+    {
+      "file": "utils/string.py",
+      "changes": [
+        "Use normal NLTK with checksum-pinned English Punkt tables bundled as a generated module; remove runtime corpus lookup/download."
+      ],
+      "upstream_sha256": "6499e9ee8befa84169d37533380b301bb3d878d851c6f24f58d822879d951e9a",
+      "patched_sha256": "873c25640a6fdecbae6c8629a2d26b83829df6395b22bb81dd0cc3e919fb3eb7"
     }
   ],
   "upstream_file_sha256": {
     "__init__.py": "dafefe7f51278d81292e65ea6bc71c169e2f3c8e38993b1cb02d8ed6745cc8e2",
     "adapters/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "adapters/base_llm_adapter.py": "47124becf3b5d9bbd68843a3ade6d1f7352656cdf83e56637d36ffec55ac9c7c",
     "adapters/schemas/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "adapters/schemas/direct_function.py": "b93751389c28a468206f9d4b1a417066de049cdf2cf929f3f78d9ba05cdcdfdf",
     "adapters/schemas/function_schema.py": "cb3a0c72e06e58f97ddc7c16354718ecd7071084416f3c7683e83f895de94e1f",
@@ -68,6 +115,10 @@
     "audio/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "audio/dtmf/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "audio/dtmf/types.py": "5c30105155966803fa390705bda6f0b797733c22669721ef8d0d2459532f99ee",
+    "audio/filters/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "audio/filters/base_audio_filter.py": "86e589dacaba5ace28b19d61a63e0b830e48d70fb148c69a4c1d74ba38d0332f",
+    "audio/mixers/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "audio/mixers/base_audio_mixer.py": "79c9e6a6d0c7d957f6c3c15f6037fed11809492960bba0a1fc37f4b1868cedd6",
     "audio/resamplers/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
     "audio/resamplers/base_audio_resampler.py": "2e50c098e6e60215ded793408379dbabd89450f0dc8570bacea4eb9e0be5d937",
     "audio/turn/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -124,11 +175,19 @@
     "registry/registry.py": "bfa764c19e4df1db64b5cbbad26a27a6c67d1a3d5e06524cd69737ac4b9779f3",
     "registry/types.py": "145947c103fd16df7be32f376c0c37d7454721ade91a01d786706a71c0bcc465",
     "services/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "services/ai_service.py": "fd9c2447b74e80f4e468753aed21eef953e3b5ffcd764303e0f5d2422679b205",
+    "services/llm_service.py": "2f163bdbe4fae48855caa0db8f3fea6ecd0d9042cab4090809bd5ee342ae0b96",
     "services/settings.py": "da58cb8e61424abc818c9ccceb19da3475a6668184a3f358baa067312e2c9818",
     "services/stt_latency.py": "cd1b1969ceedb228965d88ecc2a9e10bb9c615e3e7c8b332fe6b89d7c2e12227",
+    "services/tts_service.py": "ff470bf5b57f6c35ef399581e8cf1fc99313a019ad61b319af2982566731e00b",
+    "services/websocket_service.py": "cd2c0523a15bea1da5be9d708ee970aecca615749b796165a3128c5687ae5f53",
     "transcriptions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "transcriptions/language.py": "e6954d9f2e95e7607f972959eec11c18d678b8cab10fa3e63b4fb827e16168bd",
+    "transports/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "transports/base_output.py": "c1d28cc7968916839d7b72dcd68e180d17902716f85aaf5db2cc93f40a650d4d",
+    "transports/base_transport.py": "bbd96771fb22293fce7fe61a85a49e95452b70b73708b003a6d717ba2c26fc6b",
     "turns/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "turns/speculation_gate.py": "932519a309e79dee4161ff4692d66a102f1140b6b18059a5f46f64010c1ade36",
     "turns/types.py": "0b9e6870298808e60808bf673a49ec4164909f343691941d4882c731e7f1a0a5",
     "turns/user_idle_controller.py": "1e3222415489760740e183a1b7f2469c581db5bef8a97da7185a56bef9a300f5",
     "turns/user_mute/__init__.py": "40c3bf78ca0aa47a8114ffa071155f853ff445bc95900b1a6b7da5fe77d21893",
@@ -156,19 +215,30 @@
     "turns/user_turn_controller.py": "b55ea44f15cb2640c1aa085f8a5a9abb473cf2fc815babe6ab593a5fe8e91b86",
     "turns/user_turn_strategies.py": "a1359e3f4d5be2d7b6e3659369d12c979581aa37e9afcaed179d6e68c62b62b6",
     "utils/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "utils/async_tool_cancellation.py": "d47603143635105da62e633d343a0772945acf281e9f7fc9f17bbe73c97fe977",
     "utils/asyncio/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "utils/asyncio/task_manager.py": "0bd3f39a81899411db576a9aec10b28aa7d9c2a6fc0656a72010389ca76938cb",
     "utils/base_object.py": "9a91dc5db601d619dd327ad6341d1f01a9e5613a5e6e1947d384e59e5a652e92",
     "utils/context/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "utils/context/aggregated_frame_sequencer.py": "0cd18bdcd1707fa363de1534561f2e7206ed621babb109194f02e460582629f6",
     "utils/context/llm_context_summarization.py": "395383138f705991e436e7dcffce9db6923f3bf7d9c139152a7465ffe4807d0b",
+    "utils/context/text_segment_map.py": "817ed6080f20bab4e96fbf4f0896cd55afac4ac4ed3c5a0a2c37a48625223c75",
+    "utils/context/word_completion_tracker.py": "c58a1114150dab89a14877b771ebc2cb96f92f4767550612067487a54afa8579",
     "utils/deprecation.py": "1bcb5daef1e171f4dea97dea6a467fbb53b3050041a64583da5f9b6e4e3ae72a",
     "utils/errors.py": "86959337030fa6fd4bed3e4c8fa6a623f28d9cb5065ad7be08ca18996e69a236",
     "utils/frame_queue.py": "8eb80dbbfcc53d8139d5cabe4c5856ffcd47de10cb46767cf38940c5a0b01367",
+    "utils/network.py": "20eca3213787d2da3d4ea43246b06faf9eb23c138042d289d60d6ce1a8fd276c",
     "utils/prewarm.py": "6a6f5212ba363e9bdafb96d5ef0d3f9ec59e3b7aa4efb9e5c052fb6e357a2c90",
     "utils/startup.py": "193cacf618937e2384e9cc3fed73eb6f24ea7f39587fc6e764bd569109a0b8a3",
     "utils/string.py": "6499e9ee8befa84169d37533380b301bb3d878d851c6f24f58d822879d951e9a",
     "utils/text/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "utils/text/alnum_utils.py": "5a3b3eb437125f7185d04e346f448338e7d8c8b841cf90c76d609af2da4061d8",
     "utils/text/base_text_aggregator.py": "035950121009429454a626576370941a948a0feeb57aea2f8e318c6fafd1240c",
+    "utils/text/base_text_filter.py": "72ecbd98b954c6c2815af06860e1305c26c70955efb8a772fa5b025524cdf89a",
+    "utils/text/markup_utils.py": "563e48536df283c643ef427972a18083801aa935b797ca849b99c913e72fb768",
+    "utils/text/pattern_pair_aggregator.py": "cd8cf03bf7a94c800074cd940837be870aec20c848db09a595817e3ea30e78b0",
+    "utils/text/simple_text_aggregator.py": "27a382f1b1ce004d0ab88e63d6cc6430ee8a1ce318521509cebc1e02ab07e908",
+    "utils/text/word_timestamp_utils.py": "d345841147e9d87ea0e2708b401c4ca89c14d3336995f32722c1f450cf845500",
     "utils/time.py": "bb4d15a067b96ced30f34a15a4b9c481c94fb4e4737af0d71eda5eaacd67d174",
     "utils/tracing/__init__.py": "5ac5749c286e4313dcc9606693cd8af22f08fad6f98ca69186cf055a7a370875",
     "utils/tracing/setup.py": "dba8c53d4d62e697856e6cf50c34fea2b24cf8a670798dedba62c2ff6840583f",
