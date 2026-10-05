@@ -19,8 +19,9 @@ async function turn(c,text,n){
  c.send({type:'fixture_event',event:{type:'SpeechStarted',timestamp:start,connection_generation:1}});
  c.send({type:'audio',data:Buffer.alloc(16000).toString('base64'),sample_rate:16000});
  await wait(()=>c.events.filter(e=>e.type==='clear').length>clears,'turn clear');
- c.send({type:'fixture_event',event:{type:'Results',start,duration:c.audioCursor-start,is_final:true,speech_final:true,channel:{alternatives:[{transcript:text}]},connection_generation:1}});
- await wait(()=>c.events.some(e=>e.type==='audio'&&e.text.includes(text)),'reply');
+ c.send({type:'fixture_event',event:{type:'Results',start,duration:c.audioCursor-start,is_final:true,speech_final:true,channel:{alternatives:[{transcript:text,words:[{word:text,start,end:c.audioCursor}]}]},connection_generation:1}});
+ await wait(()=>c.events.some(e=>e.type==='transcript'&&e.role==='assistant'&&e.text.includes(text)),'assistant text');
+ await wait(()=>c.events.some(e=>e.type==='status'&&e.state==='listening'&&e.generation===c.events.filter(e=>e.type==='status'&&e.state==='thinking').at(-1)?.generation),'response completed');
  await sleep(20);
 }
 async function diagnostics(s){const r=await fetch(url(s,'/diagnostics'));return r.json();}
@@ -28,7 +29,7 @@ const results={scope:'Actual local workerd Python Durable Objects and network We
 const sessions=await Promise.all([create(),create()]);let calls=await Promise.all(sessions.map(connect));
 results.startup_ms=calls.map(c=>Math.round(c.startupMs));
 await Promise.all(calls.map((c,i)=>turn(c,`private_session_${i}`,1)));
-for(let i=0;i<2;i++){if(calls[i].events.some(e=>e.type==='audio'&&e.text.includes(`private_session_${1-i}`)))throw Error('Cross-session leak');}
+for(let i=0;i<2;i++){if(calls[i].events.some(e=>e.type==='transcript'&&e.role==='assistant'&&e.text.includes(`private_session_${1-i}`)))throw Error('Cross-session leak');}
 results.checks.push('two distinct DOs have isolated transcript and PCM metadata');
 const old=calls[0];old.ws.close(1000,'test disconnect');await wait(()=>old.ws.readyState===3,'closed');await sleep(150);
 calls[0]=await connect(sessions[0]);const reset=calls[0].events.find(e=>e.type==='reset');if(!reset.history.some(m=>m.content?.includes('private_session_0')))throw Error('History missing on reconnect');

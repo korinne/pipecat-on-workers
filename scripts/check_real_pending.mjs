@@ -1,17 +1,18 @@
 #!/usr/bin/env node
 /** Two prerecorded inputs per selected fresh actual-provider session. No fixture events.
  * Interrupt at tool/thinking status before audio, reject canceled output, recover,
- * emulate one complete sentence's playback duration, then verify End cleanup.
+ * await response completion and elapsed audio receipts, then verify End cleanup.
  * No microphone or speaker is opened.
  */
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ReceiptQueue, pcmStats, safeDiagnostics } from './check_real_voice.mjs';
+import { isCompletedResponse } from './smoke_real_voice.mjs';
 
 const OUTPUTS = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const RESOURCE_KEYS = ['pipecat_tasks', 'provider_tasks', 'provider_sockets', 'provider_readers',
-  'pending_provider_requests', 'queued_provider_bytes', 'unacked_audio_bytes', 'pending_playback_chunks',
+  'pending_provider_requests', 'pending_turn_requests', 'queued_output_bytes', 'queued_provider_bytes', 'unacked_audio_bytes', 'pending_playback_chunks',
   'pending_turn_tasks', 'pending_user_fragments', 'pending_user_chars'];
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const round = n => Math.round(n * 100) / 100;
@@ -77,7 +78,7 @@ export async function main(args = process.argv.slice(2)) {
   outsideOutputs(captureRoot); await fs.mkdir(captureRoot, { recursive: true }); outsideOutputs(await fs.realpath(captureRoot));
   const runDir = await fs.mkdtemp(path.join(captureRoot, 'real-pending-')); await fs.chmod(runDir, 0o700);
   const evidenceFile = path.resolve(opt.evidence || path.join(runDir, 'evidence.json'));
-  const evidence = { schema: 1, started_at: new Date().toISOString(), deployment_origin: origin.origin,
+  const evidence = { schema: 2, started_at: new Date().toISOString(), deployment_origin: origin.origin,
     passed: false, selected_cases: targets, planned_input_turns: plannedInputTurns, fixture_provider_requested: false, physical_human_voice_acceptance_passed: false,
     interruption_method: 'explicit client control immediately on tool/thinking status, before audio',
     playback_method: 'elapsed serial PCM duration receipts; no audio device',
@@ -101,11 +102,12 @@ export async function main(args = process.argv.slice(2)) {
       const result = { target_status: target, input_turns: 0, interrupted_before_audio: false, clear_observed: false,
         post_clear_observation_ms: 0, canceled_audio_packets_after_clear: 0, recovery_user_finals: 0,
         recovery_assistant_sentences: 0, recovery_audio_chunks: 0, recovery_nonzero_samples: 0,
-        recovery_completed_sentences: 0, acknowledged_duration_ms: 0, end_sent: false, end_acknowledged: false, failures: [] };
+        recovery_completed_responses: 0, recovery_acknowledged_chunks: 0, acknowledged_duration_ms: 0, end_sent: false, end_acknowledged: false, failures: [] };
       evidence.cases.push(result);
       const cancellation = new PendingCancellation(target), playback = new ReceiptQueue();
       const transcripts = [], privateErrors = [], audio = [];
       let session, ws, ready = false, closing = false, stopInput = false, inputTask, receiptTimer;
+      let replyGeneration, listeningGeneration;
       let phase = 'pending', clip = target === 'tool' ? tool : normal, offset = clip.length, received = 0, bytes = 0, closeCode;
       const redact = value => { let text = String(value); for (const secret of [session?.token, session?.id]) if (secret) text = text.replaceAll(secret, '[redacted]'); return text.slice(0, 12000); };
       const sessionURL = suffix => { const u = new URL(`/api/session/${session.id}${suffix}`, origin); u.searchParams.set('token', session.token); return u; };
@@ -130,6 +132,10 @@ export async function main(args = process.argv.slice(2)) {
               if (!Number.isSafeInteger(m.generation)) fail('invalid_generation');
               playback.clear(m.generation, now);
               if (m.type === 'clear') { cancellation.clear(m, now); result.clear_observed = cancellation.clearAt !== undefined; }
+            }
+            if (m.type === 'status' && phase === 'recovery' && Number.isSafeInteger(m.generation)) {
+              if (m.state === 'thinking') replyGeneration = m.generation;
+              if (m.state === 'listening') listeningGeneration = m.generation;
             }
             if (m.type === 'status' && phase === 'pending' && cancellation.status(m, now, received)) {
               playback.clear(m.generation + 1, now); send({ type: 'interrupt' }); result.interrupted_before_audio = true;
@@ -162,7 +168,7 @@ export async function main(args = process.argv.slice(2)) {
           try { for (const item of playback.due(performance.now())) {
             send({ type: 'played', generation: item.generation, chunk_id: item.chunk_id });
             result.acknowledged_duration_ms += item.duration;
-            if (item.text.trim()) result.recovery_completed_sentences++;
+            result.recovery_acknowledged_chunks++;
           } } catch (e) { markFailure(errorCode(e)); }
         }, 10);
         offset = 0; result.input_turns++;
@@ -172,8 +178,12 @@ export async function main(args = process.argv.slice(2)) {
         result.post_clear_observation_ms = round(performance.now() - cancellation.clearAt);
         if (offset < clip.length) fail('pending_turn_audio_not_finished');
         phase = 'recovery'; clip = normal; offset = 0; result.input_turns++;
-        await waitFor(() => result.recovery_user_finals > 0 && result.recovery_assistant_sentences > 0
-          && result.recovery_completed_sentences > 0 && result.recovery_nonzero_samples > 0, 40000, 'real_recovery_timeout');
+        await waitFor(() => result.recovery_nonzero_samples > 0 && isCompletedResponse({
+          userFinals: result.recovery_user_finals, assistantSentences: result.recovery_assistant_sentences,
+          received: result.recovery_audio_chunks, acknowledged: result.recovery_acknowledged_chunks,
+          queueLength: playback.queue.length, replyGeneration, listeningGeneration, generation: playback.generation,
+        }), 40000, 'real_recovery_timeout');
+        result.recovery_completed_responses = 1;
         result.recovery_verified = true;
       } catch (e) { const code = errorCode(e); result.failures.push(code); markFailure(code); }
       finally {

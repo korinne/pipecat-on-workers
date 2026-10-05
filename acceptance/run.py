@@ -181,7 +181,7 @@ async def history(harness, route, completed, receipts):
         "limit": (
             "This checks text availability, not whether a model understands the follow-up. "
             "Receipts here are function calls, not browser or human playback evidence. "
-            "Standard Pipecat TTS/output progress and interrupted-context behavior are not exercised here."
+            "The completed standard TTS/output/context flow runs with fixture providers; interrupted-context behavior is checked separately."
         ),
     }
 
@@ -362,8 +362,8 @@ def unresolved():
     entries = [
         ("B1.supported-install", "No supported unmodified Pipecat package was installed in actual Workers by this runner."),
         ("B2.real-voice", "No real microphone, speech provider, browser speaker or deployed Worker was used."),
-        ("B2.hosted-turn", "Workers AI hosted Pipecat Smart Turn, speech onset, and transcript readiness are not integrated or exercised by these fixtures."),
-        ("B3.reference-context", "Context from the selected standard Pipecat TTS/output and assistant-aggregator configuration, including interrupted speech, remains untested."),
+        ("B2.hosted-turn", "These diagnostics do not establish live hosted Smart Turn, speech onset, or transcript readiness."),
+        ("B3.reference-context", "This runner does not execute the reference interruption cases; the separate speech-pipeline suite checks their fixture behavior."),
         ("B4.audible-interruption", "A browser clear command is not a measurement of when audio stopped playing."),
         ("B5.live-lifecycle", "Fixture cleanup is checked in every probe; live reconnect, duplicate sessions and resource release still need acceptance runs."),
         ("B6.resources", "Workload, latency, CPU, memory and cost limits need agreed thresholds and deployed measurements."),

@@ -14,7 +14,7 @@ const round = n => Math.round(n * 100) / 100;
 class Failure extends Error { constructor(code) { super(code); this.code = code; } }
 const fail = code => { throw new Failure(code); };
 const RESOURCE_KEYS = ['pipecat_tasks', 'provider_tasks', 'provider_sockets', 'provider_readers',
-  'pending_provider_requests', 'queued_provider_bytes', 'unacked_audio_bytes', 'pending_playback_chunks',
+  'pending_provider_requests', 'pending_turn_requests', 'queued_output_bytes', 'queued_provider_bytes', 'unacked_audio_bytes', 'pending_playback_chunks',
   'pending_turn_tasks', 'pending_user_fragments', 'pending_user_chars'];
 
 export function options(args) {
@@ -69,8 +69,7 @@ export class ReceiptQueue {
     const duration = pcm.length / 48;
     this.end = Math.max(now, this.end) + duration;
     if (this.end - now > 12000) fail('playback_queue_bound_exceeded');
-    this.queue.push({ generation: message.generation, chunk_id: message.chunk_id, due: this.end, duration,
-      text: typeof message.text === 'string' ? message.text : '' });
+    this.queue.push({ generation: message.generation, chunk_id: message.chunk_id, due: this.end, duration });
     return pcm;
   }
   due(now) { const result = []; while (this.queue.length && this.queue[0].due <= now) result.push(this.queue.shift()); return result; }
@@ -104,7 +103,7 @@ export async function main(args = process.argv.slice(2)) {
   const runDir = await fs.mkdtemp(path.join(captureRoot, 'real-voice-soak-')); await fs.chmod(runDir, 0o700);
   const evidenceFile = path.resolve(opt.evidence || path.join(runDir, 'evidence.json'));
   const started = performance.now(); let fatal, stopping = false, clockStart;
-  const evidence = { schema: 1, started_at: new Date().toISOString(), deployment_origin: origin.origin,
+  const evidence = { schema: 2, started_at: new Date().toISOString(), deployment_origin: origin.origin,
     passed: false, requested_duration_ms: opt.duration, planned_input_turns: opt.rounds * opt.sessions,
     fixture_provider_requested: false, physical_human_voice_acceptance_passed: false,
     playback_method: 'wall-clock serial PCM duration receipts; no audio device', cross_session_isolation_established: false,
@@ -149,7 +148,7 @@ export async function main(args = process.argv.slice(2)) {
           c.playback = new ReceiptQueue(); c.playback.clear(m.generation, now); c.reset = m.history;
         }
         if (m.type === 'ready') c.ready = true;
-        if (m.type === 'status') c.state = m.state;
+        if (m.type === 'status') { c.state = m.state; c.statusGeneration = m.generation; }
         if (m.type === 'clear') { if (!Number.isSafeInteger(m.generation)) fail('invalid_clear'); c.playback.clear(m.generation, now); c.clears++; }
         if (m.type === 'transcript' && m.final === true) {
           if (!['user', 'assistant'].includes(m.role) || typeof m.text !== 'string' || !m.text.trim() || m.text.length > 12000) fail('invalid_transcript');
@@ -157,6 +156,7 @@ export async function main(args = process.argv.slice(2)) {
           c.transcripts.push({ elapsed_ms: round(now - started), role: m.role, text: redact(m.text) });
           c.result[m.role === 'user' ? 'user_final_count' : 'assistant_sentence_count']++;
           if (m.role === 'user') c.lastUser = m.text;
+          else c.lastAssistant = m.text;
         }
         if (m.type === 'audio') {
           const pcm = c.playback.enqueue(m, now); if (!pcm) { c.result.stale_audio_ignored++; return; }
@@ -173,11 +173,11 @@ export async function main(args = process.argv.slice(2)) {
   try {
     for (let i = 0; i < opt.sessions; i++) {
       const result = { ordinal: i + 1, input_duration_ms: inputs[i].length / 32, user_final_count: 0, assistant_sentence_count: 0,
-        received_chunks: 0, acknowledged_chunks: 0, acknowledged_duration_ms: 0, completed_sentences: 0,
+        received_chunks: 0, acknowledged_chunks: 0, acknowledged_duration_ms: 0, completed_responses: 0,
         nonzero_output_samples: 0, stale_audio_ignored: 0, turns: [], interruptions: 0, recoveries_after_interruption: 0,
         reconnect_history_verified: false, end_sent: false, end_acknowledged: false };
       const c = { result, playback: new ReceiptQueue(), transcripts: [], errors: [], audio: [], audioBytes: 0,
-        ready: false, offset: inputs[i].length, input: inputs[i], clears: 0, state: '', receiptTexts: [] };
+        ready: false, offset: inputs[i].length, input: inputs[i], clears: 0, state: '' };
       calls.push(c); evidence.sessions.push(result);
       const r = await fetch(new URL('/api/session', origin), { method: 'POST', redirect: 'error', signal: AbortSignal.timeout(10000) }).catch(() => fail('session_create_transport_failed'));
       if (!r.ok) fail(`session_create_http_${r.status}`);
@@ -203,7 +203,6 @@ export async function main(args = process.argv.slice(2)) {
           for (const item of c.playback.due(performance.now())) {
             send(c, { type: 'played', generation: item.generation, chunk_id: item.chunk_id });
             c.result.acknowledged_chunks++; c.result.acknowledged_duration_ms += item.duration;
-            if (item.text.trim()) { c.result.completed_sentences++; c.receiptTexts.push(item.text); }
           }
         } catch (e) { markFailure(e instanceof Failure ? e.code : 'receipt_send_failed'); }
       }
@@ -213,11 +212,11 @@ export async function main(args = process.argv.slice(2)) {
       await waitFor(() => performance.now() >= clockStart + turn * 60000, 61000, 'schedule_timeout');
       await Promise.all(calls.map(async c => {
         const before = { user: c.result.user_final_count, audio: c.result.received_chunks, assistant: c.result.assistant_sentence_count,
-          sentences: c.result.completed_sentences, nonzero: c.result.nonzero_output_samples };
+          acknowledged: c.result.acknowledged_chunks, nonzero: c.result.nonzero_output_samples };
         const turnStart = performance.now(), interrupted = turn % 2 === 0 && turn < opt.rounds - 1;
         c.offset = 0;
         await waitFor(() => c.result.user_final_count > before.user && c.result.received_chunks > before.audio
-          && c.result.assistant_sentence_count > before.assistant && c.playback.queue.length > 0, 45000, 'real_turn_response_timeout');
+          && (interrupted || c.result.assistant_sentence_count > before.assistant) && c.playback.queue.length > 0, 45000, 'real_turn_response_timeout');
         const record = { number: turn + 1, response_ms: round(performance.now() - turnStart), interrupted };
         if (interrupted) {
           const oldClears = c.clears, oldGeneration = c.playback.generation;
@@ -227,15 +226,18 @@ export async function main(args = process.argv.slice(2)) {
           await waitFor(() => c.clears > oldClears && c.playback.generation > oldGeneration, 10000, 'interrupt_clear_timeout');
           c.result.interruptions++; c.needsRecovery = true;
         } else {
-          await waitFor(() => c.result.completed_sentences > before.sentences && c.state === 'listening' && !c.playback.queue.length,
+          await waitFor(() => c.result.assistant_sentence_count > before.assistant && c.state === 'listening'
+            && c.statusGeneration === c.playback.generation && !c.playback.queue.length
+            && c.result.received_chunks - before.audio === c.result.acknowledged_chunks - before.acknowledged,
             Math.max(1000, 55000 - (performance.now() - turnStart)), 'completed_playback_timeout');
+          c.result.completed_responses++;
           if (c.result.nonzero_output_samples <= before.nonzero) fail('provider_output_is_silent');
           if (c.needsRecovery) { c.result.recoveries_after_interruption++; c.needsRecovery = false; record.recovery_verified = true; }
         }
         record.elapsed_ms = round(performance.now() - turnStart); c.result.turns.push(record);
       }));
       if (turn === 1) {
-        const c = calls[0], expectedUser = c.lastUser, expectedAssistant = c.receiptTexts.at(-1);
+        const c = calls[0], expectedUser = c.lastUser, expectedAssistant = c.lastAssistant;
         c.reconnecting = true; c.ready = false; c.playback.clear(c.playback.generation + 1, performance.now());
         c.ws.close(1000, 'Planned reconnect'); await waitFor(() => c.ws.readyState === WebSocket.CLOSED, 10000, 'disconnect_timeout');
         await sleep(500); await connect(c);

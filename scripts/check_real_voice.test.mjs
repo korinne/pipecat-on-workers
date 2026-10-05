@@ -26,7 +26,7 @@ test('default plan is twenty turns; supported plans never exceed twenty-four', (
   assert.equal(options(['--pcm-second', 'second.pcm']).pcmSecond, 'second.pcm');
 });
 
-test('receipts wait for serial PCM duration and preserve the final sentence marker', () => {
+test('receipts wait for serial PCM duration without sentence markers', () => {
   const q = new ReceiptQueue();
   q.enqueue(packet(4, 1), 1000);
   q.enqueue(packet(4, 2, 1200, 'Private sentence.'), 1001);
@@ -35,7 +35,7 @@ test('receipts wait for serial PCM duration and preserve the final sentence mark
   assert.deepEqual(q.due(1149), []);
   const last = q.due(1150);
   assert.equal(last[0].chunk_id, 2);
-  assert.equal(last[0].text, 'Private sentence.');
+  assert.equal(Object.hasOwn(last[0], 'text'), false);
   assert.equal(last[0].duration, 50);
 });
 

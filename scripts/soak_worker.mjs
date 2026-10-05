@@ -18,8 +18,9 @@ async function turn(c,text,n){
  c.send({type:'fixture_event',event:{type:'SpeechStarted',timestamp:start,connection_generation:1}});
  c.send({type:'audio',data:Buffer.alloc(16000).toString('base64'),sample_rate:16000});
  await wait(()=>c.events.filter(e=>e.type==='clear').length>clears,'turn clear');
- c.send({type:'fixture_event',event:{type:'Results',start,duration:c.audioCursor-start,is_final:true,speech_final:true,channel:{alternatives:[{transcript:text}]},connection_generation:1}});
- await wait(()=>c.events.some(e=>e.type==='audio'&&e.text.includes(text)),'reply');
+ c.send({type:'fixture_event',event:{type:'Results',start,duration:c.audioCursor-start,is_final:true,speech_final:true,channel:{alternatives:[{transcript:text,words:[{word:text,start,end:c.audioCursor}]}]},connection_generation:1}});
+ await wait(()=>c.events.some(e=>e.type==='transcript'&&e.role==='assistant'&&e.text.includes(text)),'assistant text');
+ await wait(()=>c.events.some(e=>e.type==='status'&&e.state==='listening'&&e.generation===c.events.filter(e=>e.type==='status'&&e.state==='thinking').at(-1)?.generation),'response completed');
  await sleep(20);
 }
 async function diagnostics(s){const r=await fetch(url(s,'/diagnostics'),{signal:AbortSignal.timeout(10000)});if(!r.ok)throw Error('Diagnostics HTTP '+r.status);return r.json();}
@@ -41,7 +42,7 @@ try {
    const text=`session_${i}_turn_${index}`;
    await turn(c,text,index);
    const audio=c.events.filter(e=>e.type==='audio');
-   if(audio.some(e=>!e.text.includes(sessions[i].id)&&e.text))throw Error('Cross-session output');
+   if(c.events.some(e=>e.type==='transcript'&&e.role==='assistant'&&!e.text.includes(`session_${i}_`)))throw Error('Cross-session output');
    if(!c.ack){const n=c.events.filter(e=>e.type==='clear').length;c.send({type:'interrupt'});await wait(()=>c.events.filter(e=>e.type==='clear').length>n,'barge-in clear');for(const a of audio)c.send({type:'played',generation:a.generation,chunk_id:a.chunk_id});interruptions++;}
    if(c.events.some(e=>e.type==='error'))throw Error('Server reported error');
    c.events.length=0;
