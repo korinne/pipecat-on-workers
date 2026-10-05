@@ -1,0 +1,99 @@
+{
+  "schema": 3,
+  "started_at": "2026-10-05T05:24:13.353Z",
+  "deployment_origin": "https://pipecat-on-workers.korinne.workers.dev",
+  "passed": true,
+  "selected_cases": [
+    "thinking"
+  ],
+  "planned_input_turns": 2,
+  "fixture_provider_requested": false,
+  "physical_human_voice_acceptance_passed": false,
+  "interruption_method": "explicit client control at the selected pending status or first nonzero speech audio",
+  "playback_method": "elapsed serial PCM duration receipts; no audio device",
+  "limitations": [
+    "Pending status is observed at the client; cancellation of remote model compute or billing is not established.",
+    "Tool case exercises the application fictional availability lookup, not a remote booking API.",
+    "Prerecorded input and explicit client control do not measure microphone capture, acoustic barge-in, speakers or intelligibility.",
+    "One-second post-clear observation and successful recovery do not prove indefinite absence of late remote work."
+  ],
+  "cases": [
+    {
+      "target_status": "thinking",
+      "input_turns": 2,
+      "interrupted_before_audio": true,
+      "interrupted_during_audio": false,
+      "interrupt_nonzero_samples": 0,
+      "clear_observed": true,
+      "post_clear_observation_ms": 1003.08,
+      "canceled_audio_packets_after_clear": 0,
+      "recovery_user_finals": 1,
+      "recovery_assistant_sentences": 1,
+      "recovery_audio_chunks": 38,
+      "recovery_nonzero_samples": 17349,
+      "recovery_completed_responses": 1,
+      "recovery_acknowledged_chunks": 38,
+      "acknowledged_duration_ms": 760,
+      "end_sent": true,
+      "end_acknowledged": true,
+      "failures": [],
+      "clear_dispatch_observed_ms": 56.81,
+      "recovery_verified": true,
+      "close_code": 1000,
+      "cleanup": {
+        "closed": true,
+        "pipecat_tasks": 0,
+        "provider_tasks": 0,
+        "provider_sockets": 0,
+        "provider_readers": 0,
+        "pending_provider_requests": 0,
+        "pending_turn_requests": 0,
+        "queued_output_bytes": 0,
+        "queued_provider_bytes": 0,
+        "unacked_audio_bytes": 0,
+        "pending_playback_chunks": 0,
+        "pending_turn_tasks": 0,
+        "pending_user_fragments": 0,
+        "pending_user_chars": 0,
+        "messages": 4,
+        "stt_connection_generation": 1,
+        "dropped_audio_bytes": 0,
+        "turn_timeout_secs": 5
+      },
+      "cleanup_verified": true,
+      "passed": true
+    }
+  ],
+  "failures": [],
+  "active_limit_ms": 90000,
+  "cleanup_limit_ms": 100000,
+  "input_turns": 2,
+  "elapsed_ms": 14035.2,
+  "finished_at": "2026-10-05T05:24:27.392Z",
+  "provenance": {
+    "application_source_commit": "d2c0656cd2b018405a1850ddabac6266507c590e",
+    "deployed_version_id": "13762ff7-679d-477a-bafc-dcf37df2d5f4",
+    "harness_source_commit": "6b56c6401e5580972022daf489da8cb6d3bf4dbe",
+    "harness_source_sha256": {
+      "scripts/check_real_pending.mjs": "f049fc45449e9d83829d42185ac1a7e203ce0e1590f48d9e760ea7e1d54f0676",
+      "scripts/check_real_voice.mjs": "302bc98f247ac22e71a16e11ae24de0024843d6630436dc8766a986ba8389493",
+      "scripts/smoke_real_voice.mjs": "9905e62854f03057abe6a8ce7bf0cf60d81873a0c156f969282e8a7da6ae2622"
+    },
+    "application_source_sha256": {
+      "src/providers.py": "7c5e59634829f8e15b906dd958dec8c07901230bda92e4663031bf9219493ed7",
+      "src/gpt_stream.py": "b6850f0ffad5770bfdec6c97a8c4495800c28799e6e874f53985631959de3449",
+      "src/conversation.py": "9040186bc62e59191501ade9ca0f1bf6105a43bd9bc2311a4bed3fea101f2442",
+      "src/speech_pipeline.py": "8a7d0a0afb2d3a8647ac7e5c4d4caf06248f42614d7c1eb53c0c48df6e72713b",
+      "src/smart_turn.py": "0d95bbf6d506502291f5898a8e837791742d8d61efd928e5c0ead2a3a976746b",
+      "src/entry.py": "aec666404cd6e29b9b6e544325fe732ecf7c5cd67954eeb8368cc0a533b8ab8c",
+      "src/pipecat/VENDOR_MANIFEST.json": "c50f06b01732b8b9fe96a4a742400124987c9a6c17f6f292b1be416933ea60fc",
+      "pyproject.toml": "fa9d56ac4683ab0b6f23c868d009b0aeccae684bd293bd011c9b58dca7e73422",
+      "uv.lock": "19b0386fd86b72c4a2df6dc2b1d093b919034f5ac1e52835d5f045253eb43e79",
+      "wrangler.jsonc": "a8e28d209ef1aa60e3b6040071e7ec4e8fb9cdff0e0cb450a818c56cbd448bf1"
+    },
+    "input_pcm_sha256": "c97884eb23ad91e268731e685839924e624a221061371d385d25d1c0c28f0794",
+    "input_pcm_bytes": 58702,
+    "raw_run_result_sha256": "55dbbfeaa96913cb90f135e9f403f422522657cc6c8aa9b447228b6bdf4dabb4",
+    "source_verification": "Application hashes read from the deployed git revision; harness hashes match the committed running scripts."
+  }
+}
