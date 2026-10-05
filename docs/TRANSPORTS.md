@@ -57,3 +57,7 @@ The prototype's direct WebSocket history waits for browser chunk-completion repo
 Direct WebSocket and SFU must pass the shared conversation, interruption, failure, reconnect, and resource tests in actual Workers with a real browser. Controlled tests should also delay callbacks, hold cleanup open, and fill queues so failures can be reproduced. The exact latency, duration, concurrency, and cost thresholds still need agreement before benchmarking.
 
 [Acceptance plan](ACCEPTANCE.md), [implementation order](IMPLEMENTATION-PLAN.md).
+
+## Adapter and cleanup implementation
+
+The [audio delivery adapter](TRANSPORT-ADAPTERS.md) separates browser flow control from assistant context. [SFU cleanup ownership](CLEANUP.md) records generation isolation, bounded remote work, late allocations and persisted unresolved resources. Its controlled application probe starts the next model call while the real adapter's simulated REST close remains held. Live browser stop timing and remote SFU reconciliation still require deployment evidence.

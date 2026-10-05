@@ -24,7 +24,11 @@ class Pair:
 
 
 class Bridge:
-    def __init__(self): self.attached = []; self.generation = 2
+    def __init__(self): self.attached = []; self.generation = 2; self.closed = False
+    async def close(self): self.closed = True
+    def cleanup_pending(self): return False
+    def cleanup_checkpoint(self): return {}
+    def diagnostics(self): return {"sfu_cleanup_tasks": 0}
     def attach_socket(self, role, socket, generation):
         if role == "output" and generation != self.generation:
             raise entry.SfuError("That assistant audio generation has ended")
@@ -180,6 +184,69 @@ class SfuEntryTests(unittest.IsolatedAsyncioTestCase):
             await asyncio.wait_for(obj.run(), .2)
             self.assertEqual(received, [])
             self.assertIsNone(obj.session)
+
+    async def test_retired_transport_remains_owned_until_late_cleanup_settles(self):
+        class PendingBridge(Bridge):
+            def __init__(self):
+                super().__init__()
+                self.pending = True
+            def cleanup_pending(self): return self.pending
+            def cleanup_checkpoint(self):
+                return {"adapters": ["owned-adapter"], "tracks": [], "sessions": [],
+                        "pending_requests": 1, "pending_cleanup_requests": 0,
+                        "unconfirmed_allocations": 0}
+        bridge = self.obj.sfu = PendingBridge()
+        self.obj.state["transport"] = "webrtc"
+        self.obj.session = None
+        await self.obj.shutdown("disconnect", recoverable=True)
+        self.assertTrue(bridge.closed)
+        self.assertEqual(self.obj.retired_transports, [bridge])
+        self.assertEqual(self.obj.state["sfu_cleanup"][0]["adapters"], ["owned-adapter"])
+        self.assertEqual(self.obj.diagnostics()["sfu_pending_requests"], 1)
+        bridge.pending = False
+        self.obj.cleanup_changed(bridge)
+        await self.obj.cleanup_save_task
+        self.assertEqual(self.obj.diagnostics()["sfu_pending_requests"], 0)
+        self.assertFalse(self.obj.diagnostics()["sfu_cleanup_unresolved"])
+        self.assertEqual(self.obj.state["sfu_cleanup"], [])
+
+    async def test_restarted_object_preserves_unknown_cleanup_at_expiry(self):
+        record = {"adapters": ["old-adapter"], "tracks": [], "sessions": [],
+                  "pending_requests": 1, "unconfirmed_allocations": 0}
+        state = dict(self.obj.state, transport="webrtc", status="disconnected", sfu_cleanup=[record])
+        alarms, deleted = [], []
+        async def get(key): return json.dumps(state)
+        async def set_alarm(value): alarms.append(value)
+        async def delete_all(): deleted.append(True)
+        obj = entry.Conversation(N(storage=N(get=get, setAlarm=set_alarm, deleteAll=delete_all)), N())
+        await obj.alarm()
+        self.assertTrue(alarms)
+        self.assertEqual(deleted, [])
+        restored = obj.diagnostics()["sfu_cleanup_records"][0]
+        self.assertEqual(restored["adapters"], record["adapters"])
+        self.assertEqual(restored["runtime_status"], "owner_restarted")
+        self.assertEqual(restored["unsettled_requests_at_restart"], 1)
+        self.assertEqual(obj.diagnostics()["sfu_pending_requests"], 0)
+        self.assertTrue(obj.diagnostics()["sfu_cleanup_unresolved"])
+
+    async def test_unresolved_connection_limit_blocks_reconnect_before_allocation(self):
+        self.obj.session = self.obj.sfu = None
+        self.obj.state["transport"] = "webrtc"
+        self.obj.saved_cleanup = [{"adapters": [f"owned-{index}"]} for index in range(8)]
+        result = await self.obj.fetch(Request(self.base + "?token=" + self.token, headers={"Upgrade": "websocket"}))
+        self.assertEqual(result.status, 503)
+        self.assertIsNone(self.obj.socket)
+
+    async def test_cleanup_persistence_failure_is_visible_without_forgetting_ids(self):
+        async def fail_put(key, value): raise RuntimeError("storage unavailable")
+        self.obj.ctx.storage.put = fail_put
+        self.obj.session = None
+        self.obj.saved_cleanup = [{"adapters": ["owned-after-failure"]}]
+        self.obj.cleanup_changed(self.obj.sfu)
+        await self.obj.cleanup_save_task
+        diagnostics = self.obj.diagnostics()
+        self.assertTrue(diagnostics["sfu_cleanup_persistence_failed"])
+        self.assertEqual(diagnostics["sfu_cleanup_records"][0]["adapters"], ["owned-after-failure"])
 
 
 if __name__ == "__main__": unittest.main()

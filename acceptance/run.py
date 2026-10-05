@@ -28,7 +28,7 @@ TIMEOUT = 6
 PROCESS_TIMEOUT = 35
 LOCAL_SCOPE = (
     "Local CPython, repository Pipecat and application, synthetic providers, "
-    "silent PCM, captured WebSocket events or an SFU transport double. "
+    "silent PCM, captured WebSocket events, an SFU transport double or the real SFU adapter with synthetic REST/socket leaves. "
     "No deployed Worker, network media, physical playback or resource acceptance."
 )
 CASES = {
@@ -100,13 +100,14 @@ def load_fixtures(repo):
 
 def watch_responses(harness):
     completed = asyncio.Queue()
-    original = harness.session.respond
+    original = harness.session.send
 
-    async def observe():
-        await original()
-        completed.put_nowait(harness.session.generation)
+    async def observe(event):
+        await original(event)
+        if event.get("type") == "status" and event.get("state") == "listening":
+            completed.put_nowait(event.get("generation"))
 
-    harness.session.respond = observe
+    harness.session.send = observe
     return completed
 
 
@@ -136,7 +137,9 @@ async def close_harness(harness):
     require(all(state[key] == 0 for key in required_zero), "Fixture resources remain after close")
     require(harness.provider.closed, "Fixture provider did not close")
     if hasattr(harness, "transport"):
-        require(harness.transport.closed, "SFU transport double did not close")
+        require(harness.transport.closed, "SFU transport did not close")
+        if hasattr(harness.transport, "cleanup_pending"):
+            require(not harness.transport.cleanup_pending(), "Synthetic SFU resources remain unresolved")
     return {key: state[key] for key in required_zero} | {"provider_closed": harness.provider.closed}
 
 
@@ -213,66 +216,65 @@ async def cancel(harness, route, completed):
 
 async def cleanup(harness, route, completed):
     from pipecat.frames.frames import LLMContextFrame
-    require(route == "sfu", "Only the SFU fixture has an external transport.clear operation")
+    require(route == "sfu", "Cleanup ownership is exercised by the SFU adapter")
     await harness.turn("first request", 1)
     await asyncio.wait_for(completed.get(), TIMEOUT)
-    entered, release, queued, returned = (asyncio.Event() for _ in range(4))
-    original_clear = harness.transport.clear
+    require(harness.transport.output is not None and harness.transport.adapters,
+            "Real SFU adapter did not allocate the synthetic output resources")
+    old_state = harness.transport.output
+    old_socket = old_state["socket"]
+    old_generation = old_state["generation"]
+    harness.cleanup_release.clear()
+    queued = asyncio.Event()
     original_queue = harness.session.processor.queue_frame
-
-    async def held_clear(generation):
-        await original_clear(generation)
-        entered.set()
-        await release.wait()
-        returned.set()
 
     async def observed_queue(frame, *args, **kwargs):
         await original_queue(frame, *args, **kwargs)
         if isinstance(frame, LLMContextFrame):
             queued.set()
 
-    harness.transport.clear = held_clear
     harness.session.processor.queue_frame = observed_queue
     try:
         await harness.begin("next request", 2)
-        await asyncio.wait_for(entered.wait(), TIMEOUT)
+        await asyncio.wait_for(harness.cleanup_entered.wait(), TIMEOUT)
         invalidated_generation = harness.session.generation
         await harness.finish("next request", 2)
         await asyncio.wait_for(queued.wait(), TIMEOUT)
-        # Give independently runnable work a turn. This observation window is
-        # an experiment deadline, not a product latency threshold.
-        started_before_release = False
-        try:
-            await asyncio.wait_for(completed.get(), 0.25)
-            started_before_release = True
-        except asyncio.TimeoutError:
-            pass
+        await asyncio.sleep(.25)
         count_while_held = len(harness.provider.generations)
         clear_sent = any(event.get("type") == "clear" and event.get("generation") == invalidated_generation
                          for event in harness.events)
-        require(entered.is_set() and queued.is_set() and not returned.is_set(), "Cleanup hold did not remain active")
-        release.set()
-        await asyncio.wait_for(returned.wait(), TIMEOUT)
-        if not started_before_release:
-            await asyncio.wait_for(completed.get(), TIMEOUT)
-        require(len(harness.provider.generations) == 2, "Next model call did not run after release")
+        require(not harness.cleanup_release.is_set(), "REST cleanup hold did not remain active")
+        require(old_socket.closed and old_state["retired"], "Obsolete media was not locally isolated")
+        stale_accepted = await harness.transport.send_audio(bytes(960), old_generation)
+        retained_while_held = harness.transport.diagnostics()["sfu_owned_adapters"]
+        harness.cleanup_release.set()
+        await asyncio.wait_for(completed.get(), TIMEOUT)
+        require(len(harness.provider.generations) == 2, "Expected exactly two model calls")
         return {
-            "status": classify(clear_sent, count_while_held == 2),
-            "expectation": "A queued next model call can begin while old external media cleanup is pending.",
+            "status": classify(clear_sent, count_while_held == 2 and not stale_accepted),
+            "expectation": "The next model call starts while obsolete SFU resources remain owned and their REST close is held.",
             "observations": {"browser_clear_command_sent_before_release": clear_sent,
                              "next_context_queued_before_release": queued.is_set(),
-                             "cleanup_observation_window_seconds": 0.25,
+                             "cleanup_observation_window_seconds": .25,
                              "model_calls_during_hold": count_while_held,
-                             "model_calls_after_release": len(harness.provider.generations)},
-            "limit": "The held operation is a transport double. No REST request, browser clear receipt or audible stop was measured.",
+                             "model_calls_after_release": len(harness.provider.generations),
+                             "retired_socket_closed": old_socket.closed,
+                             "stale_audio_accepted": stale_accepted,
+                             "owned_adapters_during_hold": retained_while_held},
+            "limit": "Real application and SFU adapter, synthetic REST/socket leaves and silent PCM. No network, browser clear receipt or audible stop measurement.",
         }
     finally:
-        release.set()
+        harness.cleanup_release.set()
 
 
 async def run_case(case, factories):
     identifier, route, kind, receipts = CASES[case]
-    harness = factories[route]()
+    if kind == "cleanup":
+        from sfu_cleanup_fixture import CleanupHarness
+        harness = CleanupHarness()
+    else:
+        harness = factories[route]()
     result = None
     try:
         completed = watch_responses(harness)
@@ -297,6 +299,9 @@ def child(repo, case, output):
     try:
         factories, loaded = load_fixtures(repo)
         result = asyncio.run(asyncio.wait_for(run_case(case, factories), 4 * TIMEOUT))
+        for name in ("sfu_transport", "sfu_codec", "sfu_cleanup_fixture"):
+            if name in sys.modules:
+                loaded[name] = check_origin(sys.modules[name], repo)
         result["execution"] = {"assertions_enabled": __debug__, "python_optimization": sys.flags.optimize,
                                "loaded_module_paths": loaded}
     except Exception as exc:
@@ -327,7 +332,7 @@ def subprocess_case(repo, case):
 
 def provenance(repo):
     files = sorted(repo.glob("src/**/*.py")) + [repo / name for name in (
-        "pyproject.toml", "tests/test_sfu_conversation.py", "src/pipecat/VENDOR_MANIFEST.json",
+        "pyproject.toml", "tests/test_sfu_conversation.py", "acceptance/sfu_cleanup_fixture.py", "src/pipecat/VENDOR_MANIFEST.json",
         "public/audio-player.mjs", "public/sfu-client.mjs")]
     packages = {}
     for name in ("loguru", "attrs", "docstring-parser", "pydantic", "typing-extensions"):

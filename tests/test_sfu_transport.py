@@ -37,6 +37,8 @@ class FakeApi:
         self.transport = None
         self.close_status = 200
         self.hold_output = None
+        self.hold_cleanup = None
+        self.cleanup_started = asyncio.Event()
         self.output_started = asyncio.Event()
         self.session_tracks = {}
 
@@ -66,13 +68,18 @@ class FakeApi:
                 generation = int(track["trackName"].split("-")[-1])
                 if self.hold_output:
                     await self.hold_output.wait()
-                if not self.transport.closed and self.transport.output and not self.transport.output["retired"]:
+                if (not self.transport.closed and self.transport.output
+                        and self.transport.output["generation"] == generation
+                        and not self.transport.output["retired"]):
                     self.transport.attach_socket("output", object(), generation)
                 result["sessionId"] = f"publisher-{self.adapters}"
             else:
                 self.transport.attach_socket("input", object())
             return 200, {"tracks": [result]}
         if url.endswith("adapters/websocket/close"):
+            self.cleanup_started.set()
+            if self.hold_cleanup:
+                await self.hold_cleanup.wait()
             if self.close_status != 200:
                 return self.close_status, {"tracks": [{"adapterId": payload["tracks"][0]["adapterId"],
                                                        "errorCode": "adapter_not_found" if self.close_status == 503 else "unavailable"}]}
@@ -109,7 +116,19 @@ class SfuTransportTests(unittest.IsolatedAsyncioTestCase):
         self.api.transport = self.transport
 
     async def asyncTearDown(self):
+        if self.api.hold_cleanup:
+            self.api.hold_cleanup.set()
+        if self.api.hold_output:
+            self.api.hold_output.set()
         await self.transport.close()
+
+    async def cleanup_settled(self):
+        for _ in range(200):
+            task = self.transport.cleanup_task
+            if not self.transport.requests and not self.transport.cleanup_requests and (not task or task.done()):
+                return
+            await asyncio.sleep(.001)
+        self.fail("cleanup did not settle")
 
     async def publish(self):
         result = await self.transport.signal("publish", {"sessionDescription": {"type": "offer", "sdp": "v=0\r\n"}, "mid": "0"})
@@ -171,6 +190,7 @@ class SfuTransportTests(unittest.IsolatedAsyncioTestCase):
         old_socket = self.transport.output["socket"]
         await self.transport.clear(3)
         self.assertTrue(old_socket.closed)
+        await self.cleanup_settled()
         self.assertEqual(self.transport.diagnostics()["sfu_owned_adapters"], 0)
         self.assertEqual(self.transport.diagnostics()["sfu_owned_tracks"], 0)
         self.assertFalse(await self.transport.send_audio(bytes(960), 2))
@@ -189,6 +209,7 @@ class SfuTransportTests(unittest.IsolatedAsyncioTestCase):
         await self.transport.clear(3)
         self.api.hold_output.set()
         self.assertFalse(await sending)
+        await self.cleanup_settled()
         self.assertEqual(self.transport.diagnostics()["sfu_owned_adapters"], 0)
         self.assertFalse(any(event["type"] == "sfu_track" for event in self.events))
 
@@ -209,9 +230,16 @@ class SfuTransportTests(unittest.IsolatedAsyncioTestCase):
         self.api.close_status = 500
         await self.transport.close()
         self.assertIn("a", self.transport.adapters)
+        closes = [call for call in self.api.calls if call[1].endswith("adapters/websocket/close")]
+        self.assertEqual(len(closes), 3)
+        await self.transport.close()
+        self.assertEqual(len([call for call in self.api.calls if call[1].endswith("adapters/websocket/close")]), 3)
+        self.transport.adapters["already-absent"] = ("input", None)
         self.api.close_status = 503
         await self.transport.close()
-        self.assertEqual(self.transport.adapters, {})
+        self.assertNotIn("already-absent", self.transport.adapters)
+        self.assertIn("a", self.transport.adapters)
+        self.assertTrue(self.transport.diagnostics()["sfu_cleanup_unresolved"])
 
     async def test_signaling_rejects_unowned_resource_and_early_ready(self):
         with self.assertRaises(SfuError):
@@ -250,6 +278,7 @@ class SfuTransportTests(unittest.IsolatedAsyncioTestCase):
             with self.assertRaisesRegex(SfuError, "timed out"):
                 await self.transport.send_audio(bytes(960), 2)
         self.assertIsNone(self.transport.output)
+        await self.cleanup_settled()
         self.assertEqual(self.transport.diagnostics()["sfu_owned_adapters"], 0)
 
     async def test_lost_creation_response_remains_explicitly_unconfirmed(self):
@@ -261,6 +290,108 @@ class SfuTransportTests(unittest.IsolatedAsyncioTestCase):
             await self.transport.signal("publish", {
                 "sessionDescription": {"type": "offer", "sdp": "v=0\r\n"}, "mid": "0"})
         self.assertEqual(self.transport.diagnostics()["sfu_unconfirmed_allocations"], 1)
+
+    async def test_held_cleanup_does_not_block_new_output_or_allow_stale_media(self):
+        sending = asyncio.create_task(self.transport.send_audio(bytes(960), 2))
+        await self.ready_output(2)
+        await sending
+        old_socket = self.transport.output["socket"]
+        self.api.hold_cleanup = asyncio.Event()
+        await asyncio.wait_for(self.transport.clear(3), .1)
+        await self.api.cleanup_started.wait()
+        self.assertTrue(old_socket.closed)
+        self.assertFalse(await self.transport.send_audio(bytes(960), 2))
+        next_send = asyncio.create_task(self.transport.send_audio(bytes(960), 4))
+        await self.ready_output(4)
+        self.assertTrue(await asyncio.wait_for(next_send, .1))
+        self.assertEqual(len(old_socket.sent), 1)
+        self.assertGreater(self.transport.diagnostics()["sfu_owned_adapters"], 1)
+        self.api.hold_cleanup.set()
+        await self.cleanup_settled()
+        self.assertEqual(len(self.transport.adapters), 1)
+
+    async def test_end_bounds_wait_and_late_cleanup_keeps_its_owner(self):
+        sending = asyncio.create_task(self.transport.send_audio(bytes(960), 2))
+        await self.ready_output(2)
+        await sending
+        self.api.hold_cleanup = asyncio.Event()
+        with patch("sfu_transport.CLOSE_TIMEOUT", .01), patch("sfu_transport.CLEANUP_REQUEST_TIMEOUT", .005):
+            await asyncio.wait_for(self.transport.close(), .1)
+        self.assertTrue(self.transport.closed)
+        self.assertTrue(self.transport.cleanup_pending())
+        checkpoint = self.transport.cleanup_checkpoint()
+        self.assertTrue(checkpoint["adapters"])
+        self.assertGreaterEqual(checkpoint["pending_cleanup_requests"], 1)
+        self.assertNotIn("private", str(checkpoint))
+        self.api.hold_cleanup.set()
+        await self.cleanup_settled()
+        self.assertFalse(self.transport.cleanup_pending())
+
+    async def test_repeated_interruptions_bound_retained_remote_resources(self):
+        self.api.close_status = 500
+        with patch("sfu_transport.MAX_OWNED_RESOURCES", 6):
+            for generation in (2, 4, 6):
+                sending = asyncio.create_task(self.transport.send_audio(bytes(960), generation))
+                await self.ready_output(generation)
+                await sending
+                await self.transport.clear(generation + 1)
+                await self.cleanup_settled()
+            self.assertEqual(len(self.transport.adapters), 3)
+            # Exhausted owners remain explicit and eventually prevent creating
+            # an unlimited sequence of replacements when cleanup stays broken.
+            self.transport.adapters.update({f"retained-{i}": ("output", 0) for i in range(3)})
+            before = len([call for call in self.api.calls if call[1].endswith("/new")])
+            with self.assertRaisesRegex(SfuError, "resources remain unresolved"):
+                await self.transport.send_audio(bytes(960), 8)
+            self.assertEqual(len([call for call in self.api.calls if call[1].endswith("/new")]), before)
+        self.api.close_status = 200
+
+    async def test_api_timeout_retains_late_allocation_and_reconciles_after_end(self):
+        self.api.hold_output = asyncio.Event()
+        with patch("sfu_transport.API_TIMEOUT", .005):
+            with self.assertRaisesRegex(SfuError, "status is pending"):
+                await self.transport.send_audio(bytes(960), 2)
+        with patch("sfu_transport.CLOSE_TIMEOUT", .005):
+            await self.transport.close()
+        self.assertEqual(self.transport.diagnostics()["sfu_pending_requests"], 1)
+        self.api.hold_output.set()
+        await self.cleanup_settled()
+        self.assertFalse(self.transport.cleanup_pending())
+
+    async def test_failed_close_and_unknown_allocation_survive_checkpoint(self):
+        self.transport.adapters["owned"] = ("output", 1)
+        self.transport.unconfirmed_allocations = 1
+        self.api.close_status = 500
+        await self.transport.close()
+        checkpoint = self.transport.cleanup_checkpoint()
+        self.assertEqual(checkpoint["adapters"], ["owned"])
+        self.assertEqual(checkpoint["unconfirmed_allocations"], 1)
+        self.assertFalse(self.transport.cleanup_requests)
+        self.assertLessEqual(len(self.api.calls), 3)
+
+    async def test_pending_allocations_are_bounded_and_owned_until_settlement(self):
+        release = asyncio.Event()
+        original = self.api
+
+        async def held(url, method, payload, secret):
+            if url.endswith("sessions/new"):
+                await release.wait()
+            return await original(url, method, payload, secret)
+
+        self.transport.request = held
+        with patch("sfu_transport.API_TIMEOUT", .001):
+            for _ in range(8):
+                with self.assertRaisesRegex(SfuError, "status is pending"):
+                    await self.transport._api("POST", "sessions/new", record=lambda body:
+                        self.transport._record_session("output", 1, body))
+            with self.assertRaisesRegex(SfuError, "resources remain unresolved"):
+                await self.transport._api("POST", "sessions/new")
+        self.assertEqual(self.transport.diagnostics()["sfu_pending_requests"], 8)
+        await self.transport.clear(2)
+        release.set()
+        await self.cleanup_settled()
+        self.assertFalse(self.transport.cleanup_pending())
+        self.assertEqual(self.api.sessions, 8)
 
 
 if __name__ == "__main__":

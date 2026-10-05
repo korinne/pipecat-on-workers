@@ -10,7 +10,6 @@ The SFU App Secret and endpoint URLs never appear in returned signaling data.
 """
 
 import asyncio
-import contextlib
 import inspect
 import json
 import re
@@ -23,6 +22,12 @@ API_BASE = "https://rtc.live.cloudflare.com/v1/apps"
 FRAME_BYTES = 3840  # 20 ms, 48000 Hz, stereo, PCM16
 READY_TIMEOUT = 35  # One shared deadline for callback + browser SDP/ICE readiness.
 MAX_SDP_BYTES = 65536
+API_TIMEOUT = 16
+CLEANUP_REQUEST_TIMEOUT = 3
+CLOSE_TIMEOUT = 5
+CLEANUP_ATTEMPTS = 3
+MAX_PENDING_REQUESTS = 8
+MAX_OWNED_RESOURCES = 32
 
 
 class SfuError(RuntimeError):
@@ -30,6 +35,10 @@ class SfuError(RuntimeError):
 
 
 class _StaleGeneration(SfuError):
+    pass
+
+
+class _CleanupExhausted(SfuError):
     pass
 
 
@@ -92,7 +101,7 @@ async def _request_json(url, method, payload, secret):
 class SfuTransport:
     def __init__(self, env, on_audio, on_event, *, input_endpoint,
                  output_endpoint_factory, request=None, clock=None, sleep=None,
-                 socket_factory=None):
+                 socket_factory=None, on_cleanup_change=None):
         if not configured(env):
             raise SfuError("Configure the Realtime SFU app ID and secret on the Worker")
         self.app_id = _identifier(_setting(env, "REALTIME_SFU_APP_ID"))
@@ -104,6 +113,11 @@ class SfuTransport:
         self.request = request or _request_json
         self.clock, self.sleep = clock or time.monotonic, sleep or asyncio.sleep
         self.socket_factory = socket_factory
+        self.on_cleanup_change = on_cleanup_change
+        self.cleanup_task = None
+        self.cleanup_requests = {}
+        self.cleanup_results = {}
+        self.cleanup_attempts = {}
         self.closed = False
         self.generation_floor = 0
         self.input_session = None
@@ -117,6 +131,7 @@ class SfuTransport:
         self.output = None
         self.tasks = set()
         self.requests = set()
+        self.request_units = {}
         self.adapters = {}  # ID -> (role, generation)
         self.tracks = {}  # (session, mid) -> (role, generation)
         self.sessions = {}  # IDs retained so uncertain track allocations can be inspected
@@ -161,20 +176,33 @@ class SfuTransport:
                 raise SfuError(f"Realtime operation failed (HTTP {status})")
             return body
 
+        allocating = method == "POST" and path.endswith("/new")
+        units = (2 if path == "adapters/websocket/new" else 1) if allocating else 0
+        owned = len(self.adapters) + len(self.tracks) + len(self.sessions)
+        if (len(self.requests) >= MAX_PENDING_REQUESTS or allocating and
+                (owned + sum(self.request_units.values()) + units > MAX_OWNED_RESOURCES
+                 or self.unconfirmed_allocations)):
+            raise SfuError("Realtime resources remain unresolved; end this call before retrying")
         task = asyncio.create_task(perform())
         self.requests.add(task)
-        task.add_done_callback(self.requests.discard)
+        self.request_units[task] = units
+        self._changed()
+
+        def settled(done):
+            self.requests.discard(done)
+            self.request_units.pop(done, None)
+            if not done.cancelled():
+                done.exception()
+                self._schedule_cleanup()
+                self._changed()
+
+        task.add_done_callback(settled)
         try:
-            return await asyncio.shield(task)
-        except asyncio.CancelledError:
-            # The server may allocate a resource after the Python caller stops.
-            # Retain the request and its result recorder until it settles.
-            async def finish_late():
-                with contextlib.suppress(Exception, asyncio.CancelledError):
-                    await asyncio.shield(task)
-                await self._cleanup_retired()
-            self._task(finish_late())
-            raise
+            return await asyncio.wait_for(asyncio.shield(task), API_TIMEOUT)
+        except asyncio.TimeoutError:
+            # Keep the request owner and recorder alive. A timeout cannot prove
+            # that the remote allocation failed or disappeared.
+            raise SfuError("Realtime operation timed out; its resource status is pending") from None
 
     def _record_tracks(self, session, role, generation, result):
         for item in result.get("tracks", []):
@@ -189,6 +217,8 @@ class SfuTransport:
         for item in result.get("tracks", []):
             if isinstance(item, dict) and item.get("adapterId"):
                 self.adapters[_identifier(item["adapterId"])] = (role, generation)
+                if item.get("sessionId"):
+                    self.sessions[_identifier(item["sessionId"])] = (role, generation)
 
     @staticmethod
     def _one_track(result):
@@ -269,7 +299,7 @@ class SfuTransport:
             result = await self._api("POST", "sessions/new", record=lambda body: self._record_session("input", None, body))
             session = _identifier(result.get("sessionId"))
             if self.closed:
-                await self._cleanup_retired()
+                self._schedule_cleanup()
                 raise SfuError("This Realtime call has ended")
             self.input_session = session
             result = await self._api("POST", f"sessions/{session}/tracks/new",
@@ -278,7 +308,7 @@ class SfuTransport:
                                      lambda body: self._record_tracks(session, "input", None, body))
             self._one_track(result)
             if self.closed:
-                await self._cleanup_retired()
+                self._schedule_cleanup()
                 raise SfuError("This Realtime call has ended")
             self.input_needs_answer = bool(result.get("requiresImmediateRenegotiation"))
             return self._public_signal(result)
@@ -297,7 +327,7 @@ class SfuTransport:
                 "outputCodec": "pcm"}]}, lambda body: self._record_adapters("input", None, body))
             adapter = self._one_track(result)
             if self.closed:
-                await self._cleanup_retired()
+                self._schedule_cleanup()
                 raise SfuError("This Realtime call has ended")
             self.input_adapter = _identifier(adapter.get("adapterId"))
             return {"ok": True}
@@ -308,7 +338,7 @@ class SfuTransport:
         result = await self._api("POST", "sessions/new", record=lambda body: self._record_session("output", state["generation"], body))
         receiver = _identifier(result.get("sessionId"))
         if not self._alive(state):
-            await self._cleanup_retired()
+            self._schedule_cleanup()
             raise _StaleGeneration("That assistant audio generation has ended")
         state["receiver"] = receiver
         result = await self._api("POST", f"sessions/{receiver}/tracks/new", {"tracks": [{
@@ -317,7 +347,7 @@ class SfuTransport:
             lambda body: self._record_tracks(receiver, "output", state["generation"], body))
         self._one_track(result)
         if not self._alive(state):
-            await self._cleanup_retired()
+            self._schedule_cleanup()
             raise _StaleGeneration("That assistant audio generation has ended")
         state["needs_answer"] = bool(result.get("requiresImmediateRenegotiation"))
         state["negotiated"] = not state["needs_answer"]
@@ -416,7 +446,7 @@ class SfuTransport:
         adapter = self._one_track(result)
         state["publisher"] = _identifier(adapter.get("sessionId"))
         if not self._alive(state):
-            await self._cleanup_retired()
+            self._schedule_cleanup()
             raise _StaleGeneration("That assistant audio generation has ended")
         await self._emit({"type": "sfu_track", "generation": generation})
         async def ready():
@@ -455,6 +485,10 @@ class SfuTransport:
                 return False
             try:
                 await asyncio.shield(state["prepare"])
+            except asyncio.CancelledError:
+                if not self._alive(state):
+                    return False
+                raise
             except _StaleGeneration:
                 return False
             except asyncio.TimeoutError:
@@ -507,7 +541,88 @@ class SfuTransport:
                 state["socket"].close()
             if state["monitor"]:
                 state["monitor"].cancel()
-        await self._cleanup_retired()
+            if not state["prepare"].done():
+                state["prepare"].cancel()
+        self._schedule_cleanup()
+        self._changed()
+
+    async def played(self, generation, chunk):
+        # The SFU has no browser chunk receipts. Both routes share the speech
+        # pipeline's context policy, independently of this flow-control hook.
+        return
+
+    def _changed(self):
+        if self.on_cleanup_change:
+            self.on_cleanup_change(self)
+
+    def _has_retired_resources(self):
+        return any(self._retired(owner) for owners in (self.adapters, self.tracks, self.sessions)
+                   for owner in owners.values())
+
+    def _cleanup_eligible(self):
+        if self.cleanup_results:
+            return True
+        for adapter, owner in self.adapters.items():
+            if self._retired(owner) and self.cleanup_attempts.get(("adapter", adapter), 0) < CLEANUP_ATTEMPTS:
+                return True
+        for session, owner in self.sessions.items():
+            if self._retired(owner) and self.cleanup_attempts.get(("session", session), 0) < CLEANUP_ATTEMPTS:
+                return True
+        by_session = {}
+        for (session, mid), owner in self.tracks.items():
+            if self._retired(owner):
+                by_session.setdefault(session, []).append(mid)
+        return any(self.cleanup_attempts.get(("tracks", session, tuple(sorted(mids))), 0) < CLEANUP_ATTEMPTS
+                   for session, mids in by_session.items())
+
+    def _schedule_cleanup(self):
+        if not self._has_retired_resources() or not self._cleanup_eligible():
+            return
+        if self.cleanup_task and not self.cleanup_task.done():
+            return
+        self.cleanup_task = self._task(self._run_cleanup())
+
+    async def _run_cleanup(self):
+        for attempt in range(CLEANUP_ATTEMPTS):
+            await self._cleanup_retired()
+            self._changed()
+            if not self._has_retired_resources() or not self._cleanup_eligible() or self.cleanup_requests:
+                return
+            if attempt + 1 < CLEANUP_ATTEMPTS:
+                await self.sleep(.1 * (attempt + 1))
+
+    async def _cleanup_request(self, key, path, method, payload):
+        if key in self.cleanup_results:
+            value = self.cleanup_results.pop(key)
+            if isinstance(value, BaseException):
+                raise value
+            return value
+        task = self.cleanup_requests.get(key)
+        if task is None:
+            if self.cleanup_attempts.get(key, 0) >= CLEANUP_ATTEMPTS:
+                raise _CleanupExhausted("Realtime cleanup retry budget exhausted")
+            self.cleanup_attempts[key] = self.cleanup_attempts.get(key, 0) + 1
+            task = asyncio.create_task(self.request(f"{API_BASE}/{quote(self.app_id)}/{path}",
+                                                   method, payload, self.secret))
+            self.cleanup_requests[key] = task
+            self._changed()
+
+            def settled(done):
+                self.cleanup_requests.pop(key, None)
+                self.cleanup_results[key] = (SfuError("Realtime cleanup was canceled")
+                                             if done.cancelled() else done.exception() or done.result())
+                if not done.cancelled():
+                    self._schedule_cleanup()
+                    self._changed()
+
+            task.add_done_callback(settled)
+        done, _ = await asyncio.wait((task,), timeout=CLEANUP_REQUEST_TIMEOUT)
+        if not done:
+            raise SfuError("Realtime cleanup is still pending")
+        value = self.cleanup_results.pop(key, None)
+        if isinstance(value, BaseException):
+            raise value
+        return task.result() if value is None else value
 
     def _retired(self, role_generation):
         role, generation = role_generation
@@ -520,14 +635,16 @@ class SfuTransport:
                     continue
                 try:
                     # Already absent is an explicit result, not any arbitrary 503.
-                    status, result = await self.request(f"{API_BASE}/{quote(self.app_id)}/adapters/websocket/close",
-                                                        "POST", {"tracks": [{"adapterId": adapter}]}, self.secret)
+                    status, result = await self._cleanup_request(("adapter", adapter), "adapters/websocket/close",
+                                                        "POST", {"tracks": [{"adapterId": adapter}]})
                     entries = result.get("tracks", [])
                     item = next((item for item in entries if item.get("adapterId") == adapter), None)
                     if item and (not item.get("errorCode") and 200 <= status < 300 or item.get("errorCode") == "adapter_not_found"):
                         self.adapters.pop(adapter, None)
                     else:
                         self.cleanup_failures += 1
+                except _CleanupExhausted:
+                    pass
                 except Exception:
                     self.cleanup_failures += 1
             # A tracks/new request can succeed remotely while its response is
@@ -538,8 +655,8 @@ class SfuTransport:
                 if not self._retired(owner):
                     continue
                 try:
-                    status, result = await self.request(f"{API_BASE}/{quote(self.app_id)}/sessions/{session}",
-                                                        "GET", None, self.secret)
+                    status, result = await self._cleanup_request(("session", session), f"sessions/{session}",
+                                                        "GET", None)
                     if status == 410 and result.get("errorCode") == "session_error":
                         self.sessions.pop(session, None)
                         for key in [key for key in self.tracks if key[0] == session]:
@@ -547,10 +664,15 @@ class SfuTransport:
                     elif 200 <= status < 300 and not result.get("errorCode"):
                         inspected.add(session)
                         for item in result.get("tracks", []):
-                            if isinstance(item.get("mid"), str) and item.get("status") != "inactive":
-                                self.tracks[(session, item["mid"])] = owner
+                            if isinstance(item.get("mid"), str):
+                                if item.get("status") == "inactive":
+                                    self.tracks.pop((session, item["mid"]), None)
+                                else:
+                                    self.tracks[(session, item["mid"])] = owner
                     else:
                         self.cleanup_failures += 1
+                except _CleanupExhausted:
+                    pass
                 except Exception:
                     self.cleanup_failures += 1
             by_session = {}
@@ -559,25 +681,41 @@ class SfuTransport:
                     by_session.setdefault(session, []).append(mid)
             for session, mids in by_session.items():
                 try:
-                    status, result = await self.request(f"{API_BASE}/{quote(self.app_id)}/sessions/{session}/tracks/close",
-                                                        "PUT", {"force": True, "tracks": [{"mid": mid} for mid in mids]}, self.secret)
+                    status, result = await self._cleanup_request(("tracks", session, tuple(sorted(mids))), f"sessions/{session}/tracks/close",
+                                                        "PUT", {"force": True, "tracks": [{"mid": mid} for mid in mids]})
                     if status == 410 and result.get("errorCode") == "session_error":
                         for mid in mids:
                             self.tracks.pop((session, mid), None)
                     elif 200 <= status < 300 and not result.get("errorCode"):
+                        closed_mids = set()
                         for item in result.get("tracks", []):
                             if not item.get("errorCode") and item.get("mid") in mids:
                                 self.tracks.pop((session, item["mid"]), None)
+                                closed_mids.add(item["mid"])
+                        if closed_mids != set(mids):
+                            self.cleanup_failures += 1
                     else:
                         self.cleanup_failures += 1
+                except _CleanupExhausted:
+                    pass
                 except Exception:
                     self.cleanup_failures += 1
             if not self.requests:
                 for session in inspected:
                     if not any(key[0] == session for key in self.tracks):
                         self.sessions.pop(session, None)
+            # Successful resources no longer need retry bookkeeping.
+            for key in tuple(self.cleanup_attempts):
+                kind, resource = key[:2]
+                retained = (resource in self.adapters if kind == "adapter" else
+                            resource in self.sessions if kind == "session" else
+                            any(session == resource for session, mid in self.tracks))
+                if not retained and key not in self.cleanup_requests:
+                    self.cleanup_attempts.pop(key, None)
+                    self.cleanup_results.pop(key, None)
 
     async def close(self):
+        deadline = asyncio.get_running_loop().time() + CLOSE_TIMEOUT
         if not self.closed:
             self.closed = True
             if self.input_socket:
@@ -591,16 +729,39 @@ class SfuTransport:
                     self.output["socket"].close()
             current = asyncio.current_task()
             for task in tuple(self.tasks):
-                if task is not current and task not in self.requests:
+                if task is not current and task is not self.cleanup_task:
                     task.cancel()
-            pending = [task for task in self.tasks if task is not current]
+            pending = [task for task in self.tasks if task is not current and task is not self.cleanup_task]
             if pending:
-                await asyncio.gather(*pending, return_exceptions=True)
-        # No blind allocation retries: wait for known requests and clean any
-        # late recorded results. Empty SFU sessions expire; no DELETE exists.
-        if self.requests:
-            await asyncio.gather(*(asyncio.shield(task) for task in tuple(self.requests)), return_exceptions=True)
-        await self._cleanup_retired()
+                await asyncio.wait(pending, timeout=max(0, deadline - asyncio.get_running_loop().time()))
+        # Local media is already isolated. Bound End's wait and retain every
+        # request, resource identifier and cleanup result that settles later.
+        while True:
+            self._schedule_cleanup()
+            pending = list(self.requests) + list(self.cleanup_requests.values())
+            if self.cleanup_task and not self.cleanup_task.done():
+                pending.append(self.cleanup_task)
+            remaining = deadline - asyncio.get_running_loop().time()
+            if not pending or remaining <= 0:
+                break
+            await asyncio.wait(pending, timeout=remaining, return_when=asyncio.FIRST_COMPLETED)
+            if self.cleanup_task and self.cleanup_task.done() and not self.requests and not self.cleanup_requests:
+                break
+        self._changed()
+
+    def cleanup_checkpoint(self):
+        """Private durable state: unresolved identifiers, never endpoint secrets."""
+        return {"adapters": list(self.adapters),
+                "tracks": [{"session": session, "mid": mid} for session, mid in self.tracks],
+                "sessions": list(self.sessions),
+                "unconfirmed_allocations": self.unconfirmed_allocations,
+                "pending_requests": len(self.requests),
+                "pending_cleanup_requests": len(self.cleanup_requests),
+                "cleanup_failures": self.cleanup_failures}
+
+    def cleanup_pending(self):
+        return bool(self.adapters or self.tracks or self.sessions or self.requests
+                    or self.cleanup_requests or self.unconfirmed_allocations)
 
     def diagnostics(self):
         return {"sfu_input_bytes": self.received_bytes, "sfu_submitted_bytes": self.submitted_bytes,
@@ -608,4 +769,9 @@ class SfuTransport:
                 "sfu_owned_tracks": len(self.tracks), "sfu_cleanup_failures": self.cleanup_failures,
                 "sfu_owned_sessions": len(self.sessions),
                 "sfu_unconfirmed_allocations": self.unconfirmed_allocations,
-                "sfu_pending_requests": len(self.requests), "sfu_delivery_confirmed": False}
+                "sfu_pending_requests": len(self.requests),
+                "sfu_pending_cleanup_requests": len(self.cleanup_requests),
+                "sfu_cleanup_tasks": int(bool(self.cleanup_task and not self.cleanup_task.done())),
+                "sfu_cleanup_unresolved": bool(self._has_retired_resources() or self.unconfirmed_allocations
+                                               or self.closed and (self.requests or self.cleanup_requests)),
+                "sfu_delivery_confirmed": False}

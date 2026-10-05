@@ -95,9 +95,71 @@ class Conversation(DurableObject):
         self.fixture = False
         self.sfu = None
         self.media_secret = None
+        self.retired_transports = []
+        self.saved_cleanup = []
+        self.cleanup_save_task = None
+        self.cleanup_dirty = False
+        self.cleanup_persistence_failed = False
+
+    def restore_cleanup_records(self):
+        self.saved_cleanup = []
+        for previous in self.state.get("sfu_cleanup", []):
+            record = dict(previous)
+            record["runtime_status"] = "owner_restarted"
+            for key in ("pending_requests", "pending_cleanup_requests"):
+                unresolved = "unsettled_" + key.removeprefix("pending_") + "_at_restart"
+                record[unresolved] = record.get(unresolved, 0) + record.get(key, 0)
+                record[key] = 0
+            self.saved_cleanup.append(record)
+
+    def cleanup_records(self):
+        self.retired_transports = [bridge for bridge in self.retired_transports if bridge.cleanup_pending()]
+        bridges = self.retired_transports + ([self.sfu] if self.sfu else [])
+        return self.saved_cleanup + [bridge.cleanup_checkpoint() for bridge in bridges if bridge.cleanup_pending()]
+
+    def cleanup_changed(self, bridge):
+        self.cleanup_dirty = True
+        if self.cleanup_save_task and not self.cleanup_save_task.done():
+            return
+        self.cleanup_save_task = asyncio.create_task(self.persist_cleanup())
+        self.cleanup_save_task.add_done_callback(lambda done: None if done.cancelled() else done.exception())
+
+    async def persist_cleanup(self):
+        try:
+            while self.cleanup_dirty:
+                self.cleanup_dirty = False
+                async with self.save_lock:
+                    if self.state:
+                        self.state["sfu_cleanup"] = self.cleanup_records()
+                        await self.ctx.storage.put("conversation", json.dumps(self.state))
+                self.cleanup_persistence_failed = False
+        except Exception:
+            self.cleanup_persistence_failed = True
+
+    def diagnostics(self):
+        result = dict(self.session.diagnostics() if self.session else self.last_diagnostics
+                      or {"live": False, "status": self.state.get("status")})
+        records = self.cleanup_records()
+        result["sfu_retired_connections"] = len(self.retired_transports) + len(self.saved_cleanup)
+        result["sfu_cleanup_records"] = records
+        result["sfu_cleanup_persistence_failed"] = self.cleanup_persistence_failed
+        # Closed-session counters must reflect late settlements, not the old
+        # snapshot taken when the control connection ended.
+        if not self.session and self.state.get("transport") == "webrtc":
+            for key, field in (("sfu_owned_adapters", "adapters"), ("sfu_owned_tracks", "tracks"),
+                               ("sfu_owned_sessions", "sessions")):
+                result[key] = sum(len(record.get(field, [])) for record in records)
+            for key, field in (("sfu_pending_requests", "pending_requests"),
+                               ("sfu_pending_cleanup_requests", "pending_cleanup_requests"),
+                               ("sfu_unconfirmed_allocations", "unconfirmed_allocations")):
+                result[key] = sum(record.get(field, 0) for record in records)
+            result["sfu_cleanup_tasks"] = sum(bridge.diagnostics()["sfu_cleanup_tasks"] for bridge in self.retired_transports)
+            result["sfu_cleanup_unresolved"] = bool(records)
+        return result
 
     async def save(self, state):
         async with self.save_lock:
+            state["sfu_cleanup"] = self.cleanup_records()
             self.state = state
             await self.ctx.storage.put("conversation", json.dumps(state))
 
@@ -168,6 +230,9 @@ class Conversation(DurableObject):
             if self.state is None:
                 stored = await self.ctx.storage.get("conversation")
                 self.state = json.loads(stored) if stored else {}
+                # A restarted object cannot claim its old requests completed.
+                # Keep their resource identifiers and uncertainty visible.
+                self.restore_cleanup_records()
             parsed = urlparse(request.url)
             if parsed.path == "/init" and request.method == "POST":
                 if self.state:
@@ -181,7 +246,7 @@ class Conversation(DurableObject):
             if not self.authorized(request, parsed):
                 return reply({"error": "Unknown conversation or invalid capability"}, 403)
             if parsed.path.endswith("/diagnostics"):
-                return reply(self.session.diagnostics() if self.session else self.last_diagnostics or {"live": False, "status": self.state["status"]})
+                return reply(self.diagnostics())
             if parsed.path.endswith("/probe") and enabled(self.env, "ENABLE_TEST_ROUTES"):
                 from runtime_probe import run_probe
                 return reply(await run_probe())
@@ -198,6 +263,9 @@ class Conversation(DurableObject):
             if self.socket is not None:
                 return reply({"error": "Conversation already connected"}, 409)
             if self.state.get("transport") == "webrtc":
+                self.cleanup_records()
+                if len(self.retired_transports) + len(self.saved_cleanup) >= 8:
+                    return reply({"error": "Previous Realtime resources remain unresolved; start a new call", "code": "sfu_cleanup_pending"}, 503)
                 self.media_secret = secrets.token_bytes(32)
                 prefix = f"/api/session/{self.state['id']}/media/"
                 def endpoint(suffix):
@@ -213,7 +281,8 @@ class Conversation(DurableObject):
                         if message.get("recoverable") is False:
                             await self.provider_failed()
                 bridge = SfuTransport(self.env, audio, event, input_endpoint=endpoint("input"),
-                                      output_endpoint_factory=lambda generation: endpoint(f"output/{generation}"))
+                                      output_endpoint_factory=lambda generation: endpoint(f"output/{generation}"),
+                                      on_cleanup_change=self.cleanup_changed)
                 self.sfu = bridge
             client, server = WebSocketPair.new().object_values()
             server.accept()
@@ -354,11 +423,15 @@ class Conversation(DurableObject):
             with contextlib.suppress(asyncio.CancelledError):
                 await task
         self.media_secret = None
-        self.sfu = None
+        bridge, self.sfu = self.sfu, None
+        if bridge:
+            self.retired_transports.append(bridge)
         if self.session:
             session, self.session = self.session, None
             await session.close(reason)
             self.last_diagnostics = session.diagnostics()
+        if bridge and not bridge.closed:
+            await bridge.close()
         if self.state:
             self.state["status"] = "disconnected" if recoverable else "ended"
             await self.save(self.state)
@@ -374,7 +447,12 @@ class Conversation(DurableObject):
         self.incoming = None
 
     async def alarm(self):
-        if self.session:
+        if self.state is None:
+            stored = await self.ctx.storage.get("conversation")
+            self.state = json.loads(stored) if stored else {}
+            self.restore_cleanup_records()
+        if self.session or self.cleanup_records():
+            # Do not delete the only record of unresolved remote resources.
             await self.ctx.storage.setAlarm(int((time.time()+86400)*1000))
         else:
             await self.ctx.storage.deleteAll()
