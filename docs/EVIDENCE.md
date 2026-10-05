@@ -217,3 +217,7 @@ The [later user report and screenshot](../evidence/sfu-laptop-20261005/user-repo
 ## Silent-input corrections
 
 [The second SFU report](../evidence/silent-input-20261005/user-report.json) has no visible transcript. [Controlled reproductions and independent checks](SILENT-INPUT.md) now cover missing callback PCM, rejected Nova starts/results and preserved browser response state. Source `f8835e8` is deployed as `3b1dcd04-5515-4b83-9fe4-27511b619c03`; a direct actual-provider call produced a correct answer and nonzero audio, then ended with zero tracked local counters. Physical SFU acceptance remains open. Download measurements now includes allowlisted private diagnostics while a call is active. No transcript, audio or capability token is exported.
+
+## Explicit SFU turn error
+
+The [latest user report](../evidence/sfu-turn-error-20261005/user-report.json) shows the generic active-turn abort message with no transcript. A read-only review identified seven possible causes and four reason names missing from the browser export. The exact call cause remains unknown. The [debugging brief](DEBUGGING-BRIEF.md) prioritizes capturing that failure before another behavior change. No application change or deployment was made for this handoff.

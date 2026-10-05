@@ -12,6 +12,8 @@ B1 remains blocked: evaluated published Pipecat packages cannot resolve the sele
 
 ## Next action
 
+Start with the [fresh debugging brief](DEBUGGING-BRIEF.md). The latest SFU screenshot shows the generic active-turn abort error. Seven causes can emit it, and the current browser export strips four of their reason names. Capture the failing call and establish its exact cause before another behavior change. The latest failed screenshot is preserved separately; no application change or deployment accompanied this handoff.
+
 The first [SFU retry](../evidence/sfu-laptop-20261005/user-report.json) showed recognized speech, but a [later attempt](../evidence/silent-input-20261005/user-report.json) showed no transcript at all. The exact causes remain unknown. [Controlled silent-input fixes](SILENT-INPUT.md) are now deployed: SFU readiness requires current callback PCM; rejected Nova onsets/results report a bounded error; exported measurements include safe server counters/events. Independent tests and one direct real-provider response pass. Ask the user to reload the current SFU page and download measurements while the failed call is still active if the problem recurs. The requested input counters, network type and VPN/filter conditions have not been supplied. Physical conversation acceptance remains open.
 
 Resolve the pending turn-policy choice before integrating the saved proposal. If approved, adapt it to the current source in a separate commit, rerun affected checks on that exact revision, deploy, repeat the original live failures, then ask for another short physical check on both routes. If the strict positive-decision rule is retained, the recorded turn failures remain unresolved. The fallback's successful proposal tests cannot be counted as a production pass. All task-owned local test servers have been stopped.
@@ -55,3 +57,4 @@ The final evidence/manifest commit follows the commits listed below.
 - `2a5f197` Preserve reply state while reporting input failures
 - `f8835e8` Wait for SFU input media before reporting readiness
 - `a010dfa` Verify silent-input recovery and diagnostics
+- `6468022` Record silent-input deployment and verification limits

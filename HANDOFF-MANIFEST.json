@@ -9,7 +9,7 @@
   "model_execution": "Workers AI Nova-3, hosted Smart Turn v2, GPT-OSS-120B low/2048 and Aura-2 Luna; live direct turns exercised, semantic turn failures remain",
   "history_implementation": "Standard Pipecat sentence/TTS/output/assistant aggregation with acknowledged schema-2 context; receipts only release direct audio credit",
   "documentation_entry": "docs/README.md",
-  "documentation_status": "Silent-input fixes f8835e8 deployed; independent tests and ordinary direct provider call pass; physical SFU retry and strict turn-policy decision pending; B1 blocked, B6 deferred",
+  "documentation_status": "Latest SFU user check still fails with active-turn abort. Fresh debugging brief prioritizes a captured causal trace; browser export omits four abort reason names. Runtime unchanged; B1 blocked and B6 deferred.",
   "diagnostic_changes": "Task2 Nova/SmartTurn fixtures, frame-queue regression tests, provider checks and isolated live recipe added; historical results preserved",
   "archived_previous_handoff": {
     "workspace_path": "outputs/archive/pipecat-handoff-before-docs-consolidation.zip",
@@ -130,10 +130,11 @@
     "docs/BASELINE.md": "dc3b3f7de9edf3ccabaecdbb01ad3937236d68454a6e1df3c29f4944f0a55384",
     "docs/CAPABILITY-REQUEST.md": "b42814efc5e5672875a9b87f8d870c82a904db324006b77b8e4772d36a2d039a",
     "docs/CLEANUP.md": "031a78db0e917eaf6ae97440d6f25aa4d911a75694053cd1afdcdf1449331aaf",
-    "docs/CONTINUATION-HANDOFF.md": "cbc0b2f1f60d9bb3fdc2af6c55733550e4ea741370a5266b1ef029d862b214a0",
+    "docs/CONTINUATION-HANDOFF.md": "8cb73833aea06c8157eb1098df52cd7194df36481e1b34abc1f4278b4a33fc5f",
     "docs/CONVERSATION.md": "3f1341e689595c199df06b8bd3b2f1e11d99343ee3a5e6529cb6318cbf71f610",
+    "docs/DEBUGGING-BRIEF.md": "f7781bcc503ec6843f4f1ccab273ebc6c1ef3ae5bcfef44c23c31dfe6f81d449",
     "docs/DEVELOPMENT.md": "3344091e69ed1f496faa7c7abf48d4c02dd8e7c5eb13976403c0255edb194150",
-    "docs/EVIDENCE.md": "1cd3c4d420f4dad8cbe43338f9a087e11d56fa7be3041bdd988b878ebecb8238",
+    "docs/EVIDENCE.md": "bce2a23f9ab95e4846388ef36a60f2f4abb94beceda46b6638a6b9edb72bee58",
     "docs/FINAL-VERIFICATION.md": "7000fbc5ea2b68219f0a6a1e8fdb049848929c3b6f728e03c522a115ce7a508d",
     "docs/GOALS.md": "9321afadfc50981318e0e03e311ffef81135314853fe430750e2ac53a17f4333",
     "docs/GPT-OSS.md": "36f0c3f966b430c803ad9bbb393f326907a8bb83c4c5448c121ae643c3e3d58c",
@@ -229,6 +230,8 @@
     "evidence/sfu-gathering-20261005/user-report.json": "a462015acafdc620a4531d63e23d7aa33000e4da0a47f8aa7b2809fb0c8ca038",
     "evidence/sfu-laptop-20261005/user-report.json": "3f28d77ac8eecbfd8c89a2709581a990ed4c395f7f15403ff5dcede3e06fc083",
     "evidence/sfu-laptop-20261005/user-screenshot.png": "7a26b41157b0a2274e71db84646341b195db7dd21a02e6c6a8da3485f2df183f",
+    "evidence/sfu-turn-error-20261005/user-report.json": "21cfd90672518e9f2be495cd23d1018e8397ccd6adc605f4046a60fba129e96f",
+    "evidence/sfu-turn-error-20261005/user-screenshot.png": "134f6141d4ffb9e441f7a6989b9ac7c132d5bd2b106408e409d1f5679f72291f",
     "evidence/silent-input-20261005/direct-provider-regression.json": "b520cbd0d5efc47cff83a46dcb7613a111284a357abf85d6a1239c84cece1671",
     "evidence/silent-input-20261005/nova-anomaly-after.json": "5db744f171350e2e1f37a36321bcd2eb701dbe123ddbec937beca40eee159d8e",
     "evidence/silent-input-20261005/nova-anomaly-before-b3627a5.json": "62577c66094223c276fb5d9a91e9e3a422f13849cdff65767dae1d3c9a0d0125",
@@ -558,7 +561,7 @@
     "supported_release": false,
     "package": "vendored Pipecat1.11.0, disclosed9patches; published Workers candidates blocked",
     "physical_direct_result": "failed user report: inconsistent answers and turn-readiness errors",
-    "physical_sfu_result": "Prior user checks failed: one showed recognition without a reply; later screenshot showed no transcript. Specific causes unconfirmed. Silent-input fixes deployed; physical retry and audible playback untested.",
+    "physical_sfu_result": "Failed latest user check: explicit generic active-turn error and no visible transcript; exact abort cause unconfirmed, four legitimate reasons are missing from the browser export.",
     "performance_acceptance": "untested at user request",
     "turn_policy_decision": "Guarded reference maximum-pause proposal passed controlled and isolated real-provider follow-up/pause checks; not integrated or deployed; user decision pending",
     "evidence_entry": "docs/CONTINUATION-HANDOFF.md",
@@ -569,6 +572,7 @@
     "sfu_laptop_retry_evidence": "evidence/sfu-laptop-20261005/user-report.json",
     "silent_input_verification": "168 Python, 96 JavaScript, 16 SFU entry, 7 lifecycle and 48 access checks pass on immutable f8835e8; actual-provider direct regression passes",
     "silent_input_evidence": "docs/SILENT-INPUT.md",
-    "last_user_sfu_report": "evidence/silent-input-20261005/user-report.json"
+    "last_user_sfu_report": "evidence/sfu-turn-error-20261005/user-report.json",
+    "debugging_entry": "docs/DEBUGGING-BRIEF.md"
   }
 }
