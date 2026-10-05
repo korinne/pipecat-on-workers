@@ -1,0 +1,1113 @@
+{
+  "recorded_at_utc": "2026-10-05T05:56:34.886022+00:00",
+  "classification": "scoped_pass",
+  "revision": "3f62b680c32afa8b9f343a4eafb95d34b32c9daa",
+  "previous_deployed_source": "a5ddcae672cdc207bf046c8a363e0e2bb670385e",
+  "previous_deployed_version": "4d75ac46-5a71-4de4-aa12-26f8b026fc38",
+  "deployment_record": "evidence/deployment-browser-4d75ac46.json",
+  "scope": "Independent source review and frozen controlled browser tests; fake browser peers, media leaves and timers. No provider calls or real ICE connectivity checks were made by this review.",
+  "review": {
+    "findings_remaining": 0,
+    "gathering_timeout_ms": 8000,
+    "connection_timeout_ms": 15000,
+    "checks": "Current offer and answer candidates can proceed at the existing gathering deadline. Candidate-free pending gathering rejects. A connected microphone is required for input_ready; connected receiver and track are required for playback_ready. End and generation replacement reject before and immediately after the deadline. Wait listeners and timers are removed.",
+    "reference_difference": "The official example uses a 10,000ms deadline. This fix retains the application\u2019s existing 8,000ms deadline and changes only whether present candidates may attempt connectivity. Neither setting is a performance acceptance target.",
+    "complete_state_limit": "As in the official helper and existing application, iceGatheringState complete ends the gathering wait directly. Candidate-free timeout tests cover pending gathering. Subsequent connection and media checks remain required in every path."
+  },
+  "tests": [
+    {
+      "scope": "Initial frozen final application source with then-current test file, before two extra cancellation boundary cases",
+      "tests": 60,
+      "passed": 60,
+      "base_revision": "3d0ed27db828791321f8b019876569b098f11ce6",
+      "classification": "scoped_pass",
+      "source_sha256": {
+        "public/sfu-client.mjs": "5e4a8397604fb94a9399816a0d6065202fda7b2f952f14f220fd44a63993f5b2",
+        "public/sfu-client.test.mjs": "07569780d511662b7d4328117cc301e02eac770ba1406292f446dfaead4680e8",
+        "public/app.js": "3423801ccbef0a7b1da63d4b9becf592f03c0be3759ea69897b97a7f40733392",
+        "public/app.test.mjs": "e18d743b300f88ed878481394b41affe2e81e3fdbacd73a32bda16bcb4ac1ab5",
+        "public/transport-check.mjs": "c467b00457cf2198dc6ab151399be86212bff60c493bba88f1208be6beb73d8f",
+        "public/transport-check.test.mjs": "aa96f61840b67dba2fc97a3a547b3401c0890b55e7ec4f0feb6f13a29a1fa1b8"
+      },
+      "command": "node --test public/sfu-client.test.mjs public/app.test.mjs public/transport-check.test.mjs",
+      "cwd": "/tmp/pipecat-sfu-gathering-independent",
+      "exit_code": 0,
+      "stdout": "TAP version 13\n# Subtest: Start, ready, mute, and End release all client resources\nok 1 - Start, ready, mute, and End release all client resources\n  ---\n  duration_ms: 71.938042\n  ...\n# Subtest: disconnect clears playback and reconnect reuses capability with a bounded retry budget\nok 2 - disconnect clears playback and reconnect reuses capability with a bounded retry budget\n  ---\n  duration_ms: 6.514958\n  ...\n# Subtest: reset creates a new stream epoch and stale socket messages are ignored\nok 3 - reset creates a new stream epoch and stale socket messages are ignored\n  ---\n  duration_ms: 1.9405\n  ...\n# Subtest: failed session creation closes microphone and shows a recoverable error\nok 4 - failed session creation closes microphone and shows a recoverable error\n  ---\n  duration_ms: 1.323333\n  ...\n# Subtest: both transports create a session without a demo key and keep its capability\nok 5 - both transports create a session without a demo key and keep its capability\n  ---\n  duration_ms: 2.648584\n  ...\n# Subtest: speech onset during pending generation rejects its delayed first audio\nok 6 - speech onset during pending generation rejects its delayed first audio\n  ---\n  duration_ms: 1.736792\n  ...\n# Subtest: reset replaces visible history and excludes restored turns from response metrics\nok 7 - reset replaces visible history and excludes restored turns from response metrics\n  ---\n  duration_ms: 1.303459\n  ...\n# Subtest: terminal server close releases microphone without futile reconnect\nok 8 - terminal server close releases microphone without futile reconnect\n  ---\n  duration_ms: 1.273\n  ...\n# Subtest: server session time limit is explained and releases resources\nok 9 - server session time limit is explained and releases resources\n  ---\n  duration_ms: 1.480042\n  ...\n# Subtest: terminal startup error preserves explanation and releases microphone without reconnect\nok 10 - terminal startup error preserves explanation and releases microphone without reconnect\n  ---\n  duration_ms: 1.380417\n  ...\n# Subtest: microphone permission denial creates no session and releases the audio engine\nok 11 - microphone permission denial creates no session and releases the audio engine\n  ---\n  duration_ms: 1.036458\n  ...\n# Subtest: End while microphone permission is pending stops a late track without creating a session\nok 12 - End while microphone permission is pending stops a late track without creating a session\n  ---\n  duration_ms: 8.069417\n  ...\n# Subtest: End during session creation retires the late capability and leaves audio stopped\nok 13 - End during session creation retires the late capability and leaves audio stopped\n  ---\n  duration_ms: 1.578584\n  ...\n# Subtest: audio engine resumes inside the Start click before asynchronous microphone setup\nok 14 - audio engine resumes inside the Start click before asynchronous microphone setup\n  ---\n  duration_ms: 1.015375\n  ...\n# Subtest: capture, upload and server delivery counters distinguish each stage without audio capture\nok 15 - capture, upload and server delivery counters distinguish each stage without audio capture\n  ---\n  duration_ms: 1.277916\n  ...\n# Subtest: paused audio exposes resume action and fatal worklet errors stop the call\nok 16 - paused audio exposes resume action and fatal worklet errors stop the call\n  ---\n  duration_ms: 1.125125\n  ...\n# Subtest: resume remains reachable while initial audio startup is waiting\nok 17 - resume remains reachable while initial audio startup is waiting\n  ---\n  duration_ms: 1.3035\n  ...\n# Subtest: SFU mode sends microphone over WebRTC and leaves the control socket audio-free\nok 18 - SFU mode sends microphone over WebRTC and leaves the control socket audio-free\n  ---\n  duration_ms: 2.373208\n  ...\n# Subtest: SFU output replaces by generation and local speech clears it without fake receipts\nok 19 - SFU output replaces by generation and local speech clears it without fake receipts\n  ---\n  duration_ms: 1.339958\n  ...\n# Subtest: SFU reconnect closes peers and rejects old startup completion\nok 20 - SFU reconnect closes peers and rejects old startup completion\n  ---\n  duration_ms: 1.501458\n  ...\n# Subtest: SFU failures release all client resources and preserve the visible explanation\nok 21 - SFU failures release all client resources and preserve the visible explanation\n  ---\n  duration_ms: 1.887417\n  ...\n# Subtest: clear and recoverable error stop stale response states from interrupting resumed speech\nok 22 - clear and recoverable error stop stale response states from interrupting resumed speech\n  ---\n  duration_ms: 6.867292\n  ...\n# Subtest: an old clear cannot reset the state of a newer response\nok 23 - an old clear cannot reset the state of a newer response\n  ---\n  duration_ms: 0.870667\n  ...\n# Subtest: late tagged errors preserve interruption of the current response on both routes\nok 24 - late tagged errors preserve interruption of the current response on both routes\n  ---\n  duration_ms: 2.256625\n  ...\n# Subtest: reconnect clears stale response state before the first idle microphone onset on both routes\nok 25 - reconnect clears stale response state before the first idle microphone onset on both routes\n  ---\n  duration_ms: 3.806625\n  ...\n# Subtest: SFU readiness cannot overwrite a current response received during publishing\nok 26 - SFU readiness cannot overwrite a current response received during publishing\n  ---\n  duration_ms: 1.668667\n  ...\n# Subtest: explicitly stale clear and terminal error leave current audio and receiver intact\nok 27 - explicitly stale clear and terminal error leave current audio and receiver intact\n  ---\n  duration_ms: 2.882125\n  ...\n# Subtest: microphone publish and response subscribe use separate peers with capability-free signaling bodies\nok 28 - microphone publish and response subscribe use separate peers with capability-free signaling bodies\n  ---\n  duration_ms: 4.602333\n  ...\n# Subtest: interrupt detaches a generation immediately and stale tracks cannot reattach\nok 29 - interrupt detaches a generation immediately and stale tracks cannot reattach\n  ---\n  duration_ms: 1.292\n  ...\n# Subtest: End cancels gathering waits and late local descriptions cannot publish\nok 30 - End cancels gathering waits and late local descriptions cannot publish\n  ---\n  duration_ms: 7.363458\n  ...\n# Subtest: late signaling from a replaced receiver cannot attach or send readiness\nok 31 - late signaling from a replaced receiver cannot attach or send readiness\n  ---\n  duration_ms: 7.272292\n  ...\n# Subtest: clearing an output does not cancel an input connection still establishing\nok 32 - clearing an output does not cancel an input connection still establishing\n  ---\n  duration_ms: 1.191833\n  ...\n# Subtest: track arriving after connected still triggers readiness\nok 33 - track arriving after connected still triggers readiness\n  ---\n  duration_ms: 3.728083\n  ...\n# Subtest: blocked playback exposes an explicit resume without faking played receipts\nok 34 - blocked playback exposes an explicit resume without faking played receipts\n  ---\n  duration_ms: 0.84\n  ...\n# Subtest: server output offers are answered through the owned generation\nok 35 - server output offers are answered through the owned generation\n  ---\n  duration_ms: 0.982875\n  ...\n# Subtest: input_ready waits for the microphone connection and finishes before publish resolves\nok 36 - input_ready waits for the microphone connection and finishes before publish resolves\n  ---\n  duration_ms: 2.748416\n  ...\n# Subtest: output answer completes ICE before serialized renegotiation and readiness\nok 37 - output answer completes ICE before serialized renegotiation and readiness\n  ---\n  duration_ms: 2.340458\n  ...\n# Subtest: duplicate generation announcements cannot start concurrent negotiation\nok 38 - duplicate generation announcements cannot start concurrent negotiation\n  ---\n  duration_ms: 1.165416\n  ...\n# (node:83231) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: a generation canceled during renegotiation never sends playback readiness\nok 39 - a generation canceled during renegotiation never sends playback readiness\n  ---\n  duration_ms: 1.403708\n  ...\n# Subtest: playback readiness does not await playing events or the audio play promise\nok 40 - playback readiness does not await playing events or the audio play promise\n  ---\n  duration_ms: 0.755917\n  ...\n# Subtest: gathering deadline publishes current candidates but input readiness still waits for connection\nok 41 - gathering deadline publishes current candidates but input readiness still waits for connection\n  ---\n  duration_ms: 5.467834\n  ...\n# Subtest: gathering deadline renegotiates current answer candidates but output readiness waits for connection\nok 42 - gathering deadline renegotiates current answer candidates but output readiness waits for connection\n  ---\n  duration_ms: 2.285958\n  ...\n# Subtest: input gathering deadline still rejects without a candidate\nok 43 - input gathering deadline still rejects without a candidate\n  ---\n  duration_ms: 1.090833\n  ...\n# Subtest: End cancels input gathering even when a candidate is available at the deadline\nok 44 - End cancels input gathering even when a candidate is available at the deadline\n  ---\n  duration_ms: 2.763791\n  ...\n# Subtest: output gathering deadline still rejects without a candidate\nok 45 - output gathering deadline still rejects without a candidate\n  ---\n  duration_ms: 2.1815\n  ...\n# Subtest: End cancels output gathering even when a candidate is available at the deadline\nok 46 - End cancels output gathering even when a candidate is available at the deadline\n  ---\n  duration_ms: 1.796167\n  ...\n# Subtest: replacement during candidate gathering cannot renegotiate or announce readiness for the old output\nok 47 - replacement during candidate gathering cannot renegotiate or announce readiness for the old output\n  ---\n  duration_ms: 1.312541\n  ...\n# Subtest: input candidates do not bypass the connection timeout\nok 48 - input candidates do not bypass the connection timeout\n  ---\n  duration_ms: 1.505042\n  ...\n# Subtest: output candidates do not bypass the connection timeout\nok 49 - output candidates do not bypass the connection timeout\n  ---\n  duration_ms: 1.165792\n  ...\n# Subtest: developer check publishes synthetic audio and starts the WAV only after input readiness\nok 50 - developer check publishes synthetic audio and starts the WAV only after input readiness\n  ---\n  duration_ms: 15.808041\n  ...\n# Subtest: developer check observes nonzero remote audio and RTP without playback receipts\nok 51 - developer check observes nonzero remote audio and RTP without playback receipts\n  ---\n  duration_ms: 4.4065\n  ...\n# Subtest: End during media negotiation prevents late WAV playback\nok 52 - End during media negotiation prevents late WAV playback\n  ---\n  duration_ms: 3.239375\n  ...\n# Subtest: End during session creation retires the late capability without starting audio\nok 53 - End during session creation retires the late capability without starting audio\n  ---\n  duration_ms: 2.208916\n  ...\n# Subtest: bounded SFU mode requires captured decoded audio, a complete response, and closed resource diagnostics\nok 54 - bounded SFU mode requires captured decoded audio, a complete response, and closed resource diagnostics\n  ---\n  duration_ms: 9.270667\n  ...\n# Subtest: bounded SFU mode rejects long input before opening a session and times out stalled calls\nok 55 - bounded SFU mode rejects long input before opening a session and times out stalled calls\n  ---\n  duration_ms: 6.496375\n  ...\n# Subtest: bounded completion cannot succeed after a newer generation supersedes its response\nok 56 - bounded completion cannot succeed after a newer generation supersedes its response\n  ---\n  duration_ms: 3.717875\n  ...\n# Subtest: bounded capture stops at its memory limit and retains unresolved remote ownership\nok 57 - bounded capture stops at its memory limit and retains unresolved remote ownership\n  ---\n  duration_ms: 5.678333\n  ...\n# Subtest: bounded SFU completion requires untagged assistant text from the current tagged response\nok 58 - bounded SFU completion requires untagged assistant text from the current tagged response\n  ---\n  duration_ms: 6.483167\n  ...\n# Subtest: explicit stale or invalid transcript tags cannot complete a current SFU response\nok 59 - explicit stale or invalid transcript tags cannot complete a current SFU response\n  ---\n  duration_ms: 6.126833\n  ...\n# Subtest: stale clear and error cannot detach the bounded SFU receiver or end its check\nok 60 - stale clear and error cannot detach the bounded SFU receiver or end its check\n  ---\n  duration_ms: 2.321208\n  ...\n1..60\n# tests 60\n# suites 0\n# pass 60\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 233.171834\n",
+      "stderr": ""
+    },
+    {
+      "scope": "Exact committed fix with final two cancellation boundary cases",
+      "tests": 24,
+      "passed": 24,
+      "revision": "3f62b680c32afa8b9f343a4eafb95d34b32c9daa",
+      "classification": "scoped_pass",
+      "source_sha256": {
+        "public/sfu-client.mjs": "5e4a8397604fb94a9399816a0d6065202fda7b2f952f14f220fd44a63993f5b2",
+        "public/sfu-client.test.mjs": "fc85dff0397ab272747b0d3bde3a41dd15ef9cc1214d0bac784a10a2796b94f3"
+      },
+      "command": "node --test public/sfu-client.test.mjs",
+      "cwd": "/tmp/pipecat-sfu-gathering-final-3f62b680c32a",
+      "exit_code": 0,
+      "stdout": "TAP version 13\n# Subtest: microphone publish and response subscribe use separate peers with capability-free signaling bodies\nok 1 - microphone publish and response subscribe use separate peers with capability-free signaling bodies\n  ---\n  duration_ms: 4.816625\n  ...\n# Subtest: interrupt detaches a generation immediately and stale tracks cannot reattach\nok 2 - interrupt detaches a generation immediately and stale tracks cannot reattach\n  ---\n  duration_ms: 1.116917\n  ...\n# Subtest: End cancels gathering waits and late local descriptions cannot publish\nok 3 - End cancels gathering waits and late local descriptions cannot publish\n  ---\n  duration_ms: 10.309292\n  ...\n# Subtest: late signaling from a replaced receiver cannot attach or send readiness\nok 4 - late signaling from a replaced receiver cannot attach or send readiness\n  ---\n  duration_ms: 1.457958\n  ...\n# Subtest: clearing an output does not cancel an input connection still establishing\nok 5 - clearing an output does not cancel an input connection still establishing\n  ---\n  duration_ms: 0.720209\n  ...\n# Subtest: track arriving after connected still triggers readiness\nok 6 - track arriving after connected still triggers readiness\n  ---\n  duration_ms: 2.32375\n  ...\n# Subtest: blocked playback exposes an explicit resume without faking played receipts\nok 7 - blocked playback exposes an explicit resume without faking played receipts\n  ---\n  duration_ms: 0.794166\n  ...\n# Subtest: server output offers are answered through the owned generation\nok 8 - server output offers are answered through the owned generation\n  ---\n  duration_ms: 0.563041\n  ...\n# Subtest: input_ready waits for the microphone connection and finishes before publish resolves\nok 9 - input_ready waits for the microphone connection and finishes before publish resolves\n  ---\n  duration_ms: 1.596209\n  ...\n# Subtest: output answer completes ICE before serialized renegotiation and readiness\nok 10 - output answer completes ICE before serialized renegotiation and readiness\n  ---\n  duration_ms: 1.550459\n  ...\n# Subtest: duplicate generation announcements cannot start concurrent negotiation\nok 11 - duplicate generation announcements cannot start concurrent negotiation\n  ---\n  duration_ms: 0.672125\n  ...\n# (node:83538) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: a generation canceled during renegotiation never sends playback readiness\nok 12 - a generation canceled during renegotiation never sends playback readiness\n  ---\n  duration_ms: 0.808708\n  ...\n# Subtest: playback readiness does not await playing events or the audio play promise\nok 13 - playback readiness does not await playing events or the audio play promise\n  ---\n  duration_ms: 0.819833\n  ...\n# Subtest: gathering deadline publishes current candidates but input readiness still waits for connection\nok 14 - gathering deadline publishes current candidates but input readiness still waits for connection\n  ---\n  duration_ms: 3.104167\n  ...\n# Subtest: gathering deadline renegotiates current answer candidates but output readiness waits for connection\nok 15 - gathering deadline renegotiates current answer candidates but output readiness waits for connection\n  ---\n  duration_ms: 1.346375\n  ...\n# Subtest: input gathering deadline still rejects without a candidate\nok 16 - input gathering deadline still rejects without a candidate\n  ---\n  duration_ms: 0.700625\n  ...\n# Subtest: End cancels input gathering even when a candidate is available at the deadline\nok 17 - End cancels input gathering even when a candidate is available at the deadline\n  ---\n  duration_ms: 1.875\n  ...\n# Subtest: output gathering deadline still rejects without a candidate\nok 18 - output gathering deadline still rejects without a candidate\n  ---\n  duration_ms: 0.863541\n  ...\n# Subtest: End cancels output gathering even when a candidate is available at the deadline\nok 19 - End cancels output gathering even when a candidate is available at the deadline\n  ---\n  duration_ms: 1.049916\n  ...\n# Subtest: replacement during candidate gathering cannot renegotiate or announce readiness for the old output\nok 20 - replacement during candidate gathering cannot renegotiate or announce readiness for the old output\n  ---\n  duration_ms: 1.433458\n  ...\n# Subtest: input candidates do not bypass the connection timeout\nok 21 - input candidates do not bypass the connection timeout\n  ---\n  duration_ms: 0.980916\n  ...\n# Subtest: output candidates do not bypass the connection timeout\nok 22 - output candidates do not bypass the connection timeout\n  ---\n  duration_ms: 0.963292\n  ...\n# Subtest: End after input gathering deadline wins before negotiation resumes\nok 23 - End after input gathering deadline wins before negotiation resumes\n  ---\n  duration_ms: 0.760708\n  ...\n# Subtest: End after output gathering deadline wins before negotiation resumes\nok 24 - End after output gathering deadline wins before negotiation resumes\n  ---\n  duration_ms: 0.481042\n  ...\n1..24\n# tests 24\n# suites 0\n# pass 24\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 142.261125\n",
+      "stderr": ""
+    }
+  ],
+  "source_unchanged_between_test_passes": true,
+  "runtime_files_changed_since_previous_deployment": [
+    "public/sfu-client.mjs"
+  ],
+  "runtime_and_dependency_comparison": [
+    {
+      "path": "public/.assetsignore",
+      "deployed_sha256": "7029a1711df0280a99af9b3e690a03674093617f3057f8aa349af4c77ea50022",
+      "candidate_sha256": "7029a1711df0280a99af9b3e690a03674093617f3057f8aa349af4c77ea50022",
+      "identical": true
+    },
+    {
+      "path": "public/app.js",
+      "deployed_sha256": "3423801ccbef0a7b1da63d4b9becf592f03c0be3759ea69897b97a7f40733392",
+      "candidate_sha256": "3423801ccbef0a7b1da63d4b9becf592f03c0be3759ea69897b97a7f40733392",
+      "identical": true
+    },
+    {
+      "path": "public/audio-player.mjs",
+      "deployed_sha256": "6c7dddcbef9b188127e473b9f937acbbbc77ed07855e17ac18fc8e4028a99b77",
+      "candidate_sha256": "6c7dddcbef9b188127e473b9f937acbbbc77ed07855e17ac18fc8e4028a99b77",
+      "identical": true
+    },
+    {
+      "path": "public/capture-processor.js",
+      "deployed_sha256": "153a2e6c49de42e105833ecfbecb41feee8f398fe03ae12b6642cfb33786089f",
+      "candidate_sha256": "153a2e6c49de42e105833ecfbecb41feee8f398fe03ae12b6642cfb33786089f",
+      "identical": true
+    },
+    {
+      "path": "public/index.html",
+      "deployed_sha256": "8abc93f72a8596a9bd399519b49da7bafedd67f55286b352a6a0c305e5dcf068",
+      "candidate_sha256": "8abc93f72a8596a9bd399519b49da7bafedd67f55286b352a6a0c305e5dcf068",
+      "identical": true
+    },
+    {
+      "path": "public/sfu-client.mjs",
+      "deployed_sha256": "6f984fba0a7764cbdc827121fa82192d126d0829e5fc84595e7481cfab39f362",
+      "candidate_sha256": "5e4a8397604fb94a9399816a0d6065202fda7b2f952f14f220fd44a63993f5b2",
+      "identical": false
+    },
+    {
+      "path": "public/style.css",
+      "deployed_sha256": "4c97e10a6c0c77fc8ceb23cb59cd4c7b1d515a397f483610a229091dfca3286d",
+      "candidate_sha256": "4c97e10a6c0c77fc8ceb23cb59cd4c7b1d515a397f483610a229091dfca3286d",
+      "identical": true
+    },
+    {
+      "path": "public/transport-check.html",
+      "deployed_sha256": "f9316ff5b77d80c4079578187118843c8faaef7ae0f441431244c5671012b42d",
+      "candidate_sha256": "f9316ff5b77d80c4079578187118843c8faaef7ae0f441431244c5671012b42d",
+      "identical": true
+    },
+    {
+      "path": "public/transport-check.mjs",
+      "deployed_sha256": "c467b00457cf2198dc6ab151399be86212bff60c493bba88f1208be6beb73d8f",
+      "candidate_sha256": "c467b00457cf2198dc6ab151399be86212bff60c493bba88f1208be6beb73d8f",
+      "identical": true
+    },
+    {
+      "path": "public/webrtc.html",
+      "deployed_sha256": "69afa3d6c61f301ec37921c241f613b44a44b162795ec0ce800c123a39cb691a",
+      "candidate_sha256": "69afa3d6c61f301ec37921c241f613b44a44b162795ec0ce800c123a39cb691a",
+      "identical": true
+    },
+    {
+      "path": "public/websocket.html",
+      "deployed_sha256": "e42c099403afdd4802386fa17d74b9eb9f5426e25d6fe59f88f456335399961e",
+      "candidate_sha256": "e42c099403afdd4802386fa17d74b9eb9f5426e25d6fe59f88f456335399961e",
+      "identical": true
+    },
+    {
+      "path": "src/audio_transport.py",
+      "deployed_sha256": "a2c1d7d41f29402a597e66ae7a3e388a21ad42b232bf78e2e8773db4eaa0232e",
+      "candidate_sha256": "a2c1d7d41f29402a597e66ae7a3e388a21ad42b232bf78e2e8773db4eaa0232e",
+      "identical": true
+    },
+    {
+      "path": "src/conversation.py",
+      "deployed_sha256": "9040186bc62e59191501ade9ca0f1bf6105a43bd9bc2311a4bed3fea101f2442",
+      "candidate_sha256": "9040186bc62e59191501ade9ca0f1bf6105a43bd9bc2311a4bed3fea101f2442",
+      "identical": true
+    },
+    {
+      "path": "src/entry.py",
+      "deployed_sha256": "aec666404cd6e29b9b6e544325fe732ecf7c5cd67954eeb8368cc0a533b8ab8c",
+      "candidate_sha256": "aec666404cd6e29b9b6e544325fe732ecf7c5cd67954eeb8368cc0a533b8ab8c",
+      "identical": true
+    },
+    {
+      "path": "src/gpt_stream.py",
+      "deployed_sha256": "b6850f0ffad5770bfdec6c97a8c4495800c28799e6e874f53985631959de3449",
+      "candidate_sha256": "b6850f0ffad5770bfdec6c97a8c4495800c28799e6e874f53985631959de3449",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/LICENSE",
+      "deployed_sha256": "e31a733ecb79cbffafd5474e964e5eca15e0a0876a42b1d7253b51b198eb61aa",
+      "candidate_sha256": "e31a733ecb79cbffafd5474e964e5eca15e0a0876a42b1d7253b51b198eb61aa",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/PUNKT-README.txt",
+      "deployed_sha256": "d3251cae66a9359bd68c039e3a46172a05ca9df0b27dcdfa23ae594d68d27ec4",
+      "candidate_sha256": "d3251cae66a9359bd68c039e3a46172a05ca9df0b27dcdfa23ae594d68d27ec4",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/VENDOR_MANIFEST.json",
+      "deployed_sha256": "c50f06b01732b8b9fe96a4a742400124987c9a6c17f6f292b1be416933ea60fc",
+      "candidate_sha256": "c50f06b01732b8b9fe96a4a742400124987c9a6c17f6f292b1be416933ea60fc",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/__init__.py",
+      "deployed_sha256": "0e1cb2df24290900eb3a3cdb050f38869a74531b43a54639b2b9857b936659e2",
+      "candidate_sha256": "0e1cb2df24290900eb3a3cdb050f38869a74531b43a54639b2b9857b936659e2",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/adapters/__init__.py",
+      "deployed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/adapters/base_llm_adapter.py",
+      "deployed_sha256": "47124becf3b5d9bbd68843a3ade6d1f7352656cdf83e56637d36ffec55ac9c7c",
+      "candidate_sha256": "47124becf3b5d9bbd68843a3ade6d1f7352656cdf83e56637d36ffec55ac9c7c",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/adapters/schemas/__init__.py",
+      "deployed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/adapters/schemas/direct_function.py",
+      "deployed_sha256": "b93751389c28a468206f9d4b1a417066de049cdf2cf929f3f78d9ba05cdcdfdf",
+      "candidate_sha256": "b93751389c28a468206f9d4b1a417066de049cdf2cf929f3f78d9ba05cdcdfdf",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/adapters/schemas/function_schema.py",
+      "deployed_sha256": "cb3a0c72e06e58f97ddc7c16354718ecd7071084416f3c7683e83f895de94e1f",
+      "candidate_sha256": "cb3a0c72e06e58f97ddc7c16354718ecd7071084416f3c7683e83f895de94e1f",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/adapters/schemas/tools_schema.py",
+      "deployed_sha256": "4d65f45799088b663ba0bd8379bff03208853c85b1005f78385116733f48cdd8",
+      "candidate_sha256": "4d65f45799088b663ba0bd8379bff03208853c85b1005f78385116733f48cdd8",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/audio/__init__.py",
+      "deployed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/audio/dtmf/__init__.py",
+      "deployed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/audio/dtmf/types.py",
+      "deployed_sha256": "5c30105155966803fa390705bda6f0b797733c22669721ef8d0d2459532f99ee",
+      "candidate_sha256": "5c30105155966803fa390705bda6f0b797733c22669721ef8d0d2459532f99ee",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/audio/filters/__init__.py",
+      "deployed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/audio/filters/base_audio_filter.py",
+      "deployed_sha256": "86e589dacaba5ace28b19d61a63e0b830e48d70fb148c69a4c1d74ba38d0332f",
+      "candidate_sha256": "86e589dacaba5ace28b19d61a63e0b830e48d70fb148c69a4c1d74ba38d0332f",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/audio/mixers/__init__.py",
+      "deployed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/audio/mixers/base_audio_mixer.py",
+      "deployed_sha256": "79c9e6a6d0c7d957f6c3c15f6037fed11809492960bba0a1fc37f4b1868cedd6",
+      "candidate_sha256": "79c9e6a6d0c7d957f6c3c15f6037fed11809492960bba0a1fc37f4b1868cedd6",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/audio/resamplers/__init__.py",
+      "deployed_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "candidate_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/audio/resamplers/base_audio_resampler.py",
+      "deployed_sha256": "2e50c098e6e60215ded793408379dbabd89450f0dc8570bacea4eb9e0be5d937",
+      "candidate_sha256": "2e50c098e6e60215ded793408379dbabd89450f0dc8570bacea4eb9e0be5d937",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/audio/turn/__init__.py",
+      "deployed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/audio/turn/base_turn_analyzer.py",
+      "deployed_sha256": "f2afb70b72a058bfe5fde7810130bd012ffd09706b3d63910fd8421776fabcf1",
+      "candidate_sha256": "f2afb70b72a058bfe5fde7810130bd012ffd09706b3d63910fd8421776fabcf1",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/audio/utils.py",
+      "deployed_sha256": "3a9d44a0b0bed33783cc57205f8b43c4efb7dba79f82670c45215d496046f6a8",
+      "candidate_sha256": "3a9d44a0b0bed33783cc57205f8b43c4efb7dba79f82670c45215d496046f6a8",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/audio/vad/__init__.py",
+      "deployed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/audio/vad/vad_analyzer.py",
+      "deployed_sha256": "e9aa3a1d84228fafba867ae3a14478a3f45d39653952586808b650955b7385e8",
+      "candidate_sha256": "e9aa3a1d84228fafba867ae3a14478a3f45d39653952586808b650955b7385e8",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/audio/vad/vad_controller.py",
+      "deployed_sha256": "2c5cbd7124be5e7579141e0b956167a1071e5ea4be99ce897f77efdd303fa2e0",
+      "candidate_sha256": "2c5cbd7124be5e7579141e0b956167a1071e5ea4be99ce897f77efdd303fa2e0",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/audio/volume.py",
+      "deployed_sha256": "f7a9ea9ee975d73a34abb2f3cbe0fd5cebef32eb8c6a5df617421be0b3d78801",
+      "candidate_sha256": "f7a9ea9ee975d73a34abb2f3cbe0fd5cebef32eb8c6a5df617421be0b3d78801",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/bus/__init__.py",
+      "deployed_sha256": "fab1accf7963cae67a4400049e2b8584039c8ea31a67da63e12adcd5a79d1780",
+      "candidate_sha256": "fab1accf7963cae67a4400049e2b8584039c8ea31a67da63e12adcd5a79d1780",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/bus/bridge_processor.py",
+      "deployed_sha256": "62b907940deb335145147504590d0786757117e477fa19a0667da621f56d399e",
+      "candidate_sha256": "62b907940deb335145147504590d0786757117e477fa19a0667da621f56d399e",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/bus/bus.py",
+      "deployed_sha256": "45f99b6832125a7f2a7acc94ba1a9b0de95dabc07e3a6e0af2218ed59d44bbb2",
+      "candidate_sha256": "45f99b6832125a7f2a7acc94ba1a9b0de95dabc07e3a6e0af2218ed59d44bbb2",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/bus/local/__init__.py",
+      "deployed_sha256": "8d637cfe7b7ae037370c6e94a058b1ea7ebc6e87f94047336c574c0d8b657d2c",
+      "candidate_sha256": "8d637cfe7b7ae037370c6e94a058b1ea7ebc6e87f94047336c574c0d8b657d2c",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/bus/local/async_queue.py",
+      "deployed_sha256": "bedaa468cb29fa59b9b477ad8e5965cf4c0b56434a9a98a83ef418a396781273",
+      "candidate_sha256": "bedaa468cb29fa59b9b477ad8e5965cf4c0b56434a9a98a83ef418a396781273",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/bus/messages.py",
+      "deployed_sha256": "06e6e986b4adb8f4de5dbe1e20b36c52c09e9091f4d336b89e7989cd42e6dd89",
+      "candidate_sha256": "06e6e986b4adb8f4de5dbe1e20b36c52c09e9091f4d336b89e7989cd42e6dd89",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/bus/queue.py",
+      "deployed_sha256": "e85ba29adf2a4753155f64da4ad3219808fcdfbca53d62306d9f9f00374fcd90",
+      "candidate_sha256": "e85ba29adf2a4753155f64da4ad3219808fcdfbca53d62306d9f9f00374fcd90",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/bus/subscriber.py",
+      "deployed_sha256": "66bc109daeeb5f7b24d32e75125b21259a3922da59644808c92f982c6d66e5ad",
+      "candidate_sha256": "66bc109daeeb5f7b24d32e75125b21259a3922da59644808c92f982c6d66e5ad",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/bus/ui/__init__.py",
+      "deployed_sha256": "ace34755680ea80bd3968a38479a629ca722fcf151466a34ec118b6340bc925e",
+      "candidate_sha256": "ace34755680ea80bd3968a38479a629ca722fcf151466a34ec118b6340bc925e",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/bus/ui/messages.py",
+      "deployed_sha256": "1342e35f9754b8867369e0a00bc5e05a4084c50a5b514960da26a694755f10ad",
+      "candidate_sha256": "1342e35f9754b8867369e0a00bc5e05a4084c50a5b514960da26a694755f10ad",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/clocks/__init__.py",
+      "deployed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/clocks/base_clock.py",
+      "deployed_sha256": "3029a3a6d6ad770480466d4dd7cb274c4002a3571c69a2f302b3f49313b75c24",
+      "candidate_sha256": "3029a3a6d6ad770480466d4dd7cb274c4002a3571c69a2f302b3f49313b75c24",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/clocks/system_clock.py",
+      "deployed_sha256": "8e54001ef1b0246d76f327790cd42c377d16578a281eb5db62aaccdf43de5323",
+      "candidate_sha256": "8e54001ef1b0246d76f327790cd42c377d16578a281eb5db62aaccdf43de5323",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/frames/__init__.py",
+      "deployed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/frames/frames.py",
+      "deployed_sha256": "ec673d6acd4d21fa211eeff10476ae6f0b716e64c70261ed57dfcb3fccce333d",
+      "candidate_sha256": "ec673d6acd4d21fa211eeff10476ae6f0b716e64c70261ed57dfcb3fccce333d",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/metrics/__init__.py",
+      "deployed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/metrics/metrics.py",
+      "deployed_sha256": "2ce479ff456db0c50411f205ea1eec296b6d087a884242955f226c13fea87b40",
+      "candidate_sha256": "2ce479ff456db0c50411f205ea1eec296b6d087a884242955f226c13fea87b40",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/observers/__init__.py",
+      "deployed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/observers/base_observer.py",
+      "deployed_sha256": "bcfcd73c346de9377c39bde62854e9ad32cb1194e2a95a2f5f0a3f874a6046ba",
+      "candidate_sha256": "bcfcd73c346de9377c39bde62854e9ad32cb1194e2a95a2f5f0a3f874a6046ba",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/observers/turn_tracking_observer.py",
+      "deployed_sha256": "c5be449cad65a64a68c698efce0f645d1476a79006d26585f9bb092fd9fb84b9",
+      "candidate_sha256": "c5be449cad65a64a68c698efce0f645d1476a79006d26585f9bb092fd9fb84b9",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/observers/user_bot_latency_observer.py",
+      "deployed_sha256": "15404a60f01e304fb2f73adb490651fa695884522fca90dd222df24f674bbb8e",
+      "candidate_sha256": "15404a60f01e304fb2f73adb490651fa695884522fca90dd222df24f674bbb8e",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/pipeline/__init__.py",
+      "deployed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/pipeline/base_pipeline.py",
+      "deployed_sha256": "414396e8f064ddb3339fb302fc8ad8a8a44103889737ad37a7cc00f841aeb1af",
+      "candidate_sha256": "414396e8f064ddb3339fb302fc8ad8a8a44103889737ad37a7cc00f841aeb1af",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/pipeline/job_context.py",
+      "deployed_sha256": "b130dfb11adced56465654907524a0f83976d68e985988f02ef231a9a9b5d1a8",
+      "candidate_sha256": "b130dfb11adced56465654907524a0f83976d68e985988f02ef231a9a9b5d1a8",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/pipeline/job_decorator.py",
+      "deployed_sha256": "305711ea2bff70b75eb886a8faff43ae54825cf0e5dc6d45914b79e8a300554f",
+      "candidate_sha256": "305711ea2bff70b75eb886a8faff43ae54825cf0e5dc6d45914b79e8a300554f",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/pipeline/pipeline.py",
+      "deployed_sha256": "46b6ddb7a80ddab2102547734f68187ad14f997ff2fe84ebd6cce1a8d6bc5db1",
+      "candidate_sha256": "46b6ddb7a80ddab2102547734f68187ad14f997ff2fe84ebd6cce1a8d6bc5db1",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/pipeline/task.py",
+      "deployed_sha256": "821042bdc5a66baf2c6abadac0e44fd087ffc933d6e51ef7c40f01377e18785b",
+      "candidate_sha256": "821042bdc5a66baf2c6abadac0e44fd087ffc933d6e51ef7c40f01377e18785b",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/pipeline/worker.py",
+      "deployed_sha256": "3c3b5fd952425e48e90268756ace39a6fba1742574cbe7a624ad6251c7aeaf53",
+      "candidate_sha256": "3c3b5fd952425e48e90268756ace39a6fba1742574cbe7a624ad6251c7aeaf53",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/pipeline/worker_observer.py",
+      "deployed_sha256": "91323011e7889a0a73b4ce94449c1f35109d13cd9dc9355cd1691f78274ad592",
+      "candidate_sha256": "91323011e7889a0a73b4ce94449c1f35109d13cd9dc9355cd1691f78274ad592",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/pipeline/worker_ready_decorator.py",
+      "deployed_sha256": "9daf0bde9af61bdb3e7ea9e42012e457c545489aee73d0f909e6f47dd35de7a8",
+      "candidate_sha256": "9daf0bde9af61bdb3e7ea9e42012e457c545489aee73d0f909e6f47dd35de7a8",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/processors/__init__.py",
+      "deployed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/processors/aggregators/__init__.py",
+      "deployed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/processors/aggregators/async_tool_messages.py",
+      "deployed_sha256": "293ac632055a979dfe62fd5be6bcd9ee5ceec85372704857684840f0c26eb906",
+      "candidate_sha256": "293ac632055a979dfe62fd5be6bcd9ee5ceec85372704857684840f0c26eb906",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/processors/aggregators/llm_context.py",
+      "deployed_sha256": "83f1f0ab94ae0d857d5183a45ea8155215d4dc5388320a9ad634318ccd11371d",
+      "candidate_sha256": "83f1f0ab94ae0d857d5183a45ea8155215d4dc5388320a9ad634318ccd11371d",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/processors/aggregators/llm_context_summarizer.py",
+      "deployed_sha256": "f57a26d71aa2afd2e6281fb1f09db8bd6fa7c8112c56a6672572a10d71144de9",
+      "candidate_sha256": "f57a26d71aa2afd2e6281fb1f09db8bd6fa7c8112c56a6672572a10d71144de9",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/processors/aggregators/llm_response_universal.py",
+      "deployed_sha256": "1838386fb208d0cb4856a3f842cce4dbdaf0d6018b3558c1e945c8004649f113",
+      "candidate_sha256": "1838386fb208d0cb4856a3f842cce4dbdaf0d6018b3558c1e945c8004649f113",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/processors/frame_processor.py",
+      "deployed_sha256": "26e5b74dd0b76ae000efbf42e0e88909dff34a6eeb106eda4e329b99c430668e",
+      "candidate_sha256": "26e5b74dd0b76ae000efbf42e0e88909dff34a6eeb106eda4e329b99c430668e",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/processors/frameworks/__init__.py",
+      "deployed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/processors/frameworks/rtvi/__init__.py",
+      "deployed_sha256": "9f61a77b64a9946e0f7722239db8d9ebb84a27f42cf67b039b4f77ca4c057f7b",
+      "candidate_sha256": "9f61a77b64a9946e0f7722239db8d9ebb84a27f42cf67b039b4f77ca4c057f7b",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/processors/frameworks/rtvi/frames.py",
+      "deployed_sha256": "e4ba0fea776a45255b35be26301f4d4e3b869482f8da6c4544e0a8f1e216b8d9",
+      "candidate_sha256": "e4ba0fea776a45255b35be26301f4d4e3b869482f8da6c4544e0a8f1e216b8d9",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/processors/frameworks/rtvi/models.py",
+      "deployed_sha256": "2b91a13fb37b7d818db07e407cfe5b61d5be3b1f85b41873d1df70a2981b5755",
+      "candidate_sha256": "2b91a13fb37b7d818db07e407cfe5b61d5be3b1f85b41873d1df70a2981b5755",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/processors/metrics/__init__.py",
+      "deployed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/processors/metrics/frame_processor_metrics.py",
+      "deployed_sha256": "9e324f66c1fe3a3840384e8d5bc2a99108c35ec39e47d247ad00cda7afa2fbd0",
+      "candidate_sha256": "9e324f66c1fe3a3840384e8d5bc2a99108c35ec39e47d247ad00cda7afa2fbd0",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/registry/__init__.py",
+      "deployed_sha256": "517e776cde1c769528d439361e4c52cfb8d7e9fa08005b68294dac79d27a1803",
+      "candidate_sha256": "517e776cde1c769528d439361e4c52cfb8d7e9fa08005b68294dac79d27a1803",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/registry/registry.py",
+      "deployed_sha256": "bfa764c19e4df1db64b5cbbad26a27a6c67d1a3d5e06524cd69737ac4b9779f3",
+      "candidate_sha256": "bfa764c19e4df1db64b5cbbad26a27a6c67d1a3d5e06524cd69737ac4b9779f3",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/registry/types.py",
+      "deployed_sha256": "145947c103fd16df7be32f376c0c37d7454721ade91a01d786706a71c0bcc465",
+      "candidate_sha256": "145947c103fd16df7be32f376c0c37d7454721ade91a01d786706a71c0bcc465",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/services/__init__.py",
+      "deployed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/services/ai_service.py",
+      "deployed_sha256": "fd9c2447b74e80f4e468753aed21eef953e3b5ffcd764303e0f5d2422679b205",
+      "candidate_sha256": "fd9c2447b74e80f4e468753aed21eef953e3b5ffcd764303e0f5d2422679b205",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/services/llm_service.py",
+      "deployed_sha256": "2f163bdbe4fae48855caa0db8f3fea6ecd0d9042cab4090809bd5ee342ae0b96",
+      "candidate_sha256": "2f163bdbe4fae48855caa0db8f3fea6ecd0d9042cab4090809bd5ee342ae0b96",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/services/settings.py",
+      "deployed_sha256": "da58cb8e61424abc818c9ccceb19da3475a6668184a3f358baa067312e2c9818",
+      "candidate_sha256": "da58cb8e61424abc818c9ccceb19da3475a6668184a3f358baa067312e2c9818",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/services/stt_latency.py",
+      "deployed_sha256": "cd1b1969ceedb228965d88ecc2a9e10bb9c615e3e7c8b332fe6b89d7c2e12227",
+      "candidate_sha256": "cd1b1969ceedb228965d88ecc2a9e10bb9c615e3e7c8b332fe6b89d7c2e12227",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/services/tts_service.py",
+      "deployed_sha256": "84f22a9e02dbb411426ee08f978d3b430049b342a4a5dd840f49d7c84af5486e",
+      "candidate_sha256": "84f22a9e02dbb411426ee08f978d3b430049b342a4a5dd840f49d7c84af5486e",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/services/websocket_service.py",
+      "deployed_sha256": "cd2c0523a15bea1da5be9d708ee970aecca615749b796165a3128c5687ae5f53",
+      "candidate_sha256": "cd2c0523a15bea1da5be9d708ee970aecca615749b796165a3128c5687ae5f53",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/transcriptions/__init__.py",
+      "deployed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/transcriptions/language.py",
+      "deployed_sha256": "e6954d9f2e95e7607f972959eec11c18d678b8cab10fa3e63b4fb827e16168bd",
+      "candidate_sha256": "e6954d9f2e95e7607f972959eec11c18d678b8cab10fa3e63b4fb827e16168bd",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/transports/__init__.py",
+      "deployed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/transports/base_output.py",
+      "deployed_sha256": "9c23d1d4bfdb09c157f373fc4abbec5c80945b83ae944e27eae601325954bdf1",
+      "candidate_sha256": "9c23d1d4bfdb09c157f373fc4abbec5c80945b83ae944e27eae601325954bdf1",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/transports/base_transport.py",
+      "deployed_sha256": "bbd96771fb22293fce7fe61a85a49e95452b70b73708b003a6d717ba2c26fc6b",
+      "candidate_sha256": "bbd96771fb22293fce7fe61a85a49e95452b70b73708b003a6d717ba2c26fc6b",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/turns/__init__.py",
+      "deployed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/turns/speculation_gate.py",
+      "deployed_sha256": "932519a309e79dee4161ff4692d66a102f1140b6b18059a5f46f64010c1ade36",
+      "candidate_sha256": "932519a309e79dee4161ff4692d66a102f1140b6b18059a5f46f64010c1ade36",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/turns/types.py",
+      "deployed_sha256": "0b9e6870298808e60808bf673a49ec4164909f343691941d4882c731e7f1a0a5",
+      "candidate_sha256": "0b9e6870298808e60808bf673a49ec4164909f343691941d4882c731e7f1a0a5",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/turns/user_idle_controller.py",
+      "deployed_sha256": "1e3222415489760740e183a1b7f2469c581db5bef8a97da7185a56bef9a300f5",
+      "candidate_sha256": "1e3222415489760740e183a1b7f2469c581db5bef8a97da7185a56bef9a300f5",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/turns/user_mute/__init__.py",
+      "deployed_sha256": "40c3bf78ca0aa47a8114ffa071155f853ff445bc95900b1a6b7da5fe77d21893",
+      "candidate_sha256": "40c3bf78ca0aa47a8114ffa071155f853ff445bc95900b1a6b7da5fe77d21893",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/turns/user_mute/always_user_mute_strategy.py",
+      "deployed_sha256": "fc1c0c6283bb960a645632923bb9cfc310de54611eefaf26d87f0159f4abdb63",
+      "candidate_sha256": "fc1c0c6283bb960a645632923bb9cfc310de54611eefaf26d87f0159f4abdb63",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/turns/user_mute/base_user_mute_strategy.py",
+      "deployed_sha256": "92fd22a89f11d944725d97b23e2c34f1ec2163fa2919a247ae2593eab968ef61",
+      "candidate_sha256": "92fd22a89f11d944725d97b23e2c34f1ec2163fa2919a247ae2593eab968ef61",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/turns/user_mute/first_speech_user_mute_strategy.py",
+      "deployed_sha256": "028742cedb3cfade4af22a5e68f3adf3de2463ec44e7d236a4b4bcdd7a01a0c9",
+      "candidate_sha256": "028742cedb3cfade4af22a5e68f3adf3de2463ec44e7d236a4b4bcdd7a01a0c9",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/turns/user_mute/function_call_user_mute_strategy.py",
+      "deployed_sha256": "7d03c287facb4ab404ef5a08ba06ee48ea8e947cb33d9d2bbdbc622cf02490f0",
+      "candidate_sha256": "7d03c287facb4ab404ef5a08ba06ee48ea8e947cb33d9d2bbdbc622cf02490f0",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/turns/user_mute/mute_until_first_bot_complete_user_mute_strategy.py",
+      "deployed_sha256": "b1634c197447b350cd1e87ca88ff4349c0e2bc791bd1720bad9d900853481ea3",
+      "candidate_sha256": "b1634c197447b350cd1e87ca88ff4349c0e2bc791bd1720bad9d900853481ea3",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/turns/user_start/__init__.py",
+      "deployed_sha256": "4866abd7a0f0ec65588fa806ba17ddb5bb8a3093973df18048e1c2bbd6db41b1",
+      "candidate_sha256": "4866abd7a0f0ec65588fa806ba17ddb5bb8a3093973df18048e1c2bbd6db41b1",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/turns/user_start/base_user_turn_start_strategy.py",
+      "deployed_sha256": "e9bde22707f74214c1e90667b170ef431db9a50e589546231ed1c616a6155e20",
+      "candidate_sha256": "e9bde22707f74214c1e90667b170ef431db9a50e589546231ed1c616a6155e20",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/turns/user_start/external_user_turn_start_strategy.py",
+      "deployed_sha256": "7fa9b99959cb6c46fd2f47e1e98ca329d15bb4914ddd66029ad0cdbd20fd004b",
+      "candidate_sha256": "7fa9b99959cb6c46fd2f47e1e98ca329d15bb4914ddd66029ad0cdbd20fd004b",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/turns/user_start/transcription_user_turn_start_strategy.py",
+      "deployed_sha256": "bcb2e52b62d5559a963d2d5de135a700cd40e2dd8c6c23b2edb52a4550960615",
+      "candidate_sha256": "bcb2e52b62d5559a963d2d5de135a700cd40e2dd8c6c23b2edb52a4550960615",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/turns/user_start/vad_user_turn_start_strategy.py",
+      "deployed_sha256": "0b51efdbbace78f924e7117171cbacb79421d69470fcbe69425cbc858e381efe",
+      "candidate_sha256": "0b51efdbbace78f924e7117171cbacb79421d69470fcbe69425cbc858e381efe",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/turns/user_stop/__init__.py",
+      "deployed_sha256": "48f2277cef4b206bb83d1a0d78283b3e38db244396956f08b5a5871d97093c41",
+      "candidate_sha256": "48f2277cef4b206bb83d1a0d78283b3e38db244396956f08b5a5871d97093c41",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/turns/user_stop/base_user_turn_stop_strategy.py",
+      "deployed_sha256": "a930e6a4e9a04b4ccb7ed9f65c3ce533b326e42b531ccb4d19c1bb80df4f2468",
+      "candidate_sha256": "a930e6a4e9a04b4ccb7ed9f65c3ce533b326e42b531ccb4d19c1bb80df4f2468",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/turns/user_stop/deferred_user_turn_stop_strategy.py",
+      "deployed_sha256": "adef10f6f286166318897b611dac4e4b3064b2367624fc6c4827f00d2c8b9df9",
+      "candidate_sha256": "adef10f6f286166318897b611dac4e4b3064b2367624fc6c4827f00d2c8b9df9",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/turns/user_stop/eager_match_policy.py",
+      "deployed_sha256": "a491bd435a287ac26eb02b16694382a5e3133296972be4d1f605cf8d2a685c9b",
+      "candidate_sha256": "a491bd435a287ac26eb02b16694382a5e3133296972be4d1f605cf8d2a685c9b",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/turns/user_stop/eager_user_turn_stop_strategy.py",
+      "deployed_sha256": "02ad5326ee99d8afdb4c4d23f0e2cc4f525d5cd320f1193da176a761be9b1f1f",
+      "candidate_sha256": "02ad5326ee99d8afdb4c4d23f0e2cc4f525d5cd320f1193da176a761be9b1f1f",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/turns/user_stop/external_user_turn_completion_stop_strategy.py",
+      "deployed_sha256": "3dbcbe28b9dca1a07f9beaa9239c653c9d6ef4c6b70860a34e7c3e2e842b6ad0",
+      "candidate_sha256": "3dbcbe28b9dca1a07f9beaa9239c653c9d6ef4c6b70860a34e7c3e2e842b6ad0",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/turns/user_stop/external_user_turn_stop_strategy.py",
+      "deployed_sha256": "e23afd61157d686b6d5480326db8adf72e075fd545d3ef315db084f27b21dc55",
+      "candidate_sha256": "e23afd61157d686b6d5480326db8adf72e075fd545d3ef315db084f27b21dc55",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/turns/user_stop/llm_turn_completion_user_turn_stop_strategy.py",
+      "deployed_sha256": "56aea9c8c42c993816b73dd3dbfb525b97e3106dd861b35bbb7466a3bbd83a19",
+      "candidate_sha256": "56aea9c8c42c993816b73dd3dbfb525b97e3106dd861b35bbb7466a3bbd83a19",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/turns/user_stop/speech_timeout_user_turn_stop_strategy.py",
+      "deployed_sha256": "47fd2399f9c96dc8abfa7edcc54bee3ab9874b86ba227962e266677403822101",
+      "candidate_sha256": "47fd2399f9c96dc8abfa7edcc54bee3ab9874b86ba227962e266677403822101",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/turns/user_stop/turn_analyzer_user_turn_stop_strategy.py",
+      "deployed_sha256": "4f70cec7ae4fefc1ee24c88ad19bde8b18da3c83d697cbe56dcf09acfd258266",
+      "candidate_sha256": "4f70cec7ae4fefc1ee24c88ad19bde8b18da3c83d697cbe56dcf09acfd258266",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/turns/user_turn_completion_mixin.py",
+      "deployed_sha256": "0e7da371f5551c40fb4777bc112839ef6933467fd2babb3ba5d2205f2cfa0283",
+      "candidate_sha256": "0e7da371f5551c40fb4777bc112839ef6933467fd2babb3ba5d2205f2cfa0283",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/turns/user_turn_controller.py",
+      "deployed_sha256": "b55ea44f15cb2640c1aa085f8a5a9abb473cf2fc815babe6ab593a5fe8e91b86",
+      "candidate_sha256": "b55ea44f15cb2640c1aa085f8a5a9abb473cf2fc815babe6ab593a5fe8e91b86",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/turns/user_turn_strategies.py",
+      "deployed_sha256": "a1359e3f4d5be2d7b6e3659369d12c979581aa37e9afcaed179d6e68c62b62b6",
+      "candidate_sha256": "a1359e3f4d5be2d7b6e3659369d12c979581aa37e9afcaed179d6e68c62b62b6",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/__init__.py",
+      "deployed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/async_tool_cancellation.py",
+      "deployed_sha256": "d47603143635105da62e633d343a0772945acf281e9f7fc9f17bbe73c97fe977",
+      "candidate_sha256": "d47603143635105da62e633d343a0772945acf281e9f7fc9f17bbe73c97fe977",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/asyncio/__init__.py",
+      "deployed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/asyncio/task_manager.py",
+      "deployed_sha256": "0bd3f39a81899411db576a9aec10b28aa7d9c2a6fc0656a72010389ca76938cb",
+      "candidate_sha256": "0bd3f39a81899411db576a9aec10b28aa7d9c2a6fc0656a72010389ca76938cb",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/base_object.py",
+      "deployed_sha256": "9a91dc5db601d619dd327ad6341d1f01a9e5613a5e6e1947d384e59e5a652e92",
+      "candidate_sha256": "9a91dc5db601d619dd327ad6341d1f01a9e5613a5e6e1947d384e59e5a652e92",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/context/__init__.py",
+      "deployed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/context/aggregated_frame_sequencer.py",
+      "deployed_sha256": "0cd18bdcd1707fa363de1534561f2e7206ed621babb109194f02e460582629f6",
+      "candidate_sha256": "0cd18bdcd1707fa363de1534561f2e7206ed621babb109194f02e460582629f6",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/context/llm_context_summarization.py",
+      "deployed_sha256": "395383138f705991e436e7dcffce9db6923f3bf7d9c139152a7465ffe4807d0b",
+      "candidate_sha256": "395383138f705991e436e7dcffce9db6923f3bf7d9c139152a7465ffe4807d0b",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/context/text_segment_map.py",
+      "deployed_sha256": "817ed6080f20bab4e96fbf4f0896cd55afac4ac4ed3c5a0a2c37a48625223c75",
+      "candidate_sha256": "817ed6080f20bab4e96fbf4f0896cd55afac4ac4ed3c5a0a2c37a48625223c75",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/context/word_completion_tracker.py",
+      "deployed_sha256": "c58a1114150dab89a14877b771ebc2cb96f92f4767550612067487a54afa8579",
+      "candidate_sha256": "c58a1114150dab89a14877b771ebc2cb96f92f4767550612067487a54afa8579",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/deprecation.py",
+      "deployed_sha256": "1bcb5daef1e171f4dea97dea6a467fbb53b3050041a64583da5f9b6e4e3ae72a",
+      "candidate_sha256": "1bcb5daef1e171f4dea97dea6a467fbb53b3050041a64583da5f9b6e4e3ae72a",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/errors.py",
+      "deployed_sha256": "86959337030fa6fd4bed3e4c8fa6a623f28d9cb5065ad7be08ca18996e69a236",
+      "candidate_sha256": "86959337030fa6fd4bed3e4c8fa6a623f28d9cb5065ad7be08ca18996e69a236",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/frame_queue.py",
+      "deployed_sha256": "8eb80dbbfcc53d8139d5cabe4c5856ffcd47de10cb46767cf38940c5a0b01367",
+      "candidate_sha256": "8eb80dbbfcc53d8139d5cabe4c5856ffcd47de10cb46767cf38940c5a0b01367",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/network.py",
+      "deployed_sha256": "20eca3213787d2da3d4ea43246b06faf9eb23c138042d289d60d6ce1a8fd276c",
+      "candidate_sha256": "20eca3213787d2da3d4ea43246b06faf9eb23c138042d289d60d6ce1a8fd276c",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/prewarm.py",
+      "deployed_sha256": "6a6f5212ba363e9bdafb96d5ef0d3f9ec59e3b7aa4efb9e5c052fb6e357a2c90",
+      "candidate_sha256": "6a6f5212ba363e9bdafb96d5ef0d3f9ec59e3b7aa4efb9e5c052fb6e357a2c90",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/startup.py",
+      "deployed_sha256": "193cacf618937e2384e9cc3fed73eb6f24ea7f39587fc6e764bd569109a0b8a3",
+      "candidate_sha256": "193cacf618937e2384e9cc3fed73eb6f24ea7f39587fc6e764bd569109a0b8a3",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/string.py",
+      "deployed_sha256": "873c25640a6fdecbae6c8629a2d26b83829df6395b22bb81dd0cc3e919fb3eb7",
+      "candidate_sha256": "873c25640a6fdecbae6c8629a2d26b83829df6395b22bb81dd0cc3e919fb3eb7",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/text/__init__.py",
+      "deployed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/text/alnum_utils.py",
+      "deployed_sha256": "5a3b3eb437125f7185d04e346f448338e7d8c8b841cf90c76d609af2da4061d8",
+      "candidate_sha256": "5a3b3eb437125f7185d04e346f448338e7d8c8b841cf90c76d609af2da4061d8",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/text/base_text_aggregator.py",
+      "deployed_sha256": "035950121009429454a626576370941a948a0feeb57aea2f8e318c6fafd1240c",
+      "candidate_sha256": "035950121009429454a626576370941a948a0feeb57aea2f8e318c6fafd1240c",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/text/base_text_filter.py",
+      "deployed_sha256": "72ecbd98b954c6c2815af06860e1305c26c70955efb8a772fa5b025524cdf89a",
+      "candidate_sha256": "72ecbd98b954c6c2815af06860e1305c26c70955efb8a772fa5b025524cdf89a",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/text/english_punkt.py",
+      "deployed_sha256": "98c6fbd852136637b89276c1f2de14365eced32d4d513ca1ea0e44ab8faa7f6d",
+      "candidate_sha256": "98c6fbd852136637b89276c1f2de14365eced32d4d513ca1ea0e44ab8faa7f6d",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/text/markup_utils.py",
+      "deployed_sha256": "563e48536df283c643ef427972a18083801aa935b797ca849b99c913e72fb768",
+      "candidate_sha256": "563e48536df283c643ef427972a18083801aa935b797ca849b99c913e72fb768",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/text/pattern_pair_aggregator.py",
+      "deployed_sha256": "cd8cf03bf7a94c800074cd940837be870aec20c848db09a595817e3ea30e78b0",
+      "candidate_sha256": "cd8cf03bf7a94c800074cd940837be870aec20c848db09a595817e3ea30e78b0",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/text/simple_text_aggregator.py",
+      "deployed_sha256": "27a382f1b1ce004d0ab88e63d6cc6430ee8a1ce318521509cebc1e02ab07e908",
+      "candidate_sha256": "27a382f1b1ce004d0ab88e63d6cc6430ee8a1ce318521509cebc1e02ab07e908",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/text/word_timestamp_utils.py",
+      "deployed_sha256": "d345841147e9d87ea0e2708b401c4ca89c14d3336995f32722c1f450cf845500",
+      "candidate_sha256": "d345841147e9d87ea0e2708b401c4ca89c14d3336995f32722c1f450cf845500",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/time.py",
+      "deployed_sha256": "bb4d15a067b96ced30f34a15a4b9c481c94fb4e4737af0d71eda5eaacd67d174",
+      "candidate_sha256": "bb4d15a067b96ced30f34a15a4b9c481c94fb4e4737af0d71eda5eaacd67d174",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/tracing/__init__.py",
+      "deployed_sha256": "5ac5749c286e4313dcc9606693cd8af22f08fad6f98ca69186cf055a7a370875",
+      "candidate_sha256": "5ac5749c286e4313dcc9606693cd8af22f08fad6f98ca69186cf055a7a370875",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/tracing/setup.py",
+      "deployed_sha256": "dba8c53d4d62e697856e6cf50c34fea2b24cf8a670798dedba62c2ff6840583f",
+      "candidate_sha256": "dba8c53d4d62e697856e6cf50c34fea2b24cf8a670798dedba62c2ff6840583f",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/tracing/tracing_context.py",
+      "deployed_sha256": "58a55f7ccbc8cbb7748925ac1e950837a6c6cda81e5447c157f2f8d905595a7f",
+      "candidate_sha256": "58a55f7ccbc8cbb7748925ac1e950837a6c6cda81e5447c157f2f8d905595a7f",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/tracing/turn_trace_observer.py",
+      "deployed_sha256": "65854e0cc0f93b7af612b8adde1dc9ac55aa366f46db2d1458b3d34ce0fe4c8b",
+      "candidate_sha256": "65854e0cc0f93b7af612b8adde1dc9ac55aa366f46db2d1458b3d34ce0fe4c8b",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/types.py",
+      "deployed_sha256": "c93bc1b9da88a05308a18c5297615300fa299480b81c4b8fba766183d9951a4d",
+      "candidate_sha256": "c93bc1b9da88a05308a18c5297615300fa299480b81c4b8fba766183d9951a4d",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/utils/utils.py",
+      "deployed_sha256": "4b5127d6833a86e4834b86a7193fe2467560319dc9b1c0603b95e08b220b3330",
+      "candidate_sha256": "4b5127d6833a86e4834b86a7193fe2467560319dc9b1c0603b95e08b220b3330",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/workers/__init__.py",
+      "deployed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identical": true
+    },
+    {
+      "path": "src/pipecat/workers/base_worker.py",
+      "deployed_sha256": "614ed47621f3e2b4caa4caa5b9879df2b8a93ccfabcf26e3a59b6ba7f38a12b0",
+      "candidate_sha256": "614ed47621f3e2b4caa4caa5b9879df2b8a93ccfabcf26e3a59b6ba7f38a12b0",
+      "identical": true
+    },
+    {
+      "path": "src/providers.py",
+      "deployed_sha256": "7c5e59634829f8e15b906dd958dec8c07901230bda92e4663031bf9219493ed7",
+      "candidate_sha256": "7c5e59634829f8e15b906dd958dec8c07901230bda92e4663031bf9219493ed7",
+      "identical": true
+    },
+    {
+      "path": "src/runtime_probe.py",
+      "deployed_sha256": "2594d6578ff504b66df585350b1a08c6ac537b90ead2feacf6fbf75cb22a9036",
+      "candidate_sha256": "2594d6578ff504b66df585350b1a08c6ac537b90ead2feacf6fbf75cb22a9036",
+      "identical": true
+    },
+    {
+      "path": "src/sfu_codec.py",
+      "deployed_sha256": "1e1900fa9f54e6fef5142c846a75dcd09342d912e5f43b07d4d0324122698e57",
+      "candidate_sha256": "1e1900fa9f54e6fef5142c846a75dcd09342d912e5f43b07d4d0324122698e57",
+      "identical": true
+    },
+    {
+      "path": "src/sfu_transport.py",
+      "deployed_sha256": "b18322382ec1b48903b78e420c79098854c5e8f80e9b8cc68fd9eb82316b0368",
+      "candidate_sha256": "b18322382ec1b48903b78e420c79098854c5e8f80e9b8cc68fd9eb82316b0368",
+      "identical": true
+    },
+    {
+      "path": "src/smart_turn.py",
+      "deployed_sha256": "0d95bbf6d506502291f5898a8e837791742d8d61efd928e5c0ead2a3a976746b",
+      "candidate_sha256": "0d95bbf6d506502291f5898a8e837791742d8d61efd928e5c0ead2a3a976746b",
+      "identical": true
+    },
+    {
+      "path": "src/speech_pipeline.py",
+      "deployed_sha256": "8a7d0a0afb2d3a8647ac7e5c4d4caf06248f42614d7c1eb53c0c48df6e72713b",
+      "candidate_sha256": "8a7d0a0afb2d3a8647ac7e5c4d4caf06248f42614d7c1eb53c0c48df6e72713b",
+      "identical": true
+    },
+    {
+      "path": "pyproject.toml",
+      "deployed_sha256": "fa9d56ac4683ab0b6f23c868d009b0aeccae684bd293bd011c9b58dca7e73422",
+      "candidate_sha256": "fa9d56ac4683ab0b6f23c868d009b0aeccae684bd293bd011c9b58dca7e73422",
+      "identical": true
+    },
+    {
+      "path": "pylock.toml",
+      "deployed_sha256": "937079d45448ae18d7532fc8ea5110a55bd27a794f1de6028d434fa59ccfa27b",
+      "candidate_sha256": "937079d45448ae18d7532fc8ea5110a55bd27a794f1de6028d434fa59ccfa27b",
+      "identical": true
+    },
+    {
+      "path": "uv.lock",
+      "deployed_sha256": "19b0386fd86b72c4a2df6dc2b1d093b919034f5ac1e52835d5f045253eb43e79",
+      "candidate_sha256": "19b0386fd86b72c4a2df6dc2b1d093b919034f5ac1e52835d5f045253eb43e79",
+      "identical": true
+    },
+    {
+      "path": "package.json",
+      "deployed_sha256": "27da0f564cba49f24d8a940439d3d63fc640e4c58e9379b556aebc9658b388e4",
+      "candidate_sha256": "27da0f564cba49f24d8a940439d3d63fc640e4c58e9379b556aebc9658b388e4",
+      "identical": true
+    },
+    {
+      "path": "package-lock.json",
+      "deployed_sha256": "61e07146ebbbdc37ddeb4751e64bb69dc1e817be6912103b631e9436fc920a90",
+      "candidate_sha256": "61e07146ebbbdc37ddeb4751e64bb69dc1e817be6912103b631e9436fc920a90",
+      "identical": true
+    },
+    {
+      "path": "wrangler.jsonc",
+      "deployed_sha256": "a8e28d209ef1aa60e3b6040071e7ec4e8fb9cdff0e0cb450a818c56cbd448bf1",
+      "candidate_sha256": "a8e28d209ef1aa60e3b6040071e7ec4e8fb9cdff0e0cb450a818c56cbd448bf1",
+      "identical": true
+    }
+  ],
+  "python_files_unchanged": 154,
+  "vendor_manifest_sha256": "c50f06b01732b8b9fe96a4a742400124987c9a6c17f6f292b1be416933ea60fc",
+  "primary_source_report": "audit/results/sfu-gathering-contract-20261005.json",
+  "remaining_limits": [
+    "No live proof that candidate-bearing timeout completes on the user network.",
+    "No TURN configuration or credentials changed.",
+    "No physical playback, package support or performance acceptance claim."
+  ]
+}

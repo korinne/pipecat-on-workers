@@ -1,0 +1,61 @@
+{
+  "recorded_at_utc": "2026-10-05T05:54:25.902515+00:00",
+  "classification": "primary_source_contract_review",
+  "scope": "Read-only research into the current Cloudflare Realtime SFU signaling guidance. No provider resources, TURN credentials or application configuration were changed.",
+  "sources": [
+    {
+      "url": "https://developers.cloudflare.com/realtime/sfu/get-started/connection-patterns/#network-connectivity",
+      "updated": "2026-09-22",
+      "quote": "gather network candidates before sending `pc.localDescription` to your backend",
+      "finding": "The publish recipe sends a gathered local offer; receiving sends the gathered local answer to renegotiate. The guide links the cloud-gaming helper for bounded gathering."
+    },
+    {
+      "url": "https://github.com/cloudflare/realtime-examples/blob/5a3960ce7d98c1f8d452ba5f506a7520f10c57a0/cloud-gaming/src/client/webrtc.ts#L31-L62",
+      "revision": "5a3960ce7d98c1f8d452ba5f506a7520f10c57a0",
+      "revision_date": "2026-09-22T15:42:34Z",
+      "sha256": "99d7595f4539be18f22dd0293cb8b26f0fb902660fb3c69bbe3cdb41c2e49084",
+      "finding": "Both createGatheredOffer and createGatheredAnswer set the local description, call waitForIceGathering, and then read current peer.localDescription. The helper returns when gathering is complete. After 10,000 milliseconds it also resolves if the current SDP contains any line beginning a=candidate:, otherwise it rejects.",
+      "limit": "The timeout fallback checks candidate presence only. It does not prove that the candidate is reachable or that a media connection exists. The timeout is an example setting, not an acceptance limit or service guarantee."
+    },
+    {
+      "url": "https://github.com/cloudflare/realtime-examples/blob/5a3960ce7d98c1f8d452ba5f506a7520f10c57a0/echo/index.html",
+      "finding": "Echo sends localOffer.sdp immediately after setLocalDescription and does not use the gathered-description helper.",
+      "status_url": "https://github.com/cloudflare/realtime-examples/blob/main/echo/README.md",
+      "status_quote": "Example status: Legacy",
+      "limit": "This older example does not override the current connection guide and its linked helper."
+    },
+    {
+      "url": "https://developers.cloudflare.com/realtime/static/realtime-api-2024-05-21.yaml",
+      "redirected_from": "https://developers.cloudflare.com/realtime/static/calls-api-2024-05-21.yaml",
+      "bytes": 59430,
+      "sha256": "50f68a97c6e9d862a63df5f675b28936cf50c632ba67a95d4f66b1056d5fd5ee",
+      "finding": "The current schema defines SDP negotiation operations but no separate trickle candidate endpoint or candidate field. Its thirdparty session option describes connection to an ICE-lite peer.",
+      "limit": "The schema does not establish whether every ordinary browser session receives ICE-lite SDP. The absence of a documented trickle operation supports using the documented gathered-SDP flow; it is not a claim about all internal capabilities."
+    },
+    {
+      "url": "https://developers.cloudflare.com/realtime/turn/",
+      "updated": "2026-09-25",
+      "finding": "TURN relays connections obstructed by NATs or firewalls. Current addresses are STUN stun.cloudflare.com:3478 over UDP and TURN turn.cloudflare.com on UDP 3478/443, TCP 3478/80, or TLS 5349/443."
+    },
+    {
+      "url": "https://developers.cloudflare.com/realtime/turn/generate-credentials/",
+      "updated": "2026-09-25",
+      "finding": "Keep the TURN key on the server and issue short-lived credentials to clients. The guide warns that browser-blocked port 53 URLs can delay gathering without trickle and recommends filtering them in that case.",
+      "limit": "This general TURN guidance does not establish trickle support for the separate SFU Connection API."
+    }
+  ],
+  "conclusions": {
+    "unconditional_gathering_completion_required": false,
+    "supported_documented_pattern": "Gather first; the linked example accepts current candidates at its deadline even if gathering is still pending. Send the current localDescription and verify connection separately.",
+    "trickle_support": "No current native SFU Connection API trickle contract found.",
+    "default_sfu_ice_lite": "Unconfirmed from current primary documentation. Inspect actual remote SDP for a=ice-lite and browser canTrickleIceCandidates without recording full SDP, credentials or addresses.",
+    "restricted_networks": "STUN does not replace TURN relay connectivity. Adding TURN requires separate credentials and configuration; this review does not add them."
+  },
+  "untested": [
+    "Actual connectivity on the user network",
+    "TURN relay operation",
+    "Physical microphone and playback",
+    "Performance acceptance"
+  ],
+  "application_fix_validation": "Separate evidence must show candidate-free gathering failure, candidate-bearing bounded continuation, cancellation/replacement safety, and connection/media checks before readiness."
+}
