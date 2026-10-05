@@ -1,0 +1,115 @@
+{
+  "schema": "pipecat-package-resolution-v1",
+  "timestamp_utc": "2026-10-05T04:45:02.239385+00:00",
+  "application_starting_revision": "58ccef54653acdd7b8622e789021362a40725f4c",
+  "models": [
+    "@cf/deepgram/nova-3",
+    "@cf/pipecat-ai/smart-turn-v2",
+    "@cf/openai/gpt-oss-120b",
+    "@cf/deepgram/aura-2-en"
+  ],
+  "transport_scope": [
+    "websocket",
+    "sfu"
+  ],
+  "observations": [
+    {
+      "version": "1.11.0",
+      "profile": "application-pins",
+      "case": "cpython-resolve",
+      "command": [
+        "/tmp/pipecat-candidate-tools/bin/uv",
+        "pip",
+        "compile",
+        "pyproject.toml",
+        "--python",
+        "/Users/korinne/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/bin/python3.14",
+        "--no-header"
+      ],
+      "cwd": "/tmp/pipecat-package-investigation/1.11.0-application-pins",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "WARN Fixing invalid version specifier by removing star after comparison operator other than equal and not equal (before: `>=3.5.*`; after: `>=3.5`)\nerror: No solution found when resolving dependencies\n  cause: Because pipecat-ai==1.11.0 depends on pydantic>=2.13 and pipecat-package-candidate depends on pipecat-ai==1.11.0, we can conclude that pipecat-package-candidate depends on pydantic>=2.13.\n         And because pipecat-package-candidate depends on pydantic==2.12.5, we can conclude that your requirements are unsatisfiable.\n"
+    },
+    {
+      "version": "1.11.0",
+      "profile": "application-pins",
+      "case": "workers-sync",
+      "command": [
+        "/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/.venv/bin/pywrangler",
+        "--debug",
+        "sync"
+      ],
+      "cwd": "/tmp/pipecat-package-investigation/1.11.0-application-pins",
+      "exit_code": 1,
+      "stdout": "DEBUG    pywrangler version: 1.17.4                                             \nDEBUG    Python: 3.14.7                                                         \nDEBUG    Platform: darwin                                                       \nDEBUG    Working directory:                                                     \n         /private/tmp/pipecat-package-investigation/1.11.0-application-pins     \nDEBUG    Reading                                                                \n         /private/tmp/pipecat-package-investigation/1.11.0-application-pins/pypr\n         oject.toml...                                                          \nDEBUG    Sync needed - proceeding with installation                             \nDEBUG    Using python version from wrangler config: 3.14                        \nDEBUG    Creating virtual environment at                                        \n         /private/tmp/pipecat-package-investigation/1.11.0-application-pins/.ven\n         v-workers...                                                           \nRUNNING  uv venv                                                                \n         /private/tmp/pipecat-package-investigation/1.11.0-application-pins/.ven\n         v-workers --python python3.14                                          \nRUNNING  uv --version                                                           \nDEBUG    Creating Pyodide virtual environment at                                \n         /private/tmp/pipecat-package-investigation/1.11.0-application-pins/.ven\n         v-workers/pyodide-venv...                                              \nRUNNING  uv venv                                                                \n         /private/tmp/pipecat-package-investigation/1.11.0-application-pins/.ven\n         v-workers/pyodide-venv --python cpython-3.14.2-emscripten-wasm32-musl  \nRUNNING  uv pip compile                                                         \n         /private/tmp/pipecat-package-investigation/1.11.0-application-pins/pypr\n         oject.toml                                                             \n         /var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/tmprbuxx309.txt       \n         --python cpython-3.14.2-emscripten-wasm32-musl --extra-index-url       \n         https://index.pyodide.org/314.0.7 --index-strategy unsafe-best-match   \n         --no-header -o                                                         \n         /private/tmp/pipecat-package-investigation/1.11.0-application-pins/pylo\n         ck.toml --no-build                                                     \nERROR    Error running command: uv pip compile                                  \n         /private/tmp/pipecat-package-investigation/1.11.0-application-pins/pypr\n         oject.toml                                                             \n         /var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/tmprbuxx309.txt       \n         --python cpython-3.14.2-emscripten-wasm32-musl --extra-index-url       \n         https://index.pyodide.org/314.0.7 --index-strategy unsafe-best-match   \n         --no-header -o                                                         \n         /private/tmp/pipecat-package-investigation/1.11.0-application-pins/pylo\n         ck.toml --no-build                                                     \n         Exit code: 1                                                           \n         Output:                                                                \n         error: No solution found when resolving dependencies                   \n           cause: Because pipecat-ai==1.11.0 depends on pydantic>=2.13 and      \n         pipecat-package-candidate depends on pipecat-ai==1.11.0, we can        \n         conclude that pipecat-package-candidate depends on pydantic>=2.13.     \n                  And because pipecat-package-candidate depends on              \n         pydantic==2.12.5, we can conclude that your requirements are           \n         unsatisfiable.                                                         \n",
+      "stderr": "Using CPython 3.14.7\nCreating virtual environment at: .venv-workers\nActivate with: source .venv-workers/bin/activate\nUsing CPython 3.14.2\nCreating virtual environment at: .venv-workers/pyodide-venv\nActivate with: source .venv-workers/pyodide-venv/bin/activate\n"
+    },
+    {
+      "version": "1.11.0",
+      "profile": "candidate-only",
+      "case": "workers-sync",
+      "command": [
+        "/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/.venv/bin/pywrangler",
+        "--debug",
+        "sync"
+      ],
+      "cwd": "/tmp/pipecat-package-investigation/1.11.0-candidate-only",
+      "exit_code": 1,
+      "stdout": "DEBUG    pywrangler version: 1.17.4                                             \nDEBUG    Python: 3.14.7                                                         \nDEBUG    Platform: darwin                                                       \nDEBUG    Working directory:                                                     \n         /private/tmp/pipecat-package-investigation/1.11.0-candidate-only       \nDEBUG    Reading                                                                \n         /private/tmp/pipecat-package-investigation/1.11.0-candidate-only/pyproj\n         ect.toml...                                                            \nDEBUG    Sync needed - proceeding with installation                             \nDEBUG    Using python version from wrangler config: 3.14                        \nDEBUG    Creating virtual environment at                                        \n         /private/tmp/pipecat-package-investigation/1.11.0-candidate-only/.venv-\n         workers...                                                             \nRUNNING  uv venv                                                                \n         /private/tmp/pipecat-package-investigation/1.11.0-candidate-only/.venv-\n         workers --python python3.14                                            \nRUNNING  uv --version                                                           \nDEBUG    Creating Pyodide virtual environment at                                \n         /private/tmp/pipecat-package-investigation/1.11.0-candidate-only/.venv-\n         workers/pyodide-venv...                                                \nRUNNING  uv venv                                                                \n         /private/tmp/pipecat-package-investigation/1.11.0-candidate-only/.venv-\n         workers/pyodide-venv --python cpython-3.14.2-emscripten-wasm32-musl    \nRUNNING  uv pip compile                                                         \n         /private/tmp/pipecat-package-investigation/1.11.0-candidate-only/pyproj\n         ect.toml                                                               \n         /var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/tmp9n7ww2fb.txt       \n         --python cpython-3.14.2-emscripten-wasm32-musl --extra-index-url       \n         https://index.pyodide.org/314.0.7 --index-strategy unsafe-best-match   \n         --no-header -o                                                         \n         /private/tmp/pipecat-package-investigation/1.11.0-candidate-only/pylock\n         .toml --no-build                                                       \nERROR    Error running command: uv pip compile                                  \n         /private/tmp/pipecat-package-investigation/1.11.0-candidate-only/pyproj\n         ect.toml                                                               \n         /var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/tmp9n7ww2fb.txt       \n         --python cpython-3.14.2-emscripten-wasm32-musl --extra-index-url       \n         https://index.pyodide.org/314.0.7 --index-strategy unsafe-best-match   \n         --no-header -o                                                         \n         /private/tmp/pipecat-package-investigation/1.11.0-candidate-only/pylock\n         .toml --no-build                                                       \n         Exit code: 1                                                           \n         Output:                                                                \n         error: No solution found when resolving dependencies                   \n           cause: Because loudness==0.2.0 has no usable wheels and only         \n         loudness<=0.2.0 is available, we can conclude that loudness>=0.2.0     \n         cannot be used.                                                        \n                  And because pipecat-ai==1.11.0 depends on loudness>=0.2.0 and \n         pipecat-package-candidate depends on pipecat-ai==1.11.0, we can        \n         conclude that your requirements are unsatisfiable.                     \n                                                                                \n         hint: Wheels are required for `loudness` because building from source  \n         is disabled for all packages (i.e., with `--no-build`)                 \n",
+      "stderr": "Using CPython 3.14.7\nCreating virtual environment at: .venv-workers\nActivate with: source .venv-workers/bin/activate\nUsing CPython 3.14.2\nCreating virtual environment at: .venv-workers/pyodide-venv\nActivate with: source .venv-workers/pyodide-venv/bin/activate\n"
+    },
+    {
+      "version": "1.12.0",
+      "profile": "application-pins",
+      "case": "cpython-resolve",
+      "command": [
+        "/tmp/pipecat-candidate-tools/bin/uv",
+        "pip",
+        "compile",
+        "pyproject.toml",
+        "--python",
+        "/Users/korinne/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/bin/python3.14",
+        "--no-header"
+      ],
+      "cwd": "/tmp/pipecat-package-investigation/1.12.0-application-pins",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "error: No solution found when resolving dependencies\n  cause: Because pipecat-ai>=1.12.0 depends on pydantic>=2.13 and pipecat-package-candidate depends on pipecat-ai==1.12.0, we can conclude that pipecat-package-candidate depends on pydantic>=2.13.\n         And because pipecat-package-candidate depends on pydantic==2.12.5, we can conclude that your requirements are unsatisfiable.\n"
+    },
+    {
+      "version": "1.12.0",
+      "profile": "application-pins",
+      "case": "workers-sync",
+      "command": [
+        "/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/.venv/bin/pywrangler",
+        "--debug",
+        "sync"
+      ],
+      "cwd": "/tmp/pipecat-package-investigation/1.12.0-application-pins",
+      "exit_code": 1,
+      "stdout": "DEBUG    pywrangler version: 1.17.4                                             \nDEBUG    Python: 3.14.7                                                         \nDEBUG    Platform: darwin                                                       \nDEBUG    Working directory:                                                     \n         /private/tmp/pipecat-package-investigation/1.12.0-application-pins     \nDEBUG    Reading                                                                \n         /private/tmp/pipecat-package-investigation/1.12.0-application-pins/pypr\n         oject.toml...                                                          \nDEBUG    Sync needed - proceeding with installation                             \nDEBUG    Using python version from wrangler config: 3.14                        \nDEBUG    Creating virtual environment at                                        \n         /private/tmp/pipecat-package-investigation/1.12.0-application-pins/.ven\n         v-workers...                                                           \nRUNNING  uv venv                                                                \n         /private/tmp/pipecat-package-investigation/1.12.0-application-pins/.ven\n         v-workers --python python3.14                                          \nRUNNING  uv --version                                                           \nDEBUG    Creating Pyodide virtual environment at                                \n         /private/tmp/pipecat-package-investigation/1.12.0-application-pins/.ven\n         v-workers/pyodide-venv...                                              \nRUNNING  uv venv                                                                \n         /private/tmp/pipecat-package-investigation/1.12.0-application-pins/.ven\n         v-workers/pyodide-venv --python cpython-3.14.2-emscripten-wasm32-musl  \nRUNNING  uv pip compile                                                         \n         /private/tmp/pipecat-package-investigation/1.12.0-application-pins/pypr\n         oject.toml                                                             \n         /var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/tmpcz6vkg6w.txt       \n         --python cpython-3.14.2-emscripten-wasm32-musl --extra-index-url       \n         https://index.pyodide.org/314.0.7 --index-strategy unsafe-best-match   \n         --no-header -o                                                         \n         /private/tmp/pipecat-package-investigation/1.12.0-application-pins/pylo\n         ck.toml --no-build                                                     \nERROR    Error running command: uv pip compile                                  \n         /private/tmp/pipecat-package-investigation/1.12.0-application-pins/pypr\n         oject.toml                                                             \n         /var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/tmpcz6vkg6w.txt       \n         --python cpython-3.14.2-emscripten-wasm32-musl --extra-index-url       \n         https://index.pyodide.org/314.0.7 --index-strategy unsafe-best-match   \n         --no-header -o                                                         \n         /private/tmp/pipecat-package-investigation/1.12.0-application-pins/pylo\n         ck.toml --no-build                                                     \n         Exit code: 1                                                           \n         Output:                                                                \n         error: No solution found when resolving dependencies                   \n           cause: Because pipecat-ai>=1.12.0 depends on pydantic>=2.13 and      \n         pipecat-package-candidate depends on pipecat-ai==1.12.0, we can        \n         conclude that pipecat-package-candidate depends on pydantic>=2.13.     \n                  And because pipecat-package-candidate depends on              \n         pydantic==2.12.5, we can conclude that your requirements are           \n         unsatisfiable.                                                         \n",
+      "stderr": "Using CPython 3.14.7\nCreating virtual environment at: .venv-workers\nActivate with: source .venv-workers/bin/activate\nUsing CPython 3.14.2\nCreating virtual environment at: .venv-workers/pyodide-venv\nActivate with: source .venv-workers/pyodide-venv/bin/activate\n"
+    },
+    {
+      "version": "1.12.0",
+      "profile": "candidate-only",
+      "case": "workers-sync",
+      "command": [
+        "/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/.venv/bin/pywrangler",
+        "--debug",
+        "sync"
+      ],
+      "cwd": "/tmp/pipecat-package-investigation/1.12.0-candidate-only",
+      "exit_code": 1,
+      "stdout": "DEBUG    pywrangler version: 1.17.4                                             \nDEBUG    Python: 3.14.7                                                         \nDEBUG    Platform: darwin                                                       \nDEBUG    Working directory:                                                     \n         /private/tmp/pipecat-package-investigation/1.12.0-candidate-only       \nDEBUG    Reading                                                                \n         /private/tmp/pipecat-package-investigation/1.12.0-candidate-only/pyproj\n         ect.toml...                                                            \nDEBUG    Sync needed - proceeding with installation                             \nDEBUG    Using python version from wrangler config: 3.14                        \nDEBUG    Creating virtual environment at                                        \n         /private/tmp/pipecat-package-investigation/1.12.0-candidate-only/.venv-\n         workers...                                                             \nRUNNING  uv venv                                                                \n         /private/tmp/pipecat-package-investigation/1.12.0-candidate-only/.venv-\n         workers --python python3.14                                            \nRUNNING  uv --version                                                           \nDEBUG    Creating Pyodide virtual environment at                                \n         /private/tmp/pipecat-package-investigation/1.12.0-candidate-only/.venv-\n         workers/pyodide-venv...                                                \nRUNNING  uv venv                                                                \n         /private/tmp/pipecat-package-investigation/1.12.0-candidate-only/.venv-\n         workers/pyodide-venv --python cpython-3.14.2-emscripten-wasm32-musl    \nRUNNING  uv pip compile                                                         \n         /private/tmp/pipecat-package-investigation/1.12.0-candidate-only/pyproj\n         ect.toml                                                               \n         /var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/tmpajhm_vke.txt       \n         --python cpython-3.14.2-emscripten-wasm32-musl --extra-index-url       \n         https://index.pyodide.org/314.0.7 --index-strategy unsafe-best-match   \n         --no-header -o                                                         \n         /private/tmp/pipecat-package-investigation/1.12.0-candidate-only/pylock\n         .toml --no-build                                                       \nERROR    Error running command: uv pip compile                                  \n         /private/tmp/pipecat-package-investigation/1.12.0-candidate-only/pyproj\n         ect.toml                                                               \n         /var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/tmpajhm_vke.txt       \n         --python cpython-3.14.2-emscripten-wasm32-musl --extra-index-url       \n         https://index.pyodide.org/314.0.7 --index-strategy unsafe-best-match   \n         --no-header -o                                                         \n         /private/tmp/pipecat-package-investigation/1.12.0-candidate-only/pylock\n         .toml --no-build                                                       \n         Exit code: 1                                                           \n         Output:                                                                \n         error: No solution found when resolving dependencies                   \n           cause: Because sentencex==1.0.31 has no usable wheels and            \n         pipecat-ai>=1.12.0 depends on sentencex==1.0.31, we can conclude that  \n         pipecat-ai>=1.12.0 cannot be used.                                     \n                  And because pipecat-package-candidate depends on              \n         pipecat-ai==1.12.0, we can conclude that your requirements are         \n         unsatisfiable.                                                         \n                                                                                \n         hint: Wheels are required for `sentencex` because building from source \n         is disabled for all packages (i.e., with `--no-build`)                 \n",
+      "stderr": "Using CPython 3.14.7\nCreating virtual environment at: .venv-workers\nActivate with: source .venv-workers/bin/activate\nUsing CPython 3.14.2\nCreating virtual environment at: .venv-workers/pyodide-venv\nActivate with: source .venv-workers/pyodide-venv/bin/activate\n"
+    }
+  ],
+  "readiness": "not_established",
+  "tool_versions": {
+    "workers-py": "1.17.4",
+    "workers-runtime-sdk": "1.9.0",
+    "uv": "uv 0.12.18 (01cb90c1a 2026-09-22 aarch64-apple-darwin)"
+  }
+}
