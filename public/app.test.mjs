@@ -542,6 +542,86 @@ test('ended call measurements explicitly mark missing server snapshot',async()=>
   assert.equal(h.requests.filter(r=>r.url.endsWith('/diagnostics')).length,0);
 });
 
+test('diagnostic export distinguishes HTTP rejection without exposing response content',async()=>{
+  for(const status of [403,500]) {
+    let readBody=false;
+    const h=harness({fetchDiagnostics:async()=>({ok:false,status,
+      url:'https://PRIVATE/?token=PRIVATE',statusText:'PRIVATE',
+      json:async()=>{readBody=true;return {error:'PRIVATE'};}})});
+    await h.element('start').click();
+    await h.element('download-metrics').click();
+    const text=await h.downloads[0].text(), report=JSON.parse(text);
+    assert.equal(report.serverDiagnosticsStatus,'unavailable');
+    assert.equal(report.serverDiagnosticsHttpStatus,status);
+    assert.equal(report.serverDiagnosticsFailure,'http_error');
+    assert.equal(readBody,false);
+    assert.equal(h.element('download-metrics').disabled,false);
+    assert.doesNotMatch(text,/PRIVATE|secret-token|session-id/);
+    h.element('end').click();
+  }
+});
+
+test('diagnostic export distinguishes timeout, network, invalid JSON and invalid diagnostic shape',async()=>{
+  const cases=[
+    ['timeout',async()=>{throw Object.assign(new Error('PRIVATE timeout URL'),{name:'TimeoutError'});}],
+    ['timeout',async()=>{throw Object.assign(new Error('PRIVATE abort URL'),{name:'AbortError'});}],
+    ['network_error',async()=>{throw new TypeError('PRIVATE network URL');}],
+    ['invalid_response',async()=>({ok:true,status:200,json:async()=>{throw new SyntaxError('PRIVATE invalid JSON');}})],
+    ['invalid_response',async()=>({ok:true,status:200,json:async()=>null})],
+    ['invalid_response',async()=>({ok:true,status:200,json:async()=>['PRIVATE']})],
+    ['timeout',async()=>({ok:true,status:200,json:async()=>{throw Object.assign(new Error('PRIVATE body timeout'),{name:'TimeoutError'});}})],
+  ];
+  for(const [failure,fetchDiagnostics] of cases) {
+    const h=harness({fetchDiagnostics}); await h.element('start').click();
+    await h.element('download-metrics').click();
+    const text=await h.downloads[0].text(), report=JSON.parse(text);
+    assert.equal(report.serverDiagnosticsStatus,'unavailable');
+    assert.equal(report.serverDiagnosticsFailure,failure);
+    assert.equal('serverDiagnostics' in report,false);
+    assert.ok(!('serverDiagnosticsHttpStatus' in report)||report.serverDiagnosticsHttpStatus===200);
+    assert.equal(h.element('download-metrics').disabled,false);
+    assert.doesNotMatch(text,/PRIVATE|secret-token|session-id/);
+    h.element('end').click();
+  }
+});
+
+test('diagnostic HTTP status only exports integer values in the HTTP range',async()=>{
+  for(const status of ['PRIVATE',NaN,Infinity,-1,0,99,600,200.5,{token:'PRIVATE'}]) {
+    const h=harness({fetchDiagnostics:async()=>({ok:false,status})});
+    await h.element('start').click(); await h.element('download-metrics').click();
+    const report=JSON.parse(await h.downloads[0].text());
+    assert.equal('serverDiagnosticsHttpStatus' in report,false);
+    assert.equal(report.serverDiagnosticsFailure,'http_error');
+    h.element('end').click();
+  }
+});
+
+test('reconnect diagnostics retain bounded close code and cleanliness without reason text',async()=>{
+  const h=harness(); await h.element('start').click();
+  const socket=h.sockets[0]; socket.open(); socket.receive({type:'ready',generation:1});
+  socket.readyState=3; socket.onclose({code:1013,wasClean:true,reason:'PRIVATE token or transcript'});
+  const event=JSON.parse(h.run("JSON.stringify(metrics.events.find(event=>event.event==='reconnect'))"));
+  assert.equal(event.code,1013); assert.equal(event.wasClean,true); assert.equal(event.attempt,1);
+  assert.equal('reason' in event,false);
+  assert.equal(h.run('metrics.reconnects'),1);
+  assert.ok([...h.timers.values()].some(timer=>timer.delay===500));
+  assert.doesNotMatch(JSON.stringify(event),/PRIVATE/);
+  h.element('end').click();
+});
+
+test('malformed close metadata cannot leak into reconnect diagnostics',async()=>{
+  for(const code of ['PRIVATE',NaN,Infinity,-1,999,5000,1013.5,{token:'PRIVATE'}]) {
+    const h=harness(); await h.element('start').click();
+    const socket=h.sockets[0]; socket.open(); socket.receive({type:'ready',generation:1});
+    socket.readyState=3; socket.onclose({code,wasClean:'PRIVATE',reason:'PRIVATE'});
+    const event=JSON.parse(h.run("JSON.stringify(metrics.events.find(event=>event.event==='reconnect'))"));
+    assert.equal('code' in event,false); assert.equal('wasClean' in event,false);
+    assert.doesNotMatch(JSON.stringify(event),/PRIVATE/);
+    assert.equal(h.run('metrics.reconnects'),1);
+    h.element('end').click();
+  }
+});
+
 
 test('a speech-start error leaves the current assistant response interruptible',async()=>{
   for(const transport of ['websocket','webrtc']) {

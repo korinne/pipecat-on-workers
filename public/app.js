@@ -452,7 +452,9 @@ function connect(run) {
     metrics.reconnects++;
     $('metric-reconnect').textContent = String(metrics.reconnects);
     status(`Reconnecting (${connectAttempt}/4)…`);
-    event('reconnect', { attempt: connectAttempt, code: e.code });
+    event('reconnect', { attempt: connectAttempt,
+      ...(Number.isInteger(e.code) && e.code >= 1000 && e.code <= 4999 ? {code:e.code} : {}),
+      ...(typeof e.wasClean === 'boolean' ? {wasClean:e.wasClean} : {}) });
     reconnectTimer = setTimeout(() => connect(run), delay);
   };
 }
@@ -523,12 +525,24 @@ $('download-metrics').addEventListener('click', async () => {
       const response = await fetch(`/api/session/${encodeURIComponent(credentials.id)}/diagnostics`, {
         headers: { 'X-Session-Token': credentials.token }, signal: AbortSignal.timeout(5000),
       });
-      if (response.ok) {
-        snapshot.serverDiagnostics = shareableServerDiagnostics(await response.json());
-        snapshot.serverDiagnosticsStatus = 'available';
+      if (Number.isInteger(response.status) && response.status >= 100 && response.status <= 599) {
+        snapshot.serverDiagnosticsHttpStatus = response.status;
       }
+      if (response.ok) {
+        try {
+          snapshot.serverDiagnostics = shareableServerDiagnostics(await response.json());
+          snapshot.serverDiagnosticsStatus = 'available';
+        } catch (error) {
+          snapshot.serverDiagnosticsFailure = ['TimeoutError', 'AbortError'].includes(error?.name)
+            ? 'timeout' : 'invalid_response';
+        }
+      } else snapshot.serverDiagnosticsFailure = 'http_error';
     }
-  } catch { /* Download the browser snapshot even if server diagnostics fail. */ }
+  } catch (error) {
+    // Preserve a fixed failure category, never the URL or exception message.
+    snapshot.serverDiagnosticsFailure = ['TimeoutError', 'AbortError'].includes(error?.name)
+      ? 'timeout' : 'network_error';
+  }
   try {
     const blob = new Blob([JSON.stringify({ ...snapshot, limitations: [usesSfu ? 'Speaker mute detaches the remote track; it does not measure acoustic silence or confirm delivery.' : 'Playback clear is a scheduling measurement, not acoustic silence.', usesSfu ? 'First-audio latency and exact chunk playback are not measured for WebRTC.' : 'First audio starts at final transcript and excludes recognition latency.', 'Only the most recent 1000 events per array are retained.', 'Server diagnostics are a later snapshot of this call; absent events do not prove they never occurred.', 'No transcript, audio, capability token, or session identifier is exported.'] }, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
