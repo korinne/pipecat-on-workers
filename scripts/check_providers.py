@@ -19,12 +19,14 @@ class Proxy:
 js = types.ModuleType('js')
 js.Object=N(fromEntries=lambda value:value)
 js.Uint8Array=Uint
+js.AbortController=N(new=lambda: N(signal=N(),abort=lambda reason:None))
 sys.modules['js']=js
 ffi = types.ModuleType('pyodide.ffi')
 ffi.create_proxy=Proxy
 ffi.to_js=lambda value, **kwargs:value
 sys.modules['pyodide']=types.ModuleType('pyodide')
 sys.modules['pyodide.ffi']=ffi
+sys.path.insert(0,str(pathlib.Path(__file__).resolve().parents[1] / 'src'))
 spec=importlib.util.spec_from_file_location('providers',pathlib.Path(__file__).resolve().parents[1] / 'src/providers.py')
 m=importlib.util.module_from_spec(spec)
 spec.loader.exec_module(m)
@@ -58,7 +60,7 @@ class WS:
     def send(self,value): self.sent.append(value)
 
 async def main():
-    encoded=('data: '+json.dumps({'response':'Hello 🐈'},ensure_ascii=False)+'\r\n\r\n'+'data: {"response":" world"}\n\ndata: [DONE]\n\n').encode()
+    encoded=('data: '+json.dumps({'choices':[{'delta':{'content':'Hello 🐈'}}]},ensure_ascii=False)+'\r\n\r\n'+'data: {"choices":[{"delta":{"content":" world"}}]}\n\ndata: {"choices":[{"finish_reason":"stop"}]}\n\ndata: [DONE]\n\n').encode()
     reader=Reader([encoded[i:i+1] for i in range(len(encoded))])
     p=m.WorkersProviders(N(AI=AI(N(getReader=lambda:reader))),lambda event:None)
     assert ''.join([token async for token in p.generate([])])=='Hello 🐈 world'
@@ -72,17 +74,17 @@ async def main():
         {'response':1.5,'choices':[{'delta':{'content':'1.50'}}]},
         {'response':'must not leak','choices':[{'delta':{'content':''}}]},
         {'choices':[],'usage':{'completion_tokens':0}},
-        {'choices':[{'delta':{},'finish_reason':'stop'}]},
         {'response':'','usage':{'completion_tokens':3}},
         {'response':False},
         {'response':1.5},
-        {'response':' fallback'},
+        {'response':' ignored'},
+        {'choices':[{'delta':{},'finish_reason':'stop'}]},
     ]
     reader=Reader([('data: '+json.dumps(event)+'\n\n').encode() for event in events]+[b'data: [DONE]\n\n'])
     p.env.AI=AI(N(getReader=lambda:reader))
-    assert [token async for token in p.generate([])]==['1.5','0','1.50',' fallback']
+    assert [token async for token in p.generate([])]==['1.5','0','1.50']
     assert reader.canceled and reader.released and p.diagnostics()['provider_readers']==0
-    reader=Reader([b'data: {"response":"first"}\n\n',b'data: {"response":"second"}\n\n'])
+    reader=Reader([b'data: {"choices":[{"delta":{"content":"first"}}]}\n\n',b'data: {"choices":[{"delta":{"content":"second"}}]}\n\n'])
     p.env.AI=AI(N(getReader=lambda:reader))
     generator=p.generate([])
     assert await generator.__anext__()=='first'
@@ -92,8 +94,8 @@ async def main():
 
     # Each active reader must remain independently owned until its generator
     # exits, including when provider shutdown cancels a reader paused at yield.
-    first=Reader([b'data: {"response":"first"}\n\n'])
-    second=Reader([b'data: {"response":"second"}\n\n'])
+    first=Reader([b'data: {"choices":[{"delta":{"content":"first"}}]}\n\n'])
+    second=Reader([b'data: {"choices":[{"delta":{"content":"second"}}]}\n\n'])
     owners=m.WorkersProviders(N(AI=AI(N(getReader=lambda:first))),lambda event:None)
     first_generation=owners.generate([])
     assert await first_generation.__anext__()=='first'
@@ -111,7 +113,7 @@ async def main():
 
     class SlowCancelReader(Reader):
         def __init__(self):
-            super().__init__([b'data: {"response":"pending cleanup"}\n\n'])
+            super().__init__([b'data: {"choices":[{"delta":{"content":"pending cleanup"}}]}\n\n'])
             self.cancel_started=asyncio.Event()
         async def cancel(self,*args):
             self.cancel_started.set()

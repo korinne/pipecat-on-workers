@@ -10,7 +10,6 @@ the remote model stopped computing or charging.
 
 import asyncio
 import base64
-import codecs
 import contextlib
 import inspect
 import json
@@ -21,10 +20,11 @@ import time
 
 from js import Object, Uint8Array
 from pyodide.ffi import create_proxy, to_js
+from gpt_stream import GPTStream, GPTStreamError, MODEL as GPT_MODEL, MAX_TOKENS as GPT_MAX_TOKENS, REASONING_EFFORT as GPT_REASONING_EFFORT
 
 STT_MODEL = "@cf/deepgram/nova-3"
 TURN_MODEL = "@cf/pipecat-ai/smart-turn-v2"
-LLM_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+LLM_MODEL = GPT_MODEL
 TTS_MODEL = "@cf/deepgram/aura-2-en"
 INPUT_SAMPLE_RATE = 16000
 OUTPUT_SAMPLE_RATE = 24000
@@ -288,7 +288,13 @@ class WorkersProviders:
         self.requests.add(request)
         request.add_done_callback(self.requests.discard)
         try:
-            return await asyncio.wait_for(asyncio.shield(request), timeout)
+            # asyncio.wait leaves the owned binding promise alive on caller
+            # cancellation. Python 3.14 shield logs its later abort rejection
+            # even when our late-result owner retrieves that exception.
+            done, _ = await asyncio.wait({request}, timeout=timeout)
+            if not done:
+                raise asyncio.TimeoutError()
+            return request.result()
         except (asyncio.CancelledError, asyncio.TimeoutError):
             self._discard_when_done(request)
             raise
@@ -516,67 +522,77 @@ class WorkersProviders:
             raise ProviderError("Turn detection returned an invalid probability. Please repeat your turn.")
         return {"is_complete": result["is_complete"], "probability": float(probability)}
 
-    async def generate(self, messages, *, max_tokens=192):
-        """Yield SSE text deltas. Closing the generator cancels the stream reader."""
+    async def generate(self, messages, *, max_tokens=GPT_MAX_TOKENS):
+        """Stream only GPT-OSS answer text; incomplete answers fail explicitly."""
         if self.closed:
             raise ProviderError("Conversation providers are closed")
-        stream = await self._run(LLM_MODEL, {
-            "messages": messages, "stream": True, "max_tokens": max_tokens, "temperature": 0.6,
-        })
-        stream = _raw(stream)
-        if hasattr(stream, "body"):
-            stream = stream.body
-        reader = stream.getReader()
-        reader_id = id(reader)
-        self.readers[reader_id] = reader
+        from js import AbortController
+        controller = AbortController.new()
+        reader = None
+        parser = GPTStream()
+        started = time.monotonic()
+        result = {"outcome": "pending", "first_answer_seconds": None,
+                  "max_tokens": max_tokens, "reasoning_effort": GPT_REASONING_EFFORT}
+        self.last_generation = result
         try:
-            decoder = codecs.getincrementaldecoder("utf-8")()
-            pending = ""
-            if self.closed:
-                return
-            while True:
-                item = await asyncio.wait_for(reader.read(), 30)
-                if item.done:
-                    pending += decoder.decode(b"", final=True)
-                    lines = pending.splitlines()
-                else:
-                    pending += decoder.decode(_bytes(item.value))
-                    if len(pending) > 65536:
-                        raise ProviderError("LLM SSE event exceeded 64 KiB")
-                    lines = pending.split("\n")
-                    pending = lines.pop()
-                for line in lines:
-                    if not line.startswith("data:"):
-                        continue
-                    payload = line[5:].strip()
-                    if not payload:
-                        continue
-                    if payload == "[DONE]":
+            stream = _raw(await self._run(LLM_MODEL, {
+                "messages": messages, "stream": True, "max_tokens": max_tokens,
+                "reasoning_effort": GPT_REASONING_EFFORT,
+            }, {"signal": controller.signal}, timeout=45))
+            if hasattr(stream, "body"):
+                stream = stream.body
+            if not hasattr(stream, "getReader"):
+                raise GPTStreamError("invalid_stream")
+            reader = stream.getReader()
+            self.readers[id(reader)] = reader
+            while not self.closed:
+                remaining = 45 - (time.monotonic() - started)
+                if remaining <= 0:
+                    raise asyncio.TimeoutError()
+                item = await asyncio.wait_for(reader.read(), remaining)
+                for text in parser.feed(b"" if item.done else _bytes(item.value), eof=bool(item.done)):
+                    if self.closed:
+                        result["outcome"] = "canceled"
                         return
-                    event = json.loads(payload)
-                    if event.get("error"):
-                        raise ProviderError(f"LLM error: {event['error']}")
-                    # Workers AI can coerce numeric tokens in `response` into
-                    # numbers while the standard delta retains the exact text.
-                    choice = (event.get("choices") or [{}])[0]
-                    text = (choice.get("delta") or {}).get("content")
-                    if not isinstance(text, str):
-                        response = event.get("response")
-                        text = response if isinstance(response, str) else ""
-                    if text:
-                        yield text
-                if item.done:
+                    if result["first_answer_seconds"] is None and text.strip():
+                        result["first_answer_seconds"] = time.monotonic() - started
+                    yield text
+                if item.done or parser.done:
+                    result["outcome"] = "completed"
                     return
+            result["outcome"] = "canceled"
+        except (asyncio.CancelledError, GeneratorExit):
+            result["outcome"] = "canceled"
+            raise
+        except GPTStreamError as error:
+            result["outcome"] = error.outcome
+            failure = ProviderError(str(error))
+            failure.outcome = error.outcome
+            raise failure from None
+        except asyncio.TimeoutError:
+            result["outcome"] = "timeout"
+            raise ProviderError("The model timed out before completing an answer. Please try again.") from None
+        except Exception:
+            result["outcome"] = "request_or_read_error"
+            raise ProviderError("The model request failed before completing an answer. Please try again.") from None
         finally:
-            try:
-                with contextlib.suppress(Exception):
-                    await asyncio.wait_for(reader.cancel("Generation complete or canceled"), 2)
-            finally:
+            result.update(parser.diagnostics())
+            result["elapsed_seconds"] = time.monotonic() - started
+            # The signal covers pre-header cancellation. Reader disposal covers
+            # an acquired body; late _run results remain owned by the provider.
+            with contextlib.suppress(Exception):
+                controller.abort("Generation complete or canceled")
+            if reader is not None:
                 try:
                     with contextlib.suppress(Exception):
-                        reader.releaseLock()
+                        await asyncio.wait_for(reader.cancel("Generation complete or canceled"), 2)
                 finally:
-                    self.readers.pop(reader_id, None)
+                    try:
+                        with contextlib.suppress(Exception):
+                            reader.releaseLock()
+                    finally:
+                        self.readers.pop(id(reader), None)
+
 
     async def synthesize(self, text):
         """Yield raw 24 kHz mono PCM from a generation-specific Aura socket."""
@@ -618,7 +634,8 @@ class WorkersProviders:
         self.sockets.clear()
         self.stt = None
         # Requests still awaiting their first JS response need late-result cleanup.
-        # The underlying binding does not expose a documented AbortSignal option.
+        # GPT requests also carry AbortSignal. Keep late-result ownership because
+        # local abort does not prove that the binding promise or remote work stopped.
         for request in tuple(self.requests):
             self._discard_when_done(request)
         for reader in tuple(self.readers.values()):
