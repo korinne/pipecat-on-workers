@@ -1,6 +1,6 @@
 import { PlaybackQueue, pcm16ToBase64 } from './audio-player.mjs';
 import { SfuAudioTransport } from './sfu-client.mjs';
-import { shareableServerDiagnostics } from './session-measurements.mjs';
+import { shareableServerDiagnostics, shareableBrowserErrors } from './session-measurements.mjs';
 
 const transport = document.body?.dataset.transport === 'webrtc' ? 'webrtc' : 'websocket';
 const usesSfu = transport === 'webrtc';
@@ -514,6 +514,8 @@ $('download-metrics').addEventListener('click', async () => {
   const credentials = session;
   // Freeze the browser counters now, so End or a new call cannot mix sessions.
   const snapshot = JSON.parse(JSON.stringify(metrics));
+  snapshot.measurementSchema = 2;
+  snapshot.errors = shareableBrowserErrors(snapshot.errors);
   snapshot.exportedAt = new Date().toISOString();
   snapshot.serverDiagnosticsStatus = credentials ? 'unavailable' : 'call_ended_or_not_started';
   try {

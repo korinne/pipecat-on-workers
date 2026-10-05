@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import { PlaybackQueue, pcm16ToBase64 } from './audio-player.mjs';
-import { shareableServerDiagnostics } from './session-measurements.mjs';
+import { shareableServerDiagnostics, shareableBrowserErrors } from './session-measurements.mjs';
 const settle = () => new Promise(resolve => setImmediate(resolve));
 
 function harness({ fetchSession, capture, transport = 'websocket', publish, fetchDiagnostics } = {}) {
@@ -72,7 +72,7 @@ function harness({ fetchSession, capture, transport = 'websocket', publish, fetc
   }
   const windowListeners = {};
   const sandbox = vm.createContext({
-    PlaybackQueue, pcm16ToBase64, SfuAudioTransport, shareableServerDiagnostics,
+    PlaybackQueue, pcm16ToBase64, SfuAudioTransport, shareableServerDiagnostics, shareableBrowserErrors,
     document: { body: {dataset: {transport}}, getElementById: element, createElement: () => new Element() },
     window: { AudioContext, RTCPeerConnection: class {}, MediaStream: class {}, AudioWorkletNode: Node, addEventListener(type, fn) { windowListeners[type] = fn; } },
     navigator: { mediaDevices: { async getUserMedia(options) { mediaRequests.push(options); return capture ? capture(track) : { getTracks: () => [track], getAudioTracks: () => [track] }; } } },
@@ -503,9 +503,12 @@ test('measurement export requests private diagnostics and excludes their interna
       metrics:[{event:'smart_turn',complete:false,probability:.1,text:'PRIVATE'}]})};
   }});
   await h.element('start').click();
+  h.run("metrics.errors.push({at:'2026-10-05T20:00:00.000Z',message:'PRIVATE provider URL or transcript'})");
   await h.element('download-metrics').click();
   const text=await h.downloads[0].text(), report=JSON.parse(text);
   assert.equal(report.serverDiagnosticsStatus,'available');
+  assert.equal(report.measurementSchema,2);
+  assert.deepEqual(report.errors,[{code:'redacted',at:'2026-10-05T20:00:00.000Z'}]);
   assert.equal(report.serverDiagnostics.input_audio_bytes,640);
   assert.equal(report.serverDiagnostics.events[0].complete,false);
   assert.doesNotMatch(text,/PRIVATE|secret-token|session-id/);
