@@ -1,0 +1,22 @@
+{
+  "recorded_at_utc": "2026-10-05T04:52:06.573436+00:00",
+  "scope": "Local CPython; captured browser events and synthetic PCM; no deployed Worker, inference, browser playback or performance acceptance.",
+  "git_base": "1cb90b0531ee2dca18fed6fc957a7cb85a899f07",
+  "source_sha256": {
+    "src/audio_transport.py": "a2c1d7d41f29402a597e66ae7a3e388a21ad42b232bf78e2e8773db4eaa0232e",
+    "tests/test_audio_transport.py": "9dd04ac559eb42a9b34e1b0a9b8c8c821d6f8abfb20f5315e871dd829c6793d1"
+  },
+  "python": "3.14.7",
+  "command": [
+    "/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/.venv/bin/python",
+    "-m",
+    "unittest",
+    "tests.test_audio_transport",
+    "-v"
+  ],
+  "exit_code": 0,
+  "stdout": "",
+  "stderr": "test_byte_bound_and_interruption_release_waiter_without_stale_send (tests.test_audio_transport.WebSocketAudioTransportTests.test_byte_bound_and_interruption_release_waiter_without_stale_send) ... ok\ntest_failed_send_releases_its_credit (tests.test_audio_transport.WebSocketAudioTransportTests.test_failed_send_releases_its_credit) ... ok\ntest_fresh_connection_rejects_old_generation_and_accepts_current (tests.test_audio_transport.WebSocketAudioTransportTests.test_fresh_connection_rejects_old_generation_and_accepts_current) ... ok\ntest_pcm_format_and_receipts_only_release_credit (tests.test_audio_transport.WebSocketAudioTransportTests.test_pcm_format_and_receipts_only_release_credit) ... ok\ntest_slow_receiver_blocks_at_chunk_bound_then_ack_unblocks (tests.test_audio_transport.WebSocketAudioTransportTests.test_slow_receiver_blocks_at_chunk_bound_then_ack_unblocks) ... ok\ntest_timeout_is_failure_and_end_wakes_waiter (tests.test_audio_transport.WebSocketAudioTransportTests.test_timeout_is_failure_and_end_wakes_waiter) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 0.082s\n\nOK\n",
+  "result": "scoped_pass",
+  "integration": "Adapter addition; shared speech pipeline integration is a separate change."
+}
