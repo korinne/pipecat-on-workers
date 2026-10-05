@@ -1,0 +1,10 @@
+{
+  "at": "2026-10-05T05:57:18.999Z",
+  "source_commit": "3f62b680c32afa8b9f343a4eafb95d34b32c9daa",
+  "deployment_version": "06111df0-88ce-4142-96e7-4158a9a6e7a9",
+  "scope": "HTTP asset identity only; not SFU negotiation or media",
+  "status": 200,
+  "cache_control": "public, max-age=0, must-revalidate",
+  "matches_tested_source": true,
+  "sha256": "5e4a8397604fb94a9399816a0d6065202fda7b2f952f14f220fd44a63993f5b2"
+}

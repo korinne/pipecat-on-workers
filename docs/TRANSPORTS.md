@@ -2,7 +2,7 @@
 
 The initial target is one Pipecat voice application on Workers with two connection choices: direct browser WebSocket, or WebRTC through Cloudflare's SFU and managed WebSocket adapter. Choose the transport when creating a call. Switching transports during a call is outside the initial scope.
 
-The target uses Workers AI for STT, hosted Pipecat Smart Turn, GPT-OSS-120B, and Aura-2 on both paths. Both must preserve the selected Pipecat conversation and interruption behavior. The existing examples are under evaluation; the full standard pipeline has not yet been verified in Workers.
+The target uses Workers AI for STT, hosted Pipecat Smart Turn, GPT-OSS-120B, and Aura-2 on both paths. Both must preserve the selected Pipecat conversation and interruption behavior. The examples remain under evaluation. Automated direct-route checks exercise the full pipeline in Workers; the user's SFU check failed during browser connection setup. [Current results](FINAL-VERIFICATION.md).
 
 ## What changes when the transport changes
 
@@ -28,7 +28,7 @@ flowchart LR
 
 The direct path uses this application's audio and control messages. The managed SFU adapter converts between compressed WebRTC Opus audio and raw 48 kHz stereo PCM audio carried over WebSocket. PCM contains audio samples directly. The application still converts sample rates and channel counts for its selected speech services. [Cloudflare adapter documentation](https://developers.cloudflare.com/realtime/sfu/features/media-transport-adapters/websocket-adapter/), [current SFU implementation](../src/sfu_transport.py)
 
-Task 2 routes both inputs through the same Nova-3/hosted Smart Turn coordinator after conversion to PCM16 mono at 16 kHz. It uses the same speech-onset, pause, transcript-coverage and revision checks on either route; the SFU transport does not choose a different completion rule. The new turn path passes controlled verification, with deployed imports/startup checked and live conversation execution/audio still untested. Llama, Aura-2 and the existing assistant-history differences remain until Task 3. [Turn coordination and limits](CONVERSATION.md#task-2-user-turn-coordination)
+Both inputs use the same Nova-3/hosted Smart Turn coordinator after conversion to PCM16 mono at 16 kHz. Speech-onset, pause, transcript-coverage and revision checks are shared. The current application uses GPT-OSS and the selected Pipecat speech/output/assistant-aggregator path on both adapters. Direct live checks have passing and failing observations; SFU media acceptance remains open. [Turn coordination and limits](CONVERSATION.md#task-2-user-turn-coordination)
 
 ## Reuse Pipecat's interfaces
 
@@ -50,7 +50,7 @@ The application and adapters still need to meet these observable requirements:
 
 These are behavior checks, not a requirement for every audio packet to carry a new response schema. Existing Pipecat events, adapter state, and application identifiers may satisfy them.
 
-The prototype's direct WebSocket history waits for browser chunk-completion reports. The SFU path has no equivalent reports and omits assistant answers. That is a current application limitation to replace with the selected Pipecat pipeline. Exact-word browser playback reports are not a prerequisite for the initial transport work. The tests still need to distinguish sending a stop command from the browser actually stopping its sound. [Current history code](../src/conversation.py), [browser player](../public/audio-player.mjs), [SFU receiver](../public/sfu-client.mjs)
+The initial prototype wrote direct WebSocket history from browser chunk-completion reports and omitted SFU assistant answers. The current shared Pipecat pipeline replaces that behavior; direct receipts now release audio queue credit. Exact-word browser playback reports are not a prerequisite for the initial transport work. The tests still need to distinguish sending a stop command from the browser actually stopping its sound. [Current history code](../src/conversation.py), [browser player](../public/audio-player.mjs), [SFU receiver](../public/sfu-client.mjs)
 
 ## What earns a support claim
 
@@ -61,3 +61,5 @@ Direct WebSocket and SFU must pass the shared conversation, interruption, failur
 ## Adapter and cleanup implementation
 
 The [audio delivery adapter](TRANSPORT-ADAPTERS.md) separates browser flow control from assistant context. [SFU cleanup ownership](CLEANUP.md) records generation isolation, bounded remote work, late allocations and persisted unresolved resources. Its controlled application probe starts the next model call while the real adapter's simulated REST close remains held. Live browser stop timing and remote SFU reconciliation still require deployment evidence.
+
+The [SFU gathering correction](SFU-GATHERING.md) permits connection attempts using candidates already found at the bounded gathering deadline. Actual connection and track checks still govern readiness; physical verification after this correction is pending.
