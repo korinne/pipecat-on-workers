@@ -1,5 +1,6 @@
 import { PlaybackQueue, pcm16ToBase64 } from './audio-player.mjs';
 import { SfuAudioTransport } from './sfu-client.mjs';
+import { shareableServerDiagnostics } from './session-measurements.mjs';
 
 const transport = document.body?.dataset.transport === 'webrtc' ? 'webrtc' : 'websocket';
 const usesSfu = transport === 'webrtc';
@@ -41,7 +42,7 @@ function updateInputHealth() {
     else if (!stream) message = 'Waiting for microphone access…';
     else if (track?.muted) message = 'Your browser has paused the microphone.';
     else if (now-lastCaptureAt > 2500) message = 'No microphone samples are arriving. Check your input device.';
-    else if (now-lastSoundAt < 1500) message = 'Microphone is picking up sound.';
+    else if (now-lastSoundAt < 1500) message = 'Microphone is picking up sound locally.';
     else message = 'No sound detected yet. Speak to begin.';
   }
   $('mic-signal').textContent = message;
@@ -215,6 +216,9 @@ async function start() {
   if (active || starting) return;
   const run = ++lifecycle;
   active = starting = true;
+  for (const key of ['startupMs', 'firstAudioAfterTranscriptMs', 'localPlaybackClearMs', 'errors', 'events']) metrics[key] = [];
+  metrics.reconnects = 0;
+  delete metrics.audioInput;
   muted = false;
   serverReady = false;
   session = null;
@@ -502,13 +506,34 @@ ui.mute.addEventListener('click', () => {
   status(muted ? 'Microphone muted' : 'Listening', 'live');
   event(muted ? 'muted' : 'unmuted');
 });
-$('download-metrics').addEventListener('click', () => {
-  const blob = new Blob([JSON.stringify({ ...metrics, exportedAt: new Date().toISOString(), limitations: [usesSfu ? 'Speaker mute detaches the remote track; it does not measure acoustic silence or confirm delivery.' : 'Playback clear is a scheduling measurement, not acoustic silence.', usesSfu ? 'First-audio latency and exact chunk playback are not measured for WebRTC.' : 'First audio starts at final transcript and excludes recognition latency.', 'Only the most recent 1000 events per array are retained.', 'No transcript, audio, capability token, or session identifier is exported.'] }, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'voice-session-measurements.json';
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+$('download-metrics').addEventListener('click', async () => {
+  const button = $('download-metrics');
+  if (button.disabled) return;
+  button.disabled = true;
+  const credentials = session;
+  // Freeze the browser counters now, so End or a new call cannot mix sessions.
+  const snapshot = JSON.parse(JSON.stringify(metrics));
+  snapshot.exportedAt = new Date().toISOString();
+  snapshot.serverDiagnosticsStatus = credentials ? 'unavailable' : 'call_ended_or_not_started';
+  try {
+    if (credentials) {
+      const response = await fetch(`/api/session/${encodeURIComponent(credentials.id)}/diagnostics`, {
+        headers: { 'X-Session-Token': credentials.token }, signal: AbortSignal.timeout(5000),
+      });
+      if (response.ok) {
+        snapshot.serverDiagnostics = shareableServerDiagnostics(await response.json());
+        snapshot.serverDiagnosticsStatus = 'available';
+      }
+    }
+  } catch { /* Download the browser snapshot even if server diagnostics fail. */ }
+  try {
+    const blob = new Blob([JSON.stringify({ ...snapshot, limitations: [usesSfu ? 'Speaker mute detaches the remote track; it does not measure acoustic silence or confirm delivery.' : 'Playback clear is a scheduling measurement, not acoustic silence.', usesSfu ? 'First-audio latency and exact chunk playback are not measured for WebRTC.' : 'First audio starts at final transcript and excludes recognition latency.', 'Only the most recent 1000 events per array are retained.', 'Server diagnostics are a later snapshot of this call; absent events do not prove they never occurred.', 'No transcript, audio, capability token, or session identifier is exported.'] }, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'voice-session-measurements.json';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } finally { button.disabled = false; }
 });
 window.addEventListener('pagehide', () => { if (active) endSession(); });

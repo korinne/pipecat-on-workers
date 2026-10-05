@@ -5,9 +5,10 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import { PlaybackQueue, pcm16ToBase64 } from './audio-player.mjs';
+import { shareableServerDiagnostics } from './session-measurements.mjs';
 const settle = () => new Promise(resolve => setImmediate(resolve));
 
-function harness({ fetchSession, capture, transport = 'websocket', publish } = {}) {
+function harness({ fetchSession, capture, transport = 'websocket', publish, fetchDiagnostics } = {}) {
   class Element {
     children = []; listeners = {}; hidden = false; disabled = false;
     classList = { toggle() {} }; attributes = {}; textContent = '';
@@ -25,7 +26,11 @@ function harness({ fetchSession, capture, transport = 'websocket', publish } = {
   const elements = new Map();
   const element = id => { if (!elements.has(id)) elements.set(id, new Element()); return elements.get(id); };
   element('transcript').append(element('empty-state'));
-  const requests = [];
+  const requests = [], downloads = [];
+  class ExportURL extends URL {
+    static createObjectURL(blob) { downloads.push(blob); return 'blob:measurements'; }
+    static revokeObjectURL() {}
+  }
   const timers = new Map();
   let nextTimer = 0;
   const contexts = [], sockets = [], nodes = [], mediaRequests = [], sfus = [];
@@ -67,15 +72,16 @@ function harness({ fetchSession, capture, transport = 'websocket', publish } = {
   }
   const windowListeners = {};
   const sandbox = vm.createContext({
-    PlaybackQueue, pcm16ToBase64, SfuAudioTransport,
+    PlaybackQueue, pcm16ToBase64, SfuAudioTransport, shareableServerDiagnostics,
     document: { body: {dataset: {transport}}, getElementById: element, createElement: () => new Element() },
     window: { AudioContext, RTCPeerConnection: class {}, MediaStream: class {}, AudioWorkletNode: Node, addEventListener(type, fn) { windowListeners[type] = fn; } },
     navigator: { mediaDevices: { async getUserMedia(options) { mediaRequests.push(options); return capture ? capture(track) : { getTracks: () => [track], getAudioTracks: () => [track] }; } } },
-    AudioWorkletNode: Node, WebSocket: Socket, URL, AbortSignal, Int16Array,
+    AudioWorkletNode: Node, WebSocket: Socket, URL: ExportURL, AbortSignal, Int16Array,
     location: { href: 'https://voice.example/', protocol: 'https:' },
     performance, Date, Blob, console,
     fetch: async (url, options) => {
       requests.push({url, options});
+      if (url.endsWith('/diagnostics')) return fetchDiagnostics ? fetchDiagnostics(url, options) : {ok:false};
       assert.equal(url, '/api/session');
       return fetchSession ? fetchSession(url, options) : { ok: true, json: async () => ({ id: 'session-id', token: 'secret-token' }) };
     },
@@ -85,7 +91,7 @@ function harness({ fetchSession, capture, transport = 'websocket', publish } = {
   });
   const code = fs.readFileSync(new URL('./app.js', import.meta.url), 'utf8').replace(/^import .*\n/gm, '');
   vm.runInContext(code, sandbox);
-  return { element, sockets, contexts, nodes, timers, track, requests, mediaRequests, sfus, run: code => vm.runInContext(code, sandbox), windowListeners };
+  return { element, sockets, contexts, nodes, timers, track, requests, downloads, mediaRequests, sfus, run: code => vm.runInContext(code, sandbox), windowListeners };
 }
 
 test('Start, ready, mute, and End release all client resources', async () => {
@@ -484,4 +490,50 @@ test('explicitly stale clear and terminal error leave current audio and receiver
       else { assert.ok(receiver); assert.equal(h.sfus[0].output,receiver); }
     } finally { h.element('end').click(); }
   }
+});
+
+
+test('measurement export requests private diagnostics and excludes their internal fields', async()=>{
+  const h=harness({transport:'webrtc',fetchDiagnostics:async(url, options)=>{
+    assert.equal(url,'/api/session/session-id/diagnostics');
+    assert.equal(options.headers['X-Session-Token'],'secret-token');
+    assert.ok(options.signal);
+    return {ok:true,json:async()=>({input_audio_bytes:640,token:'PRIVATE',history:['PRIVATE'],
+      metrics:[{event:'smart_turn',complete:false,probability:.1,text:'PRIVATE'}]})};
+  }});
+  await h.element('start').click();
+  await h.element('download-metrics').click();
+  const text=await h.downloads[0].text(), report=JSON.parse(text);
+  assert.equal(report.serverDiagnosticsStatus,'available');
+  assert.equal(report.serverDiagnostics.input_audio_bytes,640);
+  assert.equal(report.serverDiagnostics.events[0].complete,false);
+  assert.doesNotMatch(text,/PRIVATE|secret-token|session-id/);
+  assert.equal(h.element('download-metrics').disabled,false);
+  h.element('end').click();
+});
+test('failed diagnostics still export the frozen browser snapshot across End and a new call',async()=>{
+  let reject;
+  const h=harness({fetchDiagnostics:()=>new Promise((_,r)=>{reject=r;})});
+  await h.element('start').click();
+  h.run("event('old_call_marker')");
+  const pending=h.element('download-metrics').click();
+  await h.element('download-metrics').click(); // Duplicate clicks cannot start another request.
+  assert.equal(h.requests.filter(r=>r.url.endsWith('/diagnostics')).length,1);
+  h.element('end').click(); await h.element('start').click();
+  h.run("event('new_call_marker')");
+  reject(new Error('private failing URL')); await pending;
+  const report=JSON.parse(await h.downloads[0].text());
+  assert.equal(report.serverDiagnosticsStatus,'unavailable');
+  assert.ok(report.events.some(e=>e.event==='old_call_marker'));
+  assert.ok(!report.events.some(e=>e.event==='new_call_marker'));
+  assert.ok(!h.run("metrics.events.some(e=>e.event==='old_call_marker')"));
+  assert.equal(h.element('download-metrics').disabled,false);
+  h.element('end').click();
+});
+test('ended call measurements explicitly mark missing server snapshot',async()=>{
+  const h=harness(); await h.element('start').click(); h.element('end').click();
+  await h.element('download-metrics').click();
+  const report=JSON.parse(await h.downloads[0].text());
+  assert.equal(report.serverDiagnosticsStatus,'call_ended_or_not_started');
+  assert.equal(h.requests.filter(r=>r.url.endsWith('/diagnostics')).length,0);
 });
