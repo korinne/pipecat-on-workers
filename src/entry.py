@@ -249,7 +249,7 @@ class Conversation(DurableObject):
             else:
                 factory = lambda callback: WorkersProviders(self.env, callback)
             self.session = ConversationSession(self.state, factory, self.send, self.save,
-                on_fatal=self.provider_failed, turn_end_grace_ms=0 if self.fixture else 1200,
+                on_fatal=self.provider_failed,
                 audio_transport=self.sfu)
             self.startup_stop = None
             self.starting_connection = True

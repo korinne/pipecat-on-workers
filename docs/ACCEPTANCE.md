@@ -42,6 +42,12 @@ Use [GOALS](GOALS.md#task-1-reference-configuration) for the exact service/forma
 
 AI1 now needs full-pipeline tests for the observed stale-result inference risk, p99 fallback, inactivity watchdog, provider/audio-watermark alignment and timeout invalidation. A controller-only probe cannot pass those integration checks. AI2 still needs live request acceptance and actual GPT-OSS response events: controlled SSE fixtures cannot satisfy them. PC1 needs a Workers-compatible installation, not the successful local CPython installation. No B1 through B6 release outcome changes to pass from these probes alone.
 
+## Task 2 controlled integration boundary
+
+The [Task 2 results](EVIDENCE.md#task-2-turn-integration) exercise Nova-shaped events and synthetic hosted decisions through actual vendored Pipecat frame queues. They cover onset interruption, incomplete pauses, completion in either transcript order, empty endpoints, duplicate/reordered final ranges, resumed speech overtaking queued completion, late canceled decisions, reconnect, detector failure, readiness deadlines, forced watchdog expiry and immediate recovery. They assert the next model input and absence of partial/stale user context.
+
+These checks establish the application coordinator's behavior for the declared fixtures. AI1 still needs observed Nova events, accepted hosted input, Python/JavaScript conversion, cancellation and representative speech through both live routes. The timestamp/coverage assumptions are explicit in [Conversation](CONVERSATION.md#task-2-user-turn-coordination). Expired test access leaves those checks untested. The application still uses the baseline Llama response path and custom assistant history, so Task 2 does not pass AI2, CONTEXT1 or the full reference pipeline.
+
 ## Package and runtime requirements
 
 ### PC1: Install the candidate package

@@ -1,8 +1,8 @@
-# How the prototype works today
+# Prototype baseline and current implementation
 
 A person speaks into the browser. The application sends that audio to speech recognition, asks a language model for an answer, converts the answer to speech, and returns the audio to the browser. Pipecat coordinates the work inside a Python Durable Object (DO), which owns one call's live state.
 
-This describes application revision `6c17c0805f13f7609ba0a93ea8bf4c945797de18`. The [goals](GOALS.md) describe the intended changes. Updating these documents has left the application code unchanged.
+The recorded baseline is application revision `6c17c0805f13f7609ba0a93ea8bf4c945797de18`. Task 2 changes recognition and turn completion in the current source, as described below. The baseline recordings and result files remain evidence of the original Flux configuration. [Goals](GOALS.md) describes the full intended configuration.
 
 ## Follow one conversation
 
@@ -14,7 +14,7 @@ flowchart LR
     Browser <-->|SFU route: WebRTC audio| SFU[Realtime SFU]
     SFU <-->|WebSocket media adapters: PCM| DO
     Browser <-->|SFU route: control WebSocket| DO
-    DO <--> AI[Workers AI: Flux, Llama, Aura]
+    DO <--> AI[Workers AI: Nova-3, Smart Turn, Llama, Aura]
     DO <--> Storage[(Saved conversation state)]
 ```
 
@@ -23,15 +23,16 @@ The two routes carry the same user's conversation. An "SFU reply" means an assis
 | Component | Current responsibility |
 | --- | --- |
 | [Worker and DO entry](../src/entry.py) | Authenticate requests, create sessions, own call lifetime, and authorize SFU callbacks. |
-| [Conversation](../src/conversation.py) | Run `LLMUserAggregator → GenerateResponse`, coordinate turns, cancel responses, and save context. |
+| [Conversation](../src/conversation.py) | Run the adapted standard user aggregator and `GenerateResponse`, cancel responses, and save context. |
+| [Turn adapter](../src/smart_turn.py) | Coordinate Nova onset, Smart Turn completion and final transcript readiness through Pipecat. |
 | [Providers](../src/providers.py) | Stream Workers AI requests and own their tasks, readers, and sockets. |
 | [Browser application](../public/app.js) | Capture the microphone, display transcripts, detect local speech onset, and control a call. |
 | [SFU transport](../src/sfu_transport.py) and [audio conversion](../src/sfu_codec.py) | Negotiate media, convert PCM, and own tracks and adapters for each response. |
 | [SFU browser client](../public/sfu-client.mjs) | Publish microphone audio and receive assistant audio over WebRTC. |
 
-The prototype uses Flux (`@cf/deepgram/flux`) for recognition and turn events, Llama (`@cf/meta/llama-3.3-70b-instruct-fp8-fast`) for text, and Aura-2 (`@cf/deepgram/aura-2-en`) for speech. Calls use the Workers AI binding. Hosted Smart Turn and the selected `@cf/openai/gpt-oss-120b` LLM are planned changes. Neither is integrated in this baseline. The target configuration and its remaining checks are in [Goals](GOALS.md) and [AI2](ACCEPTANCE.md#ai2-stream-gpt-oss-answers-into-speech).
+The Task 2 source selects Nova-3 (`@cf/deepgram/nova-3`) for recognition and hosted Smart Turn (`@cf/pipecat-ai/smart-turn-v2`) for semantic completion. It retains Llama (`@cf/meta/llama-3.3-70b-instruct-fp8-fast`) for text and Aura-2 (`@cf/deepgram/aura-2-en`) for speech. Calls use the Workers AI binding. The selected `@cf/openai/gpt-oss-120b` and standard assistant speech/output/context integration remain Task 3 work. The new turn connection passes controlled integration tests; it has no live Workers AI result yet.
 
-Flux turn events feed Pipecat's external turn strategy. Production waits another 1,200 ms after the latest end-of-turn event, canceling that wait if speech resumes. It can join up to 16 fragments and 8,192 characters. Fixture routes use zero grace. Final-transcript-to-first-audio timing excludes this extra wait; input-end-to-first-audio timing includes it. Record which interval a latency result measures.
+In the historical baseline, Flux turn events fed Pipecat's external strategy and production waited an extra 1,200 ms after the latest end event; fixtures used zero grace. Those waits are removed from the Task 2 path. Nova speech onset now starts or resumes the Pipecat turn; its pause event requests Smart Turn analysis. The standard user aggregator receives text only after completion and final transcript coverage agree for the same current revision. The turn retains at most 16 final fragments, 8,192 characters and 8.2 seconds of PCM, with at most eight seconds per detector snapshot. [Coordination, timeout settings and timestamp limits](CONVERSATION.md#task-2-user-turn-coordination)
 
 The response processor calls the model and speech service directly. A fictional appointment tool supplies fixed availability; it cannot book an appointment. Storage preserves conversation context, not running tasks or buffered audio. Reconnect creates a fresh pipeline.
 
@@ -95,7 +96,7 @@ Session details expose capture, provider, and media progress for diagnosis. Thei
 
 ## Runtime and vendored code
 
-The source includes 119 selected Pipecat 1.11.0 modules and six compatibility edits. The [vendor manifest](../src/pipecat/VENDOR_MANIFEST.json), [patch](../pipecat-compat.patch), and [evidence](EVIDENCE.md) identify them. This subset is not a supported upstream distribution.
+The source includes 119 selected Pipecat 1.11.0 modules and six compatibility edits. Task 2 uses the already included upstream base turn-analyzer interface for its async adapter. The [vendor manifest](../src/pipecat/VENDOR_MANIFEST.json), [patch](../pipecat-compat.patch), and [evidence](EVIDENCE.md) identify them. This subset is not a supported upstream distribution.
 
 The chosen configuration avoids optional audio imports and thread-based prewarming. It also uses the host's running asynchronous event loop. Loading a module, starting a pipeline, and running a complete voice call exercise different requirements; passing one does not establish the others.
 

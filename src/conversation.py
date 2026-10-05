@@ -9,18 +9,18 @@ import contextlib
 import copy
 import re
 import time
-from datetime import datetime, timezone
 
 from pipecat.frames.frames import (
-    Frame, InterruptionFrame, LLMContextFrame, ProposedUserStartedSpeakingFrame,
-    ProposedUserStoppedSpeakingFrame, TranscriptionFrame, UserStoppedSpeakingFrame,
+    Frame, InterruptionFrame, LLMContextFrame,
 )
 from pipecat.pipeline.pipeline import Pipeline
 from pipecat.pipeline.worker import PipelineParams, PipelineWorker
 from pipecat.processors.aggregators.llm_context import LLMContext
 from pipecat.processors.aggregators.llm_response_universal import LLMUserAggregator, LLMUserAggregatorParams
 from pipecat.processors.frame_processor import FrameDirection, FrameProcessor
-from pipecat.turns.user_turn_strategies import ExternalUserTurnStrategies
+from pipecat.turns.user_turn_strategies import UserTurnStrategies
+from pipecat.turns.user_start.vad_user_turn_start_strategy import VADUserTurnStartStrategy
+from smart_turn import NovaTurnCoordinator, HostedTurnStopStrategy, HostedUserAggregator
 from pipecat.utils.asyncio.task_manager import TaskManager
 from pipecat.workers.base_worker import WorkerParams
 
@@ -67,20 +67,13 @@ class GenerateResponse(FrameProcessor):
 
 class ConversationSession:
     def __init__(self, state, provider_factory, send, save, *, tool=lookup_availability,
-                 on_fatal=None, turn_end_grace_ms=0, audio_transport=None):
+                 on_fatal=None, turn_timeout_secs=5, user_turn_stop_timeout=30, audio_transport=None):
         self.state = state
         self.send = send
         self.save = save
         self.tool = tool
         self.on_fatal = on_fatal
         self.audio_transport = audio_transport
-        self.turn_end_grace_ms = max(0, int(turn_end_grace_ms))
-        self._turn_lock = asyncio.Lock()
-        self._turn_commit_task = None
-        self._turn_open = False
-        self._turn_fragments = []
-        self._turn_chars = 0
-        self._turn_key = None
         system = SYSTEM if audio_transport is None else SYSTEM.replace(
             'Assistant history includes only fully played sentences; an interrupted sentence may be absent.',
             'Audio playback cannot be confirmed for this call. Prior assistant replies are omitted from history; '
@@ -99,14 +92,14 @@ class ConversationSession:
         self.closed = False
         self.provider = provider_factory(self.provider_event)
         self.manager = TaskManager()
-        turn_strategies = ExternalUserTurnStrategies()
-        # We deliver final text before the normal stop proposal. An aborted
-        # empty turn must also close without waiting for text that was discarded.
-        turn_strategies.stop[0].wait_for_transcript = False
-        self.user = LLMUserAggregator(self.context, params=LLMUserAggregatorParams(
-            user_turn_strategies=turn_strategies, vad_analyzer=None,
-            audio_idle_timeout=0, user_turn_stop_timeout=30,
+        self.turn = NovaTurnCoordinator(self.provider, self._queue_turn_frame, self.send,
+                                        self.measure, timeout=turn_timeout_secs)
+        stop = HostedTurnStopStrategy(self.turn)
+        self.user = HostedUserAggregator(self.context, coordinator=self.turn, params=LLMUserAggregatorParams(
+            user_turn_strategies=UserTurnStrategies(start=[VADUserTurnStartStrategy()], stop=[stop]),
+            vad_analyzer=None, audio_idle_timeout=0, user_turn_stop_timeout=user_turn_stop_timeout,
         ))
+        stop.aggregator = self.user
         self.processor = GenerateResponse(self)
         self.worker = PipelineWorker(Pipeline([self.user, self.processor]),
             params=PipelineParams(audio_in_sample_rate=16000, audio_out_sample_rate=24000),
@@ -117,7 +110,6 @@ class ConversationSession:
         self.last_activity = time.monotonic()
         self.began = self.last_activity
         self.metrics = []
-        self.seen_turns = set()
         self.last_interrupt = None
         self.responding = False
         self.sentence_parts = []
@@ -157,12 +149,17 @@ class ConversationSession:
             await self.close("startup_failed")
             raise
 
+    async def _queue_turn_frame(self, frame):
+        from pipecat.frames.frames import VADUserStartedSpeakingFrame
+        if isinstance(frame, VADUserStartedSpeakingFrame):
+            self.last_interrupt = time.monotonic()
+        await self.worker.queue_frame(frame)
+
     async def provider_event(self, event):
         if self.closed:
             return
         if event.get("type") == "ProviderError":
-            async with self._turn_lock:
-                await self._cancel_turn_commit(discard=True)
+            await self.turn.abort("provider_error", notify=False)
             terminal = not event.get("recoverable", False)
             await self.send({"type": "error", "message": event.get("message", "Speech connection failed") +
                              (" Speech recognition stopped; start a new call." if terminal else
@@ -173,106 +170,10 @@ class ConversationSession:
                     await self.on_fatal()
                 else:
                     await self.close("terminal_provider_failure")
-                return
-            await self.interrupt()
-            return
-        if event.get("type") != "TurnInfo":
-            return
-        async with self._turn_lock:
-            if not self.closed:
-                await self._turn_info(event)
-
-    async def _turn_info(self, event):
-        kind, text = event.get("event"), event.get("transcript", "")
-        if kind == "StartOfTurn":
-            await self._cancel_turn_commit()
-            # A resumed fragment belongs to the open Pipecat turn. Repeating
-            # its start signal would reset the external-turn strategy.
-            if not self._turn_open:
-                self._turn_open = True
-                self.last_interrupt = time.monotonic()
-                await self.worker.queue_frame(ProposedUserStartedSpeakingFrame())
-        elif kind == "EndOfTurn":
-            key = (event.get("connection_generation", 0), event.get("turn_index"))
-            if key in self.seen_turns or not text.strip():
-                return
-            self.seen_turns.add(key)
-            if len(self.seen_turns) > 200:
-                self.seen_turns = {key}
-            text = text.strip()
-            chars = self._turn_chars + len(text) + bool(self._turn_fragments)
-            if len(self._turn_fragments) >= MAX_PENDING_USER_FRAGMENTS or chars > MAX_PENDING_USER_CHARS:
-                await self._cancel_turn_commit(discard=True)
-                await self.send({"type": "error", "message":
-                                 "Speech turn exceeded its text limit; please repeat a shorter request."})
+            else:
                 await self.interrupt()
-                return
-            await self._cancel_turn_commit()
-            self._turn_fragments.append(text)
-            self._turn_chars = chars
-            self._turn_key = key
-            self.measure("provider_end", {"turn": str(key), "grace_ms": self.turn_end_grace_ms})
-            if self.turn_end_grace_ms:
-                await self.send({"type": "transcript", "role": "user",
-                                 "text": " ".join(self._turn_fragments), "final": False})
-                self._turn_commit_task = asyncio.create_task(self._commit_turn_after_grace())
-            else:
-                await self._commit_user_turn()
-        elif kind == "Update" and text:
-            preview = " ".join([*self._turn_fragments, text])[:MAX_PENDING_USER_CHARS]
-            await self.send({"type": "transcript", "role": "user", "text": preview, "final": False})
-
-    async def _cancel_turn_commit(self, *, discard=False):
-        task, self._turn_commit_task = self._turn_commit_task, None
-        if task is not None and task is not asyncio.current_task():
-            task.cancel()
-            with contextlib.suppress(asyncio.CancelledError):
-                await task
-        if discard:
-            self._turn_fragments.clear()
-            self._turn_chars = 0
-            self._turn_key = None
-            if self._turn_open and not self.closed:
-                # This system frame survives interruption and precedes a
-                # reconnected start. No transcription was given to Pipecat,
-                # so closing this empty turn cannot trigger model inference.
-                await self.worker.queue_frame(UserStoppedSpeakingFrame())
-            self._turn_open = False
-
-    async def _commit_turn_after_grace(self):
-        current = asyncio.current_task()
-        try:
-            await asyncio.sleep(self.turn_end_grace_ms / 1000)
-            async with self._turn_lock:
-                if not self.closed and self._turn_commit_task is current:
-                    await self._commit_user_turn()
-        except asyncio.CancelledError:
-            raise
-        except Exception as exc:
-            self.measure("error", {"message": f"Turn commit failed: {exc}"})
-            await self.send({"type": "error", "message": "Speech turn could not be committed; start a new call."})
-            if self.on_fatal:
-                await self.on_fatal()
-            else:
-                await self.close("turn_commit_failed")
-        finally:
-            if self._turn_commit_task is current:
-                self._turn_commit_task = None
-
-    async def _commit_user_turn(self):
-        if self.closed or not self._turn_fragments:
             return
-        text = " ".join(self._turn_fragments)
-        key, fragments = self._turn_key, len(self._turn_fragments)
-        self._turn_fragments.clear()
-        self._turn_chars = 0
-        self._turn_key = None
-        self._turn_open = False
-        await self.send({"type": "transcript", "role": "user", "text": text, "final": True})
-        self.measure("user_end", {"turn": str(key), "fragments": fragments,
-                                  "grace_ms": self.turn_end_grace_ms})
-        await self.worker.queue_frame(TranscriptionFrame(text, "user", datetime.now(timezone.utc).isoformat()))
-        await self.worker.queue_frame(ProposedUserStoppedSpeakingFrame())
+        await self.turn.event(event)
 
     async def audio(self, pcm):
         if self.closed:
@@ -284,6 +185,7 @@ class ConversationSession:
         self.input_audio_bytes += len(pcm)
         if await self.provider.send_audio(pcm) is True:
             self.forwarded_audio_bytes += len(pcm)
+            self.turn.append_audio(pcm)
 
     async def interrupt(self):
         if self.closed:
@@ -447,9 +349,7 @@ class ConversationSession:
     def diagnostics(self):
         return {"generation": self.generation, "closed": self.closed,
                 "pipecat_tasks": len([t for t in self.manager.current_tasks() if not t.done()]),
-                "pending_turn_tasks": int(self._turn_commit_task is not None and not self._turn_commit_task.done()),
-                "pending_user_fragments": len(self._turn_fragments),
-                "pending_user_chars": self._turn_chars, "turn_end_grace_ms": self.turn_end_grace_ms,
+                **self.turn.diagnostics(),
                 "input_audio_chunks": self.input_audio_chunks,
                 "input_audio_bytes": self.input_audio_bytes,
                 "forwarded_audio_bytes": self.forwarded_audio_bytes,
@@ -463,7 +363,7 @@ class ConversationSession:
         if self.closed:
             return
         self.closed = True
-        await self._cancel_turn_commit(discard=True)
+        await self.turn.close()
         await self.worker.cancel(reason=reason)
         if self.run_task:
             with contextlib.suppress(asyncio.TimeoutError, asyncio.CancelledError):

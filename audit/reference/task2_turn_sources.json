@@ -1,0 +1,125 @@
+{
+  "task": 2,
+  "checked_at_utc": "2026-10-05T03:52:27.064281+00:00",
+  "evidence_kind": "official_documentation_review_not_live_inference",
+  "sources": [
+    {
+      "id": "speech-started",
+      "url": "https://developers.deepgram.com/docs/speech-started",
+      "facts": [
+        "vad_events=true enables SpeechStarted. Its timestamp marks detected speech, which may differ from the first word start because timing systems are separate."
+      ],
+      "limits": [
+        "No precise event-delivery delay or millisecond alignment guarantee is stated."
+      ]
+    },
+    {
+      "id": "endpointing",
+      "url": "https://developers.deepgram.com/docs/endpointing",
+      "facts": [
+        "speech_final=true marks a detected pause. endpointing sets the requested silence interval in milliseconds.",
+        "The example contains speech_final=true with is_final=false; start+duration ends at its last word, not after an explicit silence range."
+      ],
+      "limits": [
+        "A finalized transcript end is not a documented silence-end watermark. Adding the endpoint interval to that timestamp is an assumption, not source-verified alignment."
+      ]
+    },
+    {
+      "id": "interim-coordination",
+      "url": "https://developers.deepgram.com/docs/understand-endpointing-interim-results",
+      "facts": [
+        "is_final=true locks a segment; more than one final segment can precede speech_final=true. Complete text requires concatenating final segments.",
+        "An endpoint is pause detection, not proof of semantic completion."
+      ]
+    },
+    {
+      "id": "transcript-cursor",
+      "url": "https://developers.deepgram.com/docs/using-interim-results",
+      "facts": [
+        "A final span can end before the previous interim span; later speech moves into the next transcript range.",
+        "start+duration describes the transcript cursor, not all audio received by the service."
+      ],
+      "limits": [
+        "An older final result cannot be assigned to current speech solely by its arrival time."
+      ]
+    },
+    {
+      "id": "timestamp-precision",
+      "url": "https://developers.deepgram.com/docs/measuring-streaming-latency",
+      "facts": [
+        "The documentation warns that start and duration are not guaranteed millisecond precision."
+      ],
+      "limits": [
+        "Sample-exact speech boundaries and latency cannot be inferred from these fields."
+      ]
+    },
+    {
+      "id": "finalize",
+      "url": "https://developers.deepgram.com/docs/finalize",
+      "facts": [
+        "Send {type: Finalize} to flush unprocessed audio. from_finalize=true may acknowledge this, but is not guaranteed when little or no buffered audio remains."
+      ],
+      "limits": [
+        "No request/revision identifier is documented. A missing acknowledgement cannot be treated as either successful readiness or an unbounded wait."
+      ]
+    },
+    {
+      "id": "nova-workers",
+      "url": "https://developers.cloudflare.com/workers-ai/models/nova-3/",
+      "facts": [
+        "Workers AI lists Nova-3 as realtime capable, with encoding, channels, interim_results, endpointing and vad_events parameters."
+      ],
+      "limits": [
+        "Published input schema requires audio and omits sample_rate even though realtime raw PCM requires its rate. Complete WebSocket binding parameters remain a live compatibility question."
+      ]
+    },
+    {
+      "id": "smart-turn-workers",
+      "url": "https://developers.cloudflare.com/workers-ai/models/smart-turn-v2/",
+      "facts": [
+        "Workers AI returns boolean is_complete and numeric probability."
+      ],
+      "limits": [
+        "Accepted base64 float32 encoding at 16 kHz and eight-second windows remains untested on the binding."
+      ]
+    }
+  ],
+  "implementation_inferences": [
+    "Retain final transcript segments by provider range and tolerate empty endpoint results without duplicating earlier text. The reviewed primary docs do not guarantee the timing or ranges of empty endpoint messages.",
+    "Use a snapshot bounded by a validated provider transcript range; never select the newest ring-buffer tail just because a delayed event arrived now. This is conservative alignment, not a guarantee that the model has trailing silence.",
+    "Do not turn speech_final with interim text into transcript readiness. Keep candidate completion and final transcript readiness separate.",
+    "Invalidate pending candidates when newer SpeechStarted events or other verified speech-resumption evidence arrives. Events that have not arrived cannot be known; live delivery-lag behavior still needs measurement.",
+    "Finalize is a bounded request to improve readiness, not a semantic completion signal and not an acknowledgement protocol with exactly one response."
+  ],
+  "live_recipe": {
+    "config": "audit/reference/task2_turn.wrangler.jsonc",
+    "entry": "audit/reference/task2_turn_binding.py",
+    "start": [
+      "uv",
+      "run",
+      "pywrangler",
+      "dev",
+      "--config",
+      "audit/reference/task2_turn.wrangler.jsonc",
+      "--local",
+      "--ip",
+      "127.0.0.1"
+    ],
+    "input": "POST local /nova or /smart-turn with JSON pcm16_base64 and fixture_label. Use an authorized synthetic mono 16 kHz PCM16 LE recording, no WAV header, at most eight seconds. Record the expected transcript and speech/pause offsets separately.",
+    "capture": "Nova sends 20 ms packets paced in real time, appends one second of generated silence, sends Finalize and captures at most 128 selected events. It bounds the Finalize wait to three seconds without promoting timeout to readiness. Smart Turn submits normalized little-endian float32 base64 with dtype=float32.",
+    "boundaries": [
+      "Run with repository-locked Wrangler 4.139.0 and existing authenticated remote AI binding.",
+      "Local use only; no deploy command, public routes, application imports or production mutations.",
+      "No LLM/TTS requests. The caller explicitly supplies synthetic test audio.",
+      "Compare Nova provider timestamps to known fixture offsets; capture completed speech, mid-thought pause, resumption, empty final if observed, and Finalize outcomes.",
+      "Do not label generated silence or fixture event order a model contract.",
+      "AbortSignal is requested; remote compute cancellation and late response cleanup remain unverified."
+    ],
+    "validation": {
+      "python_syntax": "passed",
+      "sanitizer_cases": 4,
+      "python_workers_startup": "untested",
+      "live_model_requests": 0
+    }
+  }
+}

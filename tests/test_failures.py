@@ -1,4 +1,4 @@
-"""Regression checks for terminal STT failure and resumed provider turn numbering."""
+"""Regression checks for terminal STT failure and a new provider audio clock."""
 import asyncio
 import pathlib
 import sys
@@ -96,24 +96,22 @@ class ProviderFailureTests(unittest.IsolatedAsyncioTestCase):
         finally:
             await h.close()
 
-    async def test_reconnect_resets_turn_index_without_losing_final_transcript(self):
+    async def test_reconnect_resets_audio_clock_without_losing_final_transcript(self):
         h = await Harness().start()
         try:
             await h.turn("before reconnect", 0)
             await h.response()
             await h.acknowledge()
             await h.begin("unfinished fragment", 1)
-            await h.session.provider_event({"type": "TurnInfo", "event": "Update",
-                "transcript": "unfinished fragment", "turn_index": 1, "connection_generation": 1})
+            await h.finish("unfinished fragment", 1, final=False, pause=False)
             before = h.session.generation
             await h.session.provider_event({"type": "ProviderError", "provider": "stt",
                 "message": "Socket lost", "recoverable": True, "audio_gap": True})
             await wait_for(lambda: h.session.generation > before, "recoverable error interruption")
             self.assertFalse(h.session.closed)
-            await h.session.provider_event({"type": "TurnInfo", "event": "StartOfTurn",
-                "transcript": "", "turn_index": 0, "connection_generation": 2})
-            final = {"type": "TurnInfo", "event": "EndOfTurn",
-                "transcript": "after reconnect", "turn_index": 0, "connection_generation": 2}
+            await h.provider.reconnect()
+            await h.begin("after reconnect", 0)
+            final = h.result("after reconnect", 0)
             await h.session.provider_event(final)
             await h.response(2)
             await h.session.provider_event(final)

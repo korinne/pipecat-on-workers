@@ -1,8 +1,10 @@
 """Adapter protocol/cancellation checks using explicitly fake JS/provider I/O."""
 import pathlib
 import asyncio
+import base64
 import importlib.util
 import json
+import struct
 import sys
 import types
 from types import SimpleNamespace as N
@@ -126,8 +128,9 @@ async def main():
     stt=m.WorkersProviders(N(AI=AI(N(webSocket=stt_ws))),lambda event:None)
     await stt.start()
     model,parameters,options=stt.env.AI.calls[-1]
-    assert model==m.STT_MODEL and parameters['eot_threshold']=='0.9'
-    assert parameters['eot_timeout_ms']=='5000' and parameters['sample_rate']=='16000'
+    assert model=='@cf/deepgram/nova-3'
+    assert parameters=={'encoding':'linear16','sample_rate':'16000','channels':1,
+                        'language':'en-US','interim_results':True,'vad_events':True,'endpointing':'200'}
     assert options=={'websocket':True}
     await stt.close()
     assert stt_ws.closed and not stt_ws.callbacks
@@ -189,7 +192,9 @@ async def main():
     await connection_failures()
     await connection_retries()
     await cleanup_ownership()
-    print('PASS: provider protocol, unhashable reader ownership, bounded sanitized upgrade errors, quota/capacity classification, bounded capacity retries, cancellation/deadline handling, partial socket setup cleanup, late cleanup ownership, SSE, PCM and explicit shutdown (fake I/O only)')
+    await nova_events_and_keepalive()
+    await hosted_turn()
+    print('PASS: provider protocol, Nova request/events/control keepalive, Smart Turn serialization/validation/deadlines/bounded unresolved requests, unhashable reader ownership, bounded sanitized upgrade errors, quota/capacity classification, bounded capacity retries, cancellation/deadline handling, partial socket setup cleanup, late cleanup ownership, SSE, PCM and explicit shutdown (fake I/O only)')
 
 
 def rejected(payload, *, retry_after=None, status=429):
@@ -394,5 +399,150 @@ async def cleanup_ownership():
     assert len(provider._discarding_requests)==1
     await asyncio.sleep(0)
     assert ws.closed and not provider._discarding_requests
+
+
+async def nova_events_and_keepalive():
+    ws=WS(); events=[]
+    provider=m.WorkersProviders(N(AI=AI(N(webSocket=ws))),events.append)
+    original=m.STT_KEEPALIVE_INTERVAL
+    m.STT_KEEPALIVE_INTERVAL=0.01
+    try:
+        await provider.start()
+        provider.last_audio-=1
+        audio_time=provider.last_audio
+        await asyncio.sleep(0.025)
+        assert ws.sent and all(json.loads(value)=={'type':'KeepAlive'} for value in ws.sent)
+        assert provider.last_audio==audio_time
+        assert await provider.send_audio(b'\x00\x01')
+        assert ws.sent[-1]==b'\x00\x01' and provider.last_audio>audio_time
+        ws.callbacks['message'].callback(N(data=json.dumps({'type':'SpeechStarted','timestamp':0.4})))
+        await asyncio.sleep(0)
+        await asyncio.sleep(0)
+        assert any(event.get('type')=='SpeechStarted' and event['connection_generation']==1 for event in events)
+    finally:
+        await provider.close()
+        m.STT_KEEPALIVE_INTERVAL=original
+    for payload in ({'type':'Error','description':'PRIVATE UPSTREAM TEXT'},
+                    {'type':'error','message':'PRIVATE UPSTREAM TEXT'},
+                    {'type':123,'message':'PRIVATE UPSTREAM TEXT'},
+                    {'type':'','message':'PRIVATE UPSTREAM TEXT'},
+                    ['PRIVATE UPSTREAM TEXT'], 'PRIVATE UPSTREAM TEXT',b'PRIVATE UPSTREAM TEXT'):
+        ws=WS(); events=[]; failed=asyncio.Event()
+        def event_received(event):
+            events.append(event)
+            if event.get('type')=='ProviderError': failed.set()
+        provider=m.WorkersProviders(N(AI=AI(N(webSocket=ws))),event_received)
+        await provider.start()
+        ws.callbacks['message'].callback(N(data=payload if isinstance(payload,(str,bytes)) else json.dumps(payload)))
+        await asyncio.wait_for(failed.wait(),1)
+        error=[event for event in events if event.get('type')=='ProviderError'][0]
+        assert error['audio_gap'] and error['recoverable']
+        assert 'PRIVATE' not in json.dumps(events) and ws.closed
+        await provider.close()
+
+    class IdleSocket:
+        def __init__(self): self.received=asyncio.Event(); self.calls=0
+        async def receive(self,timeout):
+            self.calls+=1
+            if self.calls==1: raise asyncio.TimeoutError
+            self.received.set()
+            await asyncio.Event().wait()
+        def close(self): pass
+    events=[]; provider=m.WorkersProviders(N(AI=None),events.append)
+    provider.stt=IdleSocket(); provider.last_audio-=60
+    task=provider._task(provider._pump_stt())
+    await asyncio.wait_for(provider.stt.received.wait(),1)
+    assert not events and not task.done()
+    await provider.close()
+
+
+async def hosted_turn():
+    pcm=struct.pack('<5h',-32768,-1,0,1,32767)
+    provider=m.WorkersProviders(N(AI=AI({'is_complete':True,'probability':0.9})),lambda event:None)
+    assert await provider.analyze_turn(pcm)=={'is_complete':True,'probability':0.9}
+    model,parameters=provider.env.AI.calls[-1]
+    assert model=='@cf/pipecat-ai/smart-turn-v2' and parameters['dtype']=='float32'
+    samples=struct.unpack('<5f',base64.b64decode(parameters['audio'],validate=True))
+    assert samples==(-1.0,-1/32768,0.0,1/32768,32767/32768)
+    # Binding results may be Pyodide proxies instead of already-converted dicts.
+    provider.env.AI=AI(N(js_object=N(to_py=lambda:{'is_complete':False,'probability':0})))
+    assert await provider.analyze_turn(pcm)=={'is_complete':False,'probability':0.0}
+    for invalid in (b'',b'\x00',bytes(m.TURN_MAX_AUDIO_BYTES+2),None,'text'):
+        try: await provider.analyze_turn(invalid)
+        except ValueError: pass
+        else: raise AssertionError('Invalid audio reached detector')
+    assert len(provider.env.AI.calls)==1
+    provider.env.AI=AI({'is_complete':False,'probability':1})
+    await provider.analyze_turn(bytes(m.TURN_MAX_AUDIO_BYTES))
+    assert len(base64.b64decode(provider.env.AI.calls[-1][1]['audio']))==m.TURN_MAX_AUDIO_BYTES*2
+    for result in ({},[],None,{'is_complete':1,'probability':0.5},
+                   {'is_complete':False,'probability':True},
+                   {'is_complete':False,'probability':'0.5'},
+                   *({'is_complete':True,'probability':value} for value in (-0.1,1.1,10**1000,float('inf'),float('nan')))):
+        provider.env.AI=AI(result)
+        try: await provider.analyze_turn(pcm)
+        except m.ProviderError: pass
+        else: raise AssertionError('Invalid detector result accepted')
+
+    class BrokenAI:
+        async def run(self,*args): raise RuntimeError('PRIVATE UPSTREAM TEXT')
+    provider.env.AI=BrokenAI()
+    try: await provider.analyze_turn(pcm)
+    except m.ProviderError as exc: assert 'PRIVATE' not in str(exc)
+    else: raise AssertionError('Detector failure accepted')
+    await provider.close()
+
+    for cancel in (False,True):
+        gate=asyncio.Event(); started=asyncio.Event()
+        class HeldAI:
+            calls=0
+            async def run(self,*args):
+                self.calls+=1; started.set(); await gate.wait()
+                return {'is_complete':True,'probability':1}
+        ai=HeldAI(); provider=m.WorkersProviders(N(AI=ai),lambda event:None)
+        original=m.TURN_TIMEOUT; m.TURN_TIMEOUT=0.02
+        try:
+            pending=asyncio.create_task(provider.analyze_turn(pcm))
+            await started.wait()
+            if cancel: pending.cancel()
+            try: await pending
+            except asyncio.CancelledError: assert cancel
+            except m.ProviderError as exc: assert not cancel and 'timed out' in str(exc)
+            else: raise AssertionError('Detector wait did not end')
+            assert provider.diagnostics()['pending_turn_requests']==1
+            for _ in range(3):
+                try: await provider.analyze_turn(pcm)
+                except m.ProviderError as exc: assert 'previous request' in str(exc)
+                else: raise AssertionError('Unresolved detector request did not retain its slot')
+            assert ai.calls==1 and provider.diagnostics()['pending_provider_requests']==1
+            gate.set(); await asyncio.sleep(0.01)
+            assert provider.diagnostics()['pending_turn_requests']==0
+            assert provider.diagnostics()['pending_provider_requests']==0 and not provider._discarding_requests
+            assert await provider.analyze_turn(pcm)=={'is_complete':True,'probability':1.0}
+            await provider.close()
+            try: await provider.analyze_turn(pcm)
+            except m.ProviderError: pass
+            else: raise AssertionError('Closed provider accepted detector request')
+        finally:
+            gate.set()
+            await provider.close()
+            m.TURN_TIMEOUT=original
+
+    gate=asyncio.Event(); started=asyncio.Event()
+    class CloseHeldAI:
+        async def run(self,*args):
+            started.set(); await gate.wait()
+            return {'is_complete':True,'probability':1}
+    provider=m.WorkersProviders(N(AI=CloseHeldAI()),lambda event:None)
+    pending=asyncio.create_task(provider.analyze_turn(pcm))
+    await started.wait()
+    await provider.close()
+    assert provider.diagnostics()['pending_turn_requests']==1
+    gate.set()
+    try: await pending
+    except m.ProviderError as exc: assert 'closed' in str(exc)
+    else: raise AssertionError('Detector returned a decision after provider shutdown')
+    await asyncio.sleep(0)
+    assert provider.diagnostics()['pending_turn_requests']==0
 
 asyncio.run(main())

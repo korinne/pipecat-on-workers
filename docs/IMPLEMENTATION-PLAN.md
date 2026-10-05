@@ -1,6 +1,6 @@
 # Implementation order and coding session scope
 
-Use the [goals](GOALS.md) as the scope boundary. The target is one Workers AI voice configuration using GPT-OSS-120B and Pipecat's existing conversation behavior through direct WebSocket and SFU. The application still has its baseline behavior; the documents and diagnostic tests do not establish that this target is implemented.
+Use the [goals](GOALS.md) as the scope boundary. The target is one Workers AI voice configuration using GPT-OSS-120B and Pipecat's existing conversation behavior through direct WebSocket and SFU. The plan has six tasks. Task 1 established the reference; Task 2 now has an implementation candidate for Nova-3 and hosted Smart Turn. The selected GPT-OSS and standard assistant-output/context path remain Task 3 work. No complete Workers support claim has been established.
 
 ## Before starting a coding session
 
@@ -27,9 +27,9 @@ Check the dependency and startup requirements of those components and the hosted
 
 Done when: one reference configuration, its supported behavior, and its reproducible Workers compatibility gaps are recorded. If a required component is blocked, report the gap and the proposed narrow adapter or upstream change. Do not build a replacement history policy, conduct a broad model comparison, or silently fall back to Flux-only turn detection.
 
-Task 1 investigation recorded on 4 October 2026 (results use UTC timestamps on 5 October). The [reference configuration](GOALS.md#task-1-reference-configuration) selects Pipecat 1.11.0, Nova-3 with hosted Smart Turn v2, GPT-OSS-120B with low effort as the initial probe setting, and Aura-2 Luna. Controlled upstream speech/output and turn probes, parser fixtures and an expanded runtime audit are recorded in [Evidence](EVIDENCE.md#task-1-reference-investigation). Production behavior is unchanged. Authentication prevented live inference checks, and no Workers package candidate has passed.
+Task 1 investigation recorded on 4 October 2026 (results use UTC timestamps on 5 October). The [reference configuration](GOALS.md#task-1-reference-configuration) selects Pipecat 1.11.0, Nova-3 with hosted Smart Turn v2, GPT-OSS-120B with low effort as the initial probe setting, and Aura-2 Luna. Controlled upstream speech/output and turn probes, parser fixtures and an expanded runtime audit are recorded in [Evidence](EVIDENCE.md#task-1-reference-investigation). Task 1 changed no production behavior. Authentication prevented live inference checks, and no Workers package candidate has passed.
 
-The bounded next task is Task 2: build the async hosted-turn connection, Nova event mapping and the smallest revision-aware stop-strategy adaptation demonstrated necessary by these probes. First verify the candidate Nova/Smart Turn requests with restored test access. Keep the existing model response/history path during that task. Use the proposed timeout behavior as an explicit test setting; do not inherit the stock fallback as semantic completion. Task 1 does not authorize starting that implementation automatically.
+Task 1 identified the async hosted-turn connection, Nova event mapping and a revision-aware stop strategy implemented in Task 2. Live request verification still needs restored test access; a failed authentication check cannot establish model or runtime incompatibility.
 
 ## 2 Connect hosted Smart Turn to Pipecat
 
@@ -40,6 +40,12 @@ Replace the existing Flux-controlled turn path as required by the selected confi
 Done when: tests cover a mid-thought pause, completed speech, speech resuming while a decision is pending, late transcription, stale detector results, and bounded detector failure. A completed user turn triggers one intended response with the correct transcript. Record live Workers AI evidence separately from fixtures.
 
 Outside this task: assistant-history redesign, speech models beyond task 1's recorded selection, local inference, and a general provider abstraction. Keep the existing response path until the next task changes it.
+
+Task 2 implementation candidate: [the turn adapter](../src/smart_turn.py) maps Nova speech onset and pause events into Pipecat, calls hosted Smart Turn through `BaseTurnAnalyzer`, and commits a finalized transcript through the standard user aggregator only while the candidate revision remains current. Flux completion and the 1,200 ms grace period have been removed. The existing Llama/Aura response path and receipt-dependent assistant history remain unchanged.
+
+The implementation has a five-second pause-to-readiness deadline, a two-second hosted binding wait, and at most one unresolved hosted request per provider instance. An incomplete decision waits for resumed speech; failure or missing readiness discards the pending turn and asks the user to repeat it. These are bounded test settings, not latency targets. The transcript-range audio snapshot and final-transcript coverage rule have the timing limits described in [Conversation](CONVERSATION.md#task-2-user-turn-coordination).
+
+Task 2 implementation and controlled verification are complete: 58 Python tests, 62 JavaScript tests and the supporting offline checks passed. A final focused rerun covers the retained audio window and decision diagnostics. See [the scoped results](EVIDENCE.md#task-2-turn-integration). The [fresh access check](../audit/results/task2-live-access.json) could not refresh existing authentication, so actual Nova events, hosted input acceptance, Python Workers execution and physical audio remain untested. The next bounded implementation is Task 3. Starting it requires a separate task instruction.
 
 ## 3 Connect GPT-OSS and standard assistant context
 

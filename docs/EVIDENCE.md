@@ -82,6 +82,30 @@ Default user-turn strategies instantiate local Smart Turn v3. Configure both sta
 
 These results support a broader package request than the old restricted-core audit. They do not justify a new SFU playback API, local inference, or a general thread capability for the chosen hosted model path. A supported package and actual Workers execution remain open.
 
+## Task 2 turn integration
+
+Task 2 started from clean local checkpoint `3521b8fad6c49deee48ad990100e431ca7932d5d`, which preserved Task 1's documentation, probes and evidence. No historical result file was overwritten. Task 2 changes the application input/turn path to Nova-3 and hosted Smart Turn; it leaves Llama, Aura speech output, browser receipt history and the known SFU history/cleanup gaps in place.
+
+The provider uses Nova's speech-start events, finalized transcript ranges and pause flag. A pause launches a bounded async hosted request. Only a current COMPLETE decision with finalized, nonempty transcript coverage can reach Pipecat's standard user aggregation and inference signal. The custom strategy checks the revision at commitment. There is no Flux end trigger or extra 1,200 ms grace period. [Configuration and timing limits](CONVERSATION.md#task-2-user-turn-coordination)
+
+| New record | Observation | Limit |
+| --- | --- | --- |
+| [Complete offline checks](../audit/results/task2-offline-verification.json) | 58 Python and 62 JavaScript tests passed; provider, restricted-core, entry/lifecycle/access, 10 SFU-entry checks, 12 conversation-runner checks and 13 audit-tool checks passed | CPython 3.12.14 with the vendored package and synthetic provider/media I/O; no deployed acceptance |
+| [Final focused checks](../audit/results/task2-final-checks.json) | 20 turn tests and the restricted-core check passed after retaining decision probability and the 8.2-second input buffer/8-second maximum snapshot | Exact source hashes are recorded; the small final changes do not alter transport or assistant behavior |
+| [Runtime fixture probe](../audit/results/task2-runtime-probe.json) | Twelve synthetic scenarios passed, including incomplete/resumed speech and detector cancellation | Executed on CPython, despite being callable from the Worker fixture route; not a Workers result |
+| [Provider checks](../audit/results/task2-provider-checks.json) | Nova request, KeepAlive, float32 encoding, response validation, timeout, cancellation and late settlement passed with fake bindings | No live model acceptance or remote cancellation proof |
+| [Fresh access check](../audit/results/task2-live-access.json) | Existing noninteractive Cloudflare authentication could not refresh; no model request or deployment was made | Test limitation; no provider/runtime failure claim follows |
+
+The frame-queue tests reproduce and guard several application races: resumed speech overtaking a queued completion, a late old pause after a newer onset, and closure of an aborted turn overtaking a fresh turn. Watchdog closure now reports the abandoned turn instead of silently dropping it. A late final transcript cannot revive a timed-out revision. These were application defects found during implementation and are covered by reproducible tests in `tests/test_smart_turn.py` and `tests/test_turn_coordination.py`; they do not require a new Workers capability.
+
+Detector results and finalized text can arrive in either order. Reordered final ranges wait for complete coverage; duplicates cannot cause another response. Malformed, overlapping or cross-turn ranges fail without adding user context. A transcript advancing beyond a pending pause before a matching resumption event also fails visibly. The latter rule is deliberately conservative pending actual Nova event observations.
+
+The detector wait is two seconds; the full pause-readiness deadline is five seconds. There is at most one unresolved hosted binding request per provider instance. A canceled or timed-out request keeps that slot until its promise settles, so another pause can fail visibly while old remote work remains unresolved. This prevents local request accumulation; it does not prove remote cancellation or that a stuck provider will recover without starting a new call. The application retains 16 final segments, 8,192 transcript characters and 8.2 seconds of PCM, with an analysis snapshot no longer than eight seconds.
+
+The remaining obstacle is evidence, not an established platform incompatibility: the hosted float32 request, Nova timestamp/empty-event ordering, final-range coverage, Python Workers execution, real speech, timing and cancellation still need focused live checks. A transcript range is not a trailing-silence watermark. The candidate snapshots at that range's endpoint and adds no guessed silence. Missing or inconsistent coverage fails closed and asks for repetition. [Primary contracts and isolated live reproducer](../audit/reference/task2_turn_sources.json), [reproduction instructions](DEVELOPMENT.md#verify-the-task-2-turn-connection)
+
+No package-support claim changes: the vendored subset remains, the full installation/runtime gaps from Task 1 remain open, and no new capability request is justified by expired credentials. Task 2's implementation and controlled checks are complete. Task 3 is the next bounded change: integrate GPT-OSS and the selected standard speech/output/assistant-context path, preserving the Task 1 failure/interruption reference. It has not started.
+
 ## Recorded local results
 
 The [original audit](../audit/results/current-audit.json) recorded 5 observations supported within its scope, 6 gaps, 10 untested entries, and no test errors. Those counts belong to its original checklist. They are not a release score. Its existing regression run passed 41 Python and 62 JavaScript tests. Some of those tests preserve the prototype's known limitations.
@@ -122,7 +146,7 @@ The earlier investigation observed sustained failures in the selected Python 3.1
 
 ## Evidence still required
 
-No supported Workers package candidate has been accepted. Task 1 adds a normal CPython speech/output reference and controlled compatibility probes. Hosted Smart Turn, Nova-3, GPT-OSS-120B and that speech/output flow still have not passed the selected Workers integration checks. Both routes still need declared failure/reconnect behavior, physical audio tests, and workload acceptance on the exact revision proposed for support.
+No supported Workers package candidate has been accepted. Task 1 adds a normal CPython speech/output reference and controlled compatibility probes. Task 2 adds a locally tested Nova/Smart Turn coordinator. Hosted Smart Turn, Nova-3, GPT-OSS-120B and that speech/output flow still have not passed the selected Workers integration checks. Both routes still need declared failure/reconnect behavior, physical audio tests, and workload acceptance on the exact revision proposed for support.
 
 Every new result must identify its source, artifacts, deployment/runtime, models, transport, inputs, workload, raw observations, and agreed thresholds. Keep local simulation, actual runtime execution, live network tests, and physical audio measurements distinct. Preserve failures and mark missing evidence untested.
 

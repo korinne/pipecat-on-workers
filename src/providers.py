@@ -1,6 +1,6 @@
 """Thread-free Workers AI adapters. No Python network/provider SDKs are used.
 
-Flux input: signed little-endian PCM16, mono, 16 kHz (80 ms chunks recommended).
+Nova input: signed little-endian PCM16, mono, 16 kHz.
 TTS output: signed little-endian PCM16, mono, 24 kHz. Each synthesis owns its
 socket, so canceling a generation cannot feed audio into a later generation.
 The caller must also use playback generation IDs and explicitly close generators
@@ -9,17 +9,21 @@ the remote model stopped computing or charging.
 """
 
 import asyncio
+import base64
 import codecs
 import contextlib
 import inspect
 import json
+import math
 import re
+import struct
 import time
 
 from js import Object, Uint8Array
 from pyodide.ffi import create_proxy, to_js
 
-STT_MODEL = "@cf/deepgram/flux"
+STT_MODEL = "@cf/deepgram/nova-3"
+TURN_MODEL = "@cf/pipecat-ai/smart-turn-v2"
 LLM_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
 TTS_MODEL = "@cf/deepgram/aura-2-en"
 INPUT_SAMPLE_RATE = 16000
@@ -28,6 +32,9 @@ MAX_ERROR_BODY_BYTES = 8192
 ERROR_BODY_TIMEOUT = 1.0
 ERROR_BODY_CLEANUP_TIMEOUT = 0.25
 STT_CONNECT_BUDGET = 18.0
+STT_KEEPALIVE_INTERVAL = 3.0
+TURN_TIMEOUT = 2.0
+TURN_MAX_AUDIO_BYTES = 8 * INPUT_SAMPLE_RATE * 2
 MAX_RETRY_AFTER = 300.0
 
 
@@ -209,6 +216,9 @@ class WorkersProviders:
         self.last_audio = time.monotonic()
         self._start_lock = asyncio.Lock()
         self._pump_task = None
+        # A canceled Python wait cannot abort the binding promise. Keep this
+        # slot occupied until that promise settles, including after timeout.
+        self._turn_request = None
 
     async def _emit(self, event):
         if not self.closed:
@@ -261,10 +271,20 @@ class WorkersProviders:
             request.add_done_callback(self._discard_late_result)
 
     async def _run(self, model, parameters, options=None, timeout=30):
+        if model == TURN_MODEL and self._turn_request is not None and not self._turn_request.done():
+            raise ProviderError("Turn detection is still finishing a previous request. Please repeat your turn shortly.")
         args = [model, _js(parameters)]
         if options is not None:
             args.append(_js(options))
         request = asyncio.ensure_future(self.env.AI.run(*args))
+        if model == TURN_MODEL:
+            self._turn_request = request
+
+            def release_turn_request(completed):
+                if self._turn_request is completed:
+                    self._turn_request = None
+
+            request.add_done_callback(release_turn_request)
         self.requests.add(request)
         request.add_done_callback(self.requests.discard)
         try:
@@ -348,8 +368,6 @@ class WorkersProviders:
         return socket
 
     async def _connect_stt(self):
-        # Empirical tuning after a one-second prerecorded pause ended a turn
-        # prematurely at 0.7. The 0.9 setting awaits another actual pause test.
         deadline = time.monotonic() + STT_CONNECT_BUDGET
         for attempt in range(1, 4):
             if self.closed:
@@ -357,7 +375,8 @@ class WorkersProviders:
             try:
                 self.stt = await self._socket(STT_MODEL, {
                     "encoding": "linear16", "sample_rate": str(INPUT_SAMPLE_RATE),
-                    "eot_threshold": "0.9", "eot_timeout_ms": "5000",
+                    "channels": 1, "language": "en-US", "interim_results": True,
+                    "vad_events": True, "endpointing": "200",
                 }, "stt", deadline=deadline)
                 break
             except ProviderConnectionError as exc:
@@ -397,24 +416,35 @@ class WorkersProviders:
         return True
 
     async def _keepalive(self):
-        # Flux expects audio; send silence during mute instead of Nova's KeepAlive.
+        # Control messages do not advance Nova's audio clock. Injecting silence
+        # here would shift its timestamps relative to the turn audio buffer.
         while not self.closed:
-            await asyncio.sleep(1)
-            if self.stt is not None and time.monotonic() - self.last_audio >= 1:
+            await asyncio.sleep(STT_KEEPALIVE_INTERVAL)
+            if self.stt is not None and time.monotonic() - self.last_audio >= STT_KEEPALIVE_INTERVAL:
                 with contextlib.suppress(ProviderError):
-                    await self.send_audio(bytes(2560))
+                    self.stt.send(json.dumps({"type": "KeepAlive"}))
 
     async def _pump_stt(self):
         retries = 0
         while not self.closed:
             try:
-                value = await self.stt.receive(timeout=45)
-                if isinstance(value, str):
-                    event = json.loads(value)
-                    event["connection_generation"] = self.connection_generation
-                    if event.get("type") == "Error":
-                        raise ProviderError(f"Flux error: {event.get('description', event.get('message', 'unknown'))}")
-                    await self._emit(event)
+                try:
+                    value = await self.stt.receive(timeout=45)
+                except asyncio.TimeoutError:
+                    # Nova does not acknowledge KeepAlive messages. A muted
+                    # socket can legitimately have no recognition events.
+                    if time.monotonic() - self.last_audio >= STT_KEEPALIVE_INTERVAL:
+                        continue
+                    raise
+                if not isinstance(value, str):
+                    raise ProviderError("Speech recognition returned an invalid event.")
+                event = json.loads(value)
+                if not isinstance(event, dict) or not isinstance(event.get("type"), str) or not event["type"]:
+                    raise ProviderError("Speech recognition returned an invalid event.")
+                event["connection_generation"] = self.connection_generation
+                if event.get("type") in {"Error", "error"}:
+                    raise ProviderError("Speech recognition reported a stream error.")
+                await self._emit(event)
             except asyncio.CancelledError:
                 raise
             except Exception as exc:
@@ -426,10 +456,11 @@ class WorkersProviders:
                     old.close()
                     self.sockets.discard(old)
                 recoverable = retries < 2 and getattr(exc, "recoverable", True)
-                await self._emit({"type": "ProviderError", "provider": "stt", "message": str(exc),
+                message = str(exc) if isinstance(exc, ProviderConnectionError) else "Speech recognition stream failed. Please repeat your turn."
+                await self._emit({"type": "ProviderError", "provider": "stt", "message": message,
                                   "recoverable": recoverable, "audio_gap": True})
                 # At most two reconnects per call; lost audio is not replayed and a
-                # partial utterance must be repeated. Turn indexes restart upstream.
+                # partial utterance must be repeated. Audio timestamps restart upstream.
                 if not recoverable:
                     return
                 retries += 1
@@ -437,9 +468,51 @@ class WorkersProviders:
                 try:
                     await self._connect_stt()
                 except Exception as reconnect_error:
+                    message = str(reconnect_error) if isinstance(reconnect_error, ProviderConnectionError) else "Speech recognition could not reconnect. Please start a new call."
                     await self._emit({"type": "ProviderError", "provider": "stt",
-                                      "message": str(reconnect_error), "recoverable": False})
+                                      "message": message, "recoverable": False})
                     return
+
+    async def analyze_turn(self, pcm):
+        """Check one bounded 16 kHz PCM16 mono snapshot; never infer on failure.
+
+        The hosted model receives base64 little-endian float32 samples. The
+        model's input schema permits this representation; live acceptance and
+        Python/JavaScript conversion still require the Workers integration check.
+        """
+        if self.closed:
+            raise ProviderError("Conversation providers are closed")
+        if not isinstance(pcm, (bytes, bytearray, memoryview)):
+            raise ValueError("Turn audio must be nonempty PCM16 bytes")
+        byte_length = pcm.nbytes if isinstance(pcm, memoryview) else len(pcm)
+        if not byte_length or byte_length % 2:
+            raise ValueError("Turn audio must be nonempty PCM16 bytes")
+        if byte_length > TURN_MAX_AUDIO_BYTES:
+            raise ValueError("Turn audio exceeds the eight-second analysis window")
+        pcm = bytes(pcm)
+        encoded = bytearray(len(pcm) * 2)
+        for index, (sample,) in enumerate(struct.iter_unpack("<h", pcm)):
+            struct.pack_into("<f", encoded, index * 4, sample / 32768.0)
+        try:
+            result = _raw(await self._run(TURN_MODEL, {
+                "audio": base64.b64encode(encoded).decode("ascii"), "dtype": "float32",
+            }, timeout=TURN_TIMEOUT))
+            if hasattr(result, "to_py"):
+                result = result.to_py()
+        except asyncio.TimeoutError:
+            raise ProviderError("Turn detection timed out. Please repeat your turn.") from None
+        except ProviderError:
+            raise
+        except Exception:
+            raise ProviderError("Turn detection request failed. Please repeat your turn.") from None
+        if self.closed:
+            raise ProviderError("Conversation providers are closed")
+        if not isinstance(result, dict) or type(result.get("is_complete")) is not bool:
+            raise ProviderError("Turn detection returned an invalid decision. Please repeat your turn.")
+        probability = result.get("probability")
+        if type(probability) not in (int, float) or not 0 <= probability <= 1 or not math.isfinite(probability):
+            raise ProviderError("Turn detection returned an invalid probability. Please repeat your turn.")
+        return {"is_complete": result["is_complete"], "probability": float(probability)}
 
     async def generate(self, messages, *, max_tokens=192):
         """Yield SSE text deltas. Closing the generator cancels the stream reader."""
@@ -561,6 +634,7 @@ class WorkersProviders:
         return {"provider_tasks": sum(not t.done() for t in self.tasks),
                 "provider_sockets": len(self.sockets), "provider_readers": len(self.readers),
                 "pending_provider_requests": len(self.requests),
+                "pending_turn_requests": int(self._turn_request is not None and not self._turn_request.done()),
                 "queued_provider_bytes": sum(s.queued_bytes for s in self.sockets),
                 "stt_connection_generation": self.connection_generation,
                 "dropped_audio_bytes": self.dropped_audio_bytes}

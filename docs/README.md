@@ -2,7 +2,7 @@
 
 Build a supported voice application on Python Workers using Pipecat, with Workers AI handling speech recognition, hosted Pipecat Smart Turn, GPT-OSS-120B language generation, and Aura-2 speech synthesis. Support two ways to carry audio: a direct browser WebSocket and Cloudflare Realtime SFU.
 
-The repository contains a working prototype and a plan for bringing it to that target. Its current code still uses vendored Pipecat, Flux-controlled turn endings, and custom conversation-history logic. The documentation update does not implement the target or establish production readiness.
+The repository contains a working prototype and a plan for bringing it to that target. Its current code uses vendored Pipecat, Nova-3 with hosted Smart Turn, and custom assistant-history logic. The turn integration passes controlled tests; live verification and the remaining implementation tasks are still open.
 
 ## Review before coding
 
@@ -14,7 +14,7 @@ The repository contains a working prototype and a plan for bringing it to that t
 | [Acceptance plan](ACCEPTANCE.md) | Agree what observations count as success and which limits still need values. |
 | [Implementation order](IMPLEMENTATION-PLAN.md) | Give each fresh coding session one bounded task and a stopping point. |
 
-Task 1 has recorded the [reference configuration](GOALS.md#task-1-reference-configuration), [speech/output observations](CONVERSATION.md#task-1-speech-reference), and [reproducible gaps](EVIDENCE.md#task-1-reference-investigation). Live model checks remain untested because existing authentication failed. Task 2 is the next bounded implementation session; it has not started. Set performance thresholds before judging live performance.
+Task 1 has recorded the [reference configuration](GOALS.md#task-1-reference-configuration), [speech/output observations](CONVERSATION.md#task-1-speech-reference), and [reproducible gaps](EVIDENCE.md#task-1-reference-investigation). Live model checks remain untested because existing authentication failed. Task 2 has implemented and tested the turn adapter locally. Task 3, GPT-OSS and standard assistant context, is next. Set performance thresholds before judging live performance.
 
 ## Supporting material
 

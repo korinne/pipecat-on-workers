@@ -10,10 +10,19 @@ function url(s,suffix=''){return `${base}/api/session/${s.id}${suffix}?token=${e
 async function connect(s){
  const events=[];const ws=new WebSocket(url(s).replace(/^http/,'ws')+'&fixture=1');const start=performance.now();
  ws.onmessage=e=>{const v=JSON.parse(e.data);events.push(v);if(v.type==='audio' && c.ack) ws.send(JSON.stringify({type:'played',generation:v.generation,chunk_id:v.chunk_id}));};
- const c={ws,events,ack:true,send:x=>ws.send(JSON.stringify(x)),start};
+ const c={ws,events,ack:true,audioCursor:0,start,send:x=>{if(x.type==='audio')c.audioCursor+=Buffer.from(x.data,'base64').length/32000;ws.send(JSON.stringify(x));}};
  await wait(()=>events.some(e=>e.type==='ready'),'ready');c.startupMs=performance.now()-start;return c;
 }
-async function turn(c,text,n){const clears=c.events.filter(e=>e.type==='clear').length;c.send({type:'fixture_event',event:{type:'TurnInfo',event:'StartOfTurn',turn_index:n,connection_generation:1,transcript:text}});await wait(()=>c.events.filter(e=>e.type==='clear').length>clears,'turn clear');c.send({type:'fixture_event',event:{type:'TurnInfo',event:'EndOfTurn',turn_index:n,connection_generation:1,transcript:text}});await wait(()=>c.events.some(e=>e.type==='audio'&&e.text.includes(text)),'reply');await sleep(20);}
+async function turn(c,text,n){
+ const clears=c.events.filter(e=>e.type==='clear').length;
+ const start=c.audioCursor;
+ c.send({type:'fixture_event',event:{type:'SpeechStarted',timestamp:start,connection_generation:1}});
+ c.send({type:'audio',data:Buffer.alloc(16000).toString('base64'),sample_rate:16000});
+ await wait(()=>c.events.filter(e=>e.type==='clear').length>clears,'turn clear');
+ c.send({type:'fixture_event',event:{type:'Results',start,duration:c.audioCursor-start,is_final:true,speech_final:true,channel:{alternatives:[{transcript:text}]},connection_generation:1}});
+ await wait(()=>c.events.some(e=>e.type==='audio'&&e.text.includes(text)),'reply');
+ await sleep(20);
+}
 async function diagnostics(s){const r=await fetch(url(s,'/diagnostics'));return r.json();}
 const results={scope:'Actual local workerd Python Durable Objects and network WebSockets; fixture providers, silent PCM; no real voice',started_at:new Date().toISOString(),restart_strategy:restartStrategy,runtime:await (await fetch(base+'/api/health')).json(),checks:[]};
 const sessions=await Promise.all([create(),create()]);let calls=await Promise.all(sessions.map(connect));

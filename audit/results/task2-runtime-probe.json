@@ -1,0 +1,141 @@
+{
+  "passed": true,
+  "test_kind": "real_pipecat_synthetic_io",
+  "python": "3.12.14",
+  "runtime_platform": "Darwin",
+  "actual_voice_conversation": false,
+  "provider_network_tested": false,
+  "audible_interruption_tested": false,
+  "semantic_audio_turn_detection_tested": false,
+  "test_count": 12,
+  "duration_ms": 612.237,
+  "results": [
+    {
+      "name": "receipts_and_context",
+      "passed": true,
+      "evidence": {
+        "audio_chunks": 3,
+        "played_sentence_commits": 1,
+        "duplicate_receipts_ignored": 3,
+        "partial_sentence_committed": false
+      },
+      "duration_ms": 23.385
+    },
+    {
+      "name": "pause_before_end_event",
+      "passed": true,
+      "evidence": {
+        "synthetic_event_pause_ms": 200,
+        "responses_before_end_event": 0,
+        "semantic_audio_turn_detection_tested": false
+      },
+      "duration_ms": 223.288
+    },
+    {
+      "name": "pending_llm_interruption",
+      "passed": true,
+      "evidence": {
+        "pending_llm_canceled": true,
+        "stale_audio_chunks": 0,
+        "fixture_cancellation_ms": 5.503
+      },
+      "duration_ms": 30.119
+    },
+    {
+      "name": "smart_turn_incomplete_then_resume",
+      "passed": true,
+      "evidence": {
+        "fixture_detector_decisions": [
+          false,
+          true
+        ],
+        "responses": 1,
+        "finalized_fragments": 2,
+        "semantic_audio_turn_detection_tested": false
+      },
+      "duration_ms": 48.719
+    },
+    {
+      "name": "smart_turn_pending_resume",
+      "passed": true,
+      "evidence": {
+        "pending_fixture_detector_canceled": true,
+        "responses": 1,
+        "provider_network_tested": false,
+        "remote_cancellation_established": false
+      },
+      "duration_ms": 23.154
+    },
+    {
+      "name": "pending_tool_interruption",
+      "passed": true,
+      "evidence": {
+        "pending_tool_canceled": true,
+        "tool_completed_after_interruption": false,
+        "stale_tool_result_reached_model": false
+      },
+      "duration_ms": 29.378
+    },
+    {
+      "name": "repeated_playback_interruptions",
+      "passed": true,
+      "evidence": {
+        "playback_interruptions": 3,
+        "stale_receipts_ignored": 9,
+        "partial_sentences_committed": 0,
+        "audible_stop_measured": false
+      },
+      "duration_ms": 54.69
+    },
+    {
+      "name": "simultaneous_sessions",
+      "passed": true,
+      "evidence": {
+        "simultaneous_sessions": 2,
+        "cross_session_leaks": 0
+      },
+      "duration_ms": 35.575
+    },
+    {
+      "name": "reconstruct_persisted_state",
+      "passed": true,
+      "evidence": {
+        "persisted_messages_reconstructed": 3,
+        "live_audio_restored": false,
+        "new_provider_instance": true,
+        "actual_process_restart_tested": false
+      },
+      "duration_ms": 44.354
+    },
+    {
+      "name": "backpressure_and_cleanup",
+      "passed": true,
+      "evidence": {
+        "max_unacked_pcm_bytes": 384000,
+        "audio_chunks_before_backpressure": 80,
+        "blocked_synthesis_canceled": true
+      },
+      "duration_ms": 59.141
+    },
+    {
+      "name": "harmless_tool_integration",
+      "passed": true,
+      "evidence": {
+        "fixture_tool_result_reached_model": true,
+        "booking_created": false,
+        "dispatch": "explicit application rule, not model-selected function calling"
+      },
+      "duration_ms": 22.002
+    },
+    {
+      "name": "abandon_pending_session",
+      "passed": true,
+      "evidence": {
+        "pipeline_tasks_after_close": 0,
+        "pending_generation_canceled": true,
+        "live_fixture_operations_after_close": 0
+      },
+      "duration_ms": 18.382
+    }
+  ]
+}

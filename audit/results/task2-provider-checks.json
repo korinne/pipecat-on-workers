@@ -1,0 +1,44 @@
+{
+  "recorded_at_utc": "2026-10-05T03:54:45.584585+00:00",
+  "git_head": "3521b8fad6c49deee48ad990100e431ca7932d5d",
+  "working_tree_changes": true,
+  "source_sha256": {
+    "src/providers.py": "c72362ec47358533ddb6d55b33a4da5dff51c1cdc3908bc4ddc8df33b85d36e9",
+    "scripts/check_providers.py": "06711fee6dba53a69453f08e73087cb1cffc7b02ce534b70f9a716be6f0286e9"
+  },
+  "command": [
+    "/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/bin/python",
+    "scripts/check_providers.py"
+  ],
+  "environment": {
+    "python": "3.12.14",
+    "implementation": "CPython",
+    "platform": "Darwin",
+    "machine": "arm64"
+  },
+  "result": "pass",
+  "exit_code": 0,
+  "stdout": "PASS: provider protocol, Nova request/events/control keepalive, Smart Turn serialization/validation/deadlines/bounded unresolved requests, unhashable reader ownership, bounded sanitized upgrade errors, quota/capacity classification, bounded capacity retries, cancellation/deadline handling, partial socket setup cleanup, late cleanup ownership, SSE, PCM and explicit shutdown (fake I/O only)\n",
+  "stderr": "",
+  "scope": [
+    "Nova request settings and connection generation",
+    "JSON keepalive without advancing audio timestamps",
+    "Sanitized Nova stream errors and malformed/binary events",
+    "Idle receive timeout handling",
+    "Smart Turn PCM16 little-endian to float32/base64 serialization and eight-second input limit",
+    "Strict detector decision and probability validation including NaN/infinity",
+    "Bounded detector deadline and cancellation propagation",
+    "Single unresolved detector request across timeout/cancellation; rejection until late settlement",
+    "Detector shutdown and late-result handling",
+    "Existing connection retry, queue, reader ownership, SSE and TTS protocol regression checks"
+  ],
+  "evidence_kind": "controlled fixtures only: fake JS proxies, provider I/O and socket events",
+  "live_model_requests": false,
+  "workers_execution": false,
+  "limitations": [
+    "Does not validate actual Nova acceptance or event timing",
+    "Does not validate hosted Smart Turn audio interpretation or output shape",
+    "Does not validate Pyodide conversion, Workers startup, latency or remote cancellation",
+    "A canceled or timed-out binding request keeps the detector slot until actual settlement; a fresh turn can fail closed while that request remains unresolved"
+  ]
+}

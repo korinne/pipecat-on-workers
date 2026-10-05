@@ -1,6 +1,6 @@
 # Development and test guide
 
-Run commands from the repository root unless a section says otherwise. The setup instructions reproduce the existing vendored prototype. The [implementation plan](IMPLEMENTATION-PLAN.md) defines the work needed for the supported configuration: Workers AI STT, hosted Smart Turn, GPT-OSS-120B, and Aura-2 through both transports. Its first task verifies the component interfaces; task 3 implements the selected LLM connection and standard assistant context.
+Run commands from the repository root unless a section says otherwise. The setup instructions reproduce the existing vendored prototype. The [implementation plan](IMPLEMENTATION-PLAN.md) defines the work needed for the supported configuration: Workers AI STT, hosted Smart Turn, GPT-OSS-120B, and Aura-2 through both transports. Task 1 verified the reference interfaces; Task 2 implements the Nova/Smart Turn candidate; Task 3 implements the selected LLM connection and standard assistant context.
 
 ## Set up the prototype
 
@@ -93,7 +93,7 @@ A fixture's clean shutdown shows that the test released local resources. It does
 
 ## Reproduce the package/runtime audit
 
-The strict audit requires a separate, clean checkout of baseline commit `6c17c0805f13f7609ba0a93ea8bf4c945797de18`. This handoff contains changed documentation and intentionally fails that exact-tree check. Reports must be written outside the clean checkout.
+The strict audit requires a separate, clean checkout of baseline commit `6c17c0805f13f7609ba0a93ea8bf4c945797de18`. This handoff contains Task 2 application changes and intentionally fails that exact-tree check. Reports must be written outside the clean checkout.
 
 The audit runner itself uses the standard library. Its core subprocess needs the small dependency set used by the investigated configuration. The original local experiment used CPython 3.12.14, while the application declares Python 3.14. A local pass in that environment does not establish Workers compatibility.
 
@@ -199,11 +199,52 @@ curl -X POST http://127.0.0.1:8787/cancel-after-first-event -o "$TASK1_WORK/gpt-
 
 The recipe is syntax-checked only. Its Python imports, startup, remote AI binding and cancellation are untested. It has a 45-second request/read budget and two-second reader cleanup budget, records event shapes and synthetic answer text, and counts reasoning characters without saving reasoning. It assumes one JSON `data:` payload per SSE line. An unexpected framing or return type is a harness question to resolve before interpreting the model result. Record deployment/runtime/tool identities and source hashes with each capture; the recipe's local JSON alone is not a complete acceptance report. Do not deploy it or combine it with production routes.
 
-For Nova/Smart Turn, start with the [recorded request candidates](../audit/reference/turn-sources.json) and the coordination cases in [GOALS](GOALS.md#how-a-user-turn-starts-and-ends). Live event ordering, provider audio timestamps and hosted float32 input must be verified before Task 2 is called complete. The expired authentication result does not establish a provider or runtime incompatibility.
+For Nova/Smart Turn, use the Task 2 checks below. The original [request candidates](../audit/reference/turn-sources.json) remain preserved. The expired authentication result does not establish a provider or runtime incompatibility.
+
+## Verify the Task 2 turn connection
+
+Run the focused integration fixtures and binding-adapter checks after setup:
+
+```sh
+uv run python -m unittest tests.test_turn_coordination tests.test_smart_turn -v
+uv run python scripts/check_providers.py
+```
+
+The turn fixtures run Nova-shaped events and controlled Smart Turn decisions through the application's Pipecat queues and standard user aggregator. They exercise pending decisions, speech resumption, final transcript coverage, duplicate events, timeouts and cleanup. The provider checks use explicit JavaScript/FFI doubles on local Python; those checks do not establish binding acceptance or Python Workers support. Record the actual test summary before treating the candidate as passed. The two-second binding wait and five-second pause-readiness deadline are application settings; fixtures may shorten waits to test the same failure path.
+
+The [Task 2 access check](../audit/results/task2-live-access.json) made no model requests: existing authentication remained expired. It used cached Wrangler 4.119.0 only to inspect authentication, not as the selected runtime. For live repetition, use the locked tools above and existing authorized access. Start the [isolated binding probe](../audit/reference/task2_turn_binding.py):
+
+```sh
+uv run pywrangler dev --config audit/reference/task2_turn.wrangler.jsonc --local --ip 127.0.0.1
+```
+
+In a second terminal, prepare an authorized synthetic speech recording as headerless PCM16 little-endian, mono, 16 kHz, with at most eight seconds of audio. Record its expected words and known speech/pause offsets. Create fresh request and result files:
+
+```sh
+export TASK2_WORK="$(mktemp -d "${TMPDIR:-/tmp}/pipecat-turn-check.XXXXXX")"
+export TASK2_PCM="/absolute/path/to/synthetic-speech.pcm"
+python3 - <<'PY_PROBE'
+import base64, json, os, pathlib
+pcm = pathlib.Path(os.environ["TASK2_PCM"]).read_bytes()
+assert 0 < len(pcm) <= 8 * 16000 * 2 and len(pcm) % 2 == 0
+request = {"pcm16_base64": base64.b64encode(pcm).decode("ascii"),
+           "fixture_label": "authorized synthetic speech"}
+(pathlib.Path(os.environ["TASK2_WORK"]) / "request.json").write_text(json.dumps(request))
+PY_PROBE
+# Use the actual local port printed by the dev server.
+curl --fail-with-body -H 'Content-Type: application/json' --data-binary "@$TASK2_WORK/request.json" http://127.0.0.1:8787/nova -o "$TASK2_WORK/nova-live.json"
+curl --fail-with-body -H 'Content-Type: application/json' --data-binary "@$TASK2_WORK/request.json" http://127.0.0.1:8787/smart-turn -o "$TASK2_WORK/smart-turn-live.json"
+```
+
+The Nova probe sends 20 ms packets, adds one second of generated silence and sends `Finalize`. It records up to 128 selected events with provider timestamps, transcript text and the sent-audio cursor. Its three-second `Finalize` wait is bounded, and an absent acknowledgement does not mean transcript readiness: the provider does not guarantee that acknowledgement. The Smart Turn probe submits normalized float32 base64 for the supplied audio. These probe waits differ from the application limits and must not be presented as application latency measurements. The probe's synthetic silence suffix is for observing Nova endpoint events; the application does not append that suffix to a detector snapshot.
+
+Repeat with completed speech, a mid-thought pause and speech resuming after a pause. Compare provider ranges to known fixture offsets. The application takes detector audio through the Nova transcript-range cursor, not the latest buffer tail; verify that this conservative slice works for the hosted model. Final transcript coverage and onset/word timing alignment also need real captures. [Primary source contracts and open questions](../audit/reference/task2_turn_sources.json)
+
+Only syntax and pure event-sanitizer checks have run for this isolated probe. Its imports, startup, model requests and cancellation remain untested. Record the exact application, runtime and tool versions with new results. Do not deploy the probe or merge it into production routes. A successful request capture would still leave end-to-end Pipecat execution, both real transports, physical audio and workload acceptance to verify.
 
 ## Test actual speech providers
 
-The existing live scripts exercise the baseline Flux, Llama, and Aura path through direct WebSocket only. Use the browser SFU procedure below for the other route. They do not establish hosted Smart Turn or GPT-OSS integration. Run the selected-model checks in [AI2](ACCEPTANCE.md#ai2-stream-gpt-oss-answers-into-speech) after implementing that provider connection. Use a deployment you own, record its exact source revision, and keep new evidence in a fresh directory.
+Historical live-script results exercised Flux, Llama and Aura through direct WebSocket. The current source selects Nova/Smart Turn while retaining Llama/Aura, so a fresh deployment and new captures are required. Use the browser SFU procedure below for the other route. The scripts alone do not establish GPT-OSS or the standard assistant speech/output/context integration; those remain Task 3 checks under [AI2](ACCEPTANCE.md#ai2-stream-gpt-oss-answers-into-speech). Use a deployment you own, record its exact source revision, and keep new evidence in a fresh directory.
 
 Inputs are headerless PCM16 little-endian, mono, 16 kHz, between 0.2 and 15 seconds. Container files such as WAV are rejected. Prepare two distinct short questions, a question about appointment availability, and an utterance with an internal one-second pause. Use `prerecorded-human` for a human recording or `prerecorded-tts` for generated speech.
 
@@ -242,7 +283,7 @@ The ten-minute, two-session command reproduces an earlier workload. It is not an
 | Duration | Repeated responses, interruptions, reconnect, restored context, and End. | Timed receipts emulate playback; distinct questions alone do not prove isolation. |
 | Idle | No client traffic, expected expiry, and released resources. | Provider heartbeat traffic is separate from client liveness. |
 
-After End, inspect Pipecat/provider tasks, sockets, readers, pending requests, queued provider bytes, unacknowledged audio, playback chunks, pending turn tasks, and pending user fragments/characters. Local zero counts must not conceal unknown remote allocations. Provider recovery in the baseline drops uncommitted speech and closes the interrupted turn; repeat the lost utterance when testing it.
+After End, inspect Pipecat/provider tasks, sockets, readers, pending requests, queued provider bytes, unacknowledged audio, playback chunks, pending turn tasks, and pending user fragments/characters. Local zero counts must not conceal unknown remote allocations. Provider recovery drops uncommitted speech, invalidates pending detector work and resets the Nova audio clock; repeat the lost utterance when testing it.
 
 ## Test a real browser and physical audio
 

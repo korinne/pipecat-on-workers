@@ -43,7 +43,7 @@ export function pcmStats(bytes) {
 
 export function safeDiagnostics(d) {
   const out = { closed: d.closed === true };
-  for (const key of [...RESOURCE_KEYS, 'messages', 'stt_connection_generation', 'dropped_audio_bytes', 'turn_end_grace_ms']) {
+  for (const key of [...RESOURCE_KEYS, 'messages', 'stt_connection_generation', 'dropped_audio_bytes', 'turn_timeout_secs']) {
     if (Number.isFinite(d[key])) out[key] = d[key];
   }
   return out;

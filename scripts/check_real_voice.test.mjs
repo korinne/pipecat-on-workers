@@ -63,10 +63,10 @@ test('output bounds reject invalid PCM and more than twelve seconds queued', () 
 test('public diagnostics exclude transcripts, identifiers, URLs, errors and unknown fields', () => {
   const result = safeDiagnostics({ closed: true, pipecat_tasks: 0, provider_sockets: 0,
     messages: 5, token: 'secret', id: 'session-id', history: [{ text: 'private' }],
-    pending_turn_tasks: 0, pending_user_fragments: 0, pending_user_chars: 0, turn_end_grace_ms: 1200,
+    pending_turn_tasks: 0, pending_user_fragments: 0, pending_user_chars: 0, turn_timeout_secs: 5,
     metrics: [{ event: 'error', message: 'private secret' }], provider_readers: 'secret', url: 'https://host?token=secret' });
   assert.deepEqual(result, { closed: true, pipecat_tasks: 0, provider_sockets: 0,
-    pending_turn_tasks: 0, pending_user_fragments: 0, pending_user_chars: 0, messages: 5, turn_end_grace_ms: 1200 });
+    pending_turn_tasks: 0, pending_user_fragments: 0, pending_user_chars: 0, messages: 5, turn_timeout_secs: 5 });
   assert.ok(!JSON.stringify(result).includes('secret'));
 });
 

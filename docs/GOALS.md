@@ -4,7 +4,7 @@ Run one defined Pipecat voice application on Cloudflare Workers, using Workers A
 
 The first supported configuration covers direct browser WebSocket audio and WebRTC through Cloudflare Realtime SFU. A developer chooses the transport when creating a call. The conversation code and model configuration stay shared.
 
-The code remains a feasibility prototype with copied, modified Pipecat source. Hosted Smart Turn, standard assistant history, and supported package installation still need implementation and verification.
+The code remains a feasibility prototype with copied, modified Pipecat source. The Task 2 hosted Smart Turn adapter passes controlled tests and still needs live verification. Standard assistant history and supported package installation remain unimplemented.
 
 ## What runs where
 
@@ -14,8 +14,8 @@ The name Pipecat appears in two roles: the framework coordinates the call, while
 
 | Job | Intended baseline | Existing prototype |
 | --- | --- | --- |
-| Speech to text | Workers AI Nova-3 streaming with separate Smart Turn; selected reference, live verification pending. | Workers AI Deepgram Flux. |
-| End of user turn | Workers AI `@cf/pipecat-ai/smart-turn-v2`. | Flux supplies turn events; hosted Smart Turn is not connected. |
+| Speech to text | Workers AI Nova-3 streaming with separate Smart Turn; selected reference, live verification pending. | Task 2 selects Nova-3; live request acceptance remains untested. |
+| End of user turn | Workers AI `@cf/pipecat-ai/smart-turn-v2`. | Task 2 connects an async hosted analyzer and guarded Pipecat stop strategy; controlled tests pass. |
 | Generate an answer | Workers AI `@cf/openai/gpt-oss-120b`. | Uses `@cf/meta/llama-3.3-70b-instruct-fp8-fast`; GPT-OSS is not integrated or tested here yet. |
 | Text to speech | Keep Workers AI `@cf/deepgram/aura-2-en` for the initial English voice configuration. | Already configured. |
 | Conversation history | Pipecat's assistant aggregator, integrated with the selected speech and output path. | Custom browser completion reports write history; the SFU route omits assistant answers. |
@@ -69,12 +69,12 @@ Use the explicit strategy pair above. The standard strategy accepts either order
 The adapter contract for Task 2 is:
 
 1. On `SpeechStarted`, invalidate any pending pause decision, interrupt obsolete output, and mark speech active before delivering transcript frames. Track a call/utterance revision independently of the response generation.
-2. A Nova pause snapshots audio ending at its provider audio/transcript watermark, not at the ring buffer tail when the event arrives. Align `SpeechStarted` using the provider timestamp and retained pre-roll. Its final text belongs to that pause's transcript range. This event/audio alignment remains unverified; delayed onset must not let resumed speech enter an older snapshot. An `is_final` segment alone must not mean the complete user turn is ready. Empty `speech_final` messages may finalize earlier accumulated text without adding duplicate words.
+2. A Nova pause snapshots audio ending at its transcript-range cursor, rather than the ring buffer tail when the event arrives. This cursor is not a guaranteed processed-audio or trailing-silence watermark. Align `SpeechStarted` using the provider timestamp and retained pre-roll. Its final text belongs to that pause's transcript range. This event/audio alignment remains unverified; delayed onset must not let resumed speech enter an older snapshot. An `is_final` segment alone must not mean the complete user turn is ready. Empty `speech_final` messages may finalize earlier accumulated text without adding duplicate words.
 3. Submit one hosted Smart Turn check for that pause. Resume, End and connection replacement invalidate its revision. An old result cannot alter the current completion state or emit inference, even if a Python task could not cancel the remote work.
 4. Start one answer only when the current pause is semantically complete, its transcript coverage is finalized and nonempty, and speech has not resumed. Mark the revision consumed before emitting the context frame. An incomplete decision keeps the accumulated transcript for resumed speech.
 5. Bound provider and transcript waits. For initial Task 2 tests, use a two-second detector deadline and a five-second finalization/recovery deadline from the pause. Failure abandons the pending user turn, reports the error and requires repetition or a fresh turn. Invalidate any pending watchdog and transcript callback so neither can later emit context for that turn. It does not answer a partial transcript. These are proposed recovery settings, not measured latency targets.
 
-The stock strategy's p99 timer may release non-finalized text, and the controller's five-second watchdog can finalize a turn even after an INCOMPLETE result. A controller-level concurrency probe also emitted inference from a stale detector result while speech was active; the later stop event was rejected. Task 2 must address these behaviors with revision-aware completion and explicit timeout handling. Verify the frame scheduling before deciding whether to extend or replace the stop strategy. Preserve the standard user/assistant aggregators and their event interfaces. Merely swapping in an asynchronous analyzer would leave these cases unresolved. The full frame-queue reproduction belongs to Task 2; the controller probe does not establish that a deployed call has hit the race.
+The stock strategy's p99 timer may release non-finalized text, and the controller's five-second watchdog can finalize a turn even after an INCOMPLETE result. A controller-level concurrency probe also emitted inference from a stale detector result while speech was active; the later stop event was rejected. Task 2 addresses these behaviors with revision-aware completion and explicit timeout handling through a narrow stop strategy. Its controlled tests exercise actual Pipecat frame scheduling. Preserve the standard user/assistant aggregators and their event interfaces. Merely swapping in an asynchronous analyzer would leave these cases unresolved. The [Task 2 results](EVIDENCE.md#task-2-turn-integration) extend that evidence to local frame queues; neither probe establishes that a deployed call has hit the race.
 
 There must be one coordinated decision to start the next answer. Flux and Smart Turn must not independently trigger responses. If Flux is retained, its transcript and turn events need explicit integration with Smart Turn; merely adding a second detector is insufficient. Delayed detector results must not end a newer turn, and detector failure must have a bounded recovery outcome. [Pipecat turn detection](https://docs.pipecat.ai/pipecat/learn/speech-input)
 
