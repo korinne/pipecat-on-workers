@@ -34,6 +34,14 @@ The [shared diagnostics](DEVELOPMENT.md) additionally expose custom browser-rece
 
 An expected incompatibility is an observed gap. It cannot count as support for that capability. An unrelated import error or a timeout is a test error. The runner never installs candidate dependencies silently or patches source files to make candidate tests pass.
 
+## Task 1 evidence boundary
+
+The new [reference probes](DEVELOPMENT.md#repeat-task-1-reference-probes) exercise the normally installed Pipecat 1.11.0 speech/output path, selected turn interfaces, baseline GPT parser and expanded imports/startup. Read their [results and classifications](EVIDENCE.md#task-1-reference-investigation) before treating them as implementation acceptance. All earlier result files remain unchanged.
+
+Use [GOALS](GOALS.md#task-1-reference-configuration) for the exact service/format target and [CONVERSATION](CONVERSATION.md#task-1-speech-reference) for fixture expectations. In particular, ordinary sentence text progress is coarser than individual samples; default nonfatal synthesis failure can retain failed text. An integration must state its failure rule and verify it before continuing a call after that error.
+
+AI1 now needs full-pipeline tests for the observed stale-result inference risk, p99 fallback, inactivity watchdog, provider/audio-watermark alignment and timeout invalidation. A controller-only probe cannot pass those integration checks. AI2 still needs live request acceptance and actual GPT-OSS response events: controlled SSE fixtures cannot satisfy them. PC1 needs a Workers-compatible installation, not the successful local CPython installation. No B1 through B6 release outcome changes to pass from these probes alone.
+
 ## Package and runtime requirements
 
 ### PC1: Install the candidate package
@@ -175,4 +183,4 @@ Every live result needs fixed source and artifact identifiers, runtime and deplo
 
 Mark missing measurements as untested. Keep failed runs when a retry passes. Do not combine different revisions into one acceptance result.
 
-The recorded baseline includes the offline audit, controlled behavioral tests, local PCM measurements, and tests of the audit tools. This consolidation adds no live acceptance result. Candidate installation, the new hosted Smart Turn and Pipecat speech/output integration, actual Workers execution of that configuration, live SFU behavior, resource acceptance, and physical audio still need testing. The audit did not deploy or change a live service.
+The recorded baseline includes the offline audit, controlled behavioral tests, local PCM measurements, and tests of the audit tools. Task 1 adds controlled reference evidence but no live acceptance result. Candidate installation, the new hosted Smart Turn and Pipecat speech/output integration, actual Workers execution of that configuration, live SFU behavior, resource acceptance, and physical audio still need testing. The audit did not deploy or change a live service.

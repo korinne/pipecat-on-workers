@@ -1,0 +1,162 @@
+{
+  "schema": 1,
+  "timestamp": "2026-10-05T03:37:38.132601+00:00",
+  "source_commit": "e0ddc037d760b45e5411a9e2aaead00e9ae34a78",
+  "probe_sha256": "8a5fc74349fa4951c183151dbacd117721c1ebc0a0d44d49db87d42fc7c9f632",
+  "python": "3.12.14",
+  "platform": "macOS-14.5-arm64-arm-64bit",
+  "pipecat": "1.11.0",
+  "modules": {
+    "BaseTurnAnalyzer": {
+      "path": "/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/audio/turn/base_turn_analyzer.py",
+      "sha256": "f2afb70b72a058bfe5fde7810130bd012ffd09706b3d63910fd8421776fabcf1"
+    },
+    "TurnAnalyzerUserTurnStopStrategy": {
+      "path": "/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/turns/user_stop/turn_analyzer_user_turn_stop_strategy.py",
+      "sha256": "4f70cec7ae4fefc1ee24c88ad19bde8b18da3c83d697cbe56dcf09acfd258266"
+    },
+    "UserTurnController": {
+      "path": "/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/turns/user_turn_controller.py",
+      "sha256": "b55ea44f15cb2640c1aa085f8a5a9abb473cf2fc815babe6ab593a5fe8e91b86"
+    },
+    "VADUserTurnStartStrategy": {
+      "path": "/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/turns/user_start/vad_user_turn_start_strategy.py",
+      "sha256": "0b51efdbbace78f924e7117171cbacb79421d69470fcbe69425cbc858e381efe"
+    }
+  },
+  "environment": "CPython controller-level controlled events; no network, audio, provider, Workers or production code",
+  "limits": [
+    "Concurrent resume probe directly calls controller.process_frame while detector awaits; a full pipeline scheduling reproduction is still needed",
+    "50ms watchdog is accelerated fixture time, not a proposed production timeout",
+    "Watchdog emits stop without inference event; actual user aggregator's stop handler can still flush context with run_llm=True",
+    "No modified strategy or Workers adapter is implemented"
+  ],
+  "cases": [
+    {
+      "case": "completion_before_transcript",
+      "status": "scoped_pass",
+      "events": [
+        "STTMetadataFrame",
+        "VADUserStartedSpeakingFrame",
+        "on_user_turn_started",
+        "VADUserStoppedSpeakingFrame",
+        "TranscriptionFrame",
+        "on_user_turn_inference_triggered",
+        "on_user_turn_stopped",
+        "TranscriptionFrame"
+      ],
+      "counts": {
+        "before_transcript": {
+          "inference": 0,
+          "stopped": 0
+        },
+        "final": {
+          "inference": 1,
+          "stopped": 1
+        }
+      }
+    },
+    {
+      "case": "transcript_before_completion",
+      "status": "scoped_pass",
+      "events": [
+        "STTMetadataFrame",
+        "VADUserStartedSpeakingFrame",
+        "on_user_turn_started",
+        "TranscriptionFrame",
+        "VADUserStoppedSpeakingFrame",
+        "on_user_turn_inference_triggered",
+        "on_user_turn_stopped"
+      ],
+      "counts": {
+        "before_completion": {
+          "inference": 0,
+          "stopped": 0
+        },
+        "final": {
+          "inference": 1,
+          "stopped": 1
+        }
+      }
+    },
+    {
+      "case": "resume_during_pending",
+      "status": "observed_gap",
+      "events": [
+        "STTMetadataFrame",
+        "VADUserStartedSpeakingFrame",
+        "on_user_turn_started",
+        "TranscriptionFrame",
+        "VADUserStoppedSpeakingFrame",
+        "VADUserStartedSpeakingFrame",
+        "TranscriptionFrame",
+        "on_user_turn_inference_triggered"
+      ],
+      "counts": {
+        "before_old_result": {
+          "inference": 0,
+          "stopped": 0
+        },
+        "final": {
+          "inference": 1,
+          "stopped": 0
+        }
+      }
+    },
+    {
+      "case": "no_stt_metadata",
+      "status": "observed_gap",
+      "events": [
+        "VADUserStartedSpeakingFrame",
+        "on_user_turn_started",
+        "TranscriptionFrame",
+        "VADUserStoppedSpeakingFrame",
+        "on_user_turn_inference_triggered",
+        "on_user_turn_stopped"
+      ],
+      "counts": {
+        "final": {
+          "inference": 1,
+          "stopped": 1
+        }
+      }
+    },
+    {
+      "case": "incomplete_watchdog",
+      "status": "observed_gap",
+      "events": [
+        "STTMetadataFrame",
+        "VADUserStartedSpeakingFrame",
+        "on_user_turn_started",
+        "TranscriptionFrame",
+        "VADUserStoppedSpeakingFrame",
+        "on_user_turn_stop_timeout",
+        "on_user_turn_stopped"
+      ],
+      "counts": {
+        "final": {
+          "inference": 0,
+          "stopped": 1
+        }
+      }
+    },
+    {
+      "case": "detector_error",
+      "status": "observed_gap",
+      "events": [
+        "STTMetadataFrame",
+        "VADUserStartedSpeakingFrame",
+        "on_user_turn_started",
+        "TranscriptionFrame",
+        "VADUserStoppedSpeakingFrame",
+        "controlled provider failure"
+      ],
+      "counts": {
+        "final": {
+          "inference": 0,
+          "stopped": 0
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "task": 1,
+  "readiness": "not_established",
+  "recorded_at": "2026-10-05T03:40:33.508871+00:00",
+  "revision": "e0ddc037d760b45e5411a9e2aaead00e9ae34a78",
+  "live_access": {
+    "status": "untested",
+    "classification": "test_limitation",
+    "model_requests_made": 0,
+    "reason": "The existing Wrangler OAuth access token was expired. A noninteractive whoami refresh/check exited 1 and reported expired/not authenticated. No login flow was started.",
+    "credential_values_recorded": false,
+    "credential_environment_names_found": [],
+    "auth_check": {
+      "command": [
+        "node",
+        "/Users/korinne/.npm/_npx/32026684e21afda6/node_modules/wrangler/bin/wrangler.js",
+        "whoami"
+      ],
+      "cwd": "/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs",
+      "environment_overrides": {
+        "CI": "true",
+        "WRANGLER_SEND_METRICS": "false",
+        "WRANGLER_LOG_LEVEL": "error"
+      },
+      "capture": "subprocess.run(capture_output=True,text=True,timeout=45); only boolean status and exit code printed",
+      "node": "22.11.0",
+      "wrangler": "4.119.0",
+      "wrangler_cli_sha256": "5179973f5ffc85549ff2f7978477623f223b15aeacec71693f41c9fba0d173ba",
+      "exit_code": 1,
+      "unauthenticated": true,
+      "expired_message": true,
+      "not_target_runtime": "Cached Wrangler was used for authentication only; repository lock pins Wrangler 4.139.0."
+    }
+  },
+  "request_contract": {
+    "model": "@cf/openai/gpt-oss-120b",
+    "interface": "await env.AI.run(model, inputs, options)",
+    "inputs": {
+      "messages": "text-only system/user/assistant messages",
+      "stream": true,
+      "reasoning_effort": "low",
+      "max_tokens": 2048
+    },
+    "sources": [
+      "model",
+      "provider-chat-pinned",
+      "provider-readme-pinned"
+    ],
+    "status": "source_verified_live_acceptance_untested",
+    "budget": "2048 is a bounded initial probe budget, not a measured minimum or release setting. The model documentation lists max_tokens default 256. The baseline sends 192. Reasoning may exhaust a small generation budget before answer text; verify accounting and actual sufficiency on the binding. No latency improvement is claimed."
+  },
+  "stream_contract": {
+    "status": "official_client_shapes_verified_actual_gpt_stream_untested",
+    "answer": "choices[0].delta.content is the answer field in the official client OpenAI-shaped path. Native response is another supported path; do not assume it is interchangeable with reasoning without a live GPT-OSS capture.",
+    "reasoning": "The official Cloudflare client handles delta.reasoning_content and delta.reasoning. OpenAI gpt-oss guidance specifies raw analysis must not be displayed.",
+    "terminal": "The client reads choices[0].finish_reason or top-level finish_reason and [DONE]. stop, length/model_length, tool_calls and error are distinct outcomes; an unexpected EOF is not proof of completion.",
+    "errors": "Binding request failures may reject before returning a stream; stream failure and provider error objects need separate handling. Fixture error shape is not a live GPT-OSS capture.",
+    "sources": [
+      "provider-streaming",
+      "provider-finish",
+      "raw-cot"
+    ]
+  },
+  "endpoint_difference": {
+    "binding": "Model page demonstrates streaming env.AI.run with messages; no OpenAI or Cloudflare Python network SDK is needed for this FFI call.",
+    "rest": "POST /accounts/{account_id}/ai/run/{model} takes raw model inputs, not a binding model/inputs/options wrapper. HTTP auth is separate from the Worker binding.",
+    "responses": "Cloudflare /ai/v1/responses currently documents only stream:false for GPT-OSS. Responses events are not assumed to be binding events.",
+    "sources": [
+      "model",
+      "compatibility",
+      "python-ffi"
+    ]
+  },
+  "cancellation": {
+    "source_verified": "Pinned workerd AiOptions includes signal, excludes it from serialized input, and forwards it to fetch. Current Cloudflare client passes options.abortSignal as third-argument signal.",
+    "target_runtime": "untested: Python/Pyodide conversion, pre-header abort, reader.cancel after reasoning/answer, and late-result cleanup on the locked runtime still need checks.",
+    "remote_compute_and_billing": "unverified; neither AbortSignal nor reader cancellation proves remote compute or billing stopped.",
+    "capability_request": "Do not request missing AbortSignal support based on the historical baseline comment; the current official binding source already exposes it.",
+    "sources": [
+      "workerd-ai-api",
+      "provider-chat-pinned"
+    ]
+  },
+  "budget_accounting": {
+    "status": "unanswered_question",
+    "finding": "The inspected model page defines max_tokens as generated response tokens but does not explicitly split reasoning and answer accounting. The official usage mapper records completion_tokens total and leaves reasoning/text breakdown undefined. Reserve output space for both and verify from actual usage/length outcomes; do not treat all 2048 tokens as speakable text.",
+    "sources": [
+      "model",
+      "provider-usage"
+    ]
+  },
+  "probe_status": {
+    "gpt_probe.py": "11 controlled cases ran on CPython3.9.6 with explicit JS doubles; not Workers/package support evidence.",
+    "gpt_binding.py": "Python syntax parsed; imports/startup/execution untested. Isolated fixed-prompt live recipe only.",
+    "gpt.wrangler.jsonc": "Local remote-AI binding recipe; not deployed or started.",
+    "limits": [
+      "The live recipe uses simple one-data-line SSE decoding; a different observed framing requires a harness update before drawing conclusions.",
+      "The live recipe timeout requests AbortSignal; target-runtime abort and late-result cleanup are unverified.",
+      "No full Pipecat GPT-OSS speech or context flow, transport, physical audio, quality, latency, cost or billing result was collected."
+    ]
+  },
+  "source_hashes": {
+    "audit/reference/gpt-sources.json": "0ddae01c9d6416702946545870d8cf04d59ea24e36dde36dc6fa9180d7d276c8",
+    "audit/reference/gpt_binding.py": "e6db52de271e9c92d0ca82e052625d48796f7c804845d4143e4ec99f5477d8cd",
+    "audit/reference/gpt.wrangler.jsonc": "0ff7e0055053e7c41027b9568ca56a9ac713e1f38091f96dddf090530c19d034"
+  }
+}

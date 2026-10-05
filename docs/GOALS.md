@@ -14,17 +14,45 @@ The name Pipecat appears in two roles: the framework coordinates the call, while
 
 | Job | Intended baseline | Existing prototype |
 | --- | --- | --- |
-| Speech to text | One streaming Workers AI STT model. Evaluate Nova-3 first for use with separate Smart Turn. | Workers AI Deepgram Flux. |
+| Speech to text | Workers AI Nova-3 streaming with separate Smart Turn; selected reference, live verification pending. | Workers AI Deepgram Flux. |
 | End of user turn | Workers AI `@cf/pipecat-ai/smart-turn-v2`. | Flux supplies turn events; hosted Smart Turn is not connected. |
 | Generate an answer | Workers AI `@cf/openai/gpt-oss-120b`. | Uses `@cf/meta/llama-3.3-70b-instruct-fp8-fast`; GPT-OSS is not integrated or tested here yet. |
 | Text to speech | Keep Workers AI `@cf/deepgram/aura-2-en` for the initial English voice configuration. | Already configured. |
 | Conversation history | Pipecat's assistant aggregator, integrated with the selected speech and output path. | Custom browser completion reports write history; the SFU route omits assistant answers. |
 
-Nova-3 is an evaluation candidate, not a completed selection or compatibility result. Record one STT choice, model identifiers, voice, audio formats, and Pipecat version before implementation depends on them. If a reproducible limitation prevents the selected LLM or TTS from working, record it and propose the smallest configuration change for review. Do not adopt a replacement automatically.
+Task 1 selects Nova-3 as the reference STT pairing. Its live Workers AI behavior remains untested because the available authentication could not be refreshed. [Request candidates and checked input schemas](../audit/reference/turn-sources.json) preserve that boundary. The selection below is an implementation target, not a compatibility pass. If a reproducible limitation prevents the selected LLM or TTS from working, record it and propose the smallest configuration change for review. Do not adopt a replacement automatically.
 
 Sources: [current providers](../src/providers.py), [hosted Smart Turn](https://developers.cloudflare.com/workers-ai/models/smart-turn-v2/), [Nova-3](https://developers.cloudflare.com/workers-ai/models/nova-3/), [Flux](https://developers.cloudflare.com/workers-ai/models/flux/).
 
 The selected LLM is Cloudflare-hosted GPT-OSS-120B. Its weights and inference stay on Workers AI. Verify the streaming binding response and map only user-facing answer text into speech and assistant context. Start by testing low reasoning effort; record the accepted setting and output budget, then measure answer quality and time to the first speakable answer. This selection does not establish compatibility with the prototype's current parser or validate its earlier Llama results for GPT-OSS. [Model documentation](https://developers.cloudflare.com/workers-ai/models/gpt-oss-120b/), [LLM acceptance](ACCEPTANCE.md#ai2-stream-gpt-oss-answers-into-speech)
+
+## Task 1 reference configuration
+
+The reference uses published Pipecat 1.11.0, corresponding to upstream `3dede06bec0b497bddfdcf047af7495ee9d0726e`. Its source archive SHA-256 is `49e7532a1f035e8884c47448a06d998a1b7f0943d11eae9bc8600a9e749a2a04`. Task 1 installed that artifact with normal dependency resolution in a separate CPython 3.12.14 environment. It did not use the application's vendored package. Python Workers 3.14 remains the deployment target and is untested with this full configuration.
+
+```text
+Workers input adapter → Workers AI STTService → LLMContextAggregatorPair.user()
+ → Workers AI LLMService → Workers AI TTSService → BaseOutputTransport adapter
+ → LLMContextAggregatorPair.assistant()
+```
+
+Names prefixed “Workers AI” describe adapters to implement against the named Pipecat interfaces. They are not existing upstream provider classes. The controlled speech reference uses upstream `DeepgramHttpTTSService` with a simulated HTTP response and a `BaseOutputTransport` sink. Its text/audio ordering is the target for the Aura binding adapter. No Deepgram-hosted inference or local model is selected.
+
+| Part | Pinned reference choice | Evidence limit |
+| --- | --- | --- |
+| Call owner | One Python Durable Object, host-owned event loop, embedded `PipelineWorker` | Full upstream pipeline has not run in Workers. |
+| Recognition | Workers AI `@cf/deepgram/nova-3`, streaming WebSocket; `encoding=linear16`, `sample_rate=16000`, `channels=1`, `language=en-US`, `interim_results=true`, `vad_events=true`, `endpointing=200` ms; no separate `UtteranceEnd` trigger | These are initial test settings. Workers acceptance of the complete request and observed event timing need a live check. |
+| Speech onset | Nova `SpeechStarted` mapped to `VADUserStartedSpeakingFrame`; explicit `VADUserTurnStartStrategy` | No local Silero/ONNX VAD. Missing speech-start events are a failure to investigate, not permission to fall back to transcript-only turn completion. |
+| Pause and transcript | `speech_final` marks a pause/finalized segment; accumulate distinct `is_final` segments by provider time range; interims replace interim display only | A pause never independently starts an answer. Deduplication, empty final messages, and finalization across pauses need adapter tests. |
+| Semantic completion | Workers AI `@cf/pipecat-ai/smart-turn-v2`, through an asynchronous `BaseTurnAnalyzer` adapter; `TurnAnalyzerUserTurnStopStrategy(wait_for_transcript=True)` is the standard coordination reference | The stock HTTP analyzer and strategy require the narrow adaptations recorded below. Defaults that instantiate local Smart Turn v3 are excluded. |
+| Answer generation | Workers AI `@cf/openai/gpt-oss-120b`, `LLMService` interface; request low reasoning effort initially | Exact request, stream and budget evidence is in [Evidence](EVIDENCE.md#task-1-gpt-oss-interface). Reasoning never enters speech or ordinary dialogue. |
+| Synthesis | Workers AI `@cf/deepgram/aura-2-en`, `speaker=luna`, `encoding=linear16`, `container=none`, 24 kHz mono; `TTSService`, sentence aggregation, `push_start_frame=True`, `push_stop_frames=True`, `push_text_frames=True`, no word timestamps | Standard HTTP Aura reference uses `DeepgramHttpTTSService` / `aura-2-luna-en`. Binding parity and failure handling still need implementation. |
+| Output | `BaseOutputTransport`, audio enabled, mono 24 kHz, 20 ms writes (`audio_out_10ms_chunks=2`), no video/mixer | Real adapters must implement pacing, backpressure and stale-output isolation. A successful write is not physical playback. |
+| Context | `LLMContext`, `LLMContextAggregatorPair`, `LLMUserAggregator`, `LLMAssistantAggregator`; assistant after output | [Conversation](CONVERSATION.md#task-1-speech-reference) records the actual granularity and failure behavior. |
+
+Use PCM16 little-endian mono at 16 kHz between input, STT and the turn buffer. The Smart Turn request candidate converts samples to little-endian float32 in `[-1, 1)`, then base64-encodes the bytes with `dtype="float32"`. Keep at most the latest eight seconds plus the chosen 200 ms onset pre-roll before taking an eight-second analysis snapshot. This follows the pinned model's 16 kHz processing and the base analyzer's eight-second window; the hosted model's accepted encoding/window still needs a live check. Its published schema does not specify a sample rate or maximum duration. Read `is_complete` as the decision and retain `probability` for diagnostics. Do not reinterpret a request failure as `false`.
+
+Direct browser audio remains 16 kHz mono input and 24 kHz mono output. The SFU boundary remains 48 kHz stereo PCM with 20 ms packets, converted by the existing adapter. These formats describe one shared pipeline. No transport selects a separate history policy. [Nova-3 options](https://developers.cloudflare.com/workers-ai/models/nova-3/), [Smart Turn input schema](https://developers.cloudflare.com/workers-ai/models/smart-turn-v2/schema-input.json), [model preprocessing](https://huggingface.co/pipecat-ai/smart-turn-v2/blob/2f16664b2769b748c7b9b857d34a7a55f228064d/preprocessor_config.json), [Aura options](https://developers.cloudflare.com/workers-ai/models/aura-2-en/)
 
 ## How a user turn starts and ends
 
@@ -36,7 +64,17 @@ Three signals answer different questions:
 | Smart Turn decision | The pause appears to end the person's thought. |
 | Transcription readiness | The words needed for the next model call have arrived. |
 
-Pipecat should coordinate these signals through its existing turn strategies where compatible. Choose a speech-start signal supported by the selected STT or another verified mechanism. Hosted Smart Turn does not by itself establish that speech-start detection is solved.
+Use the explicit strategy pair above. The standard strategy accepts either ordering of semantic completion and a finalized transcript. The [controlled probe](../audit/results/task1-turn-verified.json) produced one inference trigger and one completed turn in both cases; a repeated final transcript did not produce a second trigger after completion. This is controller evidence with a simulated analyzer, not a transcript or live microphone test.
+
+The adapter contract for Task 2 is:
+
+1. On `SpeechStarted`, invalidate any pending pause decision, interrupt obsolete output, and mark speech active before delivering transcript frames. Track a call/utterance revision independently of the response generation.
+2. A Nova pause snapshots audio ending at its provider audio/transcript watermark, not at the ring buffer tail when the event arrives. Align `SpeechStarted` using the provider timestamp and retained pre-roll. Its final text belongs to that pause's transcript range. This event/audio alignment remains unverified; delayed onset must not let resumed speech enter an older snapshot. An `is_final` segment alone must not mean the complete user turn is ready. Empty `speech_final` messages may finalize earlier accumulated text without adding duplicate words.
+3. Submit one hosted Smart Turn check for that pause. Resume, End and connection replacement invalidate its revision. An old result cannot alter the current completion state or emit inference, even if a Python task could not cancel the remote work.
+4. Start one answer only when the current pause is semantically complete, its transcript coverage is finalized and nonempty, and speech has not resumed. Mark the revision consumed before emitting the context frame. An incomplete decision keeps the accumulated transcript for resumed speech.
+5. Bound provider and transcript waits. For initial Task 2 tests, use a two-second detector deadline and a five-second finalization/recovery deadline from the pause. Failure abandons the pending user turn, reports the error and requires repetition or a fresh turn. Invalidate any pending watchdog and transcript callback so neither can later emit context for that turn. It does not answer a partial transcript. These are proposed recovery settings, not measured latency targets.
+
+The stock strategy's p99 timer may release non-finalized text, and the controller's five-second watchdog can finalize a turn even after an INCOMPLETE result. A controller-level concurrency probe also emitted inference from a stale detector result while speech was active; the later stop event was rejected. Task 2 must address these behaviors with revision-aware completion and explicit timeout handling. Verify the frame scheduling before deciding whether to extend or replace the stop strategy. Preserve the standard user/assistant aggregators and their event interfaces. Merely swapping in an asynchronous analyzer would leave these cases unresolved. The full frame-queue reproduction belongs to Task 2; the controller probe does not establish that a deployed call has hit the race.
 
 There must be one coordinated decision to start the next answer. Flux and Smart Turn must not independently trigger responses. If Flux is retained, its transcript and turn events need explicit integration with Smart Turn; merely adding a second detector is insufficient. Delayed detector results must not end a newer turn, and detector failure must have a bounded recovery outcome. [Pipecat turn detection](https://docs.pipecat.ai/pipecat/learn/speech-input)
 
@@ -75,7 +113,7 @@ If a selected component cannot run in Workers, record the smallest reproducible 
 
 | Decision | When it must be settled |
 | --- | --- |
-| STT choice, speech-start signal, exact model options, and standard Pipecat reference configuration | Before the model and turn integration is treated as fixed. |
+| Nova-3 event/encoding verification and the proposed detector/finalization deadlines | At the start of Task 2, before its live integration is called working. |
 | Observable TTS/output text granularity and failure/reconnect behavior | Before writing context acceptance expectations. |
 | Supported devices and network conditions, including headphones versus speakerphone | Before live voice and interruption acceptance. |
 | Latency, call duration, concurrency, resource, queue, cleanup, and cost targets | Before performance acceptance. Nulls in the [resource contract](../audit/acceptance/resource-contract.json) mean undecided. |

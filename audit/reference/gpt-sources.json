@@ -1,0 +1,87 @@
+{
+  "retrieved_at": "2026-10-05T03:40:33.508385+00:00",
+  "sources": [
+    {
+      "id": "provider-readme-pinned",
+      "url": "https://github.com/cloudflare/ai/blob/0e5bc3b2f489e4b8215905812a36fe69d37afb8d/packages/workers-ai-provider/README.md",
+      "raw_url": "https://raw.githubusercontent.com/cloudflare/ai/0e5bc3b2f489e4b8215905812a36fe69d37afb8d/packages/workers-ai-provider/README.md",
+      "revision": "0e5bc3b2f489e4b8215905812a36fe69d37afb8d",
+      "sha256": "8ef88984c097daa5dd5b7643fa56b49bddecd864817569f12e97622d769dfd40",
+      "bytes": 23933,
+      "kind": "official_source_inspection_not_execution"
+    },
+    {
+      "id": "provider-chat-pinned",
+      "url": "https://github.com/cloudflare/ai/blob/0e5bc3b2f489e4b8215905812a36fe69d37afb8d/packages/workers-ai-provider/src/workersai-chat-language-model.ts",
+      "raw_url": "https://raw.githubusercontent.com/cloudflare/ai/0e5bc3b2f489e4b8215905812a36fe69d37afb8d/packages/workers-ai-provider/src/workersai-chat-language-model.ts",
+      "revision": "0e5bc3b2f489e4b8215905812a36fe69d37afb8d",
+      "sha256": "6926d9493c4537910c209d8b87e2f98e44c6aa95343cafeadffecc5815428ce6",
+      "bytes": 14714,
+      "kind": "official_source_inspection_not_execution"
+    },
+    {
+      "id": "provider-streaming",
+      "url": "https://github.com/cloudflare/ai/blob/0e5bc3b2f489e4b8215905812a36fe69d37afb8d/packages/workers-ai-provider/src/streaming.ts",
+      "raw_url": "https://raw.githubusercontent.com/cloudflare/ai/0e5bc3b2f489e4b8215905812a36fe69d37afb8d/packages/workers-ai-provider/src/streaming.ts",
+      "revision": "0e5bc3b2f489e4b8215905812a36fe69d37afb8d",
+      "sha256": "279487982e406ff833a50b75e307bd38094a1e7e07ef723a53991edc4abf55aa",
+      "bytes": 14131,
+      "kind": "official_source_inspection_not_execution"
+    },
+    {
+      "id": "provider-usage",
+      "url": "https://github.com/cloudflare/ai/blob/0e5bc3b2f489e4b8215905812a36fe69d37afb8d/packages/workers-ai-provider/src/map-workersai-usage.ts",
+      "raw_url": "https://raw.githubusercontent.com/cloudflare/ai/0e5bc3b2f489e4b8215905812a36fe69d37afb8d/packages/workers-ai-provider/src/map-workersai-usage.ts",
+      "revision": "0e5bc3b2f489e4b8215905812a36fe69d37afb8d",
+      "sha256": "2434801c49598d80ceeb255665712dbd915457b028ff550feb9fd214353cbacc",
+      "bytes": 1532,
+      "kind": "official_source_inspection_not_execution"
+    },
+    {
+      "id": "provider-finish",
+      "url": "https://github.com/cloudflare/ai/blob/0e5bc3b2f489e4b8215905812a36fe69d37afb8d/packages/workers-ai-provider/src/map-workersai-finish-reason.ts",
+      "raw_url": "https://raw.githubusercontent.com/cloudflare/ai/0e5bc3b2f489e4b8215905812a36fe69d37afb8d/packages/workers-ai-provider/src/map-workersai-finish-reason.ts",
+      "revision": "0e5bc3b2f489e4b8215905812a36fe69d37afb8d",
+      "sha256": "63ecd19eb4e1e39049047456040072bc7535525bce16f8765269e48efd3565a6",
+      "bytes": 1718,
+      "kind": "official_source_inspection_not_execution"
+    },
+    {
+      "id": "workerd-ai-api",
+      "url": "https://github.com/cloudflare/workerd/blob/34c69bf22fadb581411e430434ebdd90af0998a2/src/cloudflare/internal/ai-api.ts",
+      "raw_url": "https://raw.githubusercontent.com/cloudflare/workerd/34c69bf22fadb581411e430434ebdd90af0998a2/src/cloudflare/internal/ai-api.ts",
+      "revision": "34c69bf22fadb581411e430434ebdd90af0998a2",
+      "sha256": "166cb9e34356b6259384c6a0d06fd7e54eccde1d4138079fdf4d7da960965e33",
+      "bytes": 14473,
+      "kind": "official_source_inspection_not_execution"
+    },
+    {
+      "id": "model",
+      "url": "https://developers.cloudflare.com/workers-ai/models/gpt-oss-120b/",
+      "kind": "official_documentation_inspection",
+      "sha256": null,
+      "hash_limit": "Read using browser retrieval; local raw Markdown fetch returned HTTP 403 for Cloudflare pages."
+    },
+    {
+      "id": "compatibility",
+      "url": "https://developers.cloudflare.com/workers-ai/configuration/open-ai-compatibility/",
+      "kind": "official_documentation_inspection",
+      "sha256": null,
+      "hash_limit": "Read using browser retrieval; local raw Markdown fetch returned HTTP 403 for Cloudflare pages."
+    },
+    {
+      "id": "python-ffi",
+      "url": "https://developers.cloudflare.com/workers/languages/python/ffi/",
+      "kind": "official_documentation_inspection",
+      "sha256": null,
+      "hash_limit": "Read using browser retrieval; local raw Markdown fetch returned HTTP 403 for Cloudflare pages."
+    },
+    {
+      "id": "raw-cot",
+      "url": "https://developers.openai.com/cookbook/articles/gpt-oss/handle-raw-cot",
+      "kind": "official_documentation_inspection",
+      "sha256": null,
+      "hash_limit": "Read using browser retrieval; no local snapshot."
+    }
+  ]
+}

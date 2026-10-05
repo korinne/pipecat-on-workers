@@ -27,6 +27,10 @@ Check the dependency and startup requirements of those components and the hosted
 
 Done when: one reference configuration, its supported behavior, and its reproducible Workers compatibility gaps are recorded. If a required component is blocked, report the gap and the proposed narrow adapter or upstream change. Do not build a replacement history policy, conduct a broad model comparison, or silently fall back to Flux-only turn detection.
 
+Task 1 investigation recorded on 4 October 2026 (results use UTC timestamps on 5 October). The [reference configuration](GOALS.md#task-1-reference-configuration) selects Pipecat 1.11.0, Nova-3 with hosted Smart Turn v2, GPT-OSS-120B with low effort as the initial probe setting, and Aura-2 Luna. Controlled upstream speech/output and turn probes, parser fixtures and an expanded runtime audit are recorded in [Evidence](EVIDENCE.md#task-1-reference-investigation). Production behavior is unchanged. Authentication prevented live inference checks, and no Workers package candidate has passed.
+
+The bounded next task is Task 2: build the async hosted-turn connection, Nova event mapping and the smallest revision-aware stop-strategy adaptation demonstrated necessary by these probes. First verify the candidate Nova/Smart Turn requests with restored test access. Keep the existing model response/history path during that task. Use the proposed timeout behavior as an explicit test setting; do not inherit the stock fallback as semantic completion. Task 1 does not authorize starting that implementation automatically.
+
 ## 2 Connect hosted Smart Turn to Pipecat
 
 Use Workers AI for the chosen STT and Smart Turn. Feed the model the agreed audio and route its decisions through Pipecat's turn strategy. Reuse existing strategy behavior for coordinating speech activity, completion, and transcription; add only the Workers-compatible asynchronous client or adapter that the reference check shows is needed.

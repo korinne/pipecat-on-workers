@@ -14,7 +14,7 @@ The repository contains a working prototype and a plan for bringing it to that t
 | [Acceptance plan](ACCEPTANCE.md) | Agree what observations count as success and which limits still need values. |
 | [Implementation order](IMPLEMENTATION-PLAN.md) | Give each fresh coding session one bounded task and a stopping point. |
 
-Review the scope first. Task 1 then investigates the exact component configuration; it does not need every performance threshold resolved in advance. Set those thresholds before judging live performance.
+Task 1 has recorded the [reference configuration](GOALS.md#task-1-reference-configuration), [speech/output observations](CONVERSATION.md#task-1-speech-reference), and [reproducible gaps](EVIDENCE.md#task-1-reference-investigation). Live model checks remain untested because existing authentication failed. Task 2 is the next bounded implementation session; it has not started. Set performance thresholds before judging live performance.
 
 ## Supporting material
 

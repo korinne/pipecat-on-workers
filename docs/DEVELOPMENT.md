@@ -150,6 +150,57 @@ The two main runners always report `readiness: not_established`. Exit 1 means ga
 
 Recorded JSON is immutable evidence of its original run. The current runners' outstanding-check lists have been narrowed to the agreed scope; earlier reports retain retired entries and original counts. The executable probes themselves are unchanged by that checklist update. Exact earlier runner copies are in the pre-consolidation archive. Use [Evidence](EVIDENCE.md) to interpret historical results and [Acceptance](ACCEPTANCE.md) for release decisions.
 
+## Repeat Task 1 reference probes
+
+These probes are independent of the production pipeline. The recorded environment was CPython 3.12.14 on macOS arm64 with a normal installation of the published Pipecat 1.11.0 source archive. Full installation and execution on Workers remain untested. Use a fresh environment and result directory; every probe refuses to overwrite its output.
+
+```sh
+export TASK1_WORK="$(mktemp -d "${TMPDIR:-/tmp}/pipecat-reference.XXXXXX")"
+export TASK1_ARCHIVE="$TASK1_WORK/pipecat_ai-1.11.0.tar.gz"
+curl -fL https://files.pythonhosted.org/packages/source/p/pipecat-ai/pipecat_ai-1.11.0.tar.gz -o "$TASK1_ARCHIVE"
+shasum -a 256 "$TASK1_ARCHIVE"
+# Expected: 49e7532a1f035e8884c47448a06d998a1b7f0943d11eae9bc8600a9e749a2a04
+python3.12 -m venv "$TASK1_WORK/venv"
+"$TASK1_WORK/venv/bin/python" -m pip install "$TASK1_ARCHIVE"
+export NLTK_DATA="$TASK1_WORK/nltk_data"
+"$TASK1_WORK/venv/bin/python" -m nltk.downloader -d "$NLTK_DATA" punkt_tab
+
+"$TASK1_WORK/venv/bin/python" -I -B audit/reference/speech_reference.py --archive "$TASK1_ARCHIVE" --output "$TASK1_WORK/speech.json"
+"$TASK1_WORK/venv/bin/python" -I -B audit/reference/turn_reference.py --output "$TASK1_WORK/turn.json"
+"$TASK1_WORK/venv/bin/python" -I -B audit/reference/runtime_probe.py --archive "$TASK1_ARCHIVE" --output "$TASK1_WORK/runtime.json"
+"$TASK1_WORK/venv/bin/python" -I -B audit/reference/runtime_constraints.py --archive "$TASK1_ARCHIVE" --app-pyproject pyproject.toml --target-python 3.14.7 --output "$TASK1_WORK/constraints.json"
+python3 -B audit/reference/gpt_probe.py --output "$TASK1_WORK/gpt-fixtures.json"
+```
+
+The tokenizer resource is a normal runtime requirement of the chosen sentence aggregator. Download it deliberately during setup and retain its hashes; do not let a silent first-use download count as supported Workers startup. No provider SDK extra was needed for the HTTP TTS reference. Archive and loaded-source verification prevent copied or patched Pipecat from silently satisfying these tests. The turn probe rejects the repository's vendored source; run it in the same verified environment. Do not disable Python assertions.
+
+| Probe | Result to inspect | Exit meaning |
+| --- | --- | --- |
+| `speech_reference.py` | Ten event traces and exact assistant messages; HTTP/output leaves are simulated; full upstream startup uses normal local threads | 0 means expected reference observations, including failure-policy gaps, were reproduced; 2 means a test error |
+| `turn_reference.py` | Six controller-level cases, including two positive coordination cases and four integration gaps | 0 means recorded behavior reproduced, not that an async Workers adapter passes; 2 means test error |
+| `runtime_probe.py` | Normal imports, restricted-import controls, actual thread attempts and HTTP analyzer error | 1 means gaps/untested Workers readiness remain; 2 means test error |
+| `runtime_constraints.py` | Normal resolver dry run of the exact Pydantic declarations active for Python 3.14.7 | Resolves only that dependency projection using the local interpreter; 1 means reproduced conflict, 2 means test error |
+| `gpt_probe.py` | Eleven baseline parser/cancellation fixtures and the actual baseline request | 0 means expected observations reproduced, including known parser gaps; no live/provider success claim |
+
+`gpt_probe.py` supplies explicit JavaScript/FFI stand-ins solely to exercise the unchanged application parser on CPython. It does not import Pipecat or establish a supported package/runtime. The speech and runtime probes do not inject dependency modules or edit installed source.
+
+The [interface record](../audit/results/task1-gpt-interface.json) records the failed authentication check. After authorized test access is restored, the isolated [Python binding recipe](../audit/reference/gpt_binding.py) can make fixed-prompt calls without changing production routes:
+
+```sh
+# Use the repository's locked development tools from “Set up the prototype”.
+uv run pywrangler dev --config audit/reference/gpt.wrangler.jsonc --local
+# In another terminal, use the actual local port and fresh result files.
+curl -X POST http://127.0.0.1:8787/normal -o "$TASK1_WORK/gpt-live-normal.json"
+curl -X POST http://127.0.0.1:8787/one-token -o "$TASK1_WORK/gpt-live-limit.json"
+curl -X POST http://127.0.0.1:8787/invalid-budget -o "$TASK1_WORK/gpt-live-error.json"
+curl -X POST http://127.0.0.1:8787/preabort -o "$TASK1_WORK/gpt-live-preabort.json"
+curl -X POST http://127.0.0.1:8787/cancel-after-first-event -o "$TASK1_WORK/gpt-live-cancel.json"
+```
+
+The recipe is syntax-checked only. Its Python imports, startup, remote AI binding and cancellation are untested. It has a 45-second request/read budget and two-second reader cleanup budget, records event shapes and synthetic answer text, and counts reasoning characters without saving reasoning. It assumes one JSON `data:` payload per SSE line. An unexpected framing or return type is a harness question to resolve before interpreting the model result. Record deployment/runtime/tool identities and source hashes with each capture; the recipe's local JSON alone is not a complete acceptance report. Do not deploy it or combine it with production routes.
+
+For Nova/Smart Turn, start with the [recorded request candidates](../audit/reference/turn-sources.json) and the coordination cases in [GOALS](GOALS.md#how-a-user-turn-starts-and-ends). Live event ordering, provider audio timestamps and hosted float32 input must be verified before Task 2 is called complete. The expired authentication result does not establish a provider or runtime incompatibility.
+
 ## Test actual speech providers
 
 The existing live scripts exercise the baseline Flux, Llama, and Aura path through direct WebSocket only. Use the browser SFU procedure below for the other route. They do not establish hosted Smart Turn or GPT-OSS integration. Run the selected-model checks in [AI2](ACCEPTANCE.md#ai2-stream-gpt-oss-answers-into-speech) after implementing that provider connection. Use a deployment you own, record its exact source revision, and keep new evidence in a fresh directory.

@@ -23,7 +23,31 @@ flowchart LR
 
 Pipecat components pass small messages called frames. Frames can carry text, audio, or an event such as an interruption. The assistant aggregator needs the text and lifecycle frames from the speech/output path. Connecting it directly to raw model tokens would not establish equivalent voice behavior. [Pipecat context management](https://docs.pipecat.ai/pipecat/learn/context-management), [Pipecat interruptions](https://docs.pipecat.ai/pipecat/fundamentals/interruptions)
 
-The exact interrupted text depends on the selected TTS service, output component, timing information, and frame ordering. Output progress also does not prove that a person heard the sound. The initial scope does not promise exact-word browser playback tracking.
+The reference below establishes the sentence/text-frame granularity for the selected HTTP-style TTS path. Exact interrupted text still depends on timing and frame ordering. Output progress also does not prove that a person heard the sound. The initial scope does not promise exact-word browser playback tracking.
+
+## Task 1 speech reference
+
+The [controlled reference](../audit/reference/speech_reference.py) runs normally installed Pipecat 1.11.0, using `DeepgramHttpTTSService → BaseOutputTransport → LLMContextAggregatorPair.assistant()`. Only the HTTP response and the final audio-write operation are simulated. The real sentence aggregator, TTS service, output queues, lifecycle frames and assistant aggregator run unchanged. All 153 loaded Pipecat Python source files match the pinned archive. [Recorded trace and provenance](../audit/results/task1-speech-final.json)
+
+For the intended Workers connection, implement the Aura-2 call through `TTSService` with the same frame ordering. Use sentence aggregation (`TextAggregationMode.SENTENCE` / `SimpleTextAggregator`), `push_start_frame=True`, `push_stop_frames=True`, `push_text_frames=True`, 24 kHz mono PCM16 and 20 ms output writes. There are no word timestamps. Upstream HTTP Aura identifies the voice as `aura-2-luna-en`; the Workers AI request uses `speaker="luna"`. This test does not call either provider.
+
+The fixture answer is: “Tuesday morning is available. Thursday afternoon is also available.” Each ordinary sentence has three 20 ms audio chunks. Model generation and TTS can finish before output drains. The test observes `TTSTextFrame` after output and the exact assistant context; it does not feed raw model tokens directly to the assistant aggregator.
+
+| Controlled situation | Assistant context observed |
+| --- | --- |
+| Both sentences complete | `Tuesday morning is available. Thursday afternoon is also available.` |
+| Interrupt while first output write is held | No assistant entry |
+| Interrupt after one of the first sentence's three chunks is accepted | No assistant entry |
+| Interrupt after the first sentence's text passes output, with second-sentence audio held | `Tuesday morning is available.` |
+| Only 10 ms of audio is generated; interrupt while its padded 20 ms write is held | `Tuesday morning is available.` despite zero accepted output writes |
+| TTS fails before first audio, after one first-sentence chunk, or on the second sentence; default nonfatal error handling continues | Both sentences remain in context, including failed text |
+| A single-sentence answer fails before any audio or after one chunk | The full failed first sentence remains in context |
+
+`TTSService` emits sentence `TTSTextFrame` events after consuming each synthesis generator. `BaseOutputTransport` orders those text events with queued audio; `LLMAssistantAggregator` collects them and commits at the relevant turn boundary or interruption. A partial sentence generally has no retained text until its text frame progresses. However, audio shorter than the output chunk can remain buffered while the text frame passes; the 10 ms case demonstrates this limit. Context therefore follows sentence/text-frame progress. It cannot promise that every retained word has been sent, played or heard.
+
+The standard HTTP service catches a synthesis exception and emits a nonfatal `ErrorFrame`. The TTS base subsequently forwards that sentence's text, and default worker handling allows later synthesis to proceed. Keeping that failed text is an observed reference result, not evidence of successful speech or a safe recovery policy. Task 3 must stop the failed response and test the resulting context before allowing another model request. Mark any deliberate suppression of failed-sentence text as an explicit service-adapter behavior; do not present it as an upstream default. No failure adapter or alternate history writer was added in Task 1.
+
+The test shortens the TTS stop-frame timeout from the upstream three seconds to 100 ms to bound the audio-less cases. That is a disclosed fixture setting, not a measured latency improvement. Output acknowledgement means the fixture accepted bytes. Neither transport, browser playback, provider inference, resampling, reconnect nor a fail/abort recovery path is exercised. The new context expectations apply to equivalent output events on both routes when Task 3 connects them.
 
 ## Why the prototype needs a change
 
@@ -39,7 +63,7 @@ The vendored subset also omits upstream `TTSService` and `BaseOutputTransport`. 
 
 Use the paired Pipecat user and assistant context components where supported. Integrate Workers AI STT, hosted Pipecat Smart Turn, GPT-OSS-120B, and Aura-2 through the relevant Pipecat service and turn interfaces. [Goals](GOALS.md) defines the service scope and the remaining STT choice.
 
-The GPT-OSS service adapter must identify user-facing answer text before passing it into the speech/output path. Reasoning and protocol events must stay out of TTS, browser transcripts, and ordinary assistant dialogue. The assistant aggregator then collects the answer text that progresses through the selected output components. [AI2](ACCEPTANCE.md#ai2-stream-gpt-oss-answers-into-speech) checks this boundary, completion, and cancellation; it has not been run against GPT-OSS here.
+The GPT-OSS service adapter must identify user-facing answer text before passing it into the speech/output path. Reasoning and protocol events must stay out of TTS, browser transcripts, and ordinary assistant dialogue. The assistant aggregator then collects the answer text that progresses through the selected output components. [AI2](ACCEPTANCE.md#ai2-stream-gpt-oss-answers-into-speech) checks this boundary, completion, and cancellation. Task 1 ran parser fixtures; live GPT-OSS remains untested.
 
 For history and output, the implementation should:
 

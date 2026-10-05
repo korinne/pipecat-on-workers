@@ -1,0 +1,265 @@
+[
+  {
+    "id": "answer-and-reasoning-content",
+    "events": [
+      {
+        "choices": [
+          {
+            "delta": {
+              "reasoning_content": "Private fixture reasoning",
+              "content": null
+            }
+          }
+        ]
+      },
+      {
+        "choices": [
+          {
+            "delta": {
+              "content": "Four \ud83d\udc08."
+            }
+          }
+        ]
+      },
+      {
+        "choices": [
+          {
+            "delta": {},
+            "finish_reason": "stop"
+          }
+        ]
+      }
+    ],
+    "done": true,
+    "expected_baseline_text": "Four \ud83d\udc08.",
+    "expected_baseline_exception": null,
+    "finding_status": "scoped_pass",
+    "classification": "test_limitation",
+    "fixture_provenance": "Cloudflare workers-ai-provider streaming.ts at 0e5bc3b2f489e4b8215905812a36fe69d37afb8d; fabricated values, no live capture.",
+    "finding": "The baseline separates delta.reasoning_content from delta.content for this documented client shape and handles one-byte UTF-8 chunks."
+  },
+  {
+    "id": "answer-and-reasoning-alias",
+    "events": [
+      {
+        "choices": [
+          {
+            "delta": {
+              "reasoning": "Private fixture reasoning"
+            }
+          }
+        ]
+      },
+      {
+        "choices": [
+          {
+            "delta": {
+              "content": "Four."
+            }
+          }
+        ]
+      },
+      {
+        "choices": [
+          {
+            "delta": {},
+            "finish_reason": "stop"
+          }
+        ]
+      }
+    ],
+    "done": true,
+    "expected_baseline_text": "Four.",
+    "expected_baseline_exception": null,
+    "finding_status": "scoped_pass",
+    "classification": "test_limitation",
+    "fixture_provenance": "Cloudflare workers-ai-provider streaming.ts at 0e5bc3b2f489e4b8215905812a36fe69d37afb8d; fabricated values, no live capture.",
+    "finding": "The baseline also skips delta.reasoning when no generic response fallback is present."
+  },
+  {
+    "id": "token-limit-with-partial-answer",
+    "events": [
+      {
+        "choices": [
+          {
+            "delta": {
+              "content": "Four"
+            }
+          }
+        ]
+      },
+      {
+        "choices": [
+          {
+            "delta": {},
+            "finish_reason": "length"
+          }
+        ]
+      }
+    ],
+    "done": true,
+    "expected_baseline_text": "Four",
+    "expected_baseline_exception": null,
+    "finding_status": "observed_gap",
+    "classification": "application_defect",
+    "fixture_provenance": "Cloudflare workers-ai-provider streaming.ts at 0e5bc3b2f489e4b8215905812a36fe69d37afb8d; fabricated values, no live capture.",
+    "finding": "The baseline returns truncated text without exposing finish_reason=length; its caller cannot distinguish a complete answer from this limit."
+  },
+  {
+    "id": "reasoning-only-token-limit",
+    "events": [
+      {
+        "choices": [
+          {
+            "delta": {
+              "reasoning_content": "Private fixture reasoning"
+            }
+          }
+        ]
+      },
+      {
+        "choices": [
+          {
+            "delta": {},
+            "finish_reason": "length"
+          }
+        ]
+      }
+    ],
+    "done": true,
+    "expected_baseline_text": "",
+    "expected_baseline_exception": null,
+    "finding_status": "observed_gap",
+    "classification": "application_defect",
+    "fixture_provenance": "Cloudflare workers-ai-provider streaming.ts at 0e5bc3b2f489e4b8215905812a36fe69d37afb8d; fabricated values, no live capture.",
+    "finding": "The baseline returns an empty success after the fixture spends its entire output on reasoning. The real budget and token accounting remain untested."
+  },
+  {
+    "id": "finish-reason-error",
+    "events": [
+      {
+        "choices": [
+          {
+            "delta": {
+              "content": "Partial"
+            }
+          }
+        ]
+      },
+      {
+        "choices": [
+          {
+            "delta": {},
+            "finish_reason": "error"
+          }
+        ]
+      }
+    ],
+    "done": true,
+    "expected_baseline_text": "Partial",
+    "expected_baseline_exception": null,
+    "finding_status": "observed_gap",
+    "classification": "application_defect",
+    "fixture_provenance": "Cloudflare workers-ai-provider streaming.ts at 0e5bc3b2f489e4b8215905812a36fe69d37afb8d; fabricated values, no live capture.",
+    "finding": "The baseline ignores finish_reason=error and returns partial text as a normal generator completion."
+  },
+  {
+    "id": "unexpected-eof",
+    "events": [
+      {
+        "choices": [
+          {
+            "delta": {
+              "content": "Partial"
+            }
+          }
+        ]
+      }
+    ],
+    "done": false,
+    "expected_baseline_text": "Partial",
+    "expected_baseline_exception": null,
+    "finding_status": "observed_gap",
+    "classification": "application_defect",
+    "fixture_provenance": "Cloudflare workers-ai-provider streaming.ts at 0e5bc3b2f489e4b8215905812a36fe69d37afb8d; fabricated values, no live capture.",
+    "finding": "EOF with neither finish_reason nor [DONE] is accepted as normal completion."
+  },
+  {
+    "id": "empty-completed-stream",
+    "events": [
+      {
+        "choices": [
+          {
+            "delta": {},
+            "finish_reason": "stop"
+          }
+        ]
+      }
+    ],
+    "done": true,
+    "expected_baseline_text": "",
+    "expected_baseline_exception": null,
+    "finding_status": "observed_gap",
+    "classification": "application_defect",
+    "fixture_provenance": "Cloudflare workers-ai-provider streaming.ts at 0e5bc3b2f489e4b8215905812a36fe69d37afb8d; fabricated values, no live capture.",
+    "finding": "The baseline exposes no empty-result outcome; callers get the same empty generator as the reasoning-only limit."
+  },
+  {
+    "id": "provider-error-object",
+    "events": [
+      {
+        "choices": [
+          {
+            "delta": {
+              "content": "Partial"
+            }
+          }
+        ]
+      },
+      {
+        "error": {
+          "code": "fixture_error",
+          "message": "controlled provider failure"
+        }
+      }
+    ],
+    "done": true,
+    "expected_baseline_text": "Partial",
+    "expected_baseline_exception": "ProviderError",
+    "finding_status": "scoped_pass",
+    "classification": "test_limitation",
+    "fixture_provenance": "Baseline documented error convention in src/providers.py; fabricated values, no live capture.",
+    "finding": "A top-level error raises ProviderError after partial text and reader cleanup completes."
+  },
+  {
+    "id": "reasoning-response-fallback",
+    "events": [
+      {
+        "response": "Ambiguous fixture payload",
+        "choices": [
+          {
+            "delta": {
+              "reasoning_content": "Ambiguous fixture payload",
+              "content": null
+            }
+          }
+        ]
+      },
+      {
+        "choices": [
+          {
+            "delta": {},
+            "finish_reason": "stop"
+          }
+        ]
+      }
+    ],
+    "done": true,
+    "expected_baseline_text": "Ambiguous fixture payload",
+    "expected_baseline_exception": null,
+    "finding_status": "observed_gap",
+    "classification": "application_defect",
+    "fixture_provenance": "Adversarial format fixture assembled for this probe; not claimed as a Cloudflare stream format.",
+    "finding": "A deliberately ambiguous event causes generic response to be spoken despite a reasoning delta. This is a defensive fixture, not evidence GPT-OSS emits this shape."
+  }
+]
