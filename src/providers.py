@@ -36,6 +36,7 @@ STT_KEEPALIVE_INTERVAL = 3.0
 TURN_TIMEOUT = 2.0
 TURN_MAX_AUDIO_BYTES = 8 * INPUT_SAMPLE_RATE * 2
 MAX_RETRY_AFTER = 300.0
+MAX_PENDING_PROVIDER_REQUESTS = 8
 
 
 def _js(value):
@@ -271,6 +272,8 @@ class WorkersProviders:
             request.add_done_callback(self._discard_late_result)
 
     async def _run(self, model, parameters, options=None, timeout=30):
+        if sum(not request.done() for request in self.requests) >= MAX_PENDING_PROVIDER_REQUESTS:
+            raise ProviderError("Previous provider requests are still settling. Please try again shortly.")
         if model == TURN_MODEL and self._turn_request is not None and not self._turn_request.done():
             raise ProviderError("Turn detection is still finishing a previous request. Please repeat your turn shortly.")
         args = [model, _js(parameters)]

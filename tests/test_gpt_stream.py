@@ -208,6 +208,52 @@ class GPTProviderTests(unittest.IsolatedAsyncioTestCase):
         finally:
             loop.set_exception_handler(old_handler)
 
+    async def test_repeated_canceled_headers_remain_bounded_until_late_settlement(self):
+        await self.provider.close()
+        for close_early in (False, True):
+            with self.subTest(close_early=close_early):
+                gate = asyncio.Event()
+                calls, late_readers = [], []
+                async def ignores_abort(*args):
+                    calls.append(args)
+                    await gate.wait()
+                    reader = Reader()
+                    late_readers.append(reader)
+                    return N(getReader=lambda: reader, cancel=reader.cancel)
+                self.provider = self.module.WorkersProviders(N(AI=N(run=ignores_abort)), lambda _: None)
+                limit = self.module.MAX_PENDING_PROVIDER_REQUESTS
+                for index in range(limit):
+                    stream = self.provider.generate([])
+                    pending = asyncio.create_task(anext(stream))
+                    async with asyncio.timeout(1):
+                        while len(calls) <= index:
+                            await asyncio.sleep(0)
+                    pending.cancel()
+                    with self.assertRaises(asyncio.CancelledError): await pending
+                    self.assertTrue(self.controllers[-1].aborted)
+                    self.assertEqual(len(self.provider.requests), index + 1)
+                for _ in range(3):
+                    with self.assertRaises(self.module.ProviderError):
+                        _ = [text async for text in self.provider.generate([])]
+                    self.assertEqual(len(calls), limit)
+                    self.assertEqual(self.provider.diagnostics()["pending_provider_requests"], limit)
+                if close_early:
+                    # End must not erase ownership of unresolved requests.
+                    await self.provider.close()
+                    self.assertEqual(self.provider.diagnostics()["pending_provider_requests"], limit)
+                gate.set()
+                for _ in range(30): await asyncio.sleep(0)
+                self.assertEqual(len(late_readers), limit)
+                self.assertTrue(all(reader.canceled for reader in late_readers))
+                self.assertEqual(self.provider.diagnostics()["pending_provider_requests"], 0)
+                self.assertEqual(self.provider.diagnostics()["provider_tasks"], 0)
+                if not close_early:
+                    reader = Reader([encoded(event({"content": "Recovered."}), event(reason="stop"))])
+                    async def recovered(*args): return N(getReader=lambda: reader)
+                    self.provider.env.AI.run = recovered
+                    self.assertEqual([text async for text in self.provider.generate([])], ["Recovered."])
+                await self.provider.close()
+
     async def test_cancel_during_reasoning_before_answer(self):
         self.reader = Reader([encoded(event({"reasoning_content": "private"}), done=False)], hold=True)
         stream = self.provider.generate([])

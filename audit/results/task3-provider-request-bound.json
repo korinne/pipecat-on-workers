@@ -1,0 +1,32 @@
+{
+  "recorded_at": "2026-10-05T05:04:37.041207+00:00",
+  "scope": "Controlled provider ownership regression; explicit JavaScript/AI doubles on CPython, no inference or Workers execution",
+  "base_revision": "d89b69026338cbc7d499246f47b156cb3520b870",
+  "sha256": {
+    "src/providers.py": "7c5e59634829f8e15b906dd958dec8c07901230bda92e4663031bf9219493ed7",
+    "tests/test_gpt_stream.py": "5454deea8d0fff2eedbe18a9b89256078e290270ee8bcbfdbcbcf97a637a8ddd"
+  },
+  "operational_limit": {
+    "unresolved_binding_requests_per_owner": 8,
+    "acceptance_performance_limit": false
+  },
+  "observations": [
+    "Eight repeatedly canceled requests whose binding ignores AbortSignal remain owned.",
+    "Three additional generation attempts fail without allocating more binding requests.",
+    "Each late stream is canceled when its request resolves; ownership counts return to zero.",
+    "An active owner admits a normal generation after unresolved requests settle.",
+    "End preserves the unresolved count until late requests settle; it does not report false zero ownership."
+  ],
+  "checks": [
+    {
+      "command": ".venv/bin/python -m unittest tests.test_gpt_stream -v",
+      "passed": 18,
+      "failed": 0
+    },
+    {
+      "command": ".venv/bin/python scripts/check_providers.py",
+      "passed": true
+    }
+  ],
+  "live_rerun": "Not performed for this guard. The earlier separate live GPT evidence remains unchanged; final application verification must identify its own revision."
+}
