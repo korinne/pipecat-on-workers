@@ -1,0 +1,400 @@
+{
+  "events": [
+    {
+      "type": "reset",
+      "generation": 1,
+      "history": [],
+      "message": "Connected. Say hello to start."
+    },
+    {
+      "type": "ready",
+      "generation": 1
+    },
+    {
+      "type": "clear",
+      "generation": 2,
+      "reason": "pipecat_interruption"
+    },
+    {
+      "type": "transcript",
+      "role": "user",
+      "text": "if i wanted to",
+      "final": false
+    },
+    {
+      "type": "transcript",
+      "role": "user",
+      "text": "if i wanted to",
+      "final": false
+    },
+    {
+      "type": "transcript",
+      "role": "user",
+      "text": "if i wanted to visit",
+      "final": false
+    },
+    {
+      "type": "transcript",
+      "role": "user",
+      "text": "if i wanted to visit france",
+      "final": false
+    },
+    {
+      "type": "transcript",
+      "role": "user",
+      "text": "if i wanted to visit france what city is the",
+      "final": false
+    },
+    {
+      "type": "transcript",
+      "role": "user",
+      "text": "if i wanted to visit france what city is the capital",
+      "final": false
+    },
+    {
+      "type": "error",
+      "message": "Speech turn could not be completed; please repeat your request."
+    },
+    {
+      "type": "ended"
+    }
+  ],
+  "diagnostics": {
+    "generation": 2,
+    "closed": true,
+    "pipecat_tasks": 0,
+    "pending_turn_tasks": 0,
+    "pending_user_fragments": 0,
+    "pending_user_chars": 0,
+    "turn_audio_bytes": 0,
+    "turn_revision": 5,
+    "turn_timeout_secs": 5,
+    "input_audio_chunks": 316,
+    "input_audio_bytes": 201942,
+    "forwarded_audio_bytes": 201942,
+    "unacked_audio_bytes": 0,
+    "pending_playback_chunks": 0,
+    "messages": 1,
+    "metrics": [
+      {
+        "event": "turn_discarded",
+        "elapsed_ms": 468,
+        "reason": "stt_connection_changed"
+      },
+      {
+        "event": "startup",
+        "elapsed_ms": 470,
+        "startup_ms": 470
+      },
+      {
+        "event": "nova_observed",
+        "elapsed_ms": 698,
+        "kind": "SpeechStarted",
+        "start": null,
+        "duration": null,
+        "final": null,
+        "cursor": 1920,
+        "words": []
+      },
+      {
+        "event": "speech_started",
+        "elapsed_ms": 698,
+        "revision": 2
+      },
+      {
+        "event": "server_clear",
+        "elapsed_ms": 701,
+        "dispatch_ms": 3,
+        "generation": 2
+      },
+      {
+        "event": "nova_observed",
+        "elapsed_ms": 1694,
+        "kind": "Results",
+        "start": 0,
+        "duration": 1,
+        "final": false,
+        "cursor": 16960,
+        "words": [
+          {
+            "word": "if",
+            "start": 0,
+            "end": 0.24,
+            "confidence": 0.97802734
+          },
+          {
+            "word": "i",
+            "start": 0.24,
+            "end": 0.39999998,
+            "confidence": 0.99902344
+          },
+          {
+            "word": "wanted",
+            "start": 0.39999998,
+            "end": 0.71999997,
+            "confidence": 1
+          },
+          {
+            "word": "to",
+            "start": 0.71999997,
+            "end": 0.88,
+            "confidence": 0.99609375
+          }
+        ]
+      },
+      {
+        "event": "nova_observed",
+        "elapsed_ms": 2293,
+        "kind": "Results",
+        "start": 0,
+        "duration": 1.53,
+        "final": true,
+        "cursor": 25920,
+        "words": [
+          {
+            "word": "if",
+            "start": 0,
+            "end": 0.24,
+            "confidence": 0.91503906
+          },
+          {
+            "word": "i",
+            "start": 0.24,
+            "end": 0.39999998,
+            "confidence": 0.99902344
+          },
+          {
+            "word": "wanted",
+            "start": 0.39999998,
+            "end": 0.79999995,
+            "confidence": 0.99902344
+          },
+          {
+            "word": "to",
+            "start": 0.79999995,
+            "end": 1.12,
+            "confidence": 0.7915039
+          }
+        ]
+      },
+      {
+        "event": "turn_pause",
+        "elapsed_ms": 2294,
+        "revision": 2,
+        "snapshot_samples": 17920,
+        "transcript_end_sample": 24480,
+        "audio_end_sample": 17920
+      },
+      {
+        "event": "nova_observed",
+        "elapsed_ms": 3075,
+        "kind": "SpeechStarted",
+        "start": null,
+        "duration": null,
+        "final": null,
+        "cursor": 38080,
+        "words": []
+      },
+      {
+        "event": "speech_started",
+        "elapsed_ms": 3075,
+        "revision": 3
+      },
+      {
+        "event": "nova_observed",
+        "elapsed_ms": 3320,
+        "kind": "Results",
+        "start": 1.53,
+        "duration": 1.01,
+        "final": false,
+        "cursor": 41600,
+        "words": [
+          {
+            "word": "visit",
+            "start": 2.17,
+            "end": 2.49,
+            "confidence": 0.49609375
+          }
+        ]
+      },
+      {
+        "event": "nova_observed",
+        "elapsed_ms": 4314,
+        "kind": "Results",
+        "start": 1.53,
+        "duration": 1.97,
+        "final": false,
+        "cursor": 56640,
+        "words": [
+          {
+            "word": "visit",
+            "start": 1.53,
+            "end": 2.65,
+            "confidence": 0.90625
+          },
+          {
+            "word": "france",
+            "start": 2.65,
+            "end": 3.1299999,
+            "confidence": 0.79052734
+          }
+        ]
+      },
+      {
+        "event": "nova_observed",
+        "elapsed_ms": 5410,
+        "kind": "Results",
+        "start": 1.53,
+        "duration": 2.97,
+        "final": false,
+        "cursor": 73280,
+        "words": [
+          {
+            "word": "visit",
+            "start": 1.53,
+            "end": 2.65,
+            "confidence": 0.9658203
+          },
+          {
+            "word": "france",
+            "start": 2.65,
+            "end": 3.4499998,
+            "confidence": 0.9926758
+          },
+          {
+            "word": "what",
+            "start": 3.4499998,
+            "end": 3.6899998,
+            "confidence": 0.99902344
+          },
+          {
+            "word": "city",
+            "start": 3.6899998,
+            "end": 4.01,
+            "confidence": 1
+          },
+          {
+            "word": "is",
+            "start": 4.01,
+            "end": 4.17,
+            "confidence": 1
+          },
+          {
+            "word": "the",
+            "start": 4.17,
+            "end": 4.33,
+            "confidence": 0.99902344
+          }
+        ]
+      },
+      {
+        "event": "nova_observed",
+        "elapsed_ms": 6216,
+        "kind": "Results",
+        "start": 1.53,
+        "duration": 3.72,
+        "final": true,
+        "cursor": 85291,
+        "words": [
+          {
+            "word": "visit",
+            "start": 2.17,
+            "end": 2.65,
+            "confidence": 0.9589844
+          },
+          {
+            "word": "france",
+            "start": 2.65,
+            "end": 3.4499998,
+            "confidence": 0.9848633
+          },
+          {
+            "word": "what",
+            "start": 3.4499998,
+            "end": 3.77,
+            "confidence": 0.99902344
+          },
+          {
+            "word": "city",
+            "start": 3.77,
+            "end": 4.01,
+            "confidence": 1
+          },
+          {
+            "word": "is",
+            "start": 4.01,
+            "end": 4.25,
+            "confidence": 1
+          },
+          {
+            "word": "the",
+            "start": 4.25,
+            "end": 4.41,
+            "confidence": 1
+          },
+          {
+            "word": "capital",
+            "start": 4.41,
+            "end": 4.81,
+            "confidence": 0.9875488
+          }
+        ]
+      },
+      {
+        "event": "turn_pause",
+        "elapsed_ms": 6216,
+        "revision": 3,
+        "snapshot_samples": 76960,
+        "transcript_end_sample": 84000,
+        "audio_end_sample": 76960
+      },
+      {
+        "event": "smart_turn",
+        "elapsed_ms": 7180,
+        "revision": 3,
+        "complete": false,
+        "probability": 0.05736839771270752
+      },
+      {
+        "event": "nova_observed",
+        "elapsed_ms": 7248,
+        "kind": "Results",
+        "start": 5.25,
+        "duration": 1.0006876,
+        "final": false,
+        "cursor": 100971,
+        "words": []
+      },
+      {
+        "event": "turn_discarded",
+        "elapsed_ms": 7248,
+        "reason": "transcript_beyond_pause"
+      },
+      {
+        "event": "turn_discarded",
+        "elapsed_ms": 7264,
+        "reason": "closed"
+      },
+      {
+        "event": "closed",
+        "elapsed_ms": 7286,
+        "reason": "ended"
+      }
+    ],
+    "transport": "websocket",
+    "queued_output_bytes": 0,
+    "context_schema": 2,
+    "history_reset": false,
+    "provider_tasks": 0,
+    "provider_sockets": 0,
+    "provider_readers": 0,
+    "pending_provider_requests": 0,
+    "pending_turn_requests": 0,
+    "queued_provider_bytes": 0,
+    "stt_connection_generation": 1,
+    "dropped_audio_bytes": 0,
+    "sfu_retired_connections": 0,
+    "sfu_cleanup_records": [],
+    "sfu_cleanup_persistence_failed": false
+  }
+}

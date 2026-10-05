@@ -246,9 +246,6 @@ class NovaTurnCoordinator:
             raise ValueError("Transcript crosses committed boundary")
         if end > self.cursor:
             raise ValueError("Transcript beyond sent audio")
-        if self.pause_end is not None and end > self.pause_end:
-            await self.abort("transcript_beyond_pause")
-            return
         if type(event.get("is_final")) is not bool or type(event.get("speech_final")) is not bool:
             raise ValueError("Missing Nova flags")
         alternative = event["channel"]["alternatives"][0]
@@ -256,6 +253,12 @@ class NovaTurnCoordinator:
         if not isinstance(text, str) or len(text) > MAX_CHARS:
             raise ValueError("Invalid transcript")
         text = text.strip()
+        if self.pause_end is not None and end > self.pause_end:
+            # Nova emits empty interim/final Results while silence continues.
+            # They add no transcript and must not invalidate a held decision.
+            if text:
+                await self.abort("transcript_beyond_pause")
+            return
         words = alternative.get("words", [])
         word_end = None
         if words:

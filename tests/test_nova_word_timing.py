@@ -38,3 +38,30 @@ class NovaWordTimingTests(unittest.IsolatedAsyncioTestCase):
                 snapshots,errors=await self.capture(words)
                 self.assertEqual(snapshots,[])
                 self.assertTrue(any(e['type']=='error' for e in errors))
+
+    async def test_empty_silence_results_preserve_pending_pause(self):
+        events = []
+        class Provider:
+            async def analyze_turn(self, pcm):
+                return {'is_complete': False, 'probability': .1}
+        async def queue(frame): pass
+        async def send(event): events.append(event)
+        c = NovaTurnCoordinator(Provider(), queue, send, lambda *a: None)
+        try:
+            await c.connected(1)
+            c.append_audio(bytes(32000 * 3))
+            await c.event({'type':'SpeechStarted','timestamp':0,'connection_generation':1})
+            await c.event({'type':'Results','start':0,'duration':1.53,'is_final':True,'speech_final':True,
+                'channel':{'alternatives':[{'transcript':'If I wanted to',
+                    'words':[{'start':0,'end':1.12}]}]},'connection_generation':1})
+            await asyncio.sleep(.01)
+            revision = c.revision
+            for final in (False, True):
+                await c.event({'type':'Results','start':1.53,'duration':1,'is_final':final,'speech_final':False,
+                    'channel':{'alternatives':[{'transcript':'','words':[]}]},'connection_generation':1})
+            self.assertEqual(c.revision, revision)
+            self.assertTrue(c.active)
+            self.assertEqual(c.text(), 'If I wanted to')
+            self.assertFalse(any(e['type']=='error' for e in events))
+        finally:
+            await c.close()

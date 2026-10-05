@@ -15,3 +15,11 @@ The [captures](../evidence/task2-live-20261005/summary.json) preserve a first No
 POST the synthetic PCM request described in DEVELOPMENT to `/nova` or `/smart-turn`. This runs Python locally with real Workers AI. Keep all fresh result files. The standalone probe's ten-second detector wait is not the application's two-second limit.
 
 Physical microphone/playback and SFU media were not exercised by these captures. The user approved their laptop for a later physical check and left performance acceptance untested.
+
+## Follow-up investigation
+
+A frozen local Python Worker using live providers reproduced a second defect: Nova sends empty Results while silence continues. Those results advanced beyond the saved pause range and incorrectly aborted it. Empty text now leaves the pending decision intact; nonempty text beyond the pause still requires observed resumption. The regression checks both interim and final empty results.
+
+The resumed synthetic question still received INCOMPLETE from hosted Smart Turn (0.0574 with the word-boundary slice). Six isolated comparisons retaining another 100 or 200 ms of observed input classified the short complete question correctly and the incomplete prefix correctly, but still classified the assembled resumed question as incomplete. The model result was not overridden and the audio boundary was not tuned to force a pass. This fixture remains a failed semantic turn case. Real speech and additional natural phrasing need final verification.
+
+The new files preserve the failed application candidate and the frozen diagnostic trace separately. The trace contains only generated test speech. It uses temporary local timing instrumentation and is not an exact production revision or final acceptance result. An earlier temporary diagnostic incorrectly assumed every Nova `channel` field was a dictionary; SpeechStarted uses a list. That instrumentation error was corrected before the frozen trace recorded here.
