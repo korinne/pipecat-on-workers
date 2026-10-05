@@ -19,6 +19,22 @@ MAX_BUFFER = MAX_AUDIO + RATE * 2 // 5
 MAX_FRAGMENTS = 16
 MAX_CHARS = 8192
 
+# Fixed labels only: never retain exception messages or provider text.
+NOVA_VALIDATION = {
+    "Invalid Nova timestamp": "timestamp",
+    "Speech onset beyond sent audio": "onset_beyond_audio",
+    "Transcript crosses committed boundary": "crosses_consumed",
+    "Transcript beyond sent audio": "result_beyond_audio",
+    "Missing Nova flags": "flags",
+    "Invalid transcript": "transcript_shape",
+    "Invalid Nova words": "words_shape",
+    "Invalid Nova word timing": "word_timing",
+    "Missing Nova word timing": "missing_word_timing",
+    "Conflicting finalized transcript": "conflicting_final",
+    "Overlapping finalized transcript": "overlapping_final",
+    "Turn text limit": "text_limit",
+}
+
 
 @dataclass
 class ReadyTurnFrame(SystemFrame):
@@ -159,6 +175,49 @@ class NovaTurnCoordinator:
         self.deadline = None
         self.input_anomaly_reported = False
 
+    def trace_state(self):
+        return {"revision": self.revision, "connection_generation": self.connection,
+                "audio_cursor_sample": self.cursor,
+                "buffer_start_sample": self.cursor - len(self.audio) // 2,
+                "consumed_sample": self.consumed, "onset_sample": self.start,
+                "latest_onset_sample": self.latest_onset, "pause_end_sample": self.pause_end,
+                "active": self.active, "speaking": self.speaking,
+                "final_segments": len(self.segments), "transcript_chars": len(self.text()),
+                "transcript_covered": self._covered(), "queued": self.queued}
+
+    def _trace_event(self, event):
+        kind = event.get("type")
+        if kind not in ("SpeechStarted", "Results", "ProviderStatus"):
+            return
+        values = {**self.trace_state(), "nova_type": kind,
+                  "current_connection": self.connection is not None and
+                  event.get("connection_generation") == self.connection}
+        for source, target in (("timestamp", "nova_timestamp_secs"), ("start", "nova_start_secs"),
+                               ("duration", "nova_duration_secs"),
+                               ("connection_generation", "event_connection_generation")):
+            value = event.get(source)
+            if type(value) in (int, float) and abs(value) <= 2**53:
+                values[target] = value
+        for key in ("is_final", "speech_final"):
+            if type(event.get(key)) is bool:
+                values[key] = event[key]
+        channel = event.get("channel")
+        alternatives = channel.get("alternatives") if isinstance(channel, dict) else None
+        alternative = alternatives[0] if isinstance(alternatives, list) and alternatives else None
+        if isinstance(alternative, dict):
+            text = alternative.get("transcript")
+            if isinstance(text, str):
+                values["event_transcript_chars"] = len(text)
+            words = alternative.get("words")
+            if isinstance(words, list):
+                values["word_count"] = len(words)
+                for word, key, name in ((words[0] if words else None, "start", "first_word_start_secs"),
+                                         (words[-1] if words else None, "end", "last_word_end_secs")):
+                    value = word.get(key) if isinstance(word, dict) else None
+                    if type(value) in (int, float) and abs(value) <= 2**53:
+                        values[name] = value
+        self.measure("nova_event", values)
+
     def _task(self, coroutine):
         task = asyncio.create_task(coroutine)
         self.tasks.add(task)
@@ -166,12 +225,20 @@ class NovaTurnCoordinator:
         return task
 
     def _cancel_pending(self):
-        for task in (self.detector, self.deadline):
+        cancelled = []
+        for name, task in (("detector", self.detector), ("deadline", self.deadline)):
             if task and task is not asyncio.current_task() and not task.done():
                 task.cancel()
+                cancelled.append(name)
+        if cancelled:
+            self.measure("turn_cancelled", {**self.trace_state(),
+                         "detector_cancelled": "detector" in cancelled,
+                         "deadline_cancelled": "deadline" in cancelled})
         self.detector = self.deadline = None
 
     def discard(self, reason):
+        self.measure("turn_discarded", {**self.trace_state(), "reason": reason,
+                                      "next_revision": self.revision + 1})
         self.revision += 1  # before any await or cancellation callback
         self._cancel_pending()
         self.active = self.speaking = self.queued = False
@@ -179,7 +246,6 @@ class NovaTurnCoordinator:
         self.word_ends.clear()
         self.pause_end = self.decision = None
         self.consumed = self.cursor
-        self.measure("turn_discarded", {"reason": reason})
 
     async def abort(self, reason, *, notify=True):
         was_active = self.active
@@ -226,6 +292,7 @@ class NovaTurnCoordinator:
     async def event(self, event):
         if self.closed:
             return
+        self._trace_event(event)
         if event.get("type") == "ProviderStatus" and event.get("status") == "connected":
             await self.connected(event.get("connection_generation"))
             return
@@ -236,7 +303,9 @@ class NovaTurnCoordinator:
                 await self._onset(self._sample(event.get("timestamp")))
             elif event.get("type") == "Results":
                 await self._results(event)
-        except (ValueError, TypeError, KeyError, IndexError, OverflowError):
+        except (ValueError, TypeError, KeyError, IndexError, OverflowError) as exc:
+            self.measure("nova_event_rejected", {**self.trace_state(),
+                         "validation": NOVA_VALIDATION.get(str(exc), "event_shape")})
             if self.active:
                 self.input_anomaly_reported = True
                 await self.abort("invalid_nova_event")
@@ -260,7 +329,7 @@ class NovaTurnCoordinator:
         self.pause_end = self.decision = None
         self.queued = False
         await self.queue(VADUserStartedSpeakingFrame())
-        self.measure("speech_started", {"revision": self.revision})
+        self.measure("speech_started", self.trace_state())
 
     async def _results(self, event):
         start = self._sample(event["start"])
@@ -291,9 +360,12 @@ class NovaTurnCoordinator:
             if not isinstance(words, list):
                 raise ValueError("Invalid Nova words")
             previous = start
-            for word in words:
+            for index, word in enumerate(words):
                 left, right = self._sample(word["start"]), self._sample(word["end"])
                 if left < start or right < left or right > end or left < previous:
+                    self.measure("nova_event_rejected", {**self.trace_state(), "validation": "word_timing",
+                                 "word_index": index, "word_start_sample": left,
+                                 "word_end_sample": right, "word_previous_sample": previous})
                     raise ValueError("Invalid Nova word timing")
                 previous = right
             word_end = previous
@@ -333,6 +405,8 @@ class NovaTurnCoordinator:
             right = word_end or max(self.word_ends.values(), default=0)
             buffer_start = self.cursor - len(self.audio) // 2
             left = max(self.start - RATE // 5, right - RATE * 8, buffer_start, 0)
+            self.measure("turn_snapshot", {**self.trace_state(), "transcript_end_sample": end,
+                         "audio_start_sample": left, "audio_end_sample": right})
             if end > self.cursor or right <= left:
                 await self.abort("pause_audio_unavailable")
                 return
@@ -344,7 +418,8 @@ class NovaTurnCoordinator:
             self.detectors.add(self.detector)
             self.detector.add_done_callback(self.detectors.discard)
             self.measure("turn_pause", {"revision": revision, "snapshot_samples": len(pcm)//2,
-                                        "transcript_end_sample": end, "audio_end_sample": right})
+                                        "transcript_end_sample": end, "audio_end_sample": right,
+                                        **self.trace_state()})
         await self._maybe_ready()
 
     def text(self):
@@ -364,16 +439,25 @@ class NovaTurnCoordinator:
 
     async def _analyze(self, revision, pcm):
         analyzer = HostedSmartTurnAnalyzer(self.provider, pcm)
+        self.measure("smart_turn_request", {**self.trace_state(), "request_revision": revision,
+                                           "snapshot_samples": len(pcm)//2})
         try:
             decision, _ = await analyzer.analyze_end_of_turn()
+            self.measure("smart_turn_outcome", {**self.trace_state(), "request_revision": revision,
+                         "outcome": "complete" if decision == EndOfTurnState.COMPLETE else "incomplete",
+                         "probability": analyzer.probability})
             if revision == self.revision and self.active and not self.speaking:
                 self.decision = decision
                 self.measure("smart_turn", {"revision": revision, "complete": decision == EndOfTurnState.COMPLETE,
                                             "probability": analyzer.probability})
                 await self._maybe_ready()
         except asyncio.CancelledError:
+            self.measure("smart_turn_outcome", {**self.trace_state(), "request_revision": revision,
+                                               "outcome": "cancelled"})
             raise
         except Exception:
+            self.measure("smart_turn_outcome", {**self.trace_state(), "request_revision": revision,
+                                               "outcome": "failed"})
             if revision == self.revision:
                 await self.abort("smart_turn_failed")
         finally:

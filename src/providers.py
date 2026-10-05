@@ -220,6 +220,11 @@ class WorkersProviders:
         # A canceled Python wait cannot abort the binding promise. Keep this
         # slot occupied until that promise settles, including after timeout.
         self._turn_request = None
+        self._turn_sequence = 0
+        self._active_turn_sequence = None
+        # The session supplies its bounded measurement sink. Keep observation
+        # synchronous and optional so it cannot affect provider ownership.
+        self.measure_turn = lambda kind, values: None
 
     async def _emit(self, event):
         if not self.closed:
@@ -271,21 +276,56 @@ class WorkersProviders:
             self._discarding_requests.add(request)
             request.add_done_callback(self._discard_late_result)
 
+    def _measure_turn_request(self, sequence, stage, *, pending, began=None,
+                              active_sequence=None):
+        values = {"request_sequence": sequence, "stage": stage, "pending": pending}
+        if began is not None:
+            values["request_elapsed_ms"] = round((time.monotonic()-began)*1000, 3)
+        if active_sequence is not None:
+            values["active_request_sequence"] = active_sequence
+        # Diagnostic callback errors must never change conversation behavior.
+        with contextlib.suppress(Exception):
+            self.measure_turn("turn_provider", values)
+
     async def _run(self, model, parameters, options=None, timeout=30):
+        turn_sequence = None
+        if model == TURN_MODEL:
+            self._turn_sequence += 1
+            turn_sequence = self._turn_sequence
         if sum(not request.done() for request in self.requests) >= MAX_PENDING_PROVIDER_REQUESTS:
+            if turn_sequence is not None:
+                self._measure_turn_request(turn_sequence, "rejected_capacity", pending=False)
             raise ProviderError("Previous provider requests are still settling. Please try again shortly.")
         if model == TURN_MODEL and self._turn_request is not None and not self._turn_request.done():
+            self._measure_turn_request(turn_sequence, "rejected_busy", pending=True,
+                                       active_sequence=self._active_turn_sequence)
             raise ProviderError("Turn detection is still finishing a previous request. Please repeat your turn shortly.")
         args = [model, _js(parameters)]
         if options is not None:
             args.append(_js(options))
-        request = asyncio.ensure_future(self.env.AI.run(*args))
+        turn_began = time.monotonic() if turn_sequence is not None else None
+        try:
+            request = asyncio.ensure_future(self.env.AI.run(*args))
+        except BaseException:
+            if turn_sequence is not None:
+                self._measure_turn_request(turn_sequence, "submit_failed", pending=False,
+                                           began=turn_began)
+            raise
         if model == TURN_MODEL:
             self._turn_request = request
+            self._active_turn_sequence = turn_sequence
+            self._measure_turn_request(turn_sequence, "submitted", pending=not request.done(),
+                                       began=turn_began)
 
             def release_turn_request(completed):
+                if completed.cancelled():
+                    stage = "settled_cancelled"
+                else:
+                    stage = "settled_error" if completed.exception() is not None else "settled_ok"
+                self._measure_turn_request(turn_sequence, stage, pending=False, began=turn_began)
                 if self._turn_request is completed:
                     self._turn_request = None
+                    self._active_turn_sequence = None
 
             request.add_done_callback(release_turn_request)
         self.requests.add(request)
@@ -298,7 +338,11 @@ class WorkersProviders:
             if not done:
                 raise asyncio.TimeoutError()
             return request.result()
-        except (asyncio.CancelledError, asyncio.TimeoutError):
+        except (asyncio.CancelledError, asyncio.TimeoutError) as exc:
+            if turn_sequence is not None:
+                self._measure_turn_request(
+                    turn_sequence, "wait_cancelled" if isinstance(exc, asyncio.CancelledError) else "wait_timeout",
+                    pending=not request.done(), began=turn_began)
             self._discard_when_done(request)
             raise
 

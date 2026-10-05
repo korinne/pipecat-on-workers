@@ -142,6 +142,10 @@ class SfuTransport:
         self.cleanup_failures = 0
         self.unconfirmed_allocations = 0
         self.received_bytes = self.submitted_bytes = self.dropped_packets = 0
+        self.input_packets = self.decoded_pcm_bytes = self.input_connections = 0
+        self.last_input_sequence = self.last_input_timestamp = None
+        self.diagnostic_started = self.clock()
+        self.first_callback_ms = self.first_pcm_ms = None
 
     async def _emit(self, event):
         if not self.closed:
@@ -417,6 +421,9 @@ class SfuTransport:
             from providers import _Socket
             socket = _Socket(ws, f"sfu_{role}", max_bytes=96000)
         if role == "input":
+            self.input_connections += 1
+            if self.first_callback_ms is None:
+                self.first_callback_ms = round((self.clock() - self.diagnostic_started) * 1000, 3)
             if self.input_socket:
                 self.input_socket.close()
             if self.input_pump:
@@ -446,7 +453,7 @@ class SfuTransport:
                     continue
                 if isinstance(message, str):
                     raise SfuError("Realtime microphone sent an unexpected text message")
-                sequence, _, payload = decode_packet(message)
+                sequence, timestamp, payload = decode_packet(message)
                 if sequence is not None and last_sequence is not None:
                     distance = (sequence - last_sequence) & 0xffffffff
                     if distance == 0 or distance > 0x7fffffff:
@@ -455,8 +462,13 @@ class SfuTransport:
                 if sequence is not None:
                     last_sequence = sequence
                 self.received_bytes += len(payload)
+                self.input_packets += 1
+                self.last_input_sequence, self.last_input_timestamp = sequence, timestamp
                 pcm = resampler.convert(payload)
+                self.decoded_pcm_bytes += len(pcm)
                 if pcm:
+                    if self.first_pcm_ms is None:
+                        self.first_pcm_ms = round((self.clock() - self.diagnostic_started) * 1000, 3)
                     result = self.on_audio(pcm)
                     if inspect.isawaitable(result):
                         await result
@@ -832,6 +844,10 @@ class SfuTransport:
 
     def diagnostics(self):
         return {"sfu_input_bytes": self.received_bytes, "sfu_submitted_bytes": self.submitted_bytes,
+                "sfu_input_packets": self.input_packets, "sfu_decoded_pcm_bytes": self.decoded_pcm_bytes,
+                "sfu_input_connections": self.input_connections,
+                "sfu_last_sequence": self.last_input_sequence, "sfu_last_packet_timestamp": self.last_input_timestamp,
+                "sfu_first_callback_ms": self.first_callback_ms, "sfu_first_pcm_ms": self.first_pcm_ms,
                 "sfu_input_socket_open": bool(self.input_socket and not self.input_socket.closed),
                 "sfu_input_pcm_ready": self.input_pcm_ready,
                 "sfu_input_failed": bool(self.input_failure),

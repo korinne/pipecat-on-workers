@@ -77,6 +77,7 @@ class ConversationSession:
         self.input_audio_chunks = 0
         self.input_audio_bytes = 0
         self.forwarded_audio_bytes = 0
+        self.next_input_trace_bytes = 0
         self.started = asyncio.Event()
         self.closed = False
         self.provider = provider_factory(self.provider_event)
@@ -104,6 +105,7 @@ class ConversationSession:
         self.last_activity = time.monotonic()
         self.began = self.last_activity
         self.metrics = []
+        self.provider.measure_turn = self.measure
         self.last_interrupt = None
         self.responding = False
         self.persistence_lock = asyncio.Lock()
@@ -278,6 +280,20 @@ class ConversationSession:
         if await self.provider.send_audio(pcm) is True:
             self.forwarded_audio_bytes += len(pcm)
             self.turn.append_audio(pcm)
+        # First packet and then roughly once per audio second. The shared
+        # 500-event ring bounds retention; no PCM or text enters this trace.
+        if self.input_audio_bytes >= self.next_input_trace_bytes:
+            self.next_input_trace_bytes = self.input_audio_bytes + 32000
+            transport = self.transport.diagnostics()
+            self.measure("input_audio_progress", {**self.turn.trace_state(),
+                "input_audio_chunks": self.input_audio_chunks,
+                "input_audio_bytes": self.input_audio_bytes,
+                "forwarded_audio_bytes": self.forwarded_audio_bytes,
+                **{key: value for key, value in transport.items() if key in (
+                    "sfu_input_bytes", "sfu_dropped_packets", "sfu_input_packets", "sfu_decoded_pcm_bytes",
+                    "sfu_input_connections", "sfu_last_sequence", "sfu_last_packet_timestamp",
+                    "sfu_first_callback_ms", "sfu_first_pcm_ms", "sfu_input_socket_open",
+                    "sfu_input_pcm_ready", "sfu_input_failed")}})
 
     async def interrupt(self):
         if self.closed:

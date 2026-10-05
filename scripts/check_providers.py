@@ -215,7 +215,8 @@ async def main():
     await cleanup_ownership()
     await nova_events_and_keepalive()
     await hosted_turn()
-    print('PASS: provider protocol, Nova request/events/control keepalive, Smart Turn serialization/validation/deadlines/bounded unresolved requests, unhashable reader ownership, bounded sanitized upgrade errors, quota/capacity classification, bounded capacity retries, cancellation/deadline handling, partial socket setup cleanup, late cleanup ownership, SSE, PCM and explicit shutdown (fake I/O only)')
+    await hosted_turn_trace()
+    print('PASS: provider protocol, Nova request/events/control keepalive, Smart Turn serialization/validation/deadlines/bounded unresolved requests/sanitized lifecycle trace, unhashable reader ownership, bounded sanitized upgrade errors, quota/capacity classification, bounded capacity retries, cancellation/deadline handling, partial socket setup cleanup, late cleanup ownership, SSE, PCM and explicit shutdown (fake I/O only)')
 
 
 def rejected(payload, *, retry_after=None, status=429):
@@ -565,5 +566,129 @@ async def hosted_turn():
     else: raise AssertionError('Detector returned a decision after provider shutdown')
     await asyncio.sleep(0)
     assert provider.diagnostics()['pending_turn_requests']==0
+
+
+async def hosted_turn_trace():
+    """Observe binding lifetime separately from the caller's bounded wait."""
+    pcm=struct.pack('<2h',0,1)
+    events=[]
+    def measure(kind, values):
+        assert kind=='turn_provider'
+        events.append(values)
+    def stages(): return [event['stage'] for event in events]
+    def check_sanitized():
+        allowed={'request_sequence','active_request_sequence','stage','pending','request_elapsed_ms'}
+        for event in events:
+            assert set(event)<=allowed and type(event['pending']) is bool
+            assert event['stage'] in {'submitted','settled_ok','settled_error','settled_cancelled',
+                                      'wait_timeout','wait_cancelled','rejected_busy','rejected_capacity','submit_failed'}
+            assert type(event['request_sequence']) is int and event['request_sequence']>0
+            if 'active_request_sequence' in event:
+                assert type(event['active_request_sequence']) is int and event['active_request_sequence']>0
+            if 'request_elapsed_ms' in event:
+                assert type(event['request_elapsed_ms']) in (int,float) and 0<=event['request_elapsed_ms']<float('inf')
+        assert 'PRIVATE' not in json.dumps(events)
+
+    provider=m.WorkersProviders(N(AI=AI({'is_complete':True,'probability':0.9})),lambda event:None)
+    provider.measure_turn=measure
+    await provider.analyze_turn(pcm)
+    assert stages()==['submitted','settled_ok'], events
+    assert events[0]['pending'] and not events[1]['pending']
+    assert {event['request_sequence'] for event in events}=={1}
+    check_sanitized(); events.clear()
+    # A synchronous submission rejection has no owned binding request.
+    class SynchronousBrokenAI:
+        def run(self,*args): raise RuntimeError('PRIVATE SUBMISSION TEXT')
+    provider.env.AI=SynchronousBrokenAI()
+    try: await provider.analyze_turn(pcm)
+    except m.ProviderError: pass
+    else: raise AssertionError('Submission error was hidden')
+    assert stages()==['submit_failed'] and not events[0]['pending']
+    assert events[0]['request_sequence']==2
+    check_sanitized(); events.clear()
+    class BrokenAI:
+        async def run(self,*args): raise RuntimeError('PRIVATE UPSTREAM TEXT')
+    provider.env.AI=BrokenAI()
+    try: await provider.analyze_turn(pcm)
+    except m.ProviderError: pass
+    else: raise AssertionError('Upstream error was hidden')
+    assert stages()==['submitted','settled_error']
+    assert {event['request_sequence'] for event in events}=={3}
+    check_sanitized(); events.clear()
+    # A broken observer must leave successful provider behavior unchanged.
+    provider.env.AI=AI({'is_complete':True,'probability':0.9})
+    def broken_measure(kind, values): raise RuntimeError('Observer failed')
+    provider.measure_turn=broken_measure
+    assert await provider.analyze_turn(pcm)=={'is_complete':True,'probability':0.9}
+    await provider.close()
+
+    for cancel in (False,True):
+        gate=asyncio.Event(); started=asyncio.Event()
+        class HeldAI:
+            calls=0
+            async def run(self,*args):
+                self.calls+=1; started.set(); await gate.wait()
+                return {'is_complete':False,'probability':0.1}
+        provider=m.WorkersProviders(N(AI=HeldAI()),lambda event:None)
+        provider.measure_turn=measure
+        original=m.TURN_TIMEOUT; m.TURN_TIMEOUT=0.02
+        try:
+            pending=asyncio.create_task(provider.analyze_turn(pcm))
+            await started.wait()
+            if cancel: pending.cancel()
+            try: await pending
+            except asyncio.CancelledError: assert cancel
+            except m.ProviderError: assert not cancel
+            else: raise AssertionError('Expected wait termination')
+            assert stages()==['submitted','wait_cancelled' if cancel else 'wait_timeout']
+            assert all(event['pending'] for event in events)
+            try: await provider.analyze_turn(pcm)
+            except m.ProviderError: pass
+            else: raise AssertionError('Busy binding accepted new work')
+            assert events[-1]['stage']=='rejected_busy' and events[-1]['pending']
+            assert events[-1]['request_sequence']==2 and events[-1]['active_request_sequence']==1
+            assert provider.env.AI.calls==1
+            # Capacity remains its existing first rejection, even if Smart Turn is busy.
+            original_limit=m.MAX_PENDING_PROVIDER_REQUESTS; m.MAX_PENDING_PROVIDER_REQUESTS=1
+            try:
+                try: await provider.analyze_turn(pcm)
+                except m.ProviderError: pass
+                else: raise AssertionError('Provider request cap was bypassed')
+            finally: m.MAX_PENDING_PROVIDER_REQUESTS=original_limit
+            assert events[-1]['stage']=='rejected_capacity' and events[-1]['request_sequence']==3
+            gate.set(); await asyncio.sleep(0.01)
+            assert events[-1]['stage']=='settled_ok' and not events[-1]['pending']
+            assert events[-1]['request_sequence']==1
+            assert provider.diagnostics()['pending_turn_requests']==0
+            await provider.analyze_turn(pcm)
+            assert stages()[-2:]==['submitted','settled_ok']
+            assert events[-1]['request_sequence']==4
+            check_sanitized()
+        finally:
+            gate.set(); await provider.close(); m.TURN_TIMEOUT=original; events.clear()
+
+    # A failed or canceled binding may settle after its caller has already left.
+    # Keep that outcome tied to the original sequence, without exception text.
+    for outcome in ('settled_error','settled_cancelled'):
+        gate=asyncio.Event(); started=asyncio.Event()
+        class LateFailureAI:
+            async def run(self,*args):
+                started.set(); await gate.wait()
+                raise RuntimeError('PRIVATE LATE RESPONSE TEXT')
+        provider=m.WorkersProviders(N(AI=LateFailureAI()),lambda event:None)
+        provider.measure_turn=measure
+        pending=asyncio.create_task(provider.analyze_turn(pcm))
+        await started.wait(); pending.cancel()
+        try: await pending
+        except asyncio.CancelledError: pass
+        else: raise AssertionError('Caller cancellation was hidden')
+        if outcome=='settled_cancelled': provider._turn_request.cancel()
+        else: gate.set()
+        await asyncio.sleep(0.01)
+        assert stages()==['submitted','wait_cancelled',outcome]
+        assert {event['request_sequence'] for event in events}=={1}
+        assert events[1]['pending'] and not events[2]['pending']
+        assert provider.diagnostics()['pending_turn_requests']==0 and not provider._discarding_requests
+        check_sanitized(); await provider.close(); events.clear()
 
 asyncio.run(main())
