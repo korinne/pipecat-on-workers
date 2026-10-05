@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /** Two prerecorded inputs per selected fresh actual-provider session. No fixture events.
- * Interrupt at tool/thinking status before audio, reject canceled output, recover,
+ * Interrupt at tool/thinking status or first nonzero speech audio, reject canceled output, recover,
  * await response completion and elapsed audio receipts, then verify End cleanup.
  * No microphone or speaker is opened.
  */
@@ -28,7 +28,7 @@ export function options(args) {
     else if (keys[args[i]] && args[i + 1] && !args[i + 1].startsWith('--')) out[keys[args[i]]] = args[++i];
     else fail('invalid_arguments');
   }
-  if (out.case !== undefined && !['all', 'tool', 'thinking'].includes(out.case)) fail('invalid_case');
+  if (out.case !== undefined && !['all', 'tool', 'thinking', 'speaking'].includes(out.case)) fail('invalid_case');
   return out;
 }
 
@@ -36,9 +36,15 @@ export function options(args) {
 export class PendingCancellation {
   constructor(target) { this.target = target; this.generation = undefined; this.clearAt = undefined; }
   status(message, now, audioCount) {
-    if (this.generation !== undefined || message.state !== this.target) return false;
+    if (this.target === 'speaking' || this.generation !== undefined || message.state !== this.target) return false;
     if (audioCount !== 0) fail('audio_arrived_before_pending_interrupt');
     if (!Number.isSafeInteger(message.generation)) fail('invalid_status_generation');
+    this.generation = message.generation; this.requestedAt = now;
+    return true;
+  }
+  speech(message, now, pcm) {
+    if (this.target !== 'speaking' || this.generation !== undefined || pcmStats(pcm).nonzero_samples === 0) return false;
+    if (!Number.isSafeInteger(message.generation)) fail('invalid_audio_generation');
     this.generation = message.generation; this.requestedAt = now;
     return true;
   }
@@ -53,13 +59,13 @@ export class PendingCancellation {
 export async function main(args = process.argv.slice(2)) {
   const opt = options(args);
   if (opt.help) {
-    console.log('Usage: node scripts/check_real_pending.mjs --base https://HOST --pcm RECOVERY.pcm --tool-pcm APPOINTMENT.pcm [--case all|tool|thinking] [--evidence PATH] [--capture-root PATH] [--validate-input]\nInputs: headerless PCM16 LE mono 16000 Hz, 0.2–15 seconds. Two inputs per fresh session; four total for default --case all, two for one selected case. Wall-clock playback receipts only; no physical microphone/speaker measurement. Active checks stop at 165 seconds; cleanup stops by 175 seconds. Private captures must be outside outputs/.');
+    console.log('Usage: node scripts/check_real_pending.mjs --base https://HOST --pcm RECOVERY.pcm [--tool-pcm APPOINTMENT.pcm] [--case all|tool|thinking|speaking] [--evidence PATH] [--capture-root PATH] [--validate-input]\nInputs: headerless PCM16 LE mono 16000 Hz, 0.2–15 seconds. Two inputs per fresh session; four total for default --case all, two for one selected case. Wall-clock playback receipts only; no physical microphone/speaker measurement. A selected case stops active work at 90 seconds and cleanup by 100 seconds; default all retains its 165/175-second bounds. Private captures must be outside outputs/.');
     return;
   }
   const targets = !opt.case || opt.case === 'all' ? ['tool', 'thinking'] : [opt.case];
   const plannedInputTurns = targets.length * 2;
-  if (!opt.pcm || !opt.toolPcm) fail('both_pcm_paths_required');
-  const [normal, tool] = await Promise.all([opt.pcm, opt.toolPcm].map(async name => {
+  if (!opt.pcm || (targets.includes('tool') && !opt.toolPcm)) fail('required_pcm_path_missing');
+  const [normal, tool] = await Promise.all([opt.pcm, opt.toolPcm || opt.pcm].map(async name => {
     const data = await fs.readFile(name).catch(() => fail('input_read_failed'));
     if (data.length % 2 || data.length < 6400 || data.length > 480000) fail('input_must_be_pcm16_0_2_to_15_seconds');
     if (['RIFF', 'FORM', 'caff', 'OggS'].includes(data.toString('ascii', 0, 4))) fail('input_has_container_header');
@@ -78,15 +84,17 @@ export async function main(args = process.argv.slice(2)) {
   outsideOutputs(captureRoot); await fs.mkdir(captureRoot, { recursive: true }); outsideOutputs(await fs.realpath(captureRoot));
   const runDir = await fs.mkdtemp(path.join(captureRoot, 'real-pending-')); await fs.chmod(runDir, 0o700);
   const evidenceFile = path.resolve(opt.evidence || path.join(runDir, 'evidence.json'));
-  const evidence = { schema: 2, started_at: new Date().toISOString(), deployment_origin: origin.origin,
+  const evidence = { schema: 3, started_at: new Date().toISOString(), deployment_origin: origin.origin,
     passed: false, selected_cases: targets, planned_input_turns: plannedInputTurns, fixture_provider_requested: false, physical_human_voice_acceptance_passed: false,
-    interruption_method: 'explicit client control immediately on tool/thinking status, before audio',
+    interruption_method: 'explicit client control at the selected pending status or first nonzero speech audio',
     playback_method: 'elapsed serial PCM duration receipts; no audio device',
     limitations: ['Pending status is observed at the client; cancellation of remote model compute or billing is not established.',
       'Tool case exercises the application fictional availability lookup, not a remote booking API.',
       'Prerecorded input and explicit client control do not measure microphone capture, acoustic barge-in, speakers or intelligibility.',
       'One-second post-clear observation and successful recovery do not prove indefinite absence of late remote work.'], cases: [], failures: [] };
-  const started = performance.now(), activeDeadline = started + 165000, cleanupDeadline = started + 175000;
+  const started = performance.now(), activeLimit = targets.length === 1 ? 90000 : 165000;
+  const activeDeadline = started + activeLimit, cleanupDeadline = activeDeadline + 10000;
+  evidence.active_limit_ms = activeLimit; evidence.cleanup_limit_ms = activeLimit + 10000;
   let fatal;
   const markFailure = code => { fatal ||= new Failure(code); };
   const signal = () => markFailure('operator_interrupted');
@@ -99,7 +107,7 @@ export async function main(args = process.argv.slice(2)) {
   try {
     for (const target of targets) {
       if (fatal) throw fatal;
-      const result = { target_status: target, input_turns: 0, interrupted_before_audio: false, clear_observed: false,
+      const result = { target_status: target, input_turns: 0, interrupted_before_audio: false, interrupted_during_audio: false, interrupt_nonzero_samples: 0, clear_observed: false,
         post_clear_observation_ms: 0, canceled_audio_packets_after_clear: 0, recovery_user_finals: 0,
         recovery_assistant_sentences: 0, recovery_audio_chunks: 0, recovery_nonzero_samples: 0,
         recovery_completed_responses: 0, recovery_acknowledged_chunks: 0, acknowledged_duration_ms: 0, end_sent: false, end_acknowledged: false, failures: [] };
@@ -150,6 +158,10 @@ export async function main(args = process.argv.slice(2)) {
               try { cancellation.audio(m); } catch (e) { result.canceled_audio_packets_after_clear++; throw e; }
               received++;
               const pcm = playback.enqueue(m, now); if (!pcm) return;
+              if (phase === 'pending' && cancellation.speech(m, now, pcm)) {
+                result.interrupt_nonzero_samples = pcmStats(pcm).nonzero_samples;
+                playback.clear(m.generation + 1, now); send({type:'interrupt'}); result.interrupted_during_audio = true;
+              }
               bytes += pcm.length; if (bytes > 5 * 1024 * 1024) fail('audio_capture_bound_exceeded'); audio.push(pcm);
               if (phase === 'recovery') { result.recovery_audio_chunks++; result.recovery_nonzero_samples += pcmStats(pcm).nonzero_samples; }
             }
@@ -172,11 +184,11 @@ export async function main(args = process.argv.slice(2)) {
           } } catch (e) { markFailure(errorCode(e)); }
         }, 10);
         offset = 0; result.input_turns++;
-        await waitFor(() => result.clear_observed, 35000, 'pending_interrupt_or_clear_timeout');
+        await waitFor(() => result.clear_observed, 35000, 'interrupt_or_clear_timeout');
         result.clear_dispatch_observed_ms = round(cancellation.clearAt - cancellation.requestedAt);
         await waitFor(() => performance.now() - cancellation.clearAt >= 1000, 1200, 'post_clear_observation_timeout');
         result.post_clear_observation_ms = round(performance.now() - cancellation.clearAt);
-        if (offset < clip.length) fail('pending_turn_audio_not_finished');
+        if (offset < clip.length) fail('interrupted_turn_audio_not_finished');
         phase = 'recovery'; clip = normal; offset = 0; result.input_turns++;
         await waitFor(() => result.recovery_nonzero_samples > 0 && isCompletedResponse({
           userFinals: result.recovery_user_finals, assistantSentences: result.recovery_assistant_sentences,
@@ -208,7 +220,8 @@ export async function main(args = process.argv.slice(2)) {
         }
         if (fatal) result.failures.push(fatal.code);
         result.failures = [...new Set(result.failures)]; result.acknowledged_duration_ms = round(result.acknowledged_duration_ms);
-        result.passed = !result.failures.length && result.recovery_verified === true && result.interrupted_before_audio
+        result.passed = !result.failures.length && result.recovery_verified === true
+          && (target === 'speaking' ? result.interrupted_during_audio && result.interrupt_nonzero_samples > 0 : result.interrupted_before_audio)
           && result.clear_observed && result.post_clear_observation_ms >= 1000 && result.canceled_audio_packets_after_clear === 0 && result.cleanup_verified;
         const prefix = path.join(runDir, target);
         await fs.writeFile(prefix + '-transcripts.private.json', JSON.stringify(transcripts, null, 2), { mode: 0o600 });
