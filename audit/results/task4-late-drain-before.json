@@ -1,0 +1,19 @@
+{
+  "recorded_at_utc": "2026-10-05T04:57:23.110633+00:00",
+  "classification": "observed_gap",
+  "scope": "Controlled SFU adapter; simulated remote close and session inspection. No live media.",
+  "source_sha256": {
+    "src/sfu_transport.py": "3a4e26a701fe339cc4ec16b98d49d02720c31c1073e307b4ab6c00f644d69544",
+    "tests/test_sfu_transport.py": "629784d4d9036db0250dc5acd79aa167e24b6569269f9c28d21c08bc93730a2f"
+  },
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "unittest",
+    "tests.test_sfu_transport.SfuTransportTests.test_final_retry_drains_result_that_settles_during_session_inspection",
+    "-v"
+  ],
+  "exit_code": 1,
+  "stdout": "",
+  "stderr": "test_final_retry_drains_result_that_settles_during_session_inspection (tests.test_sfu_transport.SfuTransportTests.test_final_retry_drains_result_that_settles_during_session_inspection) ... FAIL\n\n======================================================================\nFAIL: test_final_retry_drains_result_that_settles_during_session_inspection (tests.test_sfu_transport.SfuTransportTests.test_final_retry_drains_result_that_settles_during_session_inspection)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/korinne/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/asyncio/runners.py\", line 128, in run\n    return self._loop.run_until_complete(task)\n           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^\n  File \"/Users/korinne/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/asyncio/base_events.py\", line 720, in run_until_complete\n    return future.result()\n           ~~~~~~~~~~~~~^^\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/tests/test_sfu_transport.py\", line 420, in test_final_retry_drains_result_that_settles_during_session_inspection\n    self.assertEqual(self.transport.adapters, {})\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: {'owned-adapter': ('output', 1)} != {}\n- {'owned-adapter': ('output', 1)}\n+ {}\n\n----------------------------------------------------------------------\nRan 1 test in 0.066s\n\nFAILED (failures=1)\n"
+}

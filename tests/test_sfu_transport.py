@@ -393,6 +393,34 @@ class SfuTransportTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(self.transport.cleanup_pending())
         self.assertEqual(self.api.sessions, 8)
 
+    async def test_final_retry_drains_result_that_settles_during_session_inspection(self):
+        calls = {"adapter": 0, "session": 0}
+        release = asyncio.Event()
+
+        async def request(url, method, payload, secret):
+            if url.endswith("adapters/websocket/close"):
+                calls["adapter"] += 1
+                if calls["adapter"] < 3:
+                    return 500, {}
+                await release.wait()
+                return 200, {"tracks": [{"adapterId": "owned-adapter"}]}
+            calls["session"] += 1
+            if calls["session"] < 3:
+                return 500, {}
+            release.set()
+            await asyncio.sleep(.001)
+            return 200, {"tracks": []}
+
+        self.transport.request = request
+        self.transport.adapters["owned-adapter"] = ("output", 1)
+        self.transport.sessions["owned-session"] = ("output", 1)
+        with patch("sfu_transport.CLEANUP_REQUEST_TIMEOUT", .005):
+            await self.transport.clear(2)
+            await self.cleanup_settled()
+        self.assertEqual(self.transport.adapters, {})
+        self.assertEqual(self.transport.cleanup_results, {})
+        self.assertEqual(calls, {"adapter": 3, "session": 3})
+
 
 if __name__ == "__main__":
     unittest.main()

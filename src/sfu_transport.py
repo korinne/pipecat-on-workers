@@ -582,6 +582,15 @@ class SfuTransport:
             return
         self.cleanup_task = self._task(self._run_cleanup())
 
+        def drained(done):
+            # A request can settle during the last retry pass, while this task
+            # still owns the worker slot. Drain its recorded result afterward;
+            # the per-operation retry counters remain unchanged.
+            if not done.cancelled() and self.cleanup_results:
+                self._schedule_cleanup()
+
+        self.cleanup_task.add_done_callback(drained)
+
     async def _run_cleanup(self):
         for attempt in range(CLEANUP_ATTEMPTS):
             await self._cleanup_retired()

@@ -26,3 +26,5 @@ Reproduce the focused checks with:
 Keep the original evidence files. Use a fresh path when repeating the probe.
 
 The [first recorded run](../audit/results/task4-cleanup.json) retains a harness error: it observed the former response method while the speech integration removed that method. The verified probe observes the shared pipeline's listening event after output and context completion.
+
+An independent review reproduced a late-result race in the final retry pass: a successful adapter close could settle during session inspection after its result had already been checked. The cleanup worker now schedules a follow-up drain without resetting retry budgets. [Failing reproduction](../audit/results/task4-late-drain-before.json) and [verified fix](../audit/results/task4-late-drain-fixed.json) are preserved separately.
