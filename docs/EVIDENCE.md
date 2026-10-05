@@ -213,3 +213,7 @@ The [separate proposal](../audit/proposals/silence-fallback-20261005/PROPOSAL.md
 ## SFU laptop retry
 
 The [later user report and screenshot](../evidence/sfu-laptop-20261005/user-report.json) show an SFU call with microphone activity and the recognized words “hello hello.” The user was not wearing headphones and reported no reply. This establishes observed speech input for that attempt, while a completed turn and audible output remain unverified. The active deployment was rechecked as `06111df0-88ce-4142-96e7-4158a9a6e7a9`; the screenshot does not identify its loaded assets. No specific cause is assigned without the call events or error details. The application and pending turn policy remain unchanged.
+
+## Silent-input corrections
+
+[The second SFU report](../evidence/silent-input-20261005/user-report.json) has no visible transcript. [Controlled reproductions and independent checks](SILENT-INPUT.md) now cover missing callback PCM, rejected Nova starts/results and preserved browser response state. Source `f8835e8` is deployed as `3b1dcd04-5515-4b83-9fe4-27511b619c03`; a direct actual-provider call produced a correct answer and nonzero audio, then ended with zero tracked local counters. Physical SFU acceptance remains open. Download measurements now includes allowlisted private diagnostics while a call is active. No transcript, audio or capability token is exported.

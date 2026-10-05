@@ -1,0 +1,21 @@
+Executing <Task pending name='WorkersTTSService#0::__process_frame_task_handler' coro=<TaskManager.create_task.<locals>.run_coroutine() running at /Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/src/pipecat/utils/asyncio/task_manager.py:191> cb=[TaskManager.create_task.<locals>.close_unawaited_coroutine() at /Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/src/pipecat/utils/asyncio/task_manager.py:204, TaskManager._task_done_handler()] created at /Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/src/pipecat/utils/asyncio/task_manager.py:201> took 0.344 seconds
+.........F.....
+======================================================================
+FAIL: test_orphan_results_report_once_without_inference_then_recover (tests.test_smart_turn.SmartTurnTests.test_orphan_results_report_once_without_inference_then_recover)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/korinne/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/asyncio/runners.py", line 128, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/korinne/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/asyncio/base_events.py", line 720, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/tests/test_smart_turn.py", line 47, in test_orphan_results_report_once_without_inference_then_recover
+    self.assertEqual(len([event for event in h.events if event["type"] == "error"]), 2)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 2
+
+----------------------------------------------------------------------
+Ran 15 tests in 7.992s
+
+FAILED (failures=1)

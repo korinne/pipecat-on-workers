@@ -1,0 +1,51 @@
+{
+  "source_sha256": "aa8d8571bba3c907736ddad65d081aa2f6b7894f3279778ae95f02f052104a49",
+  "fixtures": [
+    {
+      "case": "result_without_onset",
+      "frames": [],
+      "events": [
+        {
+          "type": "error",
+          "code": "speech_turn_start_error",
+          "recoverable": true,
+          "message": "Speech recognition lost track of this turn. Please pause and repeat your request."
+        }
+      ],
+      "metrics": [
+        {
+          "event": "turn_discarded",
+          "reason": "results_without_speech_start"
+        },
+        {
+          "event": "turn_discarded",
+          "reason": "closed"
+        }
+      ],
+      "inference_calls": []
+    },
+    {
+      "case": "invalid_initial_onset",
+      "frames": [],
+      "events": [
+        {
+          "type": "error",
+          "code": "speech_turn_start_error",
+          "recoverable": true,
+          "message": "Speech recognition lost track of this turn. Please pause and repeat your request."
+        }
+      ],
+      "metrics": [
+        {
+          "event": "turn_discarded",
+          "reason": "invalid_nova_event"
+        },
+        {
+          "event": "turn_discarded",
+          "reason": "closed"
+        }
+      ],
+      "inference_calls": []
+    }
+  ]
+}
