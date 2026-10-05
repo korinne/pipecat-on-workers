@@ -1,0 +1,35 @@
+{
+  "checked_at": "2026-10-05T04:28:36.887217+00:00",
+  "version_id": "bb1d9ecc-971d-4e2b-a1d8-7608df2aa7c9",
+  "source_commit": "848576841bc32b4ebc08a9cba56861ffe624e03d",
+  "initial_record": "deployment-keyless-bb1d9ecc.json",
+  "initial_record_sha256": "cd2cb3c90f4cb4954eeaf1f6417d524565697707b2183ac0e791eeeeca65d9b0",
+  "initial_failure": {
+    "path": "/transport-check.html",
+    "status": 307,
+    "location": "/transport-check",
+    "classification": "Test limitation: the first verifier expected HTTP 200 before following the static asset canonical-URL redirect. No application change."
+  },
+  "checks": [
+    {
+      "method": "GET",
+      "path": "/transport-check",
+      "status": 200,
+      "expected_status": 200,
+      "key_controls_absent": true,
+      "speech_file_control_present": false,
+      "passed": false
+    }
+  ],
+  "browser_observation": {
+    "path": "/webrtc",
+    "action": "Refreshed the existing idle browser tab after deployment",
+    "observed": "Start conversation enabled; demo key input and key-file controls absent",
+    "microphone_started": false
+  },
+  "session_access_results": "The initial report passed keyless creation on both transports, unique credentials, private diagnostics access, missing/wrong/cross-call token rejection and disabled fixture routes. Those checks were not repeated.",
+  "live_model_calls_made": 0,
+  "voice_round_trip": "untested",
+  "physical_audio": "untested",
+  "passed": false
+}

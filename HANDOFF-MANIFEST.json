@@ -71,7 +71,7 @@
     "docs/CAPABILITY-REQUEST.md": "4c295607acfa928a704b36ce751ee142cfa71afced1f035cf3bcbd9ad7471925",
     "docs/CONVERSATION.md": "758c7b30158844cc9a82f64c95d39d668d0210cb51dad29ff451ef18d3b19fc9",
     "docs/DEVELOPMENT.md": "9cdf0c2c0d3933c6c155ed35b45388cf5c4d200793449e19594ba5bfafa575d7",
-    "docs/EVIDENCE.md": "4154da4d2776fa20227587ff24f8f1271628732f7a80283c6b627ab7bc03dd62",
+    "docs/EVIDENCE.md": "e5a4e3e97faf0b3aca6980582dced57f185cbdcaf54b6d5d834921693a73ce3f",
     "docs/GOALS.md": "9321afadfc50981318e0e03e311ffef81135314853fe430750e2ac53a17f4333",
     "docs/IMPLEMENTATION-PLAN.md": "963850f5b64dc828497d65a10e47c5e6b4a1a0d94cb950b7dc0dfe40119e4a11",
     "docs/README.md": "d1d0fb0869c342ad7cc03ce14454797ac26a86aa457b5b47e1712f58efd25384",
@@ -83,6 +83,9 @@
     "evidence/capacity-startup-check.json": "cb8ace9feace60018bb198acd555e4cab44fa00b0e98c6167f8b8cd0fe097a8f",
     "evidence/deployment-access-33a5c3ed.json": "463270f6cd8b07cda21fa9a975bd5e152a7bd111054045256060fc3c0bccb6b1",
     "evidence/deployment-capacity-a0fddf09.json": "ec99d4284d442bd65e766059f97d4ccbec4089a5f8264f005a77b64fe6ad5e0f",
+    "evidence/deployment-keyless-bb1d9ecc-followup.json": "e383297603cefc63c6e8e52cee2fd675da21c47f9eebabeea83aeca2cc01db01",
+    "evidence/deployment-keyless-bb1d9ecc-verified.json": "3276186a8af9bd500a9fbc5a223e8f83e4b3bd933f3bd7270c4b0c2dccd34c3b",
+    "evidence/deployment-keyless-bb1d9ecc.json": "cd2cb3c90f4cb4954eeaf1f6417d524565697707b2183ac0e791eeeeca65d9b0",
     "evidence/deployment-microphone-76eb1ebf.json": "5ef3658c5a601568fdb614b100d6379cff03ffc455c5e4e97cae384bc88be2df",
     "evidence/deployment-task2-bc45735b.json": "b242c1ea4af11005404f4318992d20a92b87b85b2b0d7ba7696b244087cbcbf7",
     "evidence/deployment-two-examples-ae7676d0.json": "6201a54df31527e758d3db1d64522af97f5786a25410d50f6a7234bfc4fa9d97",
@@ -364,5 +367,12 @@
     "verified": "Worker startup, example pages, unauthorized access rejection",
     "live_voice": "untested"
   },
-  "access_policy": "Public session creation; private per-call capability tokens and SFU media signatures remain required. Shared demo key removed at user request."
+  "access_policy": "Public session creation; private per-call capability tokens and SFU media signatures remain required. Shared demo key removed at user request.",
+  "keyless_deployment": {
+    "source_commit": "848576841bc32b4ebc08a9cba56861ffe624e03d",
+    "version_id": "bb1d9ecc-971d-4e2b-a1d8-7608df2aa7c9",
+    "origin": "https://pipecat-on-workers.korinne.workers.dev",
+    "verified": "Public session creation on both routes, private call access checks, updated browser pages and disabled fixture routes",
+    "voice_round_trip": "untested"
+  }
 }
