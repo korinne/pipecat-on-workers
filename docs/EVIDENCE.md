@@ -136,6 +136,8 @@ This was an application request-format defect in Task 2. The fake binding accept
 
 The first probe attempt used `--local`, which disabled the remote AI binding in Wrangler 4.139.0. Removing that flag enabled the configured remote binding. That first failure was a test limitation; it made no model request. The successful A/B test executes JavaScript locally with live Workers AI, sends zero audio bytes and establishes only the handshake contract. It does not establish Nova transcription, hosted Smart Turn decisions, LLM/TTS behavior or physical playback. Earlier evidence remains unchanged.
 
+The correction in commit `195792064d61eb1f60a4817f87f42f506acd5437` is deployed as version `3f8bd208-8e4a-4f2d-96cb-d9a0e51f9542` at [100% traffic](../evidence/nova-startup-deployment-metadata.json). The [deployed Python startup checks](../evidence/nova-startup-deployed-3f8bd208.json) created one session per transport, opened each control WebSocket, observed `ready`, immediately sent `end`, and checked private diagnostics after closure. Both reached ready without an error, closed normally and reported zero remaining owned tasks, sockets, readers and pending work. No audio was sent and no SFU media signaling was performed. This verifies the actual Python connection fix; the full spoken turn still needs live validation.
+
 ## Recorded local results
 
 The [original audit](../audit/results/current-audit.json) recorded 5 observations supported within its scope, 6 gaps, 10 untested entries, and no test errors. Those counts belong to its original checklist. They are not a release score. Its existing regression run passed 41 Python and 62 JavaScript tests. Some of those tests preserve the prototype's known limitations.

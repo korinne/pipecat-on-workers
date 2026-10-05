@@ -75,10 +75,10 @@
     "docs/CAPABILITY-REQUEST.md": "4c295607acfa928a704b36ce751ee142cfa71afced1f035cf3bcbd9ad7471925",
     "docs/CONVERSATION.md": "758c7b30158844cc9a82f64c95d39d668d0210cb51dad29ff451ef18d3b19fc9",
     "docs/DEVELOPMENT.md": "37bc0874dfc81fd3759732b57705c36a90a0b72c5dd2d87ce748f1667bf1f613",
-    "docs/EVIDENCE.md": "b3acf1b1fa94b44ca7cc7cda9523fb50ebfa86bd215ef76792b64224bfaad3f6",
+    "docs/EVIDENCE.md": "aa1163a125ecef3b83c3595ca89717ba4d19133bd9c11a2dfb0de496b08ac03a",
     "docs/GOALS.md": "9321afadfc50981318e0e03e311ffef81135314853fe430750e2ac53a17f4333",
-    "docs/IMPLEMENTATION-PLAN.md": "963850f5b64dc828497d65a10e47c5e6b4a1a0d94cb950b7dc0dfe40119e4a11",
-    "docs/README.md": "d1d0fb0869c342ad7cc03ce14454797ac26a86aa457b5b47e1712f58efd25384",
+    "docs/IMPLEMENTATION-PLAN.md": "9f587a1a72e8a383dd8f262041f2514f065de223c38f73a5362c69096f62b8f8",
+    "docs/README.md": "63bd97b41d4c42e778f419b2107c4b74e3197966a510ad3c568bee9b3d0e8eaf",
     "docs/TRANSPORTS.md": "40b367d9adfc7071b1d0ec9e47e8c216c4b44540f1a5eacabc2026de1ffee502",
     "evidence/access-key-fix.json": "ded75cfe9ffcc2fe9c16329c09a0e3201d5bcadfed31e418da8529134bf83188",
     "evidence/browser-microphone-observation.json": "265605d6d89aa65680244e853926b03c668aab4ab5cd6c845cba22eae5ace07d",
@@ -102,6 +102,8 @@
     "evidence/minimal-py313-baseline.json": "5cbe665e12d014d442dcda786ce234b2f8dd9fcdaa58d0dad0bc923b500181b6",
     "evidence/minimal-py313-native-js-abort.json": "ba5c03f00629a5172c2ab02ec98cd4ba4a080e885c22c7e552f132a0b33c7795",
     "evidence/minimal-py313-sdk-abort-crash.txt": "406507d09e0fe6826f88c6df94554b6f1978d11b199ceae441325ae9bcb6f1fa",
+    "evidence/nova-startup-deployed-3f8bd208.json": "d044d8db4d3fa1e13061f9e2c8c118a8dd3fee1929bf3539a6a2734f2f86628b",
+    "evidence/nova-startup-deployment-metadata.json": "d797f735eaa136a3a2655822867f8cd80b49cd19703c982e1f3c020734cf4b3e",
     "evidence/pipecat-core-py314.txt": "a016e36c8561ed79aa02f176f93d3df30e644de21ad656ed33f57a6d2afb4400",
     "evidence/pipecat-core-runtime.json": "1a679141736ec0e807f35d693a941462b667d2dbae544689c7cb14cf490c37fb",
     "evidence/probe-cpython.json": "9aab4b8a21ab2a151983daa6334ebc80698ece90e3d81c735737bb6d26fe76a7",
@@ -379,5 +381,13 @@
     "verified": "Public session creation on both routes, private call access checks, updated browser pages and disabled fixture routes",
     "voice_round_trip": "untested"
   },
-  "nova_startup_correction": "Live isolated binding A/B reproduced HTTP400 for numeric channels and HTTP101 with string WebSocket parameters; application and isolated probe corrected, offline checks passed. Transcription and turn completion remain untested."
+  "nova_startup_correction": "Live isolated binding A/B reproduced HTTP400 for numeric channels and HTTP101 with string WebSocket parameters; application and isolated probe corrected, offline checks passed. Transcription and turn completion remain untested.",
+  "nova_startup_deployment": {
+    "source_commit": "195792064d61eb1f60a4817f87f42f506acd5437",
+    "version_id": "3f8bd208-8e4a-4f2d-96cb-d9a0e51f9542",
+    "origin": "https://pipecat-on-workers.korinne.workers.dev",
+    "verified": "Real Nova connection through deployed Python on both control routes, ready, End and owned-resource cleanup",
+    "audio_sent_bytes": 0,
+    "speech_and_playback": "untested"
+  }
 }

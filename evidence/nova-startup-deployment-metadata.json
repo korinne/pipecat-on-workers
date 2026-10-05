@@ -1,0 +1,16 @@
+{
+  "id": "69e0282f-850e-498a-a293-03ce13d8c029",
+  "source": "wrangler",
+  "strategy": "percentage",
+  "annotations": {
+    "workers/message": "Fix Nova startup parameter types (1957920)",
+    "workers/triggered_by": "deployment"
+  },
+  "versions": [
+    {
+      "version_id": "3f8bd208-8e4a-4f2d-96cb-d9a0e51f9542",
+      "percentage": 100
+    }
+  ],
+  "created_on": "2026-10-05T04:35:02.205887Z"
+}
