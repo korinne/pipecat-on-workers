@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 const settle=()=>new Promise(resolve=>setImmediate(resolve));
-function harness({publish,fetchSession}={}) {
+function harness({publish,fetchSession,bounded=false,duration=3,diagnostics={}}={}) {
   const elements=new Map(), contexts=[], nodes=[], sources=[], sockets=[], transports=[], requests=[], timers=new Map();
   let timerId=0;
   class Element {
@@ -22,7 +22,8 @@ function harness({publish,fetchSession}={}) {
   class Context {
     state='running'; currentTime=0; destination={};
     constructor(){contexts.push(this);} async resume(){this.state='running';} async close(){this.state='closed';}
-    async decodeAudioData(){return {duration:3};}
+    audioWorklet={addModule:async()=>{}};
+    async decodeAudioData(){return {duration};}
     createMediaStreamDestination(){const node=new Node();node.track={stopped:false,stop(){this.stopped=true;}};node.stream={getTracks:()=>[node.track],getAudioTracks:()=>[node.track]};return node;}
     createOscillator(){return new Node();} createGain(){return new Node();}
     createBufferSource(){const node=new Node();sources.push(node);return node;}
@@ -42,9 +43,10 @@ function harness({publish,fetchSession}={}) {
     close(){this.closed=true;this.clearOutput();} async resumePlayback(){}
   }
   const sandbox=vm.createContext({SfuAudioTransport,document:{getElementById:element,createElement:()=>new Element()},
+    ArrayBuffer,Int16Array,DataView,Blob,AudioWorkletNode:class extends Node {port={};},
     window:{AudioContext:Context,RTCPeerConnection:class {},addEventListener(){}},
-    WebSocket:Socket,performance,URL,AbortSignal,Uint8Array,Float32Array,location:{href:'https://voice.example/transport-check',protocol:'https:'},
-    fetch:async(url,options)=>{requests.push({url,options});if(url==='/api/session'&&fetchSession)return fetchSession();return {ok:true,json:async()=>url==='/api/session'?{id:'test-id',token:'test-token'}:{ok:true}};},
+    WebSocket:Socket,performance,URL,AbortSignal,Uint8Array,Float32Array,location:{href:`https://voice.example/transport-check${bounded?'?once=1&revision='+'a'.repeat(40)+'&deployment=12345678-1234-1234-1234-123456789012':''}`,protocol:'https:'},
+    fetch:async(url,options)=>{requests.push({url,options});if(url==='/api/session'&&fetchSession)return fetchSession();return {ok:true,json:async()=>url==='/api/session'?{id:'test-id',token:'test-token'}:diagnostics};},
     setTimeout(fn,delay){const id=++timerId;timers.set(id,{fn,delay});return id;},setInterval(fn,delay){const id=++timerId;timers.set(id,{fn,delay});return id;},
     clearTimeout(id){timers.delete(id);},clearInterval(id){timers.delete(id);},
   });
@@ -91,4 +93,77 @@ test('End during session creation retires the late capability without starting a
   finish({ok:true,json:async()=>({id:'late-id',token:'late-token'})});await start;
   assert.equal(h.sources.length,0);assert.equal(h.sockets.length,1);
   h.sockets[0].open();assert.deepEqual(h.sockets[0].sent,[{type:'end'}]);assert.equal(h.timers.size,0);
+});
+
+async function startBounded(h) {
+  await h.element('check-start').click();
+  const ws=h.sockets[0]; ws.open(); ws.receive({type:'ready'}); await settle();
+  ws.receive({type:'sfu_track',generation:2}); await settle(); await h.run('measure(run)'); await settle();
+  return ws;
+}
+test('bounded SFU mode requires captured decoded audio, a complete response, and closed resource diagnostics',async()=>{
+  const diagnostics={};
+  const h=harness({bounded:true,diagnostics});
+  const zero=JSON.parse(h.run('JSON.stringify(Object.fromEntries(RESOURCE_KEYS.map(key=>[key,0])))'));
+  Object.assign(zero,{closed:true,sfu_cleanup_unresolved:false,sfu_cleanup_persistence_failed:false,secret:'never copy'});
+  Object.assign(diagnostics,zero);
+  const ws=await startBounded(h);
+  assert.equal(h.element('check-audio').volume,0);
+  assert.equal(h.element('check-interrupt').disabled,true);
+  assert.equal(h.sources.length,1); h.element('check-replay').click(); assert.equal(h.sources.length,1);
+  h.sources[0].onended();
+  ws.receive({type:'transcript',role:'user',text:'Hi.',final:true,generation:2});
+  ws.receive({type:'transcript',role:'assistant',text:'Hello.',final:true,generation:2});
+  ws.receive({type:'status',state:'listening',generation:2});
+  await h.run('measure(run)'); assert.equal([...h.timers.values()].some(t=>t.delay===1000),false);
+  h.run('capture.port.onmessage({data:{pcm:new Int16Array([1,0,-1]).buffer}})');
+  await h.run('measure(run)');
+  [...h.timers.values()].find(t=>t.delay===1000).fn(); await settle();
+  const result=JSON.parse(h.element('check-result').textContent);
+  assert.equal(result.status,'completed'); assert.equal(result.cleanup.status,'released'); assert.equal(result.capture.nonzero_samples,2); assert.equal(result.capture.samples,3);
+  assert.equal(result.supplied_source_revision,'a'.repeat(40));
+  assert.equal(h.element('check-capture').hidden,false);
+  assert.equal(ws.sent.at(-1).type,'end'); assert.equal(ws.sent.some(p=>p.type==='played'),false);
+  const request=h.requests.find(r=>r.url.endsWith('/diagnostics'));
+  assert.equal(request.options.headers['X-Session-Token'],'test-token'); assert.equal(request.url.includes('token'),false);
+  assert.equal(h.run(`resourcesReleased(safeResources(${JSON.stringify(zero)}))`),true);
+  assert.equal(h.run(`resourcesReleased(safeResources(${JSON.stringify({...zero,sfu_owned_adapters:1,sfu_cleanup_unresolved:true})}))`),false);
+  assert.equal(h.element('check-result').textContent.includes('test-token'),false);
+  assert.equal(h.run(`JSON.stringify(safeResources(${JSON.stringify(zero)}))`).includes('secret'),false);
+});
+test('bounded SFU mode rejects long input before opening a session and times out stalled calls',async()=>{
+  const long=harness({bounded:true,duration:16}); await long.element('check-start').click();
+  assert.equal(long.requests.length,0); assert.equal(JSON.parse(long.element('check-result').textContent).status,'failed');
+  const h=harness({bounded:true}); await h.element('check-start').click();
+  [...h.timers.values()].find(t=>t.delay===90000).fn(); await settle();
+  assert.equal(JSON.parse(h.element('check-result').textContent).reason,'time_limit');
+  assert.equal(h.contexts[0].state,'closed');
+});
+test('bounded completion cannot succeed after a newer generation supersedes its response',async()=>{
+  const h=harness({bounded:true}), ws=await startBounded(h);
+  h.sources[0].onended(); h.run('capture.port.onmessage({data:{pcm:new Int16Array([1]).buffer}})');
+  ws.receive({type:'transcript',role:'user',text:'Hi.',final:true,generation:2});
+  ws.receive({type:'transcript',role:'assistant',text:'Hello.',final:true,generation:2});
+  ws.receive({type:'status',state:'listening',generation:2}); await h.run('measure(run)');
+  const finish=[...h.timers.values()].find(t=>t.delay===1000).fn;
+  ws.receive({type:'clear',generation:3}); finish();
+  assert.equal(JSON.parse(h.element('check-result').textContent).status,'running');
+  h.element('check-end').click();
+});
+
+test('bounded capture stops at its memory limit and retains unresolved remote ownership',async()=>{
+  const h=harness({bounded:true,diagnostics:{closed:true,sfu_owned_adapters:1,sfu_cleanup_unresolved:true}});
+  await startBounded(h);
+  h.run('captureBytes=960000; capture.port.onmessage({data:{pcm:new Int16Array([1]).buffer}})');
+  await settle();
+  assert.equal(JSON.parse(h.element('check-result').textContent).reason,'capture_limit');
+  assert.equal(h.element('check-start').disabled,true);
+  for(let i=0;i<7;i++) {
+    const timer=[...h.timers.entries()].find(([,value])=>value.delay===500);
+    assert.ok(timer); h.timers.delete(timer[0]); timer[1].fn(); await settle();
+  }
+  const result=JSON.parse(h.element('check-result').textContent);
+  assert.equal(result.cleanup.status,'unresolved');
+  assert.equal(result.cleanup.resources.sfu_owned_adapters,1);
+  assert.equal(result.cleanup.attempts,8); assert.equal(h.element('check-start').disabled,false);
 });
