@@ -1,0 +1,20 @@
+{
+  "recorded_at": "2026-10-05T05:16:27.646955+00:00",
+  "scope": "Real vendored Pipecat pipeline and both adapters with controlled provider/storage/SFU leaves",
+  "limitations": [
+    "No live provider failure claim",
+    "No physical playback or performance acceptance claim",
+    "No supported package installation claim"
+  ],
+  "status": "scoped_pass",
+  "application_base_commit": "4245fa2eff4156d847092bff4b2bf1ae20d72b20",
+  "changes": "Per-invocation generation guards reject retired model, synthesis and output completion failures; model cleanup exceptions preserve active cancellation",
+  "command": "LOGURU_LEVEL=ERROR .venv/bin/python -m unittest tests.test_speech_pipeline -q",
+  "tests_run": 48,
+  "passed": 48,
+  "new_regression_cases": 10,
+  "source_sha256": {
+    "src/speech_pipeline.py": "8a7d0a0afb2d3a8647ac7e5c4d4caf06248f42614d7c1eb53c0c48df6e72713b",
+    "tests/test_speech_pipeline.py": "c54af45e8023dc2f3ee260c64416c9a1c66ec3b8197fba4eb048dfb98ebda75e"
+  }
+}

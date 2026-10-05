@@ -49,21 +49,27 @@ class WorkersLLMService(LLMService):
         if isinstance(frame, InterruptionFrame):
             await self.session.invalidate("pipecat_interruption")
         elif isinstance(frame, LLMContextFrame) and direction == FrameDirection.DOWNSTREAM:
+            generation = None
             try:
-                await self.respond()
+                await asyncio.wait_for(self.session.context_ready.wait(), 5)
+                generation = self.session.generation + 1
+                await self.respond(generation)
             except asyncio.CancelledError:
                 self.session.measure("generation_cancelled", {})
                 raise
             except Exception as exc:
-                await self.session.fail_response("generation", exc)
+                # Cleanup can raise while Pipecat is cancelling this processor.
+                # Preserve cancellation instead of reporting a new model error.
+                if asyncio.current_task().cancelling():
+                    raise asyncio.CancelledError() from exc
+                if generation is None or self.session.is_current(generation):
+                    await self.session.fail_response("generation", exc)
             return
         await self.push_frame(frame, direction)
 
-    async def respond(self):
+    async def respond(self, generation):
         session = self.session
-        await asyncio.wait_for(session.context_ready.wait(), 5)
-        session.generation += 1
-        generation = session.generation
+        session.generation = generation
         session.responding = True
         session.response_started = time.monotonic()
         await session.persist()
@@ -160,7 +166,8 @@ class WorkersTTSService(TTSService):
         except Exception as exc:
             # Abort before the TTS base can append failed sentence text. The
             # standard assistant aggregator still retains earlier progressed text.
-            await self.session.fail_response("synthesis", exc)
+            if self.session.is_current(generation):
+                await self.session.fail_response("synthesis", exc)
             raise asyncio.CancelledError() from exc
         finally:
             await stream.aclose()
@@ -264,7 +271,8 @@ class PersistedAssistantAggregator(LLMAssistantAggregator):
                 except asyncio.CancelledError:
                     raise
                 except Exception as exc:
-                    await self.session.fail_response("output_completion", exc)
+                    if self.session.is_current(generation):
+                        await self.session.fail_response("output_completion", exc)
                 else:
                     self.session.responding = False
                     await self.session.send({"type": "status", "state": "listening", "generation": generation})

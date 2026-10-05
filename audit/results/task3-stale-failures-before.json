@@ -1,0 +1,33 @@
+{
+  "recorded_at": "2026-10-05T05:16:27.646955+00:00",
+  "scope": "Real vendored Pipecat pipeline and both adapters with controlled provider/storage/SFU leaves",
+  "limitations": [
+    "No live provider failure claim",
+    "No physical playback or performance acceptance claim",
+    "No supported package installation claim"
+  ],
+  "status": "observed_gap",
+  "application_commit": "4245fa2eff4156d847092bff4b2bf1ae20d72b20",
+  "loaded_speech_source": "git show 4245fa2:src/speech_pipeline.py copied to a temporary file and imported as speech_pipeline; all other application modules use the working repository",
+  "speech_source_sha256": "92775ea67392b91e3a67e9444ed40dfad3ecdc3a64db981dd0ddf8d26bc73436",
+  "test_source_sha256": "c54af45e8023dc2f3ee260c64416c9a1c66ec3b8197fba4eb048dfb98ebda75e",
+  "tests_run": 10,
+  "failures": [
+    "test_sfu_canceled_generation_cleanup_failure_after_text",
+    "test_sfu_canceled_generation_cleanup_failure_before_text",
+    "test_sfu_retired_failure_output_completion",
+    "test_sfu_retired_failure_synthesis",
+    "test_sfu_retired_generation_failure",
+    "test_websocket_canceled_generation_cleanup_failure_after_text",
+    "test_websocket_canceled_generation_cleanup_failure_before_text",
+    "test_websocket_retired_failure_output_completion",
+    "test_websocket_retired_failure_synthesis",
+    "test_websocket_retired_generation_failure"
+  ],
+  "observations": [
+    "Retired synthesis errors emitted a new response failure and advanced generation again",
+    "Retired output completion errors emitted a new response failure and advanced generation again",
+    "A model error after synthesis had retired the response emitted a second error and advanced generation again",
+    "A model cleanup exception while cancellation was underway was reported as a response failure before or after answer text"
+  ]
+}

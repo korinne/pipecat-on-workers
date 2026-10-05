@@ -304,6 +304,128 @@ class SpeechPipelineTests(unittest.IsolatedAsyncioTestCase):
             h.session.transport.finish_generation = original
             await h.close()
 
+    async def retired_failure(self, route, stage):
+        h = await SpeechHarness(route).start()
+        entered, fail, saving, release = (asyncio.Event() for _ in range(4))
+        original_synthesis = h.provider.synthesize
+        original_finish = h.session.transport.finish_generation
+        original_persist = h.session.persist
+        async def synthesis(text):
+            entered.set()
+            await fail.wait()
+            raise RuntimeError("controlled retired synthesis failure")
+            yield PCM
+        async def finish(generation):
+            entered.set()
+            await fail.wait()
+            raise RuntimeError("controlled retired output completion failure")
+        if stage == "synthesis":
+            h.provider.synthesize = synthesis
+        else:
+            h.session.transport.finish_generation = finish
+        try:
+            await h.turn()
+            await asyncio.wait_for(entered.wait(), 4)
+            old_generation = h.session.generation
+            async def hold_interruption_save():
+                if h.session.generation > old_generation and not release.is_set():
+                    saving.set()
+                    await release.wait()
+                await original_persist()
+            h.session.persist = hold_interruption_save
+            await h.session.interrupt()
+            await asyncio.wait_for(saving.wait(), 4)
+            fail.set()
+            await asyncio.sleep(.05)
+            self.assertEqual(h.session.generation, old_generation + 1)
+            self.assertFalse(any(e.get("type") == "error" for e in h.events))
+            self.assertFalse(any(m["event"] == "response_failed" for m in h.session.metrics))
+            release.set()
+            await wait_for(lambda: h.session.context_ready.is_set() and not h.session.responding,
+                           "retired failure interruption completion")
+            h.provider.synthesize = original_synthesis
+            h.session.transport.finish_generation = original_finish
+            h.session.persist = original_persist
+            await self.assert_followup(h, None if stage == "synthesis" else ANSWER)
+        finally:
+            release.set()
+            h.session.persist = original_persist
+            h.provider.synthesize = original_synthesis
+            h.session.transport.finish_generation = original_finish
+            await h.close()
+
+    async def retired_generation_failure(self, route):
+        h = await SpeechHarness(route).start()
+        fail, saving, release = (asyncio.Event() for _ in range(3))
+        original_generate, original_synthesis = h.provider.generate, h.provider.synthesize
+        original_persist = h.session.persist
+        async def generate(messages):
+            h.provider.generations.append(copy.deepcopy(messages))
+            yield FIRST + " Pending"
+            await fail.wait()
+            raise RuntimeError("controlled retired model stream failure")
+        async def synthesis(text):
+            raise RuntimeError("controlled current synthesis failure")
+            yield PCM
+        async def hold_failure_save():
+            if any(m["event"] == "response_failed" for m in h.session.metrics) and not release.is_set():
+                saving.set()
+                await release.wait()
+            await original_persist()
+        h.provider.generate, h.provider.synthesize = generate, synthesis
+        h.session.persist = hold_failure_save
+        try:
+            await h.turn()
+            await asyncio.wait_for(saving.wait(), 4)
+            retired_generation = h.session.generation
+            fail.set()
+            await asyncio.sleep(.05)
+            self.assertEqual(h.session.generation, retired_generation)
+            failures = [m for m in h.session.metrics if m["event"] == "response_failed"]
+            self.assertEqual([m["stage"] for m in failures], ["synthesis"])
+            self.assertEqual(len([e for e in h.events if e.get("type") == "error"]), 1)
+            release.set()
+            await wait_for(lambda: h.session.context_ready.is_set() and not h.session.responding,
+                           "current failure interruption completion")
+            h.provider.generate, h.provider.synthesize = original_generate, original_synthesis
+            h.session.persist = original_persist
+            await self.assert_followup(h, None)
+        finally:
+            release.set()
+            h.session.persist = original_persist
+            h.provider.generate, h.provider.synthesize = original_generate, original_synthesis
+            await h.close()
+
+    async def canceled_generation_cleanup_failure(self, route, boundary):
+        h = await SpeechHarness(route).start()
+        entered, cleaned = asyncio.Event(), asyncio.Event()
+        original_generate = h.provider.generate
+        async def generate(messages):
+            h.provider.generations.append(copy.deepcopy(messages))
+            try:
+                if boundary == "after_text":
+                    yield FIRST + " Pending"
+                entered.set()
+                await asyncio.Event().wait()
+            finally:
+                cleaned.set()
+                raise RuntimeError("controlled model stream cleanup failure")
+        h.provider.generate = generate
+        try:
+            await h.turn()
+            await asyncio.wait_for(entered.wait(), 4)
+            if boundary == "after_text":
+                await asyncio.wait_for(h.first_text.wait(), 4)
+            await h.interrupt()
+            self.assertTrue(cleaned.is_set())
+            self.assertFalse(any(e.get("type") == "error" for e in h.events))
+            self.assertFalse(any(m["event"] == "response_failed" for m in h.session.metrics))
+            h.provider.generate = original_generate
+            await self.assert_followup(h, FIRST if boundary == "after_text" else None)
+        finally:
+            h.provider.generate = original_generate
+            await h.close()
+
     async def restored(self, route):
         state = {"context_schema":CONTEXT_SCHEMA,"generation":8,"messages":[
             {"role":"system","content":"Obsolete receipt-dependent instructions."},
@@ -405,7 +527,9 @@ class SpeechPipelineTests(unittest.IsolatedAsyncioTestCase):
 
 def install_cases():
     for route in ("websocket", "sfu"):
-        cases = [("completed",()),("restored",()),("old_saved",()),("stale",()),("retired_tts_context",()),("output_write_timeout",())]
+        cases = [("completed",()),("restored",()),("old_saved",()),("stale",()),("retired_tts_context",()),("output_write_timeout",()),("retired_generation_failure",())]
+        cases += [("retired_failure",(stage,)) for stage in ("synthesis","output_completion")]
+        cases += [("canceled_generation_cleanup_failure",(boundary,)) for boundary in ("before_text","after_text")]
         cases += [("interrupted",(boundary,)) for boundary in ("before_output","mid_first","after_first","tail")]
         cases += [("output_completion_failure",(behavior,)) for behavior in ("exception","false","timeout")]
         cases += [("failed",(mode,)) for mode in ("tts_before_audio","tts_after_audio","tts_second_sentence",
