@@ -1,0 +1,38 @@
+{
+  "scope": "Local CPython PCM resampling and packet wrapping, synthetic full-duplex audio",
+  "status": "measured_locally_only",
+  "workers_performance_status": "untested",
+  "moq_codec_performance_status": "untested",
+  "opus_codec_exercised": false,
+  "environment": {
+    "python": "3.12.14",
+    "platform": "macOS-14.5-arm64-arm-64bit"
+  },
+  "source_sha256": "1e1900fa9f54e6fef5142c846a75dcd09342d912e5f43b07d4d0324122698e57",
+  "audio_seconds_each_direction": 10.0,
+  "frame_ms": 20,
+  "local_process_cpu_ms_per_audio_second_duplex": 83.9152,
+  "local_frame_cpu_ms": {
+    "median": 1.636,
+    "p95": 1.889,
+    "max": 2.259
+  },
+  "local_frame_wall_ms": {
+    "median": 1.6541465,
+    "p95": 2.14075,
+    "max": 4.240208
+  },
+  "derived_payload_bytes_per_second": {
+    "provider_input_16khz_mono": 32000,
+    "provider_output_24khz_mono": 48000,
+    "sfu_48khz_stereo_each_direction": 192000
+  },
+  "derived_provider_duplex_10min_unbounded_payload_bytes": 48000000,
+  "derived_sfu_duplex_10min_unbounded_payload_bytes": 230400000,
+  "caveats": [
+    "The 10 minute figures are hypothetical unbounded queues, not observed allocations.",
+    "No Workers CPU, whole-isolate memory, scheduling, FFI, QUIC, Opus, provider, or acoustic quality measured.",
+    "These local timings must not be used to estimate Worker capacity or compare architectures.",
+    "No readiness threshold has been agreed; this command cannot report production acceptance."
+  ]
+}

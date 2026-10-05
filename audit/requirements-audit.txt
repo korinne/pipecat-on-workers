@@ -1,0 +1,6 @@
+# Local CPython 3.12 audit environment only. NOT a Workers or candidate lockfile.
+loguru==0.7.3
+attrs==25.4.0
+docstring-parser==0.17.0
+pydantic==2.13.5
+typing-extensions==4.16.0

@@ -1,0 +1,43 @@
+{
+  "recorded_at_utc": "2026-10-05T00:17:59.224082+00:00",
+  "scope": "Local handoff verification. No deployment, real provider, live media, microphone, speaker, or resource acceptance run.",
+  "application_baseline": "6c17c0805f13f7609ba0a93ea8bf4c945797de18",
+  "original_non_markdown_tracked_files": "byte-for-byte unchanged",
+  "tests": [
+    {
+      "command": "python -B -m unittest discover -s tests -v",
+      "passed": 41,
+      "failed": 0,
+      "python": "3.12.14",
+      "dependencies": {
+        "loguru": "0.7.3",
+        "attrs": "25.4.0",
+        "docstring-parser": "0.17.0",
+        "pydantic": "2.13.5",
+        "typing-extensions": "4.16.0"
+      }
+    },
+    {
+      "command": "node --test public/*.test.mjs scripts/*.test.mjs",
+      "passed": 62,
+      "failed": 0,
+      "node": "v22.11.0"
+    },
+    {
+      "command": "python -m unittest discover -s acceptance -p 'test_runner.py' -v",
+      "passed": 12,
+      "failed": 0
+    }
+  ],
+  "shared_behavior_report": "local-baseline.json",
+  "shared_behavior_counts": {
+    "observed_gap": 3,
+    "scoped_pass": 3,
+    "untested": 7
+  },
+  "release_readiness": "not_established",
+  "notes": [
+    "Known baseline gaps remain visible. Existing regression success does not satisfy the new behavior requirements.",
+    "The test interpreter and some dependency versions differ from the declared deployment; see the shared report."
+  ]
+}
