@@ -465,6 +465,7 @@ test('SFU readiness cannot overwrite a current response received during publishi
   socket.receive({type:'reset',generation:4,history:[]}); socket.receive({type:'ready',generation:4});
   socket.receive({type:'status',state:'thinking',generation:5}); ready(); await settle();
   assert.equal(h.run('serverState'),'thinking');
+  assert.equal(h.element('status').textContent,'Thinking…');
   for(let i=0;i<3;i++) h.run('observeMicrophone({pcm:new Int16Array(320).buffer,rms:.1})');
   assert.equal(socket.sent.filter(p=>p.type==='interrupt').length,1);
   h.element('end').click();
@@ -536,4 +537,24 @@ test('ended call measurements explicitly mark missing server snapshot',async()=>
   const report=JSON.parse(await h.downloads[0].text());
   assert.equal(report.serverDiagnosticsStatus,'call_ended_or_not_started');
   assert.equal(h.requests.filter(r=>r.url.endsWith('/diagnostics')).length,0);
+});
+
+
+test('a speech-start error leaves the current assistant response interruptible',async()=>{
+  for(const transport of ['websocket','webrtc']) {
+    const h=harness({transport}); await h.element('start').click();
+    const socket=h.sockets[0]; socket.open(); socket.receive({type:'ready',generation:4}); await settle();
+    socket.receive({type:'status',state:'speaking',generation:6});
+    if(transport==='websocket') socket.receive({type:'audio',generation:6,chunk_id:1,sample_rate:16000,data:pcm16ToBase64(new Int16Array(1600).buffer)});
+    else socket.receive({type:'sfu_track',generation:6});
+    const output=h.sfus[0]?.output;
+    socket.receive({type:'error',code:'speech_turn_start_error',recoverable:true,message:'Please repeat.'});
+    assert.equal(h.run('serverState'),'speaking');
+    assert.equal(h.element('notice').textContent,'Please repeat.');
+    if(transport==='websocket') assert.equal(h.run('player.hasPending'),true);
+    else assert.equal(h.sfus[0].output,output);
+    for(let i=0;i<3;i++) h.run('observeMicrophone({pcm:new Int16Array(320).buffer,rms:.1})');
+    assert.equal(socket.sent.filter(p=>p.type==='interrupt').length,1);
+    h.element('end').click();
+  }
 });

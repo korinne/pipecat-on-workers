@@ -16,6 +16,7 @@ let startedAt = 0, requestedAt = 0, finalTranscriptAt = null, connectAttempt = 0
 let reconnectTimer, heartbeatTimer, elapsedTimer, lastPong = 0;
 let loudFrames = 0, quietFrames = 0, speechActive = false, lastInterrupt = -Infinity;
 let serverState = '', partial = new Map();
+const serverStatusLabels = { listening: 'Listening', thinking: 'Thinking…', generating: 'Thinking…', responding: 'Responding…', speaking: 'Speaking', tool: 'Checking availability…', connecting: 'Connecting…' };
 let knownGeneration = -1;
 let inputHealthTimer, lastCaptureAt = 0, lastSoundAt = 0, lastRms = 0;
 let audioStats = { capturedChunks: 0, capturedBytes: 0, sentChunks: 0, sentBytes: 0, maxRms: 0, receivedBytes: 0, forwardedBytes: 0 };
@@ -289,7 +290,7 @@ function completeReady() {
       ui['session-time'].textContent = `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
     }, 1000);
   }
-  status(muted ? 'Microphone muted' : 'Listening', 'live');
+  status(muted ? 'Microphone muted' : serverStatusLabels[serverState] || 'Listening', 'live');
   event('ready');
   send({ type: 'ping' });
   updateInputHealth();
@@ -376,8 +377,7 @@ function connect(run) {
         case 'transcript': transcript(packet); break;
         case 'status': {
           serverState = String(packet.state || 'listening');
-          const labels = { listening: 'Listening', thinking: 'Thinking…', generating: 'Thinking…', responding: 'Responding…', speaking: 'Speaking', tool: 'Checking availability…', connecting: 'Connecting…' };
-          status(muted ? 'Microphone muted' : labels[serverState] || serverState, serverReady ? 'live' : '');
+          status(muted ? 'Microphone muted' : serverStatusLabels[serverState] || serverState, serverReady ? 'live' : '');
           break;
         }
         case 'reset':
@@ -409,7 +409,8 @@ function connect(run) {
           updateInputHealth();
           break;
         case 'error':
-          resetResponseState();
+          // A rejected input event does not cancel an assistant already speaking.
+          if (packet.code !== 'speech_turn_start_error') resetResponseState();
           notice(packet.message || 'The server reported an error.');
           event('server_error');
           if (packet.recoverable === false) {

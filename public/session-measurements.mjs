@@ -14,14 +14,14 @@ const numbers = ['elapsed_ms', 'revision', 'generation', 'probability',
 const enums = {
   stage: new Set(['generation', 'synthesis', 'output', 'output_completion']),
   provider: new Set(['nova', 'stt', 'smart_turn', 'llm', 'tts']),
-  reason: new Set(['turn_readiness_timeout', 'invalid_nova_event', 'orphan_nova_result',
+  reason: new Set(['turn_readiness_timeout', 'invalid_nova_event', 'results_without_speech_start',
     'provider_reconnect', 'provider_error', 'pipecat_turn_closed', 'closed', 'ended']),
 };
 export function shareableServerDiagnostics(raw) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('Invalid diagnostics');
   const result = {};
   for (const key of counters) if (Number.isFinite(raw[key]) && raw[key] >= 0) result[key] = raw[key];
-  for (const key of ['closed', 'sfu_input_ready']) if (typeof raw[key] === 'boolean') result[key] = raw[key];
+  for (const key of ['closed', 'sfu_input_socket_open', 'sfu_input_pcm_ready', 'sfu_input_failed']) if (typeof raw[key] === 'boolean') result[key] = raw[key];
   if (['websocket', 'webrtc'].includes(raw.transport)) result.transport = raw.transport;
   result.events = (Array.isArray(raw.metrics) ? raw.metrics.slice(-500) : []).flatMap(item => {
     if (!item || !events.has(item.event)) return [];
