@@ -29,8 +29,10 @@ RATE = 16000
 MAX_PCM_BYTES = RATE * 2 * 8
 MAX_EVENTS = 128
 MAX_EVENT_CHARS = 65536
-NOVA_INPUTS = {"encoding": "linear16", "sample_rate": "16000", "channels": 1,
-               "language": "en-US", "interim_results": True, "vad_events": True,
+# WebSocket parameters are strings, including values typed as booleans or
+# numbers in the REST model catalog.
+NOVA_INPUTS = {"encoding": "linear16", "sample_rate": "16000", "channels": "1",
+               "language": "en-US", "interim_results": "true", "vad_events": "true",
                "endpointing": "200"}
 
 

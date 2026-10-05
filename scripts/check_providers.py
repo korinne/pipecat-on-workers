@@ -40,7 +40,13 @@ class Reader:
     def releaseLock(self): self.released=True
 class AI:
     def __init__(self,result): self.result=result; self.calls=[]
-    async def run(self,*args): self.calls.append(args); return self.result
+    async def run(self,*args):
+        self.calls.append(args)
+        # The live WebSocket handshake rejects typed JSON values even where
+        # the model's REST catalog lists booleans or numbers.
+        if len(args)>2 and args[2].get('websocket') and any(type(value) is not str for value in args[1].values()):
+            return rejected({'errors':[{'message':'WebSocket parameters must be strings'}]},status=400)[0]
+        return self.result
 class JsNull:
     def __bool__(self): return False
 class WS:
@@ -129,11 +135,24 @@ async def main():
     await stt.start()
     model,parameters,options=stt.env.AI.calls[-1]
     assert model=='@cf/deepgram/nova-3'
-    assert parameters=={'encoding':'linear16','sample_rate':'16000','channels':1,
-                        'language':'en-US','interim_results':True,'vad_events':True,'endpointing':'200'}
+    assert parameters=={'encoding':'linear16','sample_rate':'16000','channels':'1',
+                        'language':'en-US','interim_results':'true','vad_events':'true','endpointing':'200'}
     assert options=={'websocket':True}
     await stt.close()
     assert stt_ws.closed and not stt_ws.callbacks
+
+    # Reintroducing any of the old typed parameters must fail the handshake,
+    # not receive the fake's otherwise successful socket response.
+    for key,value in (('channels',1),('interim_results',True),('vad_events',True)):
+        unopened=WS()
+        rejected_stt=m.WorkersProviders(N(AI=AI(N(webSocket=unopened))),lambda event:None)
+        try: await rejected_stt._socket(model,{**parameters,key:value},'stt')
+        except m.ProviderConnectionError as exc: assert exc.status==400
+        else: raise AssertionError(f'Non-string WebSocket parameter {key} was accepted')
+        assert not unopened.callbacks and not unopened.sent
+        assert rejected_stt.diagnostics()['provider_sockets']==0
+        assert rejected_stt.diagnostics()['provider_readers']==0
+        await rejected_stt.close()
 
     # A failed upgrade has a falsey JS null proxy rather than Python None.
     p.env.AI=AI(N(webSocket=JsNull(),status=502))

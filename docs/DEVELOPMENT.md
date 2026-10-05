@@ -214,8 +214,21 @@ The turn fixtures run Nova-shaped events and controlled Smart Turn decisions thr
 The [Task 2 access check](../audit/results/task2-live-access.json) made no model requests: existing authentication remained expired. It used cached Wrangler 4.119.0 only to inspect authentication, not as the selected runtime. For live repetition, use the locked tools above and existing authorized access. Start the [isolated binding probe](../audit/reference/task2_turn_binding.py):
 
 ```sh
-uv run pywrangler dev --config audit/reference/task2_turn.wrangler.jsonc --local --ip 127.0.0.1
+uv run pywrangler dev --config audit/reference/task2_turn.wrangler.jsonc --ip 127.0.0.1
 ```
+
+Do not add `--local` to these remote-binding probes: in the pinned Wrangler it disables the remote AI binding. The application still executes locally; its configured AI binding reaches Workers AI.
+
+For a connection-only reproduction of the Nova HTTP 400, run the [isolated startup probe](../audit/reference/nova_startup.mjs):
+
+```sh
+node node_modules/wrangler/bin/wrangler.js dev --config audit/reference/nova_startup.wrangler.jsonc --ip 127.0.0.1 --port 8791
+# In a second terminal; each request sends zero audio bytes and closes any opened socket.
+curl --fail-with-body -X POST http://127.0.0.1:8791/original
+curl --fail-with-body -X POST http://127.0.0.1:8791/strings
+```
+
+The original case sends numeric/boolean WebSocket parameters and reproduces the rejection; the strings case sends the corrected handshake. The response JSON contains the provider status; the local probe itself returns 200 for either observation. Retain fresh results and remove provider request identifiers before sharing them. This JavaScript probe isolates the binding contract; it does not test Python conversion, transcription or turn completion.
 
 In a second terminal, prepare an authorized synthetic speech recording as headerless PCM16 little-endian, mono, 16 kHz, with at most eight seconds of audio. Record its expected words and known speech/pause offsets. Create fresh request and result files:
 

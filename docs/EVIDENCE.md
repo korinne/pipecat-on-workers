@@ -128,6 +128,14 @@ Application commit `848576841bc32b4ebc08a9cba56861ffe624e03d` was deployed as ve
 
 The [completed verification](../evidence/deployment-keyless-bb1d9ecc-verified.json) also confirms that the developer page matches the deployed source. Two verifier mistakes are preserved: the first attempt expected 200 before following the static page's 307 redirect; the [follow-up](../evidence/deployment-keyless-bb1d9ecc-followup.json) checked the wrong WAV control ID. Correcting those checks required no application change. This verification created two session records, which expire under the existing 24-hour alarm; it opened no voice connections and made no model requests. Live voice and physical playback remain untested.
 
+## Nova startup HTTP 400
+
+After the keyless deployment, the user reported a speech-recognition HTTP 400 immediately after Start. An [isolated live A/B probe](../audit/results/nova-startup-parameter-ab.json) reproduced the rejected request without sending audio. Workers AI reported that numeric `channels: 1` was invalid because it expected a string. Changing `channels`, `interim_results` and `vad_events` to string values produced HTTP 101 and a WebSocket, which the probe immediately closed. Cloudflare's [own Nova adapter](https://github.com/cloudflare/agents/blob/main/packages/voice/src/workers-ai-providers.ts) also uses string parameters for its WebSocket handshake.
+
+This was an application request-format defect in Task 2. The fake binding accepted the earlier numeric/boolean values, so passing offline tests did not establish the live contract. The [corrected provider checks](../audit/results/nova-startup-offline.json) reject non-string handshake parameters and cover each old typed value; all 58 Python conversation tests and seven entry lifecycle cases also passed. The application and the isolated Task 2 probe now use the accepted string values. Task 3's GPT-OSS and assistant-context work is separate and was not started.
+
+The first probe attempt used `--local`, which disabled the remote AI binding in Wrangler 4.139.0. Removing that flag enabled the configured remote binding. That first failure was a test limitation; it made no model request. The successful A/B test executes JavaScript locally with live Workers AI, sends zero audio bytes and establishes only the handshake contract. It does not establish Nova transcription, hosted Smart Turn decisions, LLM/TTS behavior or physical playback. Earlier evidence remains unchanged.
+
 ## Recorded local results
 
 The [original audit](../audit/results/current-audit.json) recorded 5 observations supported within its scope, 6 gaps, 10 untested entries, and no test errors. Those counts belong to its original checklist. They are not a release score. Its existing regression run passed 41 Python and 62 JavaScript tests. Some of those tests preserve the prototype's known limitations.

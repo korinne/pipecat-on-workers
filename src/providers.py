@@ -373,10 +373,12 @@ class WorkersProviders:
             if self.closed:
                 raise ProviderError("Conversation providers are closed")
             try:
+                # WebSocket parameters are strings; the REST model catalog's
+                # boolean/number types do not apply to this handshake.
                 self.stt = await self._socket(STT_MODEL, {
                     "encoding": "linear16", "sample_rate": str(INPUT_SAMPLE_RATE),
-                    "channels": 1, "language": "en-US", "interim_results": True,
-                    "vad_events": True, "endpointing": "200",
+                    "channels": "1", "language": "en-US", "interim_results": "true",
+                    "vad_events": "true", "endpointing": "200",
                 }, "stt", deadline=deadline)
                 break
             except ProviderConnectionError as exc:
