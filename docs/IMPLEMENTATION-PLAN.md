@@ -29,7 +29,7 @@ Done when: one reference configuration, its supported behavior, and its reproduc
 
 Task 1 investigation recorded on 4 October 2026 (results use UTC timestamps on 5 October). The [reference configuration](GOALS.md#task-1-reference-configuration) selects Pipecat 1.11.0, Nova-3 with hosted Smart Turn v2, GPT-OSS-120B with low effort as the initial probe setting, and Aura-2 Luna. Controlled upstream speech/output and turn probes, parser fixtures and an expanded runtime audit are recorded in [Evidence](EVIDENCE.md#task-1-reference-investigation). Task 1 changed no production behavior. Authentication prevented live inference checks, and no Workers package candidate has passed.
 
-Task 1 identified the async hosted-turn connection, Nova event mapping and a revision-aware stop strategy implemented in Task 2. Live request verification still needs restored test access; a failed authentication check cannot establish model or runtime incompatibility.
+Task 1 identified the async hosted-turn connection, Nova event mapping and a revision-aware stop strategy implemented in Task 2. Live request verification remains outstanding. CLI access has since been restored; the earlier failed authentication check did not establish model or runtime incompatibility.
 
 ## 2 Connect hosted Smart Turn to Pipecat
 
@@ -45,7 +45,7 @@ Task 2 implementation candidate: [the turn adapter](../src/smart_turn.py) maps N
 
 The implementation has a five-second pause-to-readiness deadline, a two-second hosted binding wait, and at most one unresolved hosted request per provider instance. An incomplete decision waits for resumed speech; failure or missing readiness discards the pending turn and asks the user to repeat it. These are bounded test settings, not latency targets. The transcript-range audio snapshot and final-transcript coverage rule have the timing limits described in [Conversation](CONVERSATION.md#task-2-user-turn-coordination).
 
-Task 2 implementation and controlled verification are complete: 58 Python tests, 62 JavaScript tests and the supporting offline checks passed. A final focused rerun covers the retained audio window and decision diagnostics. See [the scoped results](EVIDENCE.md#task-2-turn-integration). The [fresh access check](../audit/results/task2-live-access.json) could not refresh existing authentication, so actual Nova events, hosted input acceptance, Python Workers execution and physical audio remain untested. The next bounded implementation is Task 3. Starting it requires a separate task instruction.
+Task 2 implementation and controlled verification are complete: 58 Python tests, 62 JavaScript tests and the supporting offline checks passed. A final focused rerun covers the retained audio window and decision diagnostics. See [the scoped results](EVIDENCE.md#task-2-turn-integration). The [initial access check](../audit/results/task2-live-access.json) could not refresh authentication. Login was later restored and [Task 2 was deployed](EVIDENCE.md#task-2-deployment-follow-up), passing imports/startup and public HTTP checks. Actual Nova events, hosted input acceptance, authenticated conversation execution and physical audio remain untested. The next bounded implementation is Task 3. Starting it requires a separate task instruction.
 
 ## 3 Connect GPT-OSS and standard assistant context
 

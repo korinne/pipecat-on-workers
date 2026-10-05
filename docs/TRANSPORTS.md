@@ -28,7 +28,7 @@ flowchart LR
 
 The direct path uses this application's audio and control messages. The managed SFU adapter converts between compressed WebRTC Opus audio and raw 48 kHz stereo PCM audio carried over WebSocket. PCM contains audio samples directly. The application still converts sample rates and channel counts for its selected speech services. [Cloudflare adapter documentation](https://developers.cloudflare.com/realtime/sfu/features/media-transport-adapters/websocket-adapter/), [current SFU implementation](../src/sfu_transport.py)
 
-Task 2 routes both inputs through the same Nova-3/hosted Smart Turn coordinator after conversion to PCM16 mono at 16 kHz. It uses the same speech-onset, pause, transcript-coverage and revision checks on either route; the SFU transport does not choose a different completion rule. The new turn path passes controlled verification, with actual Workers execution and live audio still untested. Llama, Aura-2 and the existing assistant-history differences remain until Task 3. [Turn coordination and limits](CONVERSATION.md#task-2-user-turn-coordination)
+Task 2 routes both inputs through the same Nova-3/hosted Smart Turn coordinator after conversion to PCM16 mono at 16 kHz. It uses the same speech-onset, pause, transcript-coverage and revision checks on either route; the SFU transport does not choose a different completion rule. The new turn path passes controlled verification, with deployed imports/startup checked and live conversation execution/audio still untested. Llama, Aura-2 and the existing assistant-history differences remain until Task 3. [Turn coordination and limits](CONVERSATION.md#task-2-user-turn-coordination)
 
 ## Reuse Pipecat's interfaces
 

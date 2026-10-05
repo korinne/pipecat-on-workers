@@ -37,7 +37,7 @@ The transcript-range cursor does not guarantee a trailing-silence boundary: a fi
 
 The hosted binding wait is two seconds. The whole pause has five seconds to obtain both semantic completion and final transcript readiness. An INCOMPLETE result does not mean failure or permission to infer; resumed speech continues the accumulated turn. If readiness still does not arrive before the deadline, or analysis fails, the application drops that pending turn and asks the user to repeat it. A timed-out or canceled binding call retains the provider's single unresolved request slot until it settles, preventing repeated calls from accumulating. Rejection while that slot is occupied is visible. Local cancellation does not prove remote compute or billing stopped.
 
-The [controlled checks](EVIDENCE.md#task-2-turn-integration) pass with these settings. Live Nova/Smart Turn calls and Workers execution remain untested because existing test authentication could not refresh. Task 2 leaves Llama generation, Aura synthesis, output delivery and assistant history unchanged; the reference speech/output and GPT-OSS integration below belongs to Task 3.
+The [controlled checks](EVIDENCE.md#task-2-turn-integration) pass with these settings. The [deployment follow-up](EVIDENCE.md#task-2-deployment-follow-up) verifies Workers imports/startup after login was restored. Live Nova/Smart Turn calls and the running conversation pipeline remain untested. Task 2 leaves Llama generation, Aura synthesis, output delivery and assistant history unchanged; the reference speech/output and GPT-OSS integration below belongs to Task 3.
 
 ## Task 1 speech reference
 

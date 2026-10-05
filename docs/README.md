@@ -14,7 +14,7 @@ The repository contains a working prototype and a plan for bringing it to that t
 | [Acceptance plan](ACCEPTANCE.md) | Agree what observations count as success and which limits still need values. |
 | [Implementation order](IMPLEMENTATION-PLAN.md) | Give each fresh coding session one bounded task and a stopping point. |
 
-Task 1 has recorded the [reference configuration](GOALS.md#task-1-reference-configuration), [speech/output observations](CONVERSATION.md#task-1-speech-reference), and [reproducible gaps](EVIDENCE.md#task-1-reference-investigation). Live model checks remain untested because existing authentication failed. Task 2 has implemented and tested the turn adapter locally. Task 3, GPT-OSS and standard assistant context, is next. Set performance thresholds before judging live performance.
+Task 1 has recorded the [reference configuration](GOALS.md#task-1-reference-configuration), [speech/output observations](CONVERSATION.md#task-1-speech-reference), and [reproducible gaps](EVIDENCE.md#task-1-reference-investigation). Task 2 has implemented and tested the turn adapter locally. Cloudflare login is restored and [the Task 2 deployment](EVIDENCE.md#task-2-deployment-follow-up) passes startup, page and access checks. Live voice/model checks remain untested. Task 3, GPT-OSS and standard assistant context, is next. Set performance thresholds before judging live performance.
 
 ## Supporting material
 

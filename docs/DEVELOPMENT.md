@@ -4,7 +4,7 @@ Run commands from the repository root unless a section says otherwise. The setup
 
 ## Set up the prototype
 
-The recorded setup used Node.js 22, uv 0.12.18, and local Python 3.14.7. Lockfiles pin Wrangler 4.139.0, workers-py 1.17.4, and workers-runtime-sdk 1.9.0. Recorded deployment evidence reports Python 3.14.2 / Pyodide 314.0.6. Record the actual runtime when repeating a test.
+The recorded setup used Node.js 22, uv 0.12.18, and local Python 3.14.7. Lockfiles pin Wrangler 4.139.0, workers-py 1.17.4, and workers-runtime-sdk 1.9.0. Recorded deployment evidence reports Python 3.14.2 / Pyodide 314.0.6. Record the actual runtime when repeating a test. The [Task 2 deployment follow-up](EVIDENCE.md#task-2-deployment-follow-up) uses these locked tools and records the current service version, startup/access checks and remaining voice-test limits.
 
 ```sh
 npm ci

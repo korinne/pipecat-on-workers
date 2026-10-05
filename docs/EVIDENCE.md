@@ -106,6 +106,18 @@ The remaining obstacle is evidence, not an established platform incompatibility:
 
 No package-support claim changes: the vendored subset remains, the full installation/runtime gaps from Task 1 remain open, and no new capability request is justified by expired credentials. Task 2's implementation and controlled checks are complete. Task 3 is the next bounded change: integrate GPT-OSS and the selected standard speech/output/assistant-context path, preserving the Task 1 failure/interruption reference. It has not started.
 
+## Task 2 deployment follow-up
+
+After the user completed Wrangler login and authorized deployment, application commit `61f589bf0740182562659e5a82c04870f5279e2f` was published to [pipecat-on-workers](https://pipecat-on-workers.korinne.workers.dev). The [deployment record](../evidence/deployment-task2-bc45735b.json) identifies version `bc45735b-7900-456c-b717-8096d9632456` at 100% traffic, its predecessor, source hashes, pinned tools and verification results.
+
+The bundle built with Wrangler 4.139.0, workers-py 1.17.4 and workers-runtime-sdk 1.9.0. The deployed health endpoint reports Python 3.14.2, Pyodide 314.0.6 and the existing patched Pipecat 1.11.0. Both example pages returned 200; unauthenticated access and session creation returned 401. Test routes stayed disabled and the existing demo/SFU secrets remained configured. Wrangler reported a dashboard binding-configuration difference and applied the repository configuration; the Conversation binding and v1 migration were unchanged in source.
+
+Before publishing, the [locked CPython 3.14.7 checks](../audit/results/task2-python314-verification.json) passed all 58 Python tests, provider checks, the restricted-core check and seven entry lifecycle cases using Pydantic 2.12.5 and the declared dependency versions. This extends the earlier CPython evidence; it does not resolve normal installation of the full upstream package.
+
+The first HTTP verifier was rejected by Cloudflare with 403/error 1010 before reaching the Worker. Repeating the checks with the standard HTTP client passed without changing service security settings. This was a verification-client limitation, not an application failure.
+
+Cloudflare CLI access is restored. Deployment and HTTP checks establish imports/startup and access protection only: no live model request, authenticated voice call, SFU media check or physical playback check was made. The existing demo key value was unavailable in the scoped test environment and was not reset. Nova/Smart Turn request acceptance, timestamp alignment and end-to-end behavior remain untested. The isolated local binding probe can now be run with the restored CLI access; Task 3 has not started.
+
 ## Recorded local results
 
 The [original audit](../audit/results/current-audit.json) recorded 5 observations supported within its scope, 6 gaps, 10 untested entries, and no test errors. Those counts belong to its original checklist. They are not a release score. Its existing regression run passed 41 Python and 62 JavaScript tests. Some of those tests preserve the prototype's known limitations.
