@@ -1,8 +1,10 @@
 """Actual Worker access routing with fake SDK I/O; never loads real credentials."""
 import asyncio
 import importlib.util
+import hashlib
 import json
 from pathlib import Path
+from urllib.parse import urlparse
 import sys
 import types
 from types import SimpleNamespace as N
@@ -56,44 +58,67 @@ class Conversations:
 
 
 async def main():
-    configured = "synthetic-test-key"
-    scenarios = [
-        ({"DEMO_ACCESS_KEY": configured}, None, 401, "access_key_required"),
-        ({"DEMO_ACCESS_KEY": configured}, "", 401, "access_key_required"),
-        ({"DEMO_ACCESS_KEY": configured}, "wrong-test-key", 401, "invalid_access_key"),
-        ({"DEMO_ACCESS_KEY": configured}, "clé-incorrecte", 401, "invalid_access_key"),
-        ({"DEMO_ACCESS_KEY": configured}, configured, 200, None),
-        ({}, configured, 503, "access_not_configured"),
-        ({"DEMO_ACCESS_KEY": ""}, None, 503, "access_not_configured"),
-        ({"ALLOW_UNAUTHENTICATED_LOCAL": "true"}, None, 200, None),
-        ({"ALLOW_UNAUTHENTICATED_LOCAL": "false"}, None, 503, "access_not_configured"),
-        ({"DEMO_ACCESS_KEY": configured, "ALLOW_UNAUTHENTICATED_LOCAL": "true"}, "wrong-test-key", 401, "invalid_access_key"),
-        ({"DEMO_ACCESS_KEY": "clé-test"}, "clé-test", 200, None),
-    ]
-    for environment, supplied, expected_status, code in scenarios:
-        for endpoint in ("access", "session"):
+    session_ids, session_tokens = set(), set()
+    checks = 0
+    # An old configured secret or stale header must not restore the removed gate.
+    for environment in ({}, {"DEMO_ACCESS_KEY": "unused-legacy-secret"}):
+        for supplied in (None, "old-client-value"):
             conversations = Conversations()
-            env = N(**environment, CONVERSATIONS=conversations)
+            env = N(**environment, CONVERSATIONS=conversations,
+                    REALTIME_SFU_APP_ID="test-app", REALTIME_SFU_APP_SECRET="test-secret")
             worker = entry.Default(None, env)
             headers = {} if supplied is None else {"X-Demo-Key": supplied}
-            response = await worker.fetch(Request(f"https://voice.example/api/{endpoint}", method="POST", headers=headers))
-            status = 201 if endpoint == "session" and expected_status == 200 else expected_status
-            assert response.status == status, (endpoint, code, response.status)
-            result = json.loads(response.body)
-            assert response.headers["Cache-Control"] == "no-store"
-            if code:
-                assert result["code"] == code and isinstance(result["error"], str)
-                assert conversations.lookups == conversations.initializations == 0
-                assert "DEMO_ACCESS_KEY" not in response.body
-                for value in (supplied, environment.get("DEMO_ACCESS_KEY")):
-                    if value: assert value not in response.body
-            elif endpoint == "access":
-                assert result == {"ok": True}
-                assert conversations.lookups == conversations.initializations == 0
-            else:
-                assert len(result["id"]) == 32 and result["token"]
-                assert conversations.lookups == conversations.initializations == 1
-    print("PASS: 22 Worker access cases: missing/wrong/correct keys, non-ASCII input, missing configuration, local bypass, shared session guard, and access-only verification without conversation creation (fake I/O).")
+            response = await worker.fetch(Request("https://voice.example/api/access", method="POST", headers=headers))
+            assert response.status == 200 and json.loads(response.body) == {"ok": True}
+            assert conversations.lookups == 0
+            checks += 1
+            for transport in ("websocket", "webrtc"):
+                response = await worker.fetch(Request("https://voice.example/api/session", method="POST",
+                    headers=headers, body=json.dumps({"transport": transport})))
+                assert response.status == 201
+                assert response.headers["Cache-Control"] == "no-store"
+                result = json.loads(response.body)
+                assert result["transport"] == transport
+                assert len(result["id"]) == 32 and len(result["token"]) >= 32
+                assert result["id"] not in session_ids and result["token"] not in session_tokens
+                session_ids.add(result["id"]); session_tokens.add(result["token"])
+                assert "unused-legacy-secret" not in response.body
+                checks += 1
+            assert conversations.initializations == 2
+            for body in ("[]", "invalid-json", "x" * 1025, '{"transport":"unknown"}'):
+                response = await worker.fetch(Request("https://voice.example/api/session", method="POST", body=body))
+                assert response.status == 400
+                assert conversations.initializations == 2
+                checks += 1
+
+    # Public session creation does not expose an existing call's controls or data.
+    token = "synthetic-private-session-token"
+    obj = entry.Conversation(N(), N(ENABLE_TEST_ROUTES="false"))
+    obj.state = {"id": "a" * 32, "token_hash": hashlib.sha256(token.encode()).hexdigest(), "status": "created"}
+    base = "https://voice.example/api/session/" + "a" * 32
+    for suffix in ("", "/diagnostics", "/probe", "/restart", "/sfu"):
+        for headers in ({}, {"X-Session-Token": "wrong-session-token"}, {"X-Demo-Key": token}):
+            result = await obj.fetch(Request(base+suffix, method="POST" if suffix in ("/restart", "/sfu") else "GET", headers=headers))
+            assert result.status == 403, (suffix, headers.keys(), result.status)
+            assert token not in result.body
+            checks += 1
+    for headers in ({"X-Session-Token": token}, {}):
+        url = base + "/diagnostics" + ("?token=" + token if not headers else "")
+        result = await obj.fetch(Request(url, headers=headers))
+        assert result.status == 200
+        assert json.loads(result.body) == {
+            "live": False, "status": "created", "sfu_retired_connections": 0,
+            "sfu_cleanup_records": [], "sfu_cleanup_persistence_failed": False,
+        }
+        assert token not in result.body
+        checks += 1
+    for suffix in ("/probe", "/restart"):
+        result = await obj.fetch(Request(base+suffix, method="POST", headers={"X-Session-Token": token}))
+        assert result.status == 426  # test routes remain unavailable in production
+        checks += 1
+    assert not obj.authorized(Request(base, headers={"X-Session-Token": next(iter(session_tokens))}), urlparse(base))
+    checks += 1
+    print(f"PASS: {checks} keyless creation, validation, unique capability, private session access and disabled fixture-route cases (fake I/O).")
 
 
 if __name__ == "__main__": asyncio.run(main())

@@ -1,0 +1,66 @@
+{
+  "status": "proposal_only_controlled_checks_pass",
+  "base_application_commit": "4ffc5a9b0d289b8a71790c3b5ae69d84297e52c3",
+  "recorded_at": "2026-10-05T05:40:28.151957+00:00",
+  "main_checkout_changed": false,
+  "deployed": false,
+  "draft_directory": "/private/tmp/pipecat-silence-draft-4ffc5a9",
+  "changed_paths": [
+    "src/smart_turn.py",
+    "tests/test_silence_fallback.py"
+  ],
+  "patch": "silence-fallback.patch",
+  "explanation": "PROPOSAL.md",
+  "upstream_reference": "upstream-reference-silence.json",
+  "tests": [
+    {
+      "command": "LOGURU_LEVEL=ERROR .venv/bin/python -m unittest discover -s tests -q",
+      "source_state": "Before final direct deadline guard and its2 regressions, and before2 additional gapped-user-final tests",
+      "count": 180,
+      "passed": 179,
+      "failed": 1,
+      "failure": "test_final_retry_drains_result_that_settles_during_session_inspection",
+      "log": "initial-full-tests.log",
+      "note": "Existing SFU test; draft did not change SFU code or fixture. Its cleanup_settled helper omits cached cleanup_results and may return before the completed cleanup worker callback drains them; this diagnosis is not a blanket waiver of failure."
+    },
+    {
+      "command": "LOGURU_LEVEL=ERROR .venv/bin/python -m unittest tests.test_sfu_transport.SfuTransportTests.test_final_retry_drains_result_that_settles_during_session_inspection tests.test_silence_fallback -q",
+      "count": 36,
+      "passed": 36,
+      "failed": 0,
+      "log": "focused-tests.log",
+      "note": "Same SFU regression passed unchanged;35 policy cases before final deadline guard."
+    },
+    {
+      "command": "LOGURU_LEVEL=ERROR .venv/bin/python -m unittest tests.test_silence_fallback tests.test_smart_turn tests.test_turn_coordination -q",
+      "source_state": "Final frozen draft source and tests",
+      "count": 57,
+      "passed": 57,
+      "failed": 0,
+      "new_policy_cases": 37,
+      "log": "final-targeted-tests.log"
+    }
+  ],
+  "controls": [
+    "Hosted model must return valid INCOMPLETE; result/probability preserved",
+    "Current revision plus fully finalized nonempty user transcript coverage",
+    "Nova remains paused without new text or speech onset",
+    "At least3s monotonic since pause observation",
+    "At least3s newly forwarded input after pause observation",
+    "Contiguous fresh empty Nova Results cover that new input; interim allowed only as processing progress",
+    "Five-second readiness deadline checked before claim",
+    "Original consumed transcript cursor retained; empty ranges never become transcript segments",
+    "At most16 merged progress ranges; one timer and one readiness task owned and canceled"
+  ],
+  "evidence_assumption": "Paused Nova VAD plus fresh empty transcript ranges indicate no newly recognized speech. Interim results can be revised; these signals do not prove acoustic silence or absence of delayed onset events.",
+  "limits": [
+    "Manual monotonic clock and controlled provider leaves; no measured latency or physical playback claim",
+    "No live provider result in this draft report; root may record a separate bounded proposal check",
+    "No supported package claim",
+    "User policy decision pending; do not integrate or deploy without authorization"
+  ],
+  "sha256": {
+    "src/smart_turn.py": "80f9747e627040add211a12fde7b2720c0da43ee0fd72acea095dec9a8ef9668",
+    "tests/test_silence_fallback.py": "d5414acd702646c97613136103deeb636f161d4d4eadd8147812ebe541ca6448"
+  }
+}

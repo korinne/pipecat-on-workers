@@ -1,17 +1,18 @@
 #!/usr/bin/env node
 /** Two prerecorded inputs per selected fresh actual-provider session. No fixture events.
- * Interrupt at tool/thinking status before audio, reject canceled output, recover,
- * emulate one complete sentence's playback duration, then verify End cleanup.
- * DEMO_ACCESS_KEY is environment-only. No microphone or speaker is opened.
+ * Interrupt at tool/thinking status or first nonzero speech audio, reject canceled output, recover,
+ * await response completion and elapsed audio receipts, then verify End cleanup.
+ * No microphone or speaker is opened.
  */
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ReceiptQueue, pcmStats, safeDiagnostics } from './check_real_voice.mjs';
+import { isCompletedResponse } from './smoke_real_voice.mjs';
 
 const OUTPUTS = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const RESOURCE_KEYS = ['pipecat_tasks', 'provider_tasks', 'provider_sockets', 'provider_readers',
-  'pending_provider_requests', 'queued_provider_bytes', 'unacked_audio_bytes', 'pending_playback_chunks',
+  'pending_provider_requests', 'pending_turn_requests', 'queued_output_bytes', 'queued_provider_bytes', 'unacked_audio_bytes', 'pending_playback_chunks',
   'pending_turn_tasks', 'pending_user_fragments', 'pending_user_chars'];
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const round = n => Math.round(n * 100) / 100;
@@ -27,7 +28,7 @@ export function options(args) {
     else if (keys[args[i]] && args[i + 1] && !args[i + 1].startsWith('--')) out[keys[args[i]]] = args[++i];
     else fail('invalid_arguments');
   }
-  if (out.case !== undefined && !['all', 'tool', 'thinking'].includes(out.case)) fail('invalid_case');
+  if (out.case !== undefined && !['all', 'tool', 'thinking', 'speaking'].includes(out.case)) fail('invalid_case');
   return out;
 }
 
@@ -35,9 +36,15 @@ export function options(args) {
 export class PendingCancellation {
   constructor(target) { this.target = target; this.generation = undefined; this.clearAt = undefined; }
   status(message, now, audioCount) {
-    if (this.generation !== undefined || message.state !== this.target) return false;
+    if (this.target === 'speaking' || this.generation !== undefined || message.state !== this.target) return false;
     if (audioCount !== 0) fail('audio_arrived_before_pending_interrupt');
     if (!Number.isSafeInteger(message.generation)) fail('invalid_status_generation');
+    this.generation = message.generation; this.requestedAt = now;
+    return true;
+  }
+  speech(message, now, pcm) {
+    if (this.target !== 'speaking' || this.generation !== undefined || pcmStats(pcm).nonzero_samples === 0) return false;
+    if (!Number.isSafeInteger(message.generation)) fail('invalid_audio_generation');
     this.generation = message.generation; this.requestedAt = now;
     return true;
   }
@@ -52,13 +59,13 @@ export class PendingCancellation {
 export async function main(args = process.argv.slice(2)) {
   const opt = options(args);
   if (opt.help) {
-    console.log('Usage: node scripts/check_real_pending.mjs --base https://HOST --pcm RECOVERY.pcm --tool-pcm APPOINTMENT.pcm [--case all|tool|thinking] [--evidence PATH] [--capture-root PATH] [--validate-input]\nDEMO_ACCESS_KEY: environment only. Inputs: headerless PCM16 LE mono 16000 Hz, 0.2–15 seconds. Two inputs per fresh session; four total for default --case all, two for one selected case. Wall-clock playback receipts only; no physical microphone/speaker measurement. Active checks stop at 165 seconds; cleanup stops by 175 seconds. Private captures must be outside outputs/.');
+    console.log('Usage: node scripts/check_real_pending.mjs --base https://HOST --pcm RECOVERY.pcm [--tool-pcm APPOINTMENT.pcm] [--case all|tool|thinking|speaking] [--evidence PATH] [--capture-root PATH] [--validate-input]\nInputs: headerless PCM16 LE mono 16000 Hz, 0.2–15 seconds. Two inputs per fresh session; four total for default --case all, two for one selected case. Wall-clock playback receipts only; no physical microphone/speaker measurement. A selected case stops active work at 90 seconds and cleanup by 100 seconds; default all retains its 165/175-second bounds. Private captures must be outside outputs/.');
     return;
   }
   const targets = !opt.case || opt.case === 'all' ? ['tool', 'thinking'] : [opt.case];
   const plannedInputTurns = targets.length * 2;
-  if (!opt.pcm || !opt.toolPcm) fail('both_pcm_paths_required');
-  const [normal, tool] = await Promise.all([opt.pcm, opt.toolPcm].map(async name => {
+  if (!opt.pcm || (targets.includes('tool') && !opt.toolPcm)) fail('required_pcm_path_missing');
+  const [normal, tool] = await Promise.all([opt.pcm, opt.toolPcm || opt.pcm].map(async name => {
     const data = await fs.readFile(name).catch(() => fail('input_read_failed'));
     if (data.length % 2 || data.length < 6400 || data.length > 480000) fail('input_must_be_pcm16_0_2_to_15_seconds');
     if (['RIFF', 'FORM', 'caff', 'OggS'].includes(data.toString('ascii', 0, 4))) fail('input_has_container_header');
@@ -71,22 +78,23 @@ export async function main(args = process.argv.slice(2)) {
   try { origin = new URL(opt.base); } catch { fail('invalid_base'); }
   if (origin.username || origin.password || origin.search || origin.hash || origin.pathname !== '/'
     || !(origin.protocol === 'https:' || (origin.protocol === 'http:' && ['localhost', '127.0.0.1', '[::1]'].includes(origin.hostname)))) fail('base_must_be_https_or_loopback_origin');
-  if (!process.env.DEMO_ACCESS_KEY) fail('demo_access_key_environment_required');
   if (typeof WebSocket === 'undefined') fail('node_22_or_newer_required');
   const outsideOutputs = p => { const r = path.relative(OUTPUTS, p); if (!r || (r !== '..' && !r.startsWith('..' + path.sep) && !path.isAbsolute(r))) fail('capture_root_must_be_outside_outputs'); };
   const captureRoot = path.resolve(opt.captureRoot || path.join(process.cwd(), 'work'));
   outsideOutputs(captureRoot); await fs.mkdir(captureRoot, { recursive: true }); outsideOutputs(await fs.realpath(captureRoot));
   const runDir = await fs.mkdtemp(path.join(captureRoot, 'real-pending-')); await fs.chmod(runDir, 0o700);
   const evidenceFile = path.resolve(opt.evidence || path.join(runDir, 'evidence.json'));
-  const evidence = { schema: 1, started_at: new Date().toISOString(), deployment_origin: origin.origin,
+  const evidence = { schema: 3, started_at: new Date().toISOString(), deployment_origin: origin.origin,
     passed: false, selected_cases: targets, planned_input_turns: plannedInputTurns, fixture_provider_requested: false, physical_human_voice_acceptance_passed: false,
-    interruption_method: 'explicit client control immediately on tool/thinking status, before audio',
+    interruption_method: 'explicit client control at the selected pending status or first nonzero speech audio',
     playback_method: 'elapsed serial PCM duration receipts; no audio device',
     limitations: ['Pending status is observed at the client; cancellation of remote model compute or billing is not established.',
       'Tool case exercises the application fictional availability lookup, not a remote booking API.',
       'Prerecorded input and explicit client control do not measure microphone capture, acoustic barge-in, speakers or intelligibility.',
       'One-second post-clear observation and successful recovery do not prove indefinite absence of late remote work.'], cases: [], failures: [] };
-  const started = performance.now(), activeDeadline = started + 165000, cleanupDeadline = started + 175000;
+  const started = performance.now(), activeLimit = targets.length === 1 ? 90000 : 165000;
+  const activeDeadline = started + activeLimit, cleanupDeadline = activeDeadline + 10000;
+  evidence.active_limit_ms = activeLimit; evidence.cleanup_limit_ms = activeLimit + 10000;
   let fatal;
   const markFailure = code => { fatal ||= new Failure(code); };
   const signal = () => markFailure('operator_interrupted');
@@ -99,20 +107,21 @@ export async function main(args = process.argv.slice(2)) {
   try {
     for (const target of targets) {
       if (fatal) throw fatal;
-      const result = { target_status: target, input_turns: 0, interrupted_before_audio: false, clear_observed: false,
+      const result = { target_status: target, input_turns: 0, interrupted_before_audio: false, interrupted_during_audio: false, interrupt_nonzero_samples: 0, clear_observed: false,
         post_clear_observation_ms: 0, canceled_audio_packets_after_clear: 0, recovery_user_finals: 0,
         recovery_assistant_sentences: 0, recovery_audio_chunks: 0, recovery_nonzero_samples: 0,
-        recovery_completed_sentences: 0, acknowledged_duration_ms: 0, end_sent: false, end_acknowledged: false, failures: [] };
+        recovery_completed_responses: 0, recovery_acknowledged_chunks: 0, acknowledged_duration_ms: 0, end_sent: false, end_acknowledged: false, failures: [] };
       evidence.cases.push(result);
       const cancellation = new PendingCancellation(target), playback = new ReceiptQueue();
       const transcripts = [], privateErrors = [], audio = [];
       let session, ws, ready = false, closing = false, stopInput = false, inputTask, receiptTimer;
+      let replyGeneration, listeningGeneration;
       let phase = 'pending', clip = target === 'tool' ? tool : normal, offset = clip.length, received = 0, bytes = 0, closeCode;
-      const redact = value => { let text = String(value); for (const secret of [session?.token, session?.id, process.env.DEMO_ACCESS_KEY]) if (secret) text = text.replaceAll(secret, '[redacted]'); return text.slice(0, 12000); };
+      const redact = value => { let text = String(value); for (const secret of [session?.token, session?.id]) if (secret) text = text.replaceAll(secret, '[redacted]'); return text.slice(0, 12000); };
       const sessionURL = suffix => { const u = new URL(`/api/session/${session.id}${suffix}`, origin); u.searchParams.set('token', session.token); return u; };
       const send = value => { if (ws?.readyState !== WebSocket.OPEN) fail('websocket_not_open'); if (ws.bufferedAmount > 262144) fail('upload_backpressure'); ws.send(JSON.stringify(value)); };
       try {
-        const r = await fetch(new URL('/api/session', origin), { method: 'POST', headers: { 'X-Demo-Key': process.env.DEMO_ACCESS_KEY }, redirect: 'error', signal: AbortSignal.timeout(5000) }).catch(() => fail('session_create_transport_failed'));
+        const r = await fetch(new URL('/api/session', origin), { method: 'POST', redirect: 'error', signal: AbortSignal.timeout(5000) }).catch(() => fail('session_create_transport_failed'));
         if (!r.ok) fail(`session_create_http_${r.status}`);
         session = await r.json().catch(() => fail('session_create_invalid_json'));
         if (!/^[a-f0-9]{32}$/.test(session.id) || !/^[A-Za-z0-9_-]{32,128}$/.test(session.token)) fail('session_create_invalid_capability');
@@ -132,6 +141,10 @@ export async function main(args = process.argv.slice(2)) {
               playback.clear(m.generation, now);
               if (m.type === 'clear') { cancellation.clear(m, now); result.clear_observed = cancellation.clearAt !== undefined; }
             }
+            if (m.type === 'status' && phase === 'recovery' && Number.isSafeInteger(m.generation)) {
+              if (m.state === 'thinking') replyGeneration = m.generation;
+              if (m.state === 'listening') listeningGeneration = m.generation;
+            }
             if (m.type === 'status' && phase === 'pending' && cancellation.status(m, now, received)) {
               playback.clear(m.generation + 1, now); send({ type: 'interrupt' }); result.interrupted_before_audio = true;
             }
@@ -145,6 +158,10 @@ export async function main(args = process.argv.slice(2)) {
               try { cancellation.audio(m); } catch (e) { result.canceled_audio_packets_after_clear++; throw e; }
               received++;
               const pcm = playback.enqueue(m, now); if (!pcm) return;
+              if (phase === 'pending' && cancellation.speech(m, now, pcm)) {
+                result.interrupt_nonzero_samples = pcmStats(pcm).nonzero_samples;
+                playback.clear(m.generation + 1, now); send({type:'interrupt'}); result.interrupted_during_audio = true;
+              }
               bytes += pcm.length; if (bytes > 5 * 1024 * 1024) fail('audio_capture_bound_exceeded'); audio.push(pcm);
               if (phase === 'recovery') { result.recovery_audio_chunks++; result.recovery_nonzero_samples += pcmStats(pcm).nonzero_samples; }
             }
@@ -163,18 +180,22 @@ export async function main(args = process.argv.slice(2)) {
           try { for (const item of playback.due(performance.now())) {
             send({ type: 'played', generation: item.generation, chunk_id: item.chunk_id });
             result.acknowledged_duration_ms += item.duration;
-            if (item.text.trim()) result.recovery_completed_sentences++;
+            result.recovery_acknowledged_chunks++;
           } } catch (e) { markFailure(errorCode(e)); }
         }, 10);
         offset = 0; result.input_turns++;
-        await waitFor(() => result.clear_observed, 35000, 'pending_interrupt_or_clear_timeout');
+        await waitFor(() => result.clear_observed, 35000, 'interrupt_or_clear_timeout');
         result.clear_dispatch_observed_ms = round(cancellation.clearAt - cancellation.requestedAt);
         await waitFor(() => performance.now() - cancellation.clearAt >= 1000, 1200, 'post_clear_observation_timeout');
         result.post_clear_observation_ms = round(performance.now() - cancellation.clearAt);
-        if (offset < clip.length) fail('pending_turn_audio_not_finished');
+        if (offset < clip.length) fail('interrupted_turn_audio_not_finished');
         phase = 'recovery'; clip = normal; offset = 0; result.input_turns++;
-        await waitFor(() => result.recovery_user_finals > 0 && result.recovery_assistant_sentences > 0
-          && result.recovery_completed_sentences > 0 && result.recovery_nonzero_samples > 0, 40000, 'real_recovery_timeout');
+        await waitFor(() => result.recovery_nonzero_samples > 0 && isCompletedResponse({
+          userFinals: result.recovery_user_finals, assistantSentences: result.recovery_assistant_sentences,
+          received: result.recovery_audio_chunks, acknowledged: result.recovery_acknowledged_chunks,
+          queueLength: playback.queue.length, replyGeneration, listeningGeneration, generation: playback.generation,
+        }), 40000, 'real_recovery_timeout');
+        result.recovery_completed_responses = 1;
         result.recovery_verified = true;
       } catch (e) { const code = errorCode(e); result.failures.push(code); markFailure(code); }
       finally {
@@ -199,7 +220,8 @@ export async function main(args = process.argv.slice(2)) {
         }
         if (fatal) result.failures.push(fatal.code);
         result.failures = [...new Set(result.failures)]; result.acknowledged_duration_ms = round(result.acknowledged_duration_ms);
-        result.passed = !result.failures.length && result.recovery_verified === true && result.interrupted_before_audio
+        result.passed = !result.failures.length && result.recovery_verified === true
+          && (target === 'speaking' ? result.interrupted_during_audio && result.interrupt_nonzero_samples > 0 : result.interrupted_before_audio)
           && result.clear_observed && result.post_clear_observation_ms >= 1000 && result.canceled_audio_packets_after_clear === 0 && result.cleanup_verified;
         const prefix = path.join(runDir, target);
         await fs.writeFile(prefix + '-transcripts.private.json', JSON.stringify(transcripts, null, 2), { mode: 0o600 });

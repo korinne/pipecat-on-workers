@@ -1,0 +1,36 @@
+{
+  "source_commit": "39fe5b0d78770ba78d9f087c751907b8e0c37cef",
+  "scope": "Diagnostic export regression and bounded tracing; the laptop failure cause is still unobserved.",
+  "failures_preserved": [
+    {
+      "file": "export-before-fix.log",
+      "expected_failure": true,
+      "cause": "Existing reason allowlist strips transcript_beyond_pause, pause_audio_unavailable, detector_busy, smart_turn_failed."
+    },
+    {
+      "file": "provider-trace-before-fix.log",
+      "expected_failure": true,
+      "cause": "New provider request lifecycle assertions fail because baseline emits no lifecycle events."
+    },
+    {
+      "file": "browser-test-harness-first-failure.log",
+      "expected_failure": false,
+      "cause": "Fake browser harness omitted the new sanitizer import; corrected harness then passes. This was not a browser/runtime failure."
+    },
+    {
+      "file": "archive-harness-first-failure.log",
+      "expected_failure": false,
+      "cause": "System Python archive API lacks the filter argument. Corrected interpreter is 3.14.7; no source tests ran in failed attempt."
+    }
+  ],
+  "additional_initial_failure": {
+    "scope": "Unsupported system Python3.9 provider harness run",
+    "cause": "Existing Nova event timing assertion failed; repeated with prescribed3.14.7.",
+    "private_log": "/private/tmp/pipecat-provider-trace-before-20261005/check-providers.txt"
+  },
+  "known_unknown": "No active laptop call measurement export was supplied; exact abort reason and per-call event ordering remain unknown.",
+  "behavior_change": false,
+  "silence_fallback_enabled": false,
+  "performance_acceptance": "deferred",
+  "supported_release": false
+}

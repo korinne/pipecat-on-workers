@@ -1,0 +1,173 @@
+{
+  "source_commit": "39fe5b0d78770ba78d9f087c751907b8e0c37cef",
+  "git_tree": "aa63915306a7a20712fa3c3ce9928a2e4200823a",
+  "archive_sha256": "6954c7a541dc7ae7d8df445ff34910f4c4cf30ceff83784c1d467686c05c8381",
+  "checkout": "/private/tmp/pipecat-causal-independent-39fe5b0-mqec8d1b/checkout",
+  "file_count": 491,
+  "source_sha256": {
+    "src/conversation.py": "f97254278105dd4a3c2c2680dd074f5c7bbc0f0fb60814e5456fd567caefce4d",
+    "src/providers.py": "3498b7cae73385cc8423cc586ca76ccc42df2bff12e1cb1e3ca3165c2587400c",
+    "src/smart_turn.py": "48ca62a3b9c838a4d002870fa702855762140a5769b5a7a7a8f1d38d4143970d",
+    "src/sfu_transport.py": "3f2ff9d88e177d9aba5d5ca694674d702d87e0e7209358426a02426899bb1b05",
+    "public/session-measurements.mjs": "eabf01d1da1b0961e6727fb6c6427c600fffad35966a7cabf009ba1039d0eb5a",
+    "tests/test_causal_diagnostics.py": "a48f9636ed5c46b8d1828536112fc9a62c645dc66519cccb071807c649c9c141",
+    "scripts/check_providers.py": "614f3ad8c73cfccccf1b8f1240f8a525daf73400c2e4718b49d4c2db4a8ff1bf",
+    "wrangler.jsonc": "a8e28d209ef1aa60e3b6040071e7ec4e8fb9cdff0e0cb450a818c56cbd448bf1",
+    "pyproject.toml": "fa9d56ac4683ab0b6f23c868d009b0aeccae684bd293bd011c9b58dca7e73422",
+    "uv.lock": "19b0386fd86b72c4a2df6dc2b1d093b919034f5ac1e52835d5f045253eb43e79",
+    "package-lock.json": "61e07146ebbbdc37ddeb4751e64bb69dc1e817be6912103b631e9436fc920a90",
+    "src/pipecat/VENDOR_MANIFEST.json": "c50f06b01732b8b9fe96a4a742400124987c9a6c17f6f292b1be416933ea60fc"
+  },
+  "created_at": "2026-10-05T20:43:27.641002+00:00",
+  "configuration_vendor_diff": "",
+  "initial_harness_failure": {
+    "command_runtime": "system python3",
+    "error": "TypeError: extractall() got an unexpected keyword argument 'filter'",
+    "test_commands_run": 0,
+    "failed_directory": "/private/tmp/pipecat-causal-independent-39fe5b0-txrxqak2",
+    "recovery": "Used repository CPython3.14.7 tarfile extraction with filter=data; no source/test changes."
+  },
+  "recorded_at": "2026-10-05T20:44:58.453135+00:00",
+  "runtime": {
+    "python": "3.14.7",
+    "python_executable": "/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/.venv/bin/python",
+    "node": "v22.7.0",
+    "platform": "macOS-14.5-arm64-arm-64bit-Mach-O"
+  },
+  "commands": [
+    {
+      "name": "python",
+      "command": [
+        "/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/.venv/bin/python",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-q"
+      ],
+      "cwd": "/private/tmp/pipecat-causal-independent-39fe5b0-mqec8d1b/checkout",
+      "exit_code": 0,
+      "seconds": 66.554,
+      "log": "/private/tmp/pipecat-causal-independent-39fe5b0-mqec8d1b/python.log",
+      "output_sha256": "af1b38953ecd34f76965d666c8377120b07f4d2113139f3ca65ed12284af0fe8",
+      "summary": [
+        "Ran 175 tests in 64.665s",
+        "OK"
+      ],
+      "cases": 175
+    },
+    {
+      "name": "javascript",
+      "command": [
+        "/usr/local/bin/node",
+        "--test",
+        "public/app.test.mjs",
+        "public/audio-player.test.mjs",
+        "public/session-measurements.test.mjs",
+        "public/sfu-client.test.mjs",
+        "public/transport-check.test.mjs",
+        "scripts/check_real_pending.test.mjs",
+        "scripts/check_real_voice.test.mjs",
+        "scripts/keyless_session.test.mjs",
+        "scripts/smoke_real_voice.test.mjs"
+      ],
+      "cwd": "/private/tmp/pipecat-causal-independent-39fe5b0-mqec8d1b/checkout",
+      "exit_code": 0,
+      "seconds": 1.888,
+      "log": "/private/tmp/pipecat-causal-independent-39fe5b0-mqec8d1b/javascript.log",
+      "output_sha256": "81e67ddfd80dab5bcf31d9dd6f03148cdc392239073a3c748eadd6bbce480d18",
+      "summary": [
+        "# tests 106",
+        "# pass 106",
+        "# fail 0"
+      ],
+      "cases": 106
+    },
+    {
+      "name": "providers",
+      "command": [
+        "/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/.venv/bin/python",
+        "-B",
+        "scripts/check_providers.py"
+      ],
+      "cwd": "/private/tmp/pipecat-causal-independent-39fe5b0-mqec8d1b/checkout",
+      "exit_code": 0,
+      "seconds": 4.499,
+      "log": "/private/tmp/pipecat-causal-independent-39fe5b0-mqec8d1b/providers.log",
+      "output_sha256": "ec8544af0fd2bfdeb52870c553241cb434a99a99d695c331f6f641c3a8e52625",
+      "summary": [],
+      "cases": null,
+      "scope": "All provider protocol fixture checks passed; runner does not report an aggregate case count."
+    },
+    {
+      "name": "access",
+      "command": [
+        "/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/.venv/bin/python",
+        "-B",
+        "scripts/check_access_auth.py"
+      ],
+      "cwd": "/private/tmp/pipecat-causal-independent-39fe5b0-mqec8d1b/checkout",
+      "exit_code": 0,
+      "seconds": 0.192,
+      "log": "/private/tmp/pipecat-causal-independent-39fe5b0-mqec8d1b/access.log",
+      "output_sha256": "e37dcea2a047cfe923edeb73b8f8e018333d4d4f621d087aae77abf7a1cd04f6",
+      "summary": [],
+      "cases": 48
+    },
+    {
+      "name": "lifecycle",
+      "command": [
+        "/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/.venv/bin/python",
+        "-B",
+        "scripts/check_entry_lifecycle.py"
+      ],
+      "cwd": "/private/tmp/pipecat-causal-independent-39fe5b0-mqec8d1b/checkout",
+      "exit_code": 0,
+      "seconds": 0.191,
+      "log": "/private/tmp/pipecat-causal-independent-39fe5b0-mqec8d1b/lifecycle.log",
+      "output_sha256": "c3a39f89305be21eb2b082225b563bd43522326d8a7b54bcdbb6fc5d0e1e90ed",
+      "summary": [],
+      "cases": 7
+    },
+    {
+      "name": "sfu_entry",
+      "command": [
+        "/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/.venv/bin/python",
+        "-B",
+        "scripts/check_sfu_entry.py"
+      ],
+      "cwd": "/private/tmp/pipecat-causal-independent-39fe5b0-mqec8d1b/checkout",
+      "exit_code": 0,
+      "seconds": 0.344,
+      "log": "/private/tmp/pipecat-causal-independent-39fe5b0-mqec8d1b/sfu_entry.log",
+      "output_sha256": "19c5fc0fcd4d1de39bd24e82165bb5dc47966610efc945dce776a2ade97d4ba2",
+      "summary": [
+        "Ran 16 tests in 0.108s",
+        "OK"
+      ],
+      "cases": 16
+    }
+  ],
+  "checks_passed": true,
+  "source_files_unchanged": true,
+  "changed_files": [],
+  "new_files": [],
+  "limits": [
+    "Synthetic providers and transport fixtures on CPython; no live inference or physical SFU acceptance.",
+    "Vendored Pipecat unchanged; B1 remains blocked and performance acceptance deferred."
+  ],
+  "summary": {
+    "python_tests": 175,
+    "javascript_tests": 106,
+    "provider_protocol": "pass (fake I/O; no aggregate count)",
+    "private_access_cases": 48,
+    "lifecycle_cases": 7,
+    "sfu_entry_cases": 16,
+    "all_commands_exit_zero": true,
+    "archive_files_unchanged": true,
+    "configuration_vendor_unchanged_vs": "8d3f196",
+    "live_and_physical": "not exercised"
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "checked_at": "2026-10-05T04:35:39.099Z",
+  "source_commit": "195792064d61eb1f60a4817f87f42f506acd5437",
+  "version_id": "3f8bd208-8e4a-4f2d-96cb-d9a0e51f9542",
+  "previous_version_id": "bb1d9ecc-971d-4e2b-a1d8-7608df2aa7c9",
+  "origin": "https://pipecat-on-workers.korinne.workers.dev",
+  "scope": "Deployed Python Durable Object and real Nova startup, followed immediately by End, for both control transports. No microphone or audio input. SFU media signaling, transcription, Smart Turn, LLM, TTS and physical playback remain untested.",
+  "fixture_provider_requested": false,
+  "source_sha256": {
+    "src/providers.py": "3a1cd426ce2befaf3bdd9ca6af80ddbfb590f45783cb688b9d5cf5db3f0a3367"
+  },
+  "results": [
+    {
+      "transport": "websocket",
+      "ready": true,
+      "ended": true,
+      "audio_sent_bytes": 0,
+      "events": [
+        "reset",
+        "ready",
+        "ended"
+      ],
+      "errors": [],
+      "session_http_status": 201,
+      "close_code": 1000,
+      "close_reason": "ended",
+      "diagnostics_http_status": 200,
+      "cleanup": {
+        "closed": true,
+        "input_audio_bytes": 0,
+        "forwarded_audio_bytes": 0,
+        "pipecat_tasks": 0,
+        "provider_tasks": 0,
+        "provider_sockets": 0,
+        "provider_readers": 0,
+        "pending_provider_requests": 0,
+        "queued_provider_bytes": 0,
+        "unacked_audio_bytes": 0,
+        "pending_playback_chunks": 0,
+        "pending_turn_tasks": 0,
+        "pending_user_fragments": 0,
+        "pending_user_chars": 0
+      },
+      "passed": true
+    },
+    {
+      "transport": "webrtc",
+      "ready": true,
+      "ended": true,
+      "audio_sent_bytes": 0,
+      "events": [
+        "reset",
+        "ready",
+        "ended"
+      ],
+      "errors": [],
+      "session_http_status": 201,
+      "close_code": 1000,
+      "close_reason": "ended",
+      "diagnostics_http_status": 200,
+      "cleanup": {
+        "closed": true,
+        "input_audio_bytes": 0,
+        "forwarded_audio_bytes": 0,
+        "pipecat_tasks": 0,
+        "provider_tasks": 0,
+        "provider_sockets": 0,
+        "provider_readers": 0,
+        "pending_provider_requests": 0,
+        "queued_provider_bytes": 0,
+        "unacked_audio_bytes": 0,
+        "pending_playback_chunks": 0,
+        "pending_turn_tasks": 0,
+        "pending_user_fragments": 0,
+        "pending_user_chars": 0
+      },
+      "passed": true
+    }
+  ],
+  "passed": true
+}

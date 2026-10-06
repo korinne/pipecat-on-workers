@@ -1,0 +1,31 @@
+{
+  "checked_at": "2026-10-05T04:29:01.832203+00:00",
+  "version_id": "bb1d9ecc-971d-4e2b-a1d8-7608df2aa7c9",
+  "source_commit": "848576841bc32b4ebc08a9cba56861ffe624e03d",
+  "checks": [
+    {
+      "path": "/transport-check",
+      "status": 200,
+      "expected_status": 200,
+      "key_controls_absent": true,
+      "speech_file_control_present": true,
+      "deployed_html_matches_source": true,
+      "body_sha256": "8c8ab0e3cd4bcaae028ca62340cd24d1fe707225e8198de09ac1fd0a0c1d598d",
+      "passed": true
+    }
+  ],
+  "previous_attempts": [
+    {
+      "record": "deployment-keyless-bb1d9ecc.json",
+      "classification": "Test limitation: expected direct 200 for /transport-check.html; Cloudflare returned a canonical URL redirect to /transport-check. All session access and voice-page checks passed."
+    },
+    {
+      "record": "deployment-keyless-bb1d9ecc-followup.json",
+      "classification": "Test error: verifier looked for wav-file; the source and actual page use check-wav. Canonical page returned 200 and no key controls."
+    }
+  ],
+  "application_changes_since_deployment": false,
+  "live_model_calls_made": 0,
+  "scope": "Completes deployment verification together with the original session access checks. Earlier failed verifier attempts are preserved. Voice round-trip and physical playback remain untested.",
+  "passed": true
+}

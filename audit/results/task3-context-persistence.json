@@ -1,0 +1,49 @@
+{
+  "kind": "controlled_real_application",
+  "status": "scoped_pass",
+  "recorded_at": "2026-10-05T05:06:26.084786+00:00",
+  "scope": "Durable context acknowledgement, bounded failures and resource closure through vendored Pipecat with controlled provider/storage/SFU leaves",
+  "checks": [
+    {
+      "command": ".venv/bin/python -m unittest tests.test_context_persistence -q",
+      "tests": 7,
+      "passed": 7,
+      "route_cases": 12
+    },
+    {
+      "command": ".venv/bin/python scripts/check_sfu_entry.py",
+      "tests": 16,
+      "passed": 16
+    }
+  ],
+  "cases": [
+    "Transient assistant writes fail twice then recover before completion and follow-up on direct and SFU",
+    "Exhausted assistant writes stop after three attempts, send fatal error and clear, close through owner without callback deadlock, preserve saved history and block inference on direct and SFU",
+    "Exhausted user context save never starts inference or sends a recoverable retry message on direct and SFU",
+    "Failed startup never announces ready",
+    "Failed final save still closes providers, transports and pipeline on direct and SFU",
+    "Timed-out cancellation-resistant write retains one owner and starts no overlapping retry",
+    "Interrupted write settles before newer snapshot",
+    "Durable Object does not assign an unacknowledged context snapshot",
+    "Failed final status write still closes control socket"
+  ],
+  "limits": {
+    "attempts": 3,
+    "ack_timeout_seconds": 1,
+    "retry_delays_seconds": [
+      0.05,
+      0.1
+    ]
+  },
+  "limitations": [
+    "Synthetic storage failures do not establish live Durable Object failure behavior",
+    "No live provider or physical playback claim",
+    "Supported installation remains a separate gate"
+  ],
+  "source_sha256": {
+    "src/conversation.py": "9040186bc62e59191501ade9ca0f1bf6105a43bd9bc2311a4bed3fea101f2442",
+    "src/entry.py": "aec666404cd6e29b9b6e544325fe732ecf7c5cd67954eeb8368cc0a533b8ab8c",
+    "tests/test_context_persistence.py": "ed18926c1542d9bd6146e703dfd48d1ebd6f99c10ed098d1ec0c416f78eaaf5a",
+    "scripts/check_sfu_entry.py": "204a2fc15355cc7ca3b1def76d600f55ab39bd8f6c53d4c04a9fc49930ca8e03"
+  }
+}

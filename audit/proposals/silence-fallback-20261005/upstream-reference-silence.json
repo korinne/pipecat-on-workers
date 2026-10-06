@@ -1,0 +1,38 @@
+{
+  "package": "1.11.0",
+  "origin": "/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/audio/turn/smart_turn/base_smart_turn.py",
+  "sha256": "8c5c11aa3a72abb9d37447baa58475126bee7eb5932d5c8a17ee56d858be6c8a",
+  "params": {
+    "stop_secs": 3,
+    "pre_speech_ms": 500,
+    "max_duration_secs": 8
+  },
+  "checks": [
+    [
+      "before_speech",
+      "INCOMPLETE"
+    ],
+    [
+      "after_2_98_seconds_observed_non_speech",
+      "INCOMPLETE"
+    ],
+    [
+      "after_3_seconds_observed_non_speech",
+      "COMPLETE"
+    ],
+    [
+      "after_completion_clears",
+      "INCOMPLETE"
+    ],
+    [
+      "resumption_resets_2_98_seconds",
+      "INCOMPLETE"
+    ],
+    [
+      "resumption_then_3_seconds",
+      "COMPLETE"
+    ]
+  ],
+  "inference_calls": 0,
+  "scope": "Normally installed reference package, synchronous append_audio only, controlled VAD flags and zero PCM; no model/network/Worker or real microphone"
+}

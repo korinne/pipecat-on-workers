@@ -1,0 +1,282 @@
+{
+  "schema_version": 1,
+  "kind": "sfu_application_gap_observations",
+  "recorded_at_utc": "2026-10-03T21:55:02.837706+00:00",
+  "scope": "Local CPython; real repository Pipecat pipeline; synthetic providers and SFU transport double. No live SFU, Workers runtime, codec, acoustic, performance, or platform-capability validation.",
+  "capability_acceptance": "not_passed",
+  "results": [
+    {
+      "id": "SFU-HISTORY",
+      "status": "observed_gap",
+      "baseline_behavior_differs": false,
+      "review_reason": null,
+      "hypothesis_tested": "Completed SFU replies are absent from the next model input and persisted assistant history.",
+      "observations": {
+        "completed_first_reply_transcript": [
+          "fixture reply to Give me two suggestions."
+        ],
+        "first_transport_finished_generations": [
+          3
+        ],
+        "provider_generation_count": 2,
+        "second_model_input": [
+          {
+            "role": "system",
+            "content": "You are a concise, friendly voice assistant. Reply in one or two short sentences, without markdown. Remember the conversation. Appointment availability is fictional and read-only. Never claim a booking was made. If a tool result is provided, use it. Audio playback cannot be confirmed for this call. Prior assistant replies are omitted from history; do not assume the user heard any prior reply."
+          },
+          {
+            "role": "user",
+            "content": "Give me two suggestions"
+          },
+          {
+            "role": "user",
+            "content": "Expand your second suggestion"
+          }
+        ],
+        "assistant_messages_in_second_model_input": [],
+        "assistant_messages_in_latest_saved_state": [],
+        "output_packets_submitted_to_double": 6
+      },
+      "interpretation": "Application history gap reproduced; submission and EOS are not played receipts. Choose generated/unconfirmed versus playback-confirmed history semantics before fixing. This does not establish a missing Cloudflare platform feature or test model semantics.",
+      "cleanup": {
+        "generation": 5,
+        "closed": true,
+        "pipecat_tasks": 0,
+        "pending_turn_tasks": 0,
+        "pending_user_fragments": 0,
+        "pending_user_chars": 0,
+        "turn_end_grace_ms": 0,
+        "input_audio_chunks": 0,
+        "input_audio_bytes": 0,
+        "forwarded_audio_bytes": 0,
+        "unacked_audio_bytes": 0,
+        "pending_playback_chunks": 0,
+        "messages": 3,
+        "metrics": [
+          {
+            "event": "startup",
+            "elapsed_ms": 0.812,
+            "startup_ms": 0.808
+          },
+          {
+            "event": "server_clear",
+            "elapsed_ms": 1.209,
+            "dispatch_ms": 0.375,
+            "generation": 2
+          },
+          {
+            "event": "provider_end",
+            "elapsed_ms": 6.539,
+            "turn": "(1, 1)",
+            "grace_ms": 0
+          },
+          {
+            "event": "user_end",
+            "elapsed_ms": 6.578,
+            "turn": "(1, 1)",
+            "fragments": 1,
+            "grace_ms": 0
+          },
+          {
+            "event": "generation_started",
+            "elapsed_ms": 7.043,
+            "generation": 3
+          },
+          {
+            "event": "first_audio_submitted",
+            "elapsed_ms": 7.34,
+            "generation": 3,
+            "response_ms": 0.295
+          },
+          {
+            "event": "server_clear",
+            "elapsed_ms": 7.766,
+            "dispatch_ms": 0.34,
+            "generation": 4
+          },
+          {
+            "event": "provider_end",
+            "elapsed_ms": 13.071,
+            "turn": "(1, 2)",
+            "grace_ms": 0
+          },
+          {
+            "event": "user_end",
+            "elapsed_ms": 13.084,
+            "turn": "(1, 2)",
+            "fragments": 1,
+            "grace_ms": 0
+          },
+          {
+            "event": "generation_started",
+            "elapsed_ms": 13.513,
+            "generation": 5
+          },
+          {
+            "event": "first_audio_submitted",
+            "elapsed_ms": 13.604,
+            "generation": 5,
+            "response_ms": 0.09
+          },
+          {
+            "event": "closed",
+            "elapsed_ms": 14.842,
+            "reason": "synthetic_probe_complete"
+          }
+        ],
+        "transport": "webrtc",
+        "fixture_live_generations": 0,
+        "fixture_live_syntheses": 0,
+        "fixture_provider_closed": true,
+        "fixture_audio_bytes_received": 0,
+        "sfu_delivery_confirmed": false,
+        "sfu_test_closed": true
+      }
+    },
+    {
+      "id": "SFU-CLEAR",
+      "status": "observed_gap",
+      "baseline_behavior_differs": false,
+      "review_reason": null,
+      "hypothesis_tested": "The next model turn waits behind application invalidation while transport.clear is held.",
+      "observations": {
+        "while_clear_held": {
+          "clear_entered": true,
+          "clear_returned": false,
+          "release_gate_set": false,
+          "next_context_queued_at_response_processor": true,
+          "invalidation_returned": false,
+          "provider_generation_count_before_hold": 1,
+          "provider_generation_count_during_hold": 1,
+          "browser_clear_event_already_emitted": true,
+          "server_clear_metric_already_recorded_for_generation": false
+        },
+        "after_release": {
+          "invalidation_returned": true,
+          "clear_returned": true,
+          "provider_generation_count": 2
+        }
+      },
+      "interpretation": "Application scheduling dependency reproduced using a held transport double. The browser clear event is sent before the wait; this does not show that local playback keeps running. No REST request or acoustic timing was measured, and no Cloudflare platform deficiency is inferred.",
+      "cleanup": {
+        "generation": 5,
+        "closed": true,
+        "pipecat_tasks": 0,
+        "pending_turn_tasks": 0,
+        "pending_user_fragments": 0,
+        "pending_user_chars": 0,
+        "turn_end_grace_ms": 0,
+        "input_audio_chunks": 0,
+        "input_audio_bytes": 0,
+        "forwarded_audio_bytes": 0,
+        "unacked_audio_bytes": 0,
+        "pending_playback_chunks": 0,
+        "messages": 3,
+        "metrics": [
+          {
+            "event": "startup",
+            "elapsed_ms": 1.082,
+            "startup_ms": 1.08
+          },
+          {
+            "event": "server_clear",
+            "elapsed_ms": 1.552,
+            "dispatch_ms": 0.452,
+            "generation": 2
+          },
+          {
+            "event": "provider_end",
+            "elapsed_ms": 6.721,
+            "turn": "(1, 1)",
+            "grace_ms": 0
+          },
+          {
+            "event": "user_end",
+            "elapsed_ms": 6.737,
+            "turn": "(1, 1)",
+            "fragments": 1,
+            "grace_ms": 0
+          },
+          {
+            "event": "generation_started",
+            "elapsed_ms": 7.351,
+            "generation": 3
+          },
+          {
+            "event": "first_audio_submitted",
+            "elapsed_ms": 7.473,
+            "generation": 3,
+            "response_ms": 0.121
+          },
+          {
+            "event": "provider_end",
+            "elapsed_ms": 13.351,
+            "turn": "(1, 2)",
+            "grace_ms": 0
+          },
+          {
+            "event": "user_end",
+            "elapsed_ms": 13.374,
+            "turn": "(1, 2)",
+            "fragments": 1,
+            "grace_ms": 0
+          },
+          {
+            "event": "server_clear",
+            "elapsed_ms": 14.32,
+            "dispatch_ms": 6.754,
+            "generation": 4
+          },
+          {
+            "event": "generation_started",
+            "elapsed_ms": 14.495,
+            "generation": 5
+          },
+          {
+            "event": "first_audio_submitted",
+            "elapsed_ms": 14.614,
+            "generation": 5,
+            "response_ms": 0.116
+          },
+          {
+            "event": "closed",
+            "elapsed_ms": 15.696,
+            "reason": "synthetic_probe_complete"
+          }
+        ],
+        "transport": "webrtc",
+        "fixture_live_generations": 0,
+        "fixture_live_syntheses": 0,
+        "fixture_provider_closed": true,
+        "fixture_audio_bytes_received": 0,
+        "sfu_delivery_confirmed": false,
+        "sfu_test_closed": true
+      }
+    }
+  ],
+  "provenance": {
+    "repo": "/Users/korinne/Documents/Codex/2026-10-03/alri/work/pipecat-on-workers",
+    "python": "3.12.14",
+    "python_executable": "/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "project_declares_python": ">=3.14,<3.15",
+    "python_meets_project_requirement": false,
+    "source_sha256": {
+      "tests/test_sfu_conversation.py": "5ad5aaec8802fb60ee6605e1f4246a19c720e5968849b0cf8b1094069803fc2f",
+      "src/runtime_probe.py": "14d5fafe5fa67f407560246529549325db83088034fff040a7d382906338aa95",
+      "src/conversation.py": "463cbff0ee0598f50680e086f10ba8dca208d0e695dc2ef1e8df72ba27ad40af",
+      "src/sfu_transport.py": "ad92c2bc2bf2bc9b4bb3e7f506bb4327e18fd31ee5a7c4fd5a61c7d097e6e1d6",
+      "src/pipecat/VENDOR_MANIFEST.json": "a76b7916dd89a86262c5be6d45ca78fa16bc10e4a67ad84ad08d1a2e6f4b39db",
+      "src/pipecat/processors/frame_processor.py": "26e5b74dd0b76ae000efbf42e0e88909dff34a6eeb106eda4e329b99c430668e"
+    },
+    "probe_sha256": "9d71f8ae3be9f500cb3460c490586eff8b961850a0a1f9a97d4012bd36d81308",
+    "commit": "6c17c0805f13f7609ba0a93ea8bf4c945797de18",
+    "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tracked_worktree_dirty": false,
+    "loaded_module_paths": {
+      "conversation": "/Users/korinne/Documents/Codex/2026-10-03/alri/work/pipecat-on-workers/src/conversation.py",
+      "pipecat": "/Users/korinne/Documents/Codex/2026-10-03/alri/work/pipecat-on-workers/src/pipecat/__init__.py",
+      "runtime_probe": "/Users/korinne/Documents/Codex/2026-10-03/alri/work/pipecat-on-workers/src/runtime_probe.py"
+    }
+  },
+  "execution_status": "two_gaps_reproduced"
+}

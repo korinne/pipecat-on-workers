@@ -1,0 +1,567 @@
+TAP version 13
+# Subtest: Start, ready, mute, and End release all client resources
+ok 1 - Start, ready, mute, and End release all client resources
+  ---
+  duration_ms: 200.665792
+  ...
+# Subtest: disconnect clears playback and reconnect reuses capability with a bounded retry budget
+ok 2 - disconnect clears playback and reconnect reuses capability with a bounded retry budget
+  ---
+  duration_ms: 8.225875
+  ...
+# Subtest: reset creates a new stream epoch and stale socket messages are ignored
+ok 3 - reset creates a new stream epoch and stale socket messages are ignored
+  ---
+  duration_ms: 5.652625
+  ...
+# Subtest: failed session creation closes microphone and shows a recoverable error
+ok 4 - failed session creation closes microphone and shows a recoverable error
+  ---
+  duration_ms: 2.199625
+  ...
+# Subtest: both transports create a session without a demo key and keep its capability
+ok 5 - both transports create a session without a demo key and keep its capability
+  ---
+  duration_ms: 7.091583
+  ...
+# Subtest: speech onset during pending generation rejects its delayed first audio
+ok 6 - speech onset during pending generation rejects its delayed first audio
+  ---
+  duration_ms: 7.925416
+  ...
+# Subtest: reset replaces visible history and excludes restored turns from response metrics
+ok 7 - reset replaces visible history and excludes restored turns from response metrics
+  ---
+  duration_ms: 2.560917
+  ...
+# Subtest: terminal server close releases microphone without futile reconnect
+ok 8 - terminal server close releases microphone without futile reconnect
+  ---
+  duration_ms: 2.597708
+  ...
+# Subtest: server session time limit is explained and releases resources
+ok 9 - server session time limit is explained and releases resources
+  ---
+  duration_ms: 3.054084
+  ...
+# Subtest: terminal startup error preserves explanation and releases microphone without reconnect
+ok 10 - terminal startup error preserves explanation and releases microphone without reconnect
+  ---
+  duration_ms: 2.672458
+  ...
+# Subtest: microphone permission denial creates no session and releases the audio engine
+ok 11 - microphone permission denial creates no session and releases the audio engine
+  ---
+  duration_ms: 1.860458
+  ...
+# Subtest: End while microphone permission is pending stops a late track without creating a session
+ok 12 - End while microphone permission is pending stops a late track without creating a session
+  ---
+  duration_ms: 47.549125
+  ...
+# Subtest: End during session creation retires the late capability and leaves audio stopped
+ok 13 - End during session creation retires the late capability and leaves audio stopped
+  ---
+  duration_ms: 3.781833
+  ...
+# Subtest: audio engine resumes inside the Start click before asynchronous microphone setup
+ok 14 - audio engine resumes inside the Start click before asynchronous microphone setup
+  ---
+  duration_ms: 1.923875
+  ...
+# Subtest: capture, upload and server delivery counters distinguish each stage without audio capture
+ok 15 - capture, upload and server delivery counters distinguish each stage without audio capture
+  ---
+  duration_ms: 8.4265
+  ...
+# Subtest: paused audio exposes resume action and fatal worklet errors stop the call
+ok 16 - paused audio exposes resume action and fatal worklet errors stop the call
+  ---
+  duration_ms: 1.889875
+  ...
+# Subtest: resume remains reachable while initial audio startup is waiting
+ok 17 - resume remains reachable while initial audio startup is waiting
+  ---
+  duration_ms: 3.044416
+  ...
+# Subtest: SFU mode sends microphone over WebRTC and leaves the control socket audio-free
+ok 18 - SFU mode sends microphone over WebRTC and leaves the control socket audio-free
+  ---
+  duration_ms: 13.533
+  ...
+# Subtest: SFU output replaces by generation and local speech clears it without fake receipts
+ok 19 - SFU output replaces by generation and local speech clears it without fake receipts
+  ---
+  duration_ms: 7.989625
+  ...
+# Subtest: SFU reconnect closes peers and rejects old startup completion
+ok 20 - SFU reconnect closes peers and rejects old startup completion
+  ---
+  duration_ms: 18.847292
+  ...
+# Subtest: SFU failures release all client resources and preserve the visible explanation
+ok 21 - SFU failures release all client resources and preserve the visible explanation
+  ---
+  duration_ms: 6.024416
+  ...
+# Subtest: clear and recoverable error stop stale response states from interrupting resumed speech
+ok 22 - clear and recoverable error stop stale response states from interrupting resumed speech
+  ---
+  duration_ms: 23.223542
+  ...
+# Subtest: an old clear cannot reset the state of a newer response
+ok 23 - an old clear cannot reset the state of a newer response
+  ---
+  duration_ms: 2.001708
+  ...
+# Subtest: late tagged errors preserve interruption of the current response on both routes
+ok 24 - late tagged errors preserve interruption of the current response on both routes
+  ---
+  duration_ms: 111.782167
+  ...
+# Subtest: reconnect clears stale response state before the first idle microphone onset on both routes
+ok 25 - reconnect clears stale response state before the first idle microphone onset on both routes
+  ---
+  duration_ms: 19.073375
+  ...
+# Subtest: SFU readiness cannot overwrite a current response received during publishing
+ok 26 - SFU readiness cannot overwrite a current response received during publishing
+  ---
+  duration_ms: 6.304917
+  ...
+# Subtest: explicitly stale clear and terminal error leave current audio and receiver intact
+ok 27 - explicitly stale clear and terminal error leave current audio and receiver intact
+  ---
+  duration_ms: 13.091708
+  ...
+# Subtest: measurement export requests private diagnostics and excludes their internal fields
+ok 28 - measurement export requests private diagnostics and excludes their internal fields
+  ---
+  duration_ms: 5.268917
+  ...
+# Subtest: failed diagnostics still export the frozen browser snapshot across End and a new call
+ok 29 - failed diagnostics still export the frozen browser snapshot across End and a new call
+  ---
+  duration_ms: 3.675041
+  ...
+# Subtest: ended call measurements explicitly mark missing server snapshot
+ok 30 - ended call measurements explicitly mark missing server snapshot
+  ---
+  duration_ms: 6.600042
+  ...
+# Subtest: diagnostic export distinguishes HTTP rejection without exposing response content
+ok 31 - diagnostic export distinguishes HTTP rejection without exposing response content
+  ---
+  duration_ms: 4.952834
+  ...
+# Subtest: diagnostic export distinguishes timeout, network, invalid JSON and invalid diagnostic shape
+ok 32 - diagnostic export distinguishes timeout, network, invalid JSON and invalid diagnostic shape
+  ---
+  duration_ms: 25.353875
+  ...
+# Subtest: diagnostic HTTP status only exports integer values in the HTTP range
+ok 33 - diagnostic HTTP status only exports integer values in the HTTP range
+  ---
+  duration_ms: 26.705
+  ...
+# Subtest: reconnect diagnostics retain bounded close code and cleanliness without reason text
+ok 34 - reconnect diagnostics retain bounded close code and cleanliness without reason text
+  ---
+  duration_ms: 5.015333
+  ...
+# Subtest: malformed close metadata cannot leak into reconnect diagnostics
+ok 35 - malformed close metadata cannot leak into reconnect diagnostics
+  ---
+  duration_ms: 21.41475
+  ...
+# Subtest: a speech-start error leaves the current assistant response interruptible
+ok 36 - a speech-start error leaves the current assistant response interruptible
+  ---
+  duration_ms: 11.755125
+  ...
+# Subtest: PCM is explicitly little endian and preserves signed extrema
+ok 37 - PCM is explicitly little endian and preserves signed extrema
+  ---
+  duration_ms: 26.083583
+  ...
+# Subtest: schedules a bounded horizon and acknowledges only a wholly played chunk
+ok 38 - schedules a bounded horizon and acknowledges only a wholly played chunk
+  ---
+  duration_ms: 29.694125
+  ...
+# Subtest: interruption cancels queued and scheduled audio without acknowledging it
+ok 39 - interruption cancels queued and scheduled audio without acknowledging it
+  ---
+  duration_ms: 13.649917
+  ...
+# Subtest: clear generation is a minimum accepted new generation
+ok 40 - clear generation is a minimum accepted new generation
+  ---
+  duration_ms: 13.498833
+  ...
+# Subtest: a newer generation stops older sources and old events cannot ack
+ok 41 - a newer generation stops older sources and old events cannot ack
+  ---
+  duration_ms: 7.3785
+  ...
+# Subtest: duplicate packets never schedule or acknowledge twice
+ok 42 - duplicate packets never schedule or acknowledge twice
+  ---
+  duration_ms: 1.063542
+  ...
+# Subtest: buffer and malformed-packet bounds fail explicitly
+ok 43 - buffer and malformed-packet bounds fail explicitly
+  ---
+  duration_ms: 80.752167
+  ...
+# Subtest: closing prevents future playback or acknowledgments
+ok 44 - closing prevents future playback or acknowledgments
+  ---
+  duration_ms: 2.774708
+  ...
+# Subtest: capture resamples actual 16000 Hz into 16 kHz / 20 ms frames
+ok 45 - capture resamples actual 16000 Hz into 16 kHz / 20 ms frames
+  ---
+  duration_ms: 57.420625
+  ...
+# Subtest: capture resamples actual 44100 Hz into 16 kHz / 20 ms frames
+ok 46 - capture resamples actual 44100 Hz into 16 kHz / 20 ms frames
+  ---
+  duration_ms: 61.04025
+  ...
+# Subtest: capture resamples actual 48000 Hz into 16 kHz / 20 ms frames
+ok 47 - capture resamples actual 48000 Hz into 16 kHz / 20 ms frames
+  ---
+  duration_ms: 55.192084
+  ...
+# Subtest: diagnostics export accepts known values and drops credentials, text and resource IDs
+ok 48 - diagnostics export accepts known values and drops credentials, text and resource IDs
+  ---
+  duration_ms: 32.719042
+  ...
+# Subtest: malformed fields and excessive event history cannot escape the allowlist
+ok 49 - malformed fields and excessive event history cannot escape the allowlist
+  ---
+  duration_ms: 49.409417
+  ...
+# Subtest: missing speech onset remains identifiable in a shared report
+ok 50 - missing speech onset remains identifiable in a shared report
+  ---
+  duration_ms: 0.353125
+  ...
+# Subtest: every generic speech-turn abort reason survives the shared report
+ok 51 - every generic speech-turn abort reason survives the shared report
+  ---
+  duration_ms: 0.908417
+  ...
+# Subtest: abort diagnostics preserve only known reasons and numeric fields
+ok 52 - abort diagnostics preserve only known reasons and numeric fields
+  ---
+  duration_ms: 0.458708
+  ...
+# Subtest: abort history is capped at the latest 500 events
+ok 53 - abort history is capped at the latest 500 events
+  ---
+  duration_ms: 32.251667
+  ...
+# Subtest: hosted request lifecycle remains distinct from coordinator cancellation
+ok 54 - hosted request lifecycle remains distinct from coordinator cancellation
+  ---
+  duration_ms: 0.808042
+  ...
+# Subtest: hosted request diagnostics exclude unrecognized states and private payloads
+ok 55 - hosted request diagnostics exclude unrecognized states and private payloads
+  ---
+  duration_ms: 0.79625
+  ...
+# Subtest: shared trace retains Nova ranges, finality, audio cursors and cancellation ordering
+ok 56 - shared trace retains Nova ranges, finality, audio cursors and cancellation ordering
+  ---
+  duration_ms: 1.629166
+  ...
+# Subtest: trace export drops malformed timings, booleans, enum values and nested sensitive content
+ok 57 - trace export drops malformed timings, booleans, enum values and nested sensitive content
+  ---
+  duration_ms: 1.479875
+  ...
+# Subtest: invalid negative provider timestamps remain observable without admitting unsafe numeric values
+ok 58 - invalid negative provider timestamps remain observable without admitting unsafe numeric values
+  ---
+  duration_ms: 0.661583
+  ...
+# Subtest: browser errors export a fixed abort code and normalized timestamp without free text
+ok 59 - browser errors export a fixed abort code and normalized timestamp without free text
+  ---
+  duration_ms: 27.004959
+  ...
+# Subtest: browser error export retains only the latest 1000 records and tolerates absent input
+ok 60 - browser error export retains only the latest 1000 records and tolerates absent input
+  ---
+  duration_ms: 1.304583
+  ...
+# Subtest: microphone publish and response subscribe use separate peers with capability-free signaling bodies
+ok 61 - microphone publish and response subscribe use separate peers with capability-free signaling bodies
+  ---
+  duration_ms: 14.026541
+  ...
+# Subtest: interrupt detaches a generation immediately and stale tracks cannot reattach
+ok 62 - interrupt detaches a generation immediately and stale tracks cannot reattach
+  ---
+  duration_ms: 2.050208
+  ...
+# Subtest: End cancels gathering waits and late local descriptions cannot publish
+ok 63 - End cancels gathering waits and late local descriptions cannot publish
+  ---
+  duration_ms: 51.000583
+  ...
+# Subtest: late signaling from a replaced receiver cannot attach or send readiness
+ok 64 - late signaling from a replaced receiver cannot attach or send readiness
+  ---
+  duration_ms: 3.198
+  ...
+# Subtest: clearing an output does not cancel an input connection still establishing
+ok 65 - clearing an output does not cancel an input connection still establishing
+  ---
+  duration_ms: 5.182125
+  ...
+# Subtest: track arriving after connected still triggers readiness
+ok 66 - track arriving after connected still triggers readiness
+  ---
+  duration_ms: 3.3715
+  ...
+# Subtest: blocked playback exposes an explicit resume without faking played receipts
+ok 67 - blocked playback exposes an explicit resume without faking played receipts
+  ---
+  duration_ms: 1.312708
+  ...
+# Subtest: server output offers are answered through the owned generation
+ok 68 - server output offers are answered through the owned generation
+  ---
+  duration_ms: 0.991041
+  ...
+# Subtest: input_ready waits for the microphone connection and finishes before publish resolves
+ok 69 - input_ready waits for the microphone connection and finishes before publish resolves
+  ---
+  duration_ms: 8.813084
+  ...
+# Subtest: output answer completes ICE before serialized renegotiation and readiness
+ok 70 - output answer completes ICE before serialized renegotiation and readiness
+  ---
+  duration_ms: 3.630167
+  ...
+# Subtest: duplicate generation announcements cannot start concurrent negotiation
+ok 71 - duplicate generation announcements cannot start concurrent negotiation
+  ---
+  duration_ms: 3.205791
+  ...
+# (node:78931) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: a generation canceled during renegotiation never sends playback readiness
+ok 72 - a generation canceled during renegotiation never sends playback readiness
+  ---
+  duration_ms: 1.817542
+  ...
+# Subtest: playback readiness does not await playing events or the audio play promise
+ok 73 - playback readiness does not await playing events or the audio play promise
+  ---
+  duration_ms: 0.5355
+  ...
+# Subtest: gathering deadline publishes current candidates but input readiness still waits for connection
+ok 74 - gathering deadline publishes current candidates but input readiness still waits for connection
+  ---
+  duration_ms: 9.579708
+  ...
+# Subtest: gathering deadline renegotiates current answer candidates but output readiness waits for connection
+ok 75 - gathering deadline renegotiates current answer candidates but output readiness waits for connection
+  ---
+  duration_ms: 2.597792
+  ...
+# Subtest: input gathering deadline still rejects without a candidate
+ok 76 - input gathering deadline still rejects without a candidate
+  ---
+  duration_ms: 2.385959
+  ...
+# Subtest: End cancels input gathering even when a candidate is available at the deadline
+ok 77 - End cancels input gathering even when a candidate is available at the deadline
+  ---
+  duration_ms: 1.624
+  ...
+# Subtest: output gathering deadline still rejects without a candidate
+ok 78 - output gathering deadline still rejects without a candidate
+  ---
+  duration_ms: 2.201459
+  ...
+# Subtest: End cancels output gathering even when a candidate is available at the deadline
+ok 79 - End cancels output gathering even when a candidate is available at the deadline
+  ---
+  duration_ms: 5.2025
+  ...
+# Subtest: replacement during candidate gathering cannot renegotiate or announce readiness for the old output
+ok 80 - replacement during candidate gathering cannot renegotiate or announce readiness for the old output
+  ---
+  duration_ms: 6.6185
+  ...
+# Subtest: input candidates do not bypass the connection timeout
+ok 81 - input candidates do not bypass the connection timeout
+  ---
+  duration_ms: 2.672417
+  ...
+# Subtest: output candidates do not bypass the connection timeout
+ok 82 - output candidates do not bypass the connection timeout
+  ---
+  duration_ms: 6.36075
+  ...
+# Subtest: End after input gathering deadline wins before negotiation resumes
+ok 83 - End after input gathering deadline wins before negotiation resumes
+  ---
+  duration_ms: 35.207292
+  ...
+# Subtest: End after output gathering deadline wins before negotiation resumes
+ok 84 - End after output gathering deadline wins before negotiation resumes
+  ---
+  duration_ms: 58.458792
+  ...
+# Subtest: developer check publishes synthetic audio and starts the WAV only after input readiness
+ok 85 - developer check publishes synthetic audio and starts the WAV only after input readiness
+  ---
+  duration_ms: 60.4035
+  ...
+# Subtest: developer check observes nonzero remote audio and RTP without playback receipts
+ok 86 - developer check observes nonzero remote audio and RTP without playback receipts
+  ---
+  duration_ms: 31.912375
+  ...
+# Subtest: End during media negotiation prevents late WAV playback
+ok 87 - End during media negotiation prevents late WAV playback
+  ---
+  duration_ms: 4.843583
+  ...
+# Subtest: End during session creation retires the late capability without starting audio
+ok 88 - End during session creation retires the late capability without starting audio
+  ---
+  duration_ms: 5.516291
+  ...
+# Subtest: bounded SFU mode requires captured decoded audio, a complete response, and closed resource diagnostics
+ok 89 - bounded SFU mode requires captured decoded audio, a complete response, and closed resource diagnostics
+  ---
+  duration_ms: 15.856333
+  ...
+# Subtest: bounded SFU mode rejects long input before opening a session and times out stalled calls
+ok 90 - bounded SFU mode rejects long input before opening a session and times out stalled calls
+  ---
+  duration_ms: 9.528583
+  ...
+# Subtest: bounded completion cannot succeed after a newer generation supersedes its response
+ok 91 - bounded completion cannot succeed after a newer generation supersedes its response
+  ---
+  duration_ms: 10.321125
+  ...
+# Subtest: bounded capture stops at its memory limit and retains unresolved remote ownership
+ok 92 - bounded capture stops at its memory limit and retains unresolved remote ownership
+  ---
+  duration_ms: 12.985584
+  ...
+# Subtest: bounded SFU completion requires untagged assistant text from the current tagged response
+ok 93 - bounded SFU completion requires untagged assistant text from the current tagged response
+  ---
+  duration_ms: 58.882958
+  ...
+# Subtest: explicit stale or invalid transcript tags cannot complete a current SFU response
+ok 94 - explicit stale or invalid transcript tags cannot complete a current SFU response
+  ---
+  duration_ms: 14.484708
+  ...
+# Subtest: stale clear and error cannot detach the bounded SFU receiver or end its check
+ok 95 - stale clear and error cannot detach the bounded SFU receiver or end its check
+  ---
+  duration_ms: 20.04425
+  ...
+# Subtest: only the selected pending status triggers one interrupt, before audio
+ok 96 - only the selected pending status triggers one interrupt, before audio
+  ---
+  duration_ms: 10.561084
+  ...
+# Subtest: only a newer generation proves cancellation; late canceled audio fails even during recovery
+ok 97 - only a newer generation proves cancellation; late canceled audio fails even during recovery
+  ---
+  duration_ms: 0.599458
+  ...
+# Subtest: arguments reject session token overrides and require values
+ok 98 - arguments reject session token overrides and require values
+  ---
+  duration_ms: 3.022583
+  ...
+# Subtest: four-input validation needs neither credentials nor network
+ok 99 - four-input validation needs neither credentials nor network
+  ---
+  duration_ms: 750.050209
+  ...
+# Subtest: speaking cancellation waits for nonzero PCM and triggers exactly once
+ok 100 - speaking cancellation waits for nonzero PCM and triggers exactly once
+  ---
+  duration_ms: 1.796208
+  ...
+# Subtest: default plan is twenty turns; supported plans never exceed twenty-four
+ok 101 - default plan is twenty turns; supported plans never exceed twenty-four
+  ---
+  duration_ms: 6.388166
+  ...
+# Subtest: receipts wait for serial PCM duration without sentence markers
+ok 102 - receipts wait for serial PCM duration without sentence markers
+  ---
+  duration_ms: 8.385
+  ...
+# Subtest: interruption drops outstanding receipts and ignores late old-generation audio
+ok 103 - interruption drops outstanding receipts and ignores late old-generation audio
+  ---
+  duration_ms: 1.011292
+  ...
+# Subtest: output bounds reject invalid PCM and more than twelve seconds queued
+ok 104 - output bounds reject invalid PCM and more than twelve seconds queued
+  ---
+  duration_ms: 12.416125
+  ...
+# Subtest: public diagnostics exclude transcripts, identifiers, URLs, errors and unknown fields
+ok 105 - public diagnostics exclude transcripts, identifiers, URLs, errors and unknown fields
+  ---
+  duration_ms: 2.514917
+  ...
+# Subtest: input-only mode validates both recordings without credentials or network setup
+ok 106 - input-only mode validates both recordings without credentials or network setup
+  ---
+  duration_ms: 374.106625
+  ...
+# Subtest: real-provider harnesses request sessions without a shared key
+ok 107 - real-provider harnesses request sessions without a shared key
+  ---
+  duration_ms: 750.628875
+  ...
+# Subtest: single-user-turn acceptance is opt-in without changing normal option defaults
+ok 108 - single-user-turn acceptance is opt-in without changing normal option defaults
+  ---
+  duration_ms: 4.302667
+  ...
+# Subtest: assistant partial/final transcripts and audio are premature until paced input ends
+ok 109 - assistant partial/final transcripts and audio are premature until paced input ends
+  ---
+  duration_ms: 0.338667
+  ...
+# Subtest: completion needs standard text, matching response end and every elapsed receipt
+ok 110 - completion needs standard text, matching response end and every elapsed receipt
+  ---
+  duration_ms: 0.695542
+  ...
+# Subtest: HTTP live probes are limited to exact loopback origins
+ok 111 - HTTP live probes are limited to exact loopback origins
+  ---
+  duration_ms: 0.576666
+  ...
+1..111
+# tests 111
+# suites 0
+# pass 111
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1387.110125

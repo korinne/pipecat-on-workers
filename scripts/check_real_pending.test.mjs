@@ -31,11 +31,12 @@ test('only a newer generation proves cancellation; late canceled audio fails eve
   assert.equal(model.clearAt, 20);
 });
 
-test('arguments keep credentials environment-only and require values', () => {
+test('arguments reject session token overrides and require values', () => {
   assert.deepEqual(options(['--pcm', 'normal.pcm', '--tool-pcm', 'tool.pcm']), { pcm: 'normal.pcm', toolPcm: 'tool.pcm' });
   assert.throws(() => options(['--token', 'secret']), /invalid_arguments/);
   assert.throws(() => options(['--tool-pcm']), /invalid_arguments/);
   assert.deepEqual(options(['--case', 'thinking']), { case: 'thinking' });
+  assert.deepEqual(options(['--case', 'speaking']), { case: 'speaking' });
   assert.throws(() => options(['--case', 'unknown']), /invalid_case/);
 });
 
@@ -53,5 +54,24 @@ test('four-input validation needs neither credentials nor network', async () => 
     const single = spawnSync(process.execPath, [script, '--pcm', normal, '--tool-pcm', tool, '--case', 'thinking', '--validate-input'], { env, encoding: 'utf8', timeout: 5000 });
     assert.equal(single.status, 0, single.stderr);
     assert.equal(JSON.parse(single.stdout).planned_input_turns, 2);
+    const speaking = spawnSync(process.execPath, [script, '--pcm', normal, '--case', 'speaking', '--validate-input'], { env, encoding: 'utf8', timeout: 5000 });
+    assert.equal(speaking.status,0,speaking.stderr); assert.equal(JSON.parse(speaking.stdout).planned_input_turns,2);
   } finally { await fs.rm(dir, { recursive: true, force: true }); }
+});
+
+test('speaking cancellation waits for nonzero PCM and triggers exactly once',()=>{
+  const model = new PendingCancellation('speaking');
+  assert.equal(model.status({state:'speaking',generation:4},10,0),false);
+  assert.equal(model.status({state:'thinking',generation:4},11,0),false);
+  assert.equal(model.speech({generation:4},12,Buffer.alloc(960)),false);
+  const pcm=Buffer.alloc(960); pcm.writeInt16LE(-1,0);
+  assert.equal(model.speech({generation:4},13,pcm),true);
+  assert.equal(model.generation,4); assert.equal(model.requestedAt,13);
+  assert.equal(model.speech({generation:4},14,pcm),false);
+  model.audio({generation:4}); // In-flight output before the server clear remains distinguishable.
+  model.clear({generation:5},15);
+  assert.throws(()=>model.audio({generation:4}),/canceled_generation_audio_after_clear/);
+  assert.doesNotThrow(()=>model.audio({generation:5}));
+  assert.equal(new PendingCancellation('thinking').speech({generation:4},12,pcm),false);
+  assert.throws(()=>new PendingCancellation('speaking').speech({generation:undefined},12,pcm),/invalid_audio_generation/);
 });

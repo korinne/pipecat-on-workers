@@ -1,0 +1,1912 @@
+{
+  "recorded_at": "2026-10-05T04:53:50.099565+00:00",
+  "scope": "GPT-OSS integration; isolated local Python Workers with real remote Workers AI, no audio or Pipecat pipeline",
+  "readiness": "not_established",
+  "source": {
+    "base_revision": "c6a5b7246eb957ccb776a3daf0bf6ad8ddad4576",
+    "working_tree": "GPT changes under test; concurrent independent application changes excluded from this probe",
+    "sha256": {
+      "src/providers.py": "2d912366c62f37ad947b6a05383e6d1e78eda0ed4f1a39d7157b6fa1a3da77fc",
+      "src/gpt_stream.py": "b6850f0ffad5770bfdec6c97a8c4495800c28799e6e874f53985631959de3449",
+      "tests/test_gpt_stream.py": "0b4baa0da2a773534f148b876e052339101bfd304f594fe25d6e9f3f62054160",
+      "scripts/check_providers.py": "03a51709f4a7fbb058d19f0e12ae14a728dfd5f52e632afbee4497b0d672eed8",
+      "audit/reference/task3_gpt_binding.py": "0e1d762ffa872b491d4826fb48080a4b14442dcc28fe15f979cf865f26a2ec55",
+      "audit/reference/task3_gpt_adapter.py": "3626488e846f748bf895370568466c62eb7eddb60452917f6c30018d7ddf1967",
+      "gpt-probe.wrangler.jsonc": "9e02ef282a5597cb08dc1f960532eb14f847309ec6d2aedb3b097fb01cee9a1c"
+    }
+  },
+  "runtime": {
+    "python": "3.14.2",
+    "pyodide_version": "not_collected",
+    "wrangler": "4.139.0",
+    "workerd": "1.20260923.1",
+    "workers_py": "1.17.4",
+    "workers_runtime_sdk": "1.9.0",
+    "compatibility_date": "2026-09-24",
+    "execution": "local workerd; AI remote binding"
+  },
+  "request": {
+    "model": "@cf/openai/gpt-oss-120b",
+    "stream": true,
+    "reasoning_effort": "low",
+    "max_tokens": 2048,
+    "effective_reasoning_effort": "not separately observable; field accepted"
+  },
+  "initial_setup_failure": {
+    "configuration": "audit/reference/gpt.wrangler.jsonc",
+    "outcome": "startup_failed",
+    "model_requests_made": 0,
+    "error_type": "ModuleNotFoundError",
+    "error": "No module named workers",
+    "cause": "Nested configuration project root lacked installed python_modules; root-level probe configuration uses existing packaged SDK"
+  },
+  "interface_cases": {
+    "normal": {
+      "mode": "normal",
+      "model": "@cf/openai/gpt-oss-120b",
+      "inputs": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Answer in one brief sentence."
+          },
+          {
+            "role": "user",
+            "content": "What is two plus two?"
+          }
+        ],
+        "stream": true,
+        "reasoning_effort": "low",
+        "max_tokens": 2048
+      },
+      "python": "3.14.2",
+      "event_shapes": [
+        {
+          "keys": [
+            "choices",
+            "created",
+            "id",
+            "model",
+            "object",
+            "p",
+            "prompt_text",
+            "prompt_token_ids",
+            "usage"
+          ],
+          "delta_keys": [
+            "content",
+            "role"
+          ]
+        },
+        {
+          "keys": [
+            "choices",
+            "created",
+            "id",
+            "model",
+            "object",
+            "p",
+            "usage"
+          ],
+          "delta_keys": [
+            "reasoning",
+            "reasoning_content"
+          ]
+        },
+        {
+          "keys": [
+            "choices",
+            "created",
+            "id",
+            "model",
+            "object",
+            "p",
+            "usage"
+          ],
+          "delta_keys": [
+            "content"
+          ]
+        },
+        {
+          "keys": [
+            "choices",
+            "created",
+            "id",
+            "model",
+            "object",
+            "p",
+            "usage"
+          ],
+          "delta_keys": []
+        },
+        {
+          "keys": [
+            "response",
+            "usage"
+          ],
+          "delta_keys": []
+        }
+      ],
+      "answer_text": "Two plus two equals four.",
+      "reasoning_characters": 14,
+      "finish_reasons": [
+        "stop"
+      ],
+      "usage": [
+        {
+          "prompt_tokens": 79,
+          "completion_tokens": 0,
+          "total_tokens": 79,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 2.5136218070983887
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 4,
+          "total_tokens": 4,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.27272719144821167
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 7,
+          "total_tokens": 7,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.47727257013320923
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0
+        },
+        {
+          "prompt_tokens": 79,
+          "completion_tokens": 18,
+          "total_tokens": 97,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 3.74089415371418
+        }
+      ],
+      "sse_done": true,
+      "eof": false,
+      "reader_cancel_completed": true,
+      "reader_released": true,
+      "remote_compute_canceled": "unverified",
+      "cancel_requested": false,
+      "return_has_reader": true,
+      "event_count": 12,
+      "outcome": "captured",
+      "elapsed_seconds": 1.1519999504089355,
+      "first_answer_seconds": 1.066999912261963
+    },
+    "one-token": {
+      "mode": "one-token",
+      "model": "@cf/openai/gpt-oss-120b",
+      "inputs": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Answer in one brief sentence."
+          },
+          {
+            "role": "user",
+            "content": "What is two plus two?"
+          }
+        ],
+        "stream": true,
+        "reasoning_effort": "low",
+        "max_tokens": 1
+      },
+      "python": "3.14.2",
+      "event_shapes": [
+        {
+          "keys": [
+            "choices",
+            "created",
+            "id",
+            "model",
+            "object",
+            "p",
+            "prompt_text",
+            "prompt_token_ids",
+            "usage"
+          ],
+          "delta_keys": [
+            "content",
+            "role"
+          ]
+        },
+        {
+          "keys": [
+            "choices",
+            "created",
+            "id",
+            "model",
+            "object",
+            "p",
+            "usage"
+          ],
+          "delta_keys": [
+            "content"
+          ]
+        },
+        {
+          "keys": [
+            "choices",
+            "created",
+            "id",
+            "model",
+            "object",
+            "p",
+            "usage"
+          ],
+          "delta_keys": []
+        },
+        {
+          "keys": [
+            "response",
+            "usage"
+          ],
+          "delta_keys": []
+        }
+      ],
+      "answer_text": "<|channel|>",
+      "reasoning_characters": 0,
+      "finish_reasons": [
+        "length"
+      ],
+      "usage": [
+        {
+          "prompt_tokens": 79,
+          "completion_tokens": 0,
+          "total_tokens": 79,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 2.5136218070983887
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0
+        },
+        {
+          "prompt_tokens": 79,
+          "completion_tokens": 1,
+          "total_tokens": 80,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 2.5818036049604416
+        }
+      ],
+      "sse_done": true,
+      "eof": false,
+      "reader_cancel_completed": true,
+      "reader_released": true,
+      "remote_compute_canceled": "unverified",
+      "cancel_requested": false,
+      "return_has_reader": true,
+      "event_count": 4,
+      "outcome": "captured",
+      "elapsed_seconds": 0.3280000686645508,
+      "first_answer_seconds": 0.31799983978271484
+    },
+    "invalid-budget": {
+      "mode": "invalid-budget",
+      "model": "@cf/openai/gpt-oss-120b",
+      "inputs": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Answer in one brief sentence."
+          },
+          {
+            "role": "user",
+            "content": "What is two plus two?"
+          }
+        ],
+        "stream": true,
+        "reasoning_effort": "low",
+        "max_tokens": "invalid-probe-value"
+      },
+      "python": "3.14.2",
+      "event_shapes": [],
+      "answer_text": "",
+      "reasoning_characters": 0,
+      "finish_reasons": [],
+      "usage": [],
+      "sse_done": false,
+      "eof": false,
+      "reader_cancel_completed": false,
+      "reader_released": false,
+      "remote_compute_canceled": "unverified",
+      "cancel_requested": false,
+      "outcome": "exception",
+      "exception_type": "JsException",
+      "elapsed_seconds": 0.07000017166137695,
+      "first_answer_seconds": null
+    },
+    "preabort": {
+      "mode": "preabort",
+      "model": "@cf/openai/gpt-oss-120b",
+      "inputs": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Answer in one brief sentence."
+          },
+          {
+            "role": "user",
+            "content": "What is two plus two?"
+          }
+        ],
+        "stream": true,
+        "reasoning_effort": "low",
+        "max_tokens": 2048
+      },
+      "python": "3.14.2",
+      "event_shapes": [],
+      "answer_text": "",
+      "reasoning_characters": 0,
+      "finish_reasons": [],
+      "usage": [],
+      "sse_done": false,
+      "eof": false,
+      "reader_cancel_completed": false,
+      "reader_released": false,
+      "remote_compute_canceled": "unverified",
+      "cancel_requested": false,
+      "outcome": "exception",
+      "exception_type": "TimeoutError",
+      "elapsed_seconds": 45.00800013542175,
+      "first_answer_seconds": null
+    },
+    "cancel-after-first-event": {
+      "mode": "cancel-after-first-event",
+      "model": "@cf/openai/gpt-oss-120b",
+      "inputs": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Answer in one brief sentence."
+          },
+          {
+            "role": "user",
+            "content": "What is two plus two?"
+          }
+        ],
+        "stream": true,
+        "reasoning_effort": "low",
+        "max_tokens": 2048
+      },
+      "python": "3.14.2",
+      "event_shapes": [
+        {
+          "keys": [
+            "choices",
+            "created",
+            "id",
+            "model",
+            "object",
+            "p",
+            "prompt_text",
+            "prompt_token_ids",
+            "usage"
+          ],
+          "delta_keys": [
+            "content",
+            "role"
+          ]
+        }
+      ],
+      "answer_text": "",
+      "reasoning_characters": 0,
+      "finish_reasons": [],
+      "usage": [
+        {
+          "prompt_tokens": 79,
+          "completion_tokens": 0,
+          "total_tokens": 79,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 2.5136218070983887
+        }
+      ],
+      "sse_done": false,
+      "eof": false,
+      "reader_cancel_completed": true,
+      "reader_released": true,
+      "remote_compute_canceled": "unverified",
+      "cancel_requested": true,
+      "return_has_reader": true,
+      "event_count": 1,
+      "outcome": "captured",
+      "elapsed_seconds": 0.44499993324279785,
+      "first_answer_seconds": null
+    },
+    "cancel-after-answer": {
+      "mode": "cancel-after-answer",
+      "model": "@cf/openai/gpt-oss-120b",
+      "inputs": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Answer in one brief sentence."
+          },
+          {
+            "role": "user",
+            "content": "What is two plus two?"
+          }
+        ],
+        "stream": true,
+        "reasoning_effort": "low",
+        "max_tokens": 2048
+      },
+      "python": "3.14.2",
+      "event_shapes": [
+        {
+          "keys": [
+            "choices",
+            "created",
+            "id",
+            "model",
+            "object",
+            "p",
+            "prompt_text",
+            "prompt_token_ids",
+            "usage"
+          ],
+          "delta_keys": [
+            "content",
+            "role"
+          ]
+        },
+        {
+          "keys": [
+            "choices",
+            "created",
+            "id",
+            "model",
+            "object",
+            "p",
+            "usage"
+          ],
+          "delta_keys": [
+            "reasoning",
+            "reasoning_content"
+          ]
+        },
+        {
+          "keys": [
+            "choices",
+            "created",
+            "id",
+            "model",
+            "object",
+            "p",
+            "usage"
+          ],
+          "delta_keys": [
+            "content"
+          ]
+        }
+      ],
+      "answer_text": "Four",
+      "reasoning_characters": 28,
+      "finish_reasons": [],
+      "usage": [
+        {
+          "prompt_tokens": 79,
+          "completion_tokens": 0,
+          "total_tokens": 79,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 2.5136218070983887
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 4,
+          "total_tokens": 4,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.27272719144821167
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 7,
+          "total_tokens": 7,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.47727257013320923
+        }
+      ],
+      "sse_done": false,
+      "eof": false,
+      "reader_cancel_completed": true,
+      "reader_released": true,
+      "remote_compute_canceled": "unverified",
+      "cancel_requested": true,
+      "return_has_reader": true,
+      "event_count": 7,
+      "outcome": "captured",
+      "elapsed_seconds": 4.657999753952026,
+      "first_answer_seconds": 4.6559998989105225
+    },
+    "empty": {
+      "mode": "empty",
+      "model": "@cf/openai/gpt-oss-120b",
+      "inputs": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Answer in one brief sentence."
+          },
+          {
+            "role": "user",
+            "content": "Return no answer text."
+          }
+        ],
+        "stream": true,
+        "reasoning_effort": "low",
+        "max_tokens": 2048
+      },
+      "python": "3.14.2",
+      "event_shapes": [
+        {
+          "keys": [
+            "choices",
+            "created",
+            "id",
+            "model",
+            "object",
+            "p",
+            "prompt_text",
+            "prompt_token_ids",
+            "usage"
+          ],
+          "delta_keys": [
+            "content",
+            "role"
+          ]
+        },
+        {
+          "keys": [
+            "choices",
+            "created",
+            "id",
+            "model",
+            "object",
+            "p",
+            "usage"
+          ],
+          "delta_keys": [
+            "reasoning",
+            "reasoning_content"
+          ]
+        },
+        {
+          "keys": [
+            "choices",
+            "created",
+            "id",
+            "model",
+            "object",
+            "p",
+            "usage"
+          ],
+          "delta_keys": []
+        },
+        {
+          "keys": [
+            "response",
+            "usage"
+          ],
+          "delta_keys": []
+        }
+      ],
+      "answer_text": "",
+      "reasoning_characters": 102,
+      "finish_reasons": [
+        "stop"
+      ],
+      "usage": [
+        {
+          "prompt_tokens": 78,
+          "completion_tokens": 0,
+          "total_tokens": 78,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 2.4818038940429688
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 4,
+          "total_tokens": 4,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.27272719144821167
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 7,
+          "total_tokens": 7,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.47727257013320923
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0
+        },
+        {
+          "prompt_tokens": 78,
+          "completion_tokens": 20,
+          "total_tokens": 98,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 3.845439836382866
+        }
+      ],
+      "sse_done": true,
+      "eof": false,
+      "reader_cancel_completed": true,
+      "reader_released": true,
+      "remote_compute_canceled": "unverified",
+      "cancel_requested": false,
+      "return_has_reader": true,
+      "event_count": 14,
+      "outcome": "captured",
+      "elapsed_seconds": 0.5540001392364502,
+      "first_answer_seconds": null
+    },
+    "follow-up": {
+      "mode": "follow-up",
+      "model": "@cf/openai/gpt-oss-120b",
+      "inputs": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Answer in one brief sentence."
+          },
+          {
+            "role": "user",
+            "content": "Remember that the blue folder holds the picnic list."
+          },
+          {
+            "role": "assistant",
+            "content": "The picnic list is in the blue folder."
+          },
+          {
+            "role": "user",
+            "content": "Which folder did I say?"
+          }
+        ],
+        "stream": true,
+        "reasoning_effort": "low",
+        "max_tokens": 2048
+      },
+      "python": "3.14.2",
+      "event_shapes": [
+        {
+          "keys": [
+            "choices",
+            "created",
+            "id",
+            "model",
+            "object",
+            "p",
+            "prompt_text",
+            "prompt_token_ids",
+            "usage"
+          ],
+          "delta_keys": [
+            "content",
+            "role"
+          ]
+        },
+        {
+          "keys": [
+            "choices",
+            "created",
+            "id",
+            "model",
+            "object",
+            "p",
+            "usage"
+          ],
+          "delta_keys": [
+            "reasoning",
+            "reasoning_content"
+          ]
+        },
+        {
+          "keys": [
+            "choices",
+            "created",
+            "id",
+            "model",
+            "object",
+            "p",
+            "usage"
+          ],
+          "delta_keys": [
+            "content"
+          ]
+        },
+        {
+          "keys": [
+            "choices",
+            "created",
+            "id",
+            "model",
+            "object",
+            "p",
+            "usage"
+          ],
+          "delta_keys": []
+        },
+        {
+          "keys": [
+            "response",
+            "usage"
+          ],
+          "delta_keys": []
+        }
+      ],
+      "answer_text": "You said it’s the **blue folder**.",
+      "reasoning_characters": 110,
+      "finish_reasons": [
+        "stop"
+      ],
+      "usage": [
+        {
+          "prompt_tokens": 108,
+          "completion_tokens": 0,
+          "total_tokens": 108,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 3.4363439083099365
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 4,
+          "total_tokens": 4,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.27272719144821167
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 7,
+          "total_tokens": 7,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.47727257013320923
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 1,
+          "total_tokens": 1,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0.06818179786205292
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 0
+        },
+        {
+          "prompt_tokens": 108,
+          "completion_tokens": 32,
+          "total_tokens": 140,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "neurons": 5.618161424994469
+        }
+      ],
+      "sse_done": true,
+      "eof": false,
+      "reader_cancel_completed": true,
+      "reader_released": true,
+      "remote_compute_canceled": "unverified",
+      "cancel_requested": false,
+      "return_has_reader": true,
+      "event_count": 26,
+      "outcome": "captured",
+      "elapsed_seconds": 0.7109999656677246,
+      "first_answer_seconds": 0.5959999561309814
+    }
+  },
+  "initial_adapter_run": {
+    "sha256": {
+      "providers.py": "c8fd31354b264309cda3e6d3fa72ff545dc5b2d4f1f986f27c282f68244d09d6",
+      "gpt_stream.py": "b6850f0ffad5770bfdec6c97a8c4495800c28799e6e874f53985631959de3449",
+      "probe.py": "3626488e846f748bf895370568466c62eb7eddb60452917f6c30018d7ddf1967"
+    },
+    "cases": {
+      "normal": {
+        "case": "normal",
+        "python": "3.14.2",
+        "answer": "Four.",
+        "remote_compute_canceled": "unverified",
+        "outcome": "returned",
+        "generation": {
+          "outcome": "completed",
+          "first_answer_seconds": 0.8799998760223389,
+          "max_tokens": 2048,
+          "reasoning_effort": "low",
+          "events": 11,
+          "answer_characters": 5,
+          "reasoning_characters": 14,
+          "finish_reason": "stop",
+          "sse_done": true,
+          "usage": {
+            "prompt_tokens": 79,
+            "completion_tokens": 17,
+            "total_tokens": 96
+          },
+          "protocol_text_rejected": false,
+          "elapsed_seconds": 0.8829998970031738
+        },
+        "resources_before_close": {
+          "provider_tasks": 0,
+          "provider_sockets": 0,
+          "provider_readers": 0,
+          "pending_provider_requests": 0,
+          "pending_turn_requests": 0,
+          "queued_provider_bytes": 0,
+          "stt_connection_generation": 0,
+          "dropped_audio_bytes": 0
+        },
+        "resources_after_close": {
+          "provider_tasks": 0,
+          "provider_sockets": 0,
+          "provider_readers": 0,
+          "pending_provider_requests": 0,
+          "pending_turn_requests": 0,
+          "queued_provider_bytes": 0,
+          "stt_connection_generation": 0,
+          "dropped_audio_bytes": 0
+        },
+        "elapsed_seconds": 0.8930001258850098
+      },
+      "one-token": {
+        "case": "one-token",
+        "python": "3.14.2",
+        "answer": "",
+        "remote_compute_canceled": "unverified",
+        "outcome": "exception",
+        "exception_type": "ProviderError",
+        "failure_outcome": "token_limit",
+        "generation": {
+          "outcome": "token_limit",
+          "first_answer_seconds": null,
+          "max_tokens": 1,
+          "reasoning_effort": "low",
+          "events": 2,
+          "answer_characters": 0,
+          "reasoning_characters": 0,
+          "finish_reason": "length",
+          "sse_done": false,
+          "usage": {
+            "prompt_tokens": 0,
+            "completion_tokens": 1,
+            "total_tokens": 1
+          },
+          "protocol_text_rejected": true,
+          "elapsed_seconds": 0.6599998474121094
+        },
+        "resources_before_close": {
+          "provider_tasks": 0,
+          "provider_sockets": 0,
+          "provider_readers": 0,
+          "pending_provider_requests": 0,
+          "pending_turn_requests": 0,
+          "queued_provider_bytes": 0,
+          "stt_connection_generation": 0,
+          "dropped_audio_bytes": 0
+        },
+        "resources_after_close": {
+          "provider_tasks": 0,
+          "provider_sockets": 0,
+          "provider_readers": 0,
+          "pending_provider_requests": 0,
+          "pending_turn_requests": 0,
+          "queued_provider_bytes": 0,
+          "stt_connection_generation": 0,
+          "dropped_audio_bytes": 0
+        },
+        "elapsed_seconds": 0.6670000553131104
+      },
+      "empty": {
+        "case": "empty",
+        "python": "3.14.2",
+        "answer": "",
+        "remote_compute_canceled": "unverified",
+        "outcome": "exception",
+        "exception_type": "ProviderError",
+        "failure_outcome": "empty_answer",
+        "generation": {
+          "outcome": "empty_answer",
+          "first_answer_seconds": null,
+          "max_tokens": 2048,
+          "reasoning_effort": "low",
+          "events": 38,
+          "answer_characters": 0,
+          "reasoning_characters": 181,
+          "finish_reason": "stop",
+          "sse_done": true,
+          "usage": {
+            "prompt_tokens": 78,
+            "completion_tokens": 45,
+            "total_tokens": 123
+          },
+          "protocol_text_rejected": false,
+          "elapsed_seconds": 1.450000286102295
+        },
+        "resources_before_close": {
+          "provider_tasks": 0,
+          "provider_sockets": 0,
+          "provider_readers": 0,
+          "pending_provider_requests": 0,
+          "pending_turn_requests": 0,
+          "queued_provider_bytes": 0,
+          "stt_connection_generation": 0,
+          "dropped_audio_bytes": 0
+        },
+        "resources_after_close": {
+          "provider_tasks": 0,
+          "provider_sockets": 0,
+          "provider_readers": 0,
+          "pending_provider_requests": 0,
+          "pending_turn_requests": 0,
+          "queued_provider_bytes": 0,
+          "stt_connection_generation": 0,
+          "dropped_audio_bytes": 0
+        },
+        "elapsed_seconds": 1.4510002136230469
+      },
+      "follow-up": {
+        "case": "follow-up",
+        "python": "3.14.2",
+        "answer": "You said it’s the **blue** folder.",
+        "remote_compute_canceled": "unverified",
+        "outcome": "returned",
+        "generation": {
+          "outcome": "completed",
+          "first_answer_seconds": 0.47499966621398926,
+          "max_tokens": 2048,
+          "reasoning_effort": "low",
+          "events": 30,
+          "answer_characters": 34,
+          "reasoning_characters": 77,
+          "finish_reason": "stop",
+          "sse_done": true,
+          "usage": {
+            "prompt_tokens": 108,
+            "completion_tokens": 36,
+            "total_tokens": 144
+          },
+          "protocol_text_rejected": false,
+          "elapsed_seconds": 0.5679998397827148
+        },
+        "resources_before_close": {
+          "provider_tasks": 0,
+          "provider_sockets": 0,
+          "provider_readers": 0,
+          "pending_provider_requests": 0,
+          "pending_turn_requests": 0,
+          "queued_provider_bytes": 0,
+          "stt_connection_generation": 0,
+          "dropped_audio_bytes": 0
+        },
+        "resources_after_close": {
+          "provider_tasks": 0,
+          "provider_sockets": 0,
+          "provider_readers": 0,
+          "pending_provider_requests": 0,
+          "pending_turn_requests": 0,
+          "queued_provider_bytes": 0,
+          "stt_connection_generation": 0,
+          "dropped_audio_bytes": 0
+        },
+        "elapsed_seconds": 0.5699996948242188
+      },
+      "invalid-budget": {
+        "case": "invalid-budget",
+        "python": "3.14.2",
+        "answer": "",
+        "remote_compute_canceled": "unverified",
+        "outcome": "exception",
+        "exception_type": "ProviderError",
+        "failure_outcome": null,
+        "generation": {
+          "outcome": "request_or_read_error",
+          "first_answer_seconds": null,
+          "max_tokens": "invalid-probe-value",
+          "reasoning_effort": "low",
+          "events": 0,
+          "answer_characters": 0,
+          "reasoning_characters": 0,
+          "finish_reason": null,
+          "sse_done": false,
+          "usage": null,
+          "protocol_text_rejected": false,
+          "elapsed_seconds": 0.08100008964538574
+        },
+        "resources_before_close": {
+          "provider_tasks": 0,
+          "provider_sockets": 0,
+          "provider_readers": 0,
+          "pending_provider_requests": 0,
+          "pending_turn_requests": 0,
+          "queued_provider_bytes": 0,
+          "stt_connection_generation": 0,
+          "dropped_audio_bytes": 0
+        },
+        "resources_after_close": {
+          "provider_tasks": 0,
+          "provider_sockets": 0,
+          "provider_readers": 0,
+          "pending_provider_requests": 0,
+          "pending_turn_requests": 0,
+          "queued_provider_bytes": 0,
+          "stt_connection_generation": 0,
+          "dropped_audio_bytes": 0
+        },
+        "elapsed_seconds": 0.0820000171661377
+      },
+      "cancel-before-answer": {
+        "case": "cancel-before-answer",
+        "python": "3.14.2",
+        "answer": "",
+        "remote_compute_canceled": "unverified",
+        "cancellation_propagated": true,
+        "outcome": "returned",
+        "generation": {
+          "outcome": "canceled",
+          "first_answer_seconds": null,
+          "max_tokens": 2048,
+          "reasoning_effort": "low",
+          "events": 0,
+          "answer_characters": 0,
+          "reasoning_characters": 0,
+          "finish_reason": null,
+          "sse_done": false,
+          "usage": null,
+          "protocol_text_rejected": false,
+          "elapsed_seconds": 0.013000011444091797
+        },
+        "resources_before_close": {
+          "provider_tasks": 0,
+          "provider_sockets": 0,
+          "provider_readers": 0,
+          "pending_provider_requests": 1,
+          "pending_turn_requests": 0,
+          "queued_provider_bytes": 0,
+          "stt_connection_generation": 0,
+          "dropped_audio_bytes": 0
+        },
+        "resources_after_close": {
+          "provider_tasks": 0,
+          "provider_sockets": 0,
+          "provider_readers": 0,
+          "pending_provider_requests": 0,
+          "pending_turn_requests": 0,
+          "queued_provider_bytes": 0,
+          "stt_connection_generation": 0,
+          "dropped_audio_bytes": 0
+        },
+        "elapsed_seconds": 1.0179998874664307
+      },
+      "cancel-after-answer": {
+        "case": "cancel-after-answer",
+        "python": "3.14.2",
+        "answer": "Four",
+        "remote_compute_canceled": "unverified",
+        "cancellation_propagated": true,
+        "outcome": "returned",
+        "generation": {
+          "outcome": "canceled",
+          "first_answer_seconds": 0.5999999046325684,
+          "max_tokens": 2048,
+          "reasoning_effort": "low",
+          "events": 7,
+          "answer_characters": 4,
+          "reasoning_characters": 14,
+          "finish_reason": null,
+          "sse_done": false,
+          "usage": {
+            "prompt_tokens": 0,
+            "completion_tokens": 7,
+            "total_tokens": 7
+          },
+          "protocol_text_rejected": false,
+          "elapsed_seconds": 0.5999999046325684
+        },
+        "resources_before_close": {
+          "provider_tasks": 0,
+          "provider_sockets": 0,
+          "provider_readers": 0,
+          "pending_provider_requests": 0,
+          "pending_turn_requests": 0,
+          "queued_provider_bytes": 0,
+          "stt_connection_generation": 0,
+          "dropped_audio_bytes": 0
+        },
+        "resources_after_close": {
+          "provider_tasks": 0,
+          "provider_sockets": 0,
+          "provider_readers": 0,
+          "pending_provider_requests": 0,
+          "pending_turn_requests": 0,
+          "queued_provider_bytes": 0,
+          "stt_connection_generation": 0,
+          "dropped_audio_bytes": 0
+        },
+        "elapsed_seconds": 0.6009998321533203
+      }
+    },
+    "observed_failure": "Python 3.14 asyncio.shield logged JsException exception in shielded future after expected active-request AbortSignal rejection, despite late-result callback consumption. The request settled and owned resources were zero.",
+    "reproduction_limits": "Probe hot reload delayed the one-token HTTP wall time. Internal generation timings exclude startup/reload; no HTTP latency claim."
+  },
+  "final_adapter_run": {
+    "cases": {
+      "normal": {
+        "case": "normal",
+        "python": "3.14.2",
+        "answer": "Four.",
+        "remote_compute_canceled": "unverified",
+        "outcome": "returned",
+        "generation": {
+          "outcome": "completed",
+          "first_answer_seconds": 1.0360000133514404,
+          "max_tokens": 2048,
+          "reasoning_effort": "low",
+          "events": 11,
+          "answer_characters": 5,
+          "reasoning_characters": 14,
+          "finish_reason": "stop",
+          "sse_done": true,
+          "usage": {
+            "prompt_tokens": 79,
+            "completion_tokens": 17,
+            "total_tokens": 96
+          },
+          "protocol_text_rejected": false,
+          "elapsed_seconds": 1.0409998893737793
+        },
+        "resources_before_close": {
+          "provider_tasks": 0,
+          "provider_sockets": 0,
+          "provider_readers": 0,
+          "pending_provider_requests": 0,
+          "pending_turn_requests": 0,
+          "queued_provider_bytes": 0,
+          "stt_connection_generation": 0,
+          "dropped_audio_bytes": 0
+        },
+        "resources_after_close": {
+          "provider_tasks": 0,
+          "provider_sockets": 0,
+          "provider_readers": 0,
+          "pending_provider_requests": 0,
+          "pending_turn_requests": 0,
+          "queued_provider_bytes": 0,
+          "stt_connection_generation": 0,
+          "dropped_audio_bytes": 0
+        },
+        "elapsed_seconds": 1.0480000972747803
+      },
+      "one-token": {
+        "case": "one-token",
+        "python": "3.14.2",
+        "answer": "",
+        "remote_compute_canceled": "unverified",
+        "outcome": "exception",
+        "exception_type": "ProviderError",
+        "failure_outcome": "token_limit",
+        "generation": {
+          "outcome": "token_limit",
+          "first_answer_seconds": null,
+          "max_tokens": 1,
+          "reasoning_effort": "low",
+          "events": 2,
+          "answer_characters": 0,
+          "reasoning_characters": 0,
+          "finish_reason": "length",
+          "sse_done": false,
+          "usage": {
+            "prompt_tokens": 0,
+            "completion_tokens": 1,
+            "total_tokens": 1
+          },
+          "protocol_text_rejected": true,
+          "elapsed_seconds": 0.307999849319458
+        },
+        "resources_before_close": {
+          "provider_tasks": 0,
+          "provider_sockets": 0,
+          "provider_readers": 0,
+          "pending_provider_requests": 0,
+          "pending_turn_requests": 0,
+          "queued_provider_bytes": 0,
+          "stt_connection_generation": 0,
+          "dropped_audio_bytes": 0
+        },
+        "resources_after_close": {
+          "provider_tasks": 0,
+          "provider_sockets": 0,
+          "provider_readers": 0,
+          "pending_provider_requests": 0,
+          "pending_turn_requests": 0,
+          "queued_provider_bytes": 0,
+          "stt_connection_generation": 0,
+          "dropped_audio_bytes": 0
+        },
+        "elapsed_seconds": 0.307999849319458
+      },
+      "empty": {
+        "case": "empty",
+        "python": "3.14.2",
+        "answer": "",
+        "remote_compute_canceled": "unverified",
+        "outcome": "exception",
+        "exception_type": "ProviderError",
+        "failure_outcome": "empty_answer",
+        "generation": {
+          "outcome": "empty_answer",
+          "first_answer_seconds": null,
+          "max_tokens": 2048,
+          "reasoning_effort": "low",
+          "events": 14,
+          "answer_characters": 0,
+          "reasoning_characters": 57,
+          "finish_reason": "stop",
+          "sse_done": true,
+          "usage": {
+            "prompt_tokens": 78,
+            "completion_tokens": 21,
+            "total_tokens": 99
+          },
+          "protocol_text_rejected": false,
+          "elapsed_seconds": 0.5209999084472656
+        },
+        "resources_before_close": {
+          "provider_tasks": 0,
+          "provider_sockets": 0,
+          "provider_readers": 0,
+          "pending_provider_requests": 0,
+          "pending_turn_requests": 0,
+          "queued_provider_bytes": 0,
+          "stt_connection_generation": 0,
+          "dropped_audio_bytes": 0
+        },
+        "resources_after_close": {
+          "provider_tasks": 0,
+          "provider_sockets": 0,
+          "provider_readers": 0,
+          "pending_provider_requests": 0,
+          "pending_turn_requests": 0,
+          "queued_provider_bytes": 0,
+          "stt_connection_generation": 0,
+          "dropped_audio_bytes": 0
+        },
+        "elapsed_seconds": 0.5209999084472656
+      },
+      "follow-up": {
+        "case": "follow-up",
+        "python": "3.14.2",
+        "answer": "You said it’s in the blue folder.",
+        "remote_compute_canceled": "unverified",
+        "outcome": "returned",
+        "generation": {
+          "outcome": "completed",
+          "first_answer_seconds": 0.24099993705749512,
+          "max_tokens": 2048,
+          "reasoning_effort": "low",
+          "events": 18,
+          "answer_characters": 33,
+          "reasoning_characters": 22,
+          "finish_reason": "stop",
+          "sse_done": true,
+          "usage": {
+            "prompt_tokens": 108,
+            "completion_tokens": 24,
+            "total_tokens": 132
+          },
+          "protocol_text_rejected": false,
+          "elapsed_seconds": 0.28999996185302734
+        },
+        "resources_before_close": {
+          "provider_tasks": 0,
+          "provider_sockets": 0,
+          "provider_readers": 0,
+          "pending_provider_requests": 0,
+          "pending_turn_requests": 0,
+          "queued_provider_bytes": 0,
+          "stt_connection_generation": 0,
+          "dropped_audio_bytes": 0
+        },
+        "resources_after_close": {
+          "provider_tasks": 0,
+          "provider_sockets": 0,
+          "provider_readers": 0,
+          "pending_provider_requests": 0,
+          "pending_turn_requests": 0,
+          "queued_provider_bytes": 0,
+          "stt_connection_generation": 0,
+          "dropped_audio_bytes": 0
+        },
+        "elapsed_seconds": 0.2909998893737793
+      },
+      "invalid-budget": {
+        "case": "invalid-budget",
+        "python": "3.14.2",
+        "answer": "",
+        "remote_compute_canceled": "unverified",
+        "outcome": "exception",
+        "exception_type": "ProviderError",
+        "failure_outcome": null,
+        "generation": {
+          "outcome": "request_or_read_error",
+          "first_answer_seconds": null,
+          "max_tokens": "invalid-probe-value",
+          "reasoning_effort": "low",
+          "events": 0,
+          "answer_characters": 0,
+          "reasoning_characters": 0,
+          "finish_reason": null,
+          "sse_done": false,
+          "usage": null,
+          "protocol_text_rejected": false,
+          "elapsed_seconds": 0.07399988174438477
+        },
+        "resources_before_close": {
+          "provider_tasks": 0,
+          "provider_sockets": 0,
+          "provider_readers": 0,
+          "pending_provider_requests": 0,
+          "pending_turn_requests": 0,
+          "queued_provider_bytes": 0,
+          "stt_connection_generation": 0,
+          "dropped_audio_bytes": 0
+        },
+        "resources_after_close": {
+          "provider_tasks": 0,
+          "provider_sockets": 0,
+          "provider_readers": 0,
+          "pending_provider_requests": 0,
+          "pending_turn_requests": 0,
+          "queued_provider_bytes": 0,
+          "stt_connection_generation": 0,
+          "dropped_audio_bytes": 0
+        },
+        "elapsed_seconds": 0.07399988174438477
+      },
+      "cancel-before-answer": {
+        "case": "cancel-before-answer",
+        "python": "3.14.2",
+        "answer": "",
+        "remote_compute_canceled": "unverified",
+        "cancellation_propagated": true,
+        "outcome": "returned",
+        "generation": {
+          "outcome": "canceled",
+          "first_answer_seconds": null,
+          "max_tokens": 2048,
+          "reasoning_effort": "low",
+          "events": 0,
+          "answer_characters": 0,
+          "reasoning_characters": 0,
+          "finish_reason": null,
+          "sse_done": false,
+          "usage": null,
+          "protocol_text_rejected": false,
+          "elapsed_seconds": 0.013000011444091797
+        },
+        "resources_before_close": {
+          "provider_tasks": 0,
+          "provider_sockets": 0,
+          "provider_readers": 0,
+          "pending_provider_requests": 1,
+          "pending_turn_requests": 0,
+          "queued_provider_bytes": 0,
+          "stt_connection_generation": 0,
+          "dropped_audio_bytes": 0
+        },
+        "resources_after_close": {
+          "provider_tasks": 0,
+          "provider_sockets": 0,
+          "provider_readers": 0,
+          "pending_provider_requests": 0,
+          "pending_turn_requests": 0,
+          "queued_provider_bytes": 0,
+          "stt_connection_generation": 0,
+          "dropped_audio_bytes": 0
+        },
+        "elapsed_seconds": 1.0160000324249268
+      },
+      "cancel-after-answer": {
+        "case": "cancel-after-answer",
+        "python": "3.14.2",
+        "answer": "Four",
+        "remote_compute_canceled": "unverified",
+        "cancellation_propagated": true,
+        "outcome": "returned",
+        "generation": {
+          "outcome": "canceled",
+          "first_answer_seconds": 0.5079998970031738,
+          "max_tokens": 2048,
+          "reasoning_effort": "low",
+          "events": 7,
+          "answer_characters": 4,
+          "reasoning_characters": 14,
+          "finish_reason": null,
+          "sse_done": false,
+          "usage": {
+            "prompt_tokens": 0,
+            "completion_tokens": 7,
+            "total_tokens": 7
+          },
+          "protocol_text_rejected": false,
+          "elapsed_seconds": 0.5090000629425049
+        },
+        "resources_before_close": {
+          "provider_tasks": 0,
+          "provider_sockets": 0,
+          "provider_readers": 0,
+          "pending_provider_requests": 0,
+          "pending_turn_requests": 0,
+          "queued_provider_bytes": 0,
+          "stt_connection_generation": 0,
+          "dropped_audio_bytes": 0
+        },
+        "resources_after_close": {
+          "provider_tasks": 0,
+          "provider_sockets": 0,
+          "provider_readers": 0,
+          "pending_provider_requests": 0,
+          "pending_turn_requests": 0,
+          "queued_provider_bytes": 0,
+          "stt_connection_generation": 0,
+          "dropped_audio_bytes": 0
+        },
+        "elapsed_seconds": 0.5090000629425049
+      }
+    },
+    "fixture_inputs": false,
+    "stdout_abort_exception_observed": false
+  },
+  "controlled_checks": {
+    "command": " .venv/bin/python -m unittest tests.test_gpt_stream -v",
+    "tests": 17,
+    "passed": 17,
+    "provider_check": "scripts/check_providers.py passed; explicit fake JS/provider I/O"
+  },
+  "findings": [
+    "Only choices[0].delta.content enters the answer path; native response and reasoning fields are ignored.",
+    "A live one-token request emitted a Harmony protocol marker as answer content. The application parser rejects the marker and reports token_limit with zero answer characters.",
+    "A live empty-answer request completed with stop and no answer. The application reports empty_answer.",
+    "A pre-aborted binding request reached the isolated interface harness 45-second timeout. Active application request cancellation and reader cancellation were verified separately.",
+    "Normal and context-follow-up prompts fit 2048 tokens in the recorded samples. No workload or budget sufficiency claim follows.",
+    "Remote computation and billing cancellation remain unverified."
+  ],
+  "untested": [
+    "Deployed application GPT integration after final changes",
+    "Pipecat LLM/TTS/output/assistant aggregator integration",
+    "Both browser transports",
+    "Physical microphone and playback",
+    "Representative answer quality and workload latency/cost/resource acceptance",
+    "Live provider-injected unexpected EOF; controlled fixture only"
+  ]
+}

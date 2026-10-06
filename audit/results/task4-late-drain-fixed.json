@@ -1,0 +1,34 @@
+{
+  "recorded_at_utc": "2026-10-05T04:57:40.355683+00:00",
+  "classification": "scoped_pass",
+  "scope": "Controlled SFU adapter and Durable Object ownership; simulated REST/socket leaves. No live media.",
+  "source_sha256": {
+    "src/sfu_transport.py": "b18322382ec1b48903b78e420c79098854c5e8f80e9b8cc68fd9eb82316b0368",
+    "src/entry.py": "d2a52883855bc11dd14eb080e1b8c8e34cb747ac96ed874eee7ec059d8fda13c",
+    "tests/test_sfu_transport.py": "629784d4d9036db0250dc5acd79aa167e24b6569269f9c28d21c08bc93730a2f",
+    "scripts/check_sfu_entry.py": "e9bd45ad098b915988775bd831df76dde456993ee4be7fa6a19de87956813a90"
+  },
+  "checks": [
+    {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "unittest",
+        "tests.test_sfu_transport",
+        "-v"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "test_already_closed_adapter_is_absent_but_other_failure_retained (tests.test_sfu_transport.SfuTransportTests.test_already_closed_adapter_is_absent_but_other_failure_retained) ... ok\ntest_api_timeout_retains_late_allocation_and_reconciles_after_end (tests.test_sfu_transport.SfuTransportTests.test_api_timeout_retains_late_allocation_and_reconciles_after_end) ... ok\ntest_cleanup_discovers_track_whose_allocation_response_was_lost (tests.test_sfu_transport.SfuTransportTests.test_cleanup_discovers_track_whose_allocation_response_was_lost) ... ok\ntest_close_waits_for_late_allocation_and_cleans_it (tests.test_sfu_transport.SfuTransportTests.test_close_waits_for_late_allocation_and_cleans_it) ... ok\ntest_end_bounds_wait_and_late_cleanup_keeps_its_owner (tests.test_sfu_transport.SfuTransportTests.test_end_bounds_wait_and_late_cleanup_keeps_its_owner) ... ok\ntest_failed_close_and_unknown_allocation_survive_checkpoint (tests.test_sfu_transport.SfuTransportTests.test_failed_close_and_unknown_allocation_survive_checkpoint) ... ok\ntest_final_retry_drains_result_that_settles_during_session_inspection (tests.test_sfu_transport.SfuTransportTests.test_final_retry_drains_result_that_settles_during_session_inspection) ... ok\ntest_full_output_is_paced_and_never_emits_a_played_receipt (tests.test_sfu_transport.SfuTransportTests.test_full_output_is_paced_and_never_emits_a_played_receipt) ... ok\ntest_held_cleanup_does_not_block_new_output_or_allow_stale_media (tests.test_sfu_transport.SfuTransportTests.test_held_cleanup_does_not_block_new_output_or_allow_stale_media) ... ok\ntest_interrupt_retires_old_adapter_and_receiver (tests.test_sfu_transport.SfuTransportTests.test_interrupt_retires_old_adapter_and_receiver) ... ok\ntest_late_allocation_after_interrupt_is_closed (tests.test_sfu_transport.SfuTransportTests.test_late_allocation_after_interrupt_is_closed) ... ok\ntest_lost_creation_response_remains_explicitly_unconfirmed (tests.test_sfu_transport.SfuTransportTests.test_lost_creation_response_remains_explicitly_unconfirmed) ... ok\ntest_output_ready_timeout_retires_allocated_resources (tests.test_sfu_transport.SfuTransportTests.test_output_ready_timeout_retires_allocated_resources) ... ok\ntest_pending_allocations_are_bounded_and_owned_until_settlement (tests.test_sfu_transport.SfuTransportTests.test_pending_allocations_are_bounded_and_owned_until_settlement) ... ok\ntest_publish_waits_for_input_ready_and_decodes_audio (tests.test_sfu_transport.SfuTransportTests.test_publish_waits_for_input_ready_and_decodes_audio) ... ok\ntest_queued_publish_does_not_allocate_after_close (tests.test_sfu_transport.SfuTransportTests.test_queued_publish_does_not_allocate_after_close) ... ok\ntest_repeated_interruptions_bound_retained_remote_resources (tests.test_sfu_transport.SfuTransportTests.test_repeated_interruptions_bound_retained_remote_resources) ... ok\ntest_signaling_rejects_unowned_resource_and_early_ready (tests.test_sfu_transport.SfuTransportTests.test_signaling_rejects_unowned_resource_and_early_ready) ... ok\n\n----------------------------------------------------------------------\nRan 18 tests in 0.649s\n\nOK\n"
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "scripts/check_sfu_entry.py"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "..............\n----------------------------------------------------------------------\nRan 14 tests in 0.093s\n\nOK\n"
+    }
+  ]
+}

@@ -1,0 +1,127 @@
+{
+  "schema": 2,
+  "started_at": "2026-10-05T05:24:09.072Z",
+  "deployment_origin": "https://pipecat-on-workers.korinne.workers.dev",
+  "passed": true,
+  "scope": "Actual deployed capability WebSocket and configured STT, LLM, TTS providers; prerecorded input; wall-clock playback-receipt emulation.",
+  "physical_human_voice_acceptance_passed": false,
+  "fixture_provider_requested": false,
+  "acceptance_kind": "single_user_turn_pause_check",
+  "pause_acceptance": {
+    "requested": true,
+    "passed": true,
+    "premature_reply_observed": false,
+    "definition": "Exactly one final user transcript and no assistant transcript or audio received before the final input PCM sample completes its paced duration. This checks this recording only, not general natural-speech turn quality."
+  },
+  "input": {
+    "source": "macos-say",
+    "format": "PCM16 LE mono 16000 Hz",
+    "duration_ms": 1834.4375,
+    "samples": 29351,
+    "nonzero_samples": 29062,
+    "peak": 25026,
+    "rms": 4607.95
+  },
+  "playback": {
+    "method": "serial elapsed PCM duration, no audio device",
+    "received_chunks": 126,
+    "acknowledged_chunks": 126,
+    "acknowledged_duration_ms": 2520,
+    "completed_responses": 1,
+    "received_audio_duration_ms": 2520,
+    "output_statistics": {
+      "samples": 60480,
+      "nonzero_samples": 59164,
+      "peak": 11711,
+      "rms": 1486.04
+    }
+  },
+  "transcript": {
+    "user_final_count": 1,
+    "assistant_sentence_count": 1
+  },
+  "latency_ms": {
+    "session_create": 2657.48,
+    "ready": 4908.85,
+    "input_start": 4928.75,
+    "first_audio_from_start": 8927.01,
+    "first_audio_after_final_transcript": 997.98,
+    "first_audio_after_input_end": 2141.84,
+    "input_finish": 6785.17
+  },
+  "latency_definitions": {
+    "first_audio_after_final_transcript": "First accepted audio packet receipt minus the latest final user transcript receipt preceding that packet. The transcript timestamp is frozen when first audio arrives; this is not acoustic response latency."
+  },
+  "end": {
+    "sent": true,
+    "acknowledged": true,
+    "socket_closed": true,
+    "close_code": 1000
+  },
+  "limitations": [
+    "No microphone permissions, capture/resampling, speakers, headphones, echo or audible latency measured.",
+    "No human assessment of intelligibility or semantic correctness; inspect private captures.",
+    "One short response only; interruption, multi-turn memory, concurrent calls and soak acceptance remain untested.",
+    "Zero local resource counts do not prove remote compute or billing stopped."
+  ],
+  "failures": [],
+  "stop_reason": "response_completed_and_all_received_audio_elapsed_receipts_sent",
+  "cleanup": {
+    "closed": true,
+    "pipecat_tasks": 0,
+    "provider_tasks": 0,
+    "provider_sockets": 0,
+    "provider_readers": 0,
+    "pending_provider_requests": 0,
+    "pending_turn_requests": 0,
+    "queued_output_bytes": 0,
+    "queued_provider_bytes": 0,
+    "unacked_audio_bytes": 0,
+    "pending_playback_chunks": 0,
+    "pending_turn_tasks": 0,
+    "pending_user_fragments": 0,
+    "pending_user_chars": 0,
+    "messages": 3,
+    "stt_connection_generation": 1,
+    "dropped_audio_bytes": 0,
+    "turn_timeout_secs": 5,
+    "metrics": [
+      {
+        "event": "startup",
+        "elapsed_ms": 1419,
+        "startup_ms": 1419
+      },
+      {
+        "event": "server_clear",
+        "elapsed_ms": 1594,
+        "generation": 2,
+        "dispatch_ms": 0
+      },
+      {
+        "event": "user_end",
+        "elapsed_ms": 4343
+      },
+      {
+        "event": "generation_started",
+        "elapsed_ms": 4343,
+        "generation": 3
+      },
+      {
+        "event": "first_audio",
+        "elapsed_ms": 5363,
+        "generation": 3,
+        "response_ms": 1020
+      },
+      {
+        "event": "closed",
+        "elapsed_ms": 8023
+      }
+    ]
+  },
+  "cleanup_verified": true,
+  "finished_at": "2026-10-05T05:24:22.015Z",
+  "elapsed_ms": 12940.6,
+  "application_revision": "d2c0656cd2b018405a1850ddabac6266507c590e",
+  "deployment_version": "13762ff7-679d-477a-bafc-dcf37df2d5f4",
+  "recorded_source_file_sha256": "ac7e99416828e97adc56b67e23c4d6e37b04c45149935c3c4b6956cf8d6bc9d2"
+}

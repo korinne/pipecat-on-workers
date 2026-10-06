@@ -1,0 +1,127 @@
+{
+  "schema": 2,
+  "started_at": "2026-10-05T05:57:35.302Z",
+  "deployment_origin": "https://pipecat-on-workers.korinne.workers.dev",
+  "passed": true,
+  "scope": "Post-deployment direct WebSocket provider regression only, with synthesized PCM input and timed software receipts. Does not exercise the changed browser SFU gathering path or physical playback.",
+  "physical_human_voice_acceptance_passed": false,
+  "fixture_provider_requested": false,
+  "acceptance_kind": "single_user_turn_pause_check",
+  "pause_acceptance": {
+    "requested": true,
+    "passed": true,
+    "premature_reply_observed": false,
+    "definition": "Exactly one final user transcript and no assistant transcript or audio received before the final input PCM sample completes its paced duration. This checks this recording only, not general natural-speech turn quality."
+  },
+  "input": {
+    "source": "macos-say",
+    "format": "PCM16 LE mono 16000 Hz",
+    "duration_ms": 1834.4375,
+    "samples": 29351,
+    "nonzero_samples": 29062,
+    "peak": 25026,
+    "rms": 4607.95,
+    "sha256": "c97884eb23ad91e268731e685839924e624a221061371d385d25d1c0c28f0794"
+  },
+  "playback": {
+    "method": "serial elapsed PCM duration, no audio device",
+    "received_chunks": 130,
+    "acknowledged_chunks": 130,
+    "acknowledged_duration_ms": 2600,
+    "completed_responses": 1,
+    "received_audio_duration_ms": 2600,
+    "output_statistics": {
+      "samples": 62400,
+      "nonzero_samples": 60167,
+      "peak": 9783,
+      "rms": 1452.39
+    }
+  },
+  "transcript": {
+    "user_final_count": 1,
+    "assistant_sentence_count": 1
+  },
+  "latency_ms": {
+    "session_create": 2602.47,
+    "ready": 4102.04,
+    "input_start": 4108.91,
+    "first_audio_from_start": 7980.68,
+    "first_audio_after_final_transcript": 850.43,
+    "first_audio_after_input_end": 2016.11,
+    "input_finish": 5964.57
+  },
+  "latency_definitions": {
+    "first_audio_after_final_transcript": "First accepted audio packet receipt minus the latest final user transcript receipt preceding that packet. The transcript timestamp is frozen when first audio arrives; this is not acoustic response latency."
+  },
+  "end": {
+    "sent": true,
+    "acknowledged": true,
+    "socket_closed": true,
+    "close_code": 1000
+  },
+  "limitations": [
+    "No microphone permissions, capture/resampling, speakers, headphones, echo or audible latency measured.",
+    "No human assessment of intelligibility or semantic correctness; inspect private captures.",
+    "One short response only; interruption, multi-turn memory, concurrent calls and soak acceptance remain untested.",
+    "Zero local resource counts do not prove remote compute or billing stopped."
+  ],
+  "failures": [],
+  "stop_reason": "response_completed_and_all_received_audio_elapsed_receipts_sent",
+  "cleanup": {
+    "closed": true,
+    "pipecat_tasks": 0,
+    "provider_tasks": 0,
+    "provider_sockets": 0,
+    "provider_readers": 0,
+    "pending_provider_requests": 0,
+    "pending_turn_requests": 0,
+    "queued_output_bytes": 0,
+    "queued_provider_bytes": 0,
+    "unacked_audio_bytes": 0,
+    "pending_playback_chunks": 0,
+    "pending_turn_tasks": 0,
+    "pending_user_fragments": 0,
+    "pending_user_chars": 0,
+    "messages": 3,
+    "stt_connection_generation": 1,
+    "dropped_audio_bytes": 0,
+    "turn_timeout_secs": 5,
+    "metrics": [
+      {
+        "event": "startup",
+        "elapsed_ms": 483,
+        "startup_ms": 483
+      },
+      {
+        "event": "server_clear",
+        "elapsed_ms": 868,
+        "generation": 2,
+        "dispatch_ms": 0
+      },
+      {
+        "event": "user_end",
+        "elapsed_ms": 3482
+      },
+      {
+        "event": "generation_started",
+        "elapsed_ms": 3482,
+        "generation": 3
+      },
+      {
+        "event": "first_audio",
+        "elapsed_ms": 4298,
+        "generation": 3,
+        "response_ms": 816
+      },
+      {
+        "event": "closed",
+        "elapsed_ms": 7092
+      }
+    ]
+  },
+  "cleanup_verified": true,
+  "finished_at": "2026-10-05T05:57:47.746Z",
+  "elapsed_ms": 12442.84,
+  "source_commit": "3f62b680c32afa8b9f343a4eafb95d34b32c9daa",
+  "deployment_version": "06111df0-88ce-4142-96e7-4158a9a6e7a9"
+}

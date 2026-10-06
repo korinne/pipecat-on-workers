@@ -1,0 +1,37 @@
+{
+  "recorded_at": "2026-10-05T19:33:36.801260+00:00",
+  "source": "User report and attached screenshot",
+  "user_report": "im talking but  nothing is happenign at all",
+  "route": "webrtc_sfu",
+  "observations": {
+    "status": "Listening",
+    "elapsed": "00:06",
+    "connection_text": "Connected. Say hello to start.",
+    "microphone_text": "Microphone is picking up sound.",
+    "transcript_visible": false,
+    "assistant_reply_visible": false,
+    "error_visible": false
+  },
+  "device": {
+    "laptop": "user laptop",
+    "browser": "Chrome from agreed test setup; not visible in screenshot",
+    "headphones": "not used in preceding attempt; not restated in this report",
+    "network": "not specified"
+  },
+  "deployment_at_report": "06111df0-88ce-4142-96e7-4158a9a6e7a9",
+  "source_at_report": "3f62b680c32afa8b9f343a4eafb95d34b32c9daa",
+  "user_loaded_asset_revision": "unobserved",
+  "screenshot": {
+    "path": "user-screenshot.png",
+    "sha256": "ad7794d47d586dd1897a99fdac03453ae9eda40a0a300d3214aaa51cb8741353"
+  },
+  "interpretation": "No transcript is visible in this attempt. The microphone message reflects local capture only, so this screenshot does not establish delivery through the SFU or speech recognition. The preceding hello hello screenshot is separate evidence.",
+  "specific_cause": "unconfirmed; no call-specific counters or server events supplied",
+  "pending_user_detail": "Whether Captured audio, Server received and Speech service sent increase in Session details",
+  "browser_inspection": {
+    "chrome": "Native application request timed out; no browser inspection obtained",
+    "independent_diagnostic_browser": "In-app browser denied access because admin-enforced browser policy could not be verified; no bypass attempted"
+  },
+  "performance_acceptance": "untested at user request",
+  "silence_fallback": "still unapproved and disabled"
+}

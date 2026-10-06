@@ -1,7 +1,7 @@
 /** Actual Python DO probe; provider/audio fixtures are explicitly synthetic. */
 import fs from 'node:fs/promises';
 const base=process.argv[2]||'http://127.0.0.1:8787';
-const created=await fetch(base+'/api/session',{method:'POST',headers:{'X-Demo-Key':process.env.DEMO_ACCESS_KEY||''}});
+const created=await fetch(base+'/api/session',{method:'POST'});
 if(!created.ok)throw Error('Session creation failed: '+created.status);
 const session=await created.json();
 const response=await fetch(`${base}/api/session/${session.id}/probe?token=${encodeURIComponent(session.token)}`,{signal:AbortSignal.timeout(60000)});

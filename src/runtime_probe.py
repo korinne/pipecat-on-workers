@@ -12,7 +12,8 @@ import platform
 import time
 import traceback
 
-from conversation import ConversationSession, MAX_UNACKED_BYTES
+from conversation import ConversationSession, MAX_UNACKED_BYTES, MAX_PENDING_RECEIPTS
+from speech_pipeline import MAX_QUEUED_AUDIO_BYTES
 
 
 async def wait_for(predicate, description, timeout=4):
@@ -42,12 +43,42 @@ class FixtureProviders:
         self.live_syntheses = 0
         self.closed = False
         self.audio_bytes_received = 0
+        self.audio_cursor = 0.0
+        self.connection_generation = 1
+        self.turn_decisions = []
+        self.turn_checks = []
+        self.turn_started = asyncio.Event()
+        self.turn_cancelled = asyncio.Event()
+        self.turn_gate = None
 
     async def start(self):
-        return
+        await self.on_event({"type": "ProviderStatus", "provider": "stt", "status": "connected",
+                             "connection_generation": self.connection_generation})
 
     async def send_audio(self, data):
         self.audio_bytes_received += len(data)
+        self.audio_cursor += len(data) / 32000
+        return True
+
+    async def reconnect(self):
+        self.connection_generation += 1
+        self.audio_cursor = 0.0
+        await self.start()
+
+    async def analyze_turn(self, pcm):
+        self.turn_checks.append(bytes(pcm))
+        self.turn_checks[:] = self.turn_checks[-16:]
+        self.turn_started.set()
+        try:
+            if self.turn_gate is not None:
+                await self.turn_gate.wait()
+            result = self.turn_decisions.pop(0) if self.turn_decisions else True
+            if isinstance(result, Exception):
+                raise result
+            return {"is_complete": result, "probability": 0.9 if result else 0.1}
+        except asyncio.CancelledError:
+            self.turn_cancelled.set()
+            raise
 
     async def generate(self, messages):
         self.generations.append(copy.deepcopy(messages))
@@ -114,7 +145,7 @@ async def immediate_tool():
 
 class Harness:
     def __init__(self, *, state=None, label="fixture", hold_generation=False, pcm_chunks=3,
-                 tool=immediate_tool, turn_end_grace_ms=0):
+                 tool=immediate_tool, turn_timeout_secs=5, user_turn_stop_timeout=30):
         self.events = []
         self.saved = []
         self.provider = None
@@ -131,9 +162,11 @@ class Harness:
             return self.provider
 
         self.session = ConversationSession(copy.deepcopy(state or {}), factory, send, save,
-                                           tool=tool, turn_end_grace_ms=turn_end_grace_ms)
+                                           tool=tool, turn_timeout_secs=turn_timeout_secs,
+                                           user_turn_stop_timeout=user_turn_stop_timeout)
 
     async def start(self):
+        self.segments = {}
         await self.session.start()
         return self
 
@@ -144,23 +177,40 @@ class Harness:
     def assistant(self):
         return [m["content"] for m in self.session.context.get_messages() if m["role"] == "assistant"]
 
-    async def begin(self, text, index):
+    async def begin(self, text, index, *, resume=False):
         old = self.session.generation
-        await self.session.provider_event({"type": "TurnInfo", "event": "StartOfTurn",
-            "turn_index": index, "transcript": text, "connection_generation": 1})
-        await wait_for(lambda: self.session.generation > old, "Pipecat interruption from proposed start")
+        await self.session.provider_event({"type": "SpeechStarted", "timestamp": self.provider.audio_cursor,
+            "connection_generation": self.provider.connection_generation})
+        await self.input_segment(index)
+        if not resume:
+            await wait_for(lambda: self.session.generation > old, "Pipecat interruption from speech start")
 
-    async def finish(self, text, index):
-        await self.session.provider_event({"type": "TurnInfo", "event": "EndOfTurn",
-            "turn_index": index, "transcript": text, "connection_generation": 1})
+    async def input_segment(self, index):
+        start = self.provider.audio_cursor
+        await self.session.audio(bytes(16000))
+        self.segments[(self.provider.connection_generation, index)] = (start, 0.5)
+
+    def result(self, text, index, *, final=True, pause=True):
+        start, duration = self.segments[(self.provider.connection_generation, index)]
+        return {"type": "Results", "start": start, "duration": duration,
+                "is_final": final, "speech_final": pause,
+                "channel": {"alternatives": [{"transcript": text, "words":
+                    [{"start": start, "end": start + duration}] if text else []}]},
+                "connection_generation": self.provider.connection_generation}
+
+    async def finish(self, text, index, *, final=True, pause=True):
+        await self.session.provider_event(self.result(text, index, final=final, pause=pause))
 
     async def turn(self, text, index):
         await self.begin(text, index)
         await self.finish(text, index)
 
     async def response(self, count=1):
-        await wait_for(lambda: len(self.provider.generations) >= count and self.audio() and
-                       not self.session.responding, "complete fixture response")
+        await wait_for(lambda: len(self.provider.generations) >= count
+                       and self.audio(self.session.generation) and not self.session.responding
+                       and any(event["type"] == "status" and event.get("state") == "listening"
+                               and event.get("generation") == self.session.generation
+                               for event in self.events), "complete fixture response")
 
     async def acknowledge(self, events=None):
         for event in events if events is not None else self.audio():
@@ -184,19 +234,19 @@ async def receipts_and_context():
         await h.turn("alpha", 0)
         await h.response()
         audio = h.audio()
-        assert len(audio) == 3
-        assert not h.assistant(), "Unplayed generated text entered conversation history"
-        # Final chunk alone is insufficient; every preceding PCM chunk is required.
-        await h.acknowledge([audio[-1], audio[0]])
-        assert not h.assistant(), "Partly played sentence was committed"
-        await h.acknowledge([audio[1]])
+        assert len(audio) == 15
+        assert all(event["text"] == "" for event in audio)
         assert h.assistant() == ["fixture reply to alpha."]
         saved = copy.deepcopy(h.saved[-1])
+        # Receipts release flow-control credit without writing assistant history.
+        await h.acknowledge([audio[-1], audio[0]])
+        assert len(h.session.pending) == len(audio) - 2
+        assert h.saved[-1] == saved
         await h.acknowledge(audio)
         assert h.saved[-1] == saved, "Duplicate receipts changed history"
         assert h.session.unacked_bytes == 0
-        return {"audio_chunks": 3, "played_sentence_commits": 1,
-                "duplicate_receipts_ignored": 3, "partial_sentence_committed": False}
+        return {"audio_chunks": len(audio), "standard_assistant_commits": 1,
+                "receipt_dependent_context": False, "duplicate_receipts_ignored": 2}
     finally:
         await h.close()
 
@@ -205,8 +255,7 @@ async def pause_before_end_event():
     h = await Harness().start()
     try:
         await h.begin("Please explain", 0)
-        await h.session.provider_event({"type": "TurnInfo", "event": "Update",
-            "transcript": "Please explain", "turn_index": 0})
+        await h.finish("Please explain", 0, final=False, pause=False)
         await asyncio.sleep(0.2)
         assert not h.provider.generations and not h.audio()
         await h.finish("Please explain why the sky is blue", 0)
@@ -242,6 +291,48 @@ async def pending_llm_interruption():
         await h.close()
 
 
+async def smart_turn_incomplete_then_resume():
+    h = await Harness().start()
+    h.provider.turn_decisions = [False, True]
+    try:
+        await h.turn("Please explain", 0)
+        await wait_for(lambda: len(h.provider.turn_checks) == 1, "incomplete Smart Turn fixture decision")
+        await asyncio.sleep(0.02)
+        assert not h.provider.generations
+        await h.begin("how this works", 1, resume=True)
+        await h.finish("how this works", 1)
+        await h.response()
+        users = [m["content"] for m in h.provider.generations[0] if m["role"] == "user"]
+        assert users == ["Please explain how this works"]
+        assert len(h.provider.generations) == 1
+        assert len(h.provider.turn_checks) == 2
+        return {"fixture_detector_decisions": [False, True], "responses": 1,
+                "finalized_fragments": 2, "semantic_audio_turn_detection_tested": False}
+    finally:
+        await h.close()
+
+
+async def smart_turn_pending_resume():
+    h = await Harness().start()
+    h.provider.turn_gate = asyncio.Event()
+    try:
+        await h.turn("Please explain", 0)
+        await asyncio.wait_for(h.provider.turn_started.wait(), 4)
+        await h.begin("how this works", 1, resume=True)
+        await asyncio.wait_for(h.provider.turn_cancelled.wait(), 4)
+        assert not h.provider.generations
+        h.provider.turn_gate = None
+        await h.finish("how this works", 1)
+        await h.response()
+        users = [m["content"] for m in h.provider.generations[0] if m["role"] == "user"]
+        assert users == ["Please explain how this works"]
+        assert len(h.provider.generations) == 1
+        return {"pending_fixture_detector_canceled": True, "responses": 1,
+                "provider_network_tested": False, "remote_cancellation_established": False}
+    finally:
+        await h.close()
+
+
 async def pending_tool_interruption():
     tool = PendingTool()
     h = await Harness(tool=tool).start()
@@ -269,19 +360,22 @@ async def repeated_playback_interruptions():
     try:
         for index in range(4):
             await h.turn(f"turn {index}", index)
-            await h.response(index + 1)
-            current = h.audio(h.session.generation)
-            assert len(current) == 3
             if index < 3:
-                # One played chunk is deliberately less than the full sentence.
+                await wait_for(lambda: bool(h.audio(h.session.generation)), "first output chunk")
+                current = h.audio(h.session.generation)
+                assert len(current) < 15, "Fixture missed the mid-sentence interruption window"
                 await h.acknowledge([current[0]])
                 interrupted.extend(current)
-                assert not h.assistant()
+                assert not h.assistant(), "Sentence text progressed before its queued audio"
+            else:
+                await h.response(index + 1)
         current_generation = h.session.generation
         bytes_before = h.session.unacked_bytes
+        saved_before = copy.deepcopy(h.saved[-1])
         await h.acknowledge(interrupted)
         assert h.session.unacked_bytes == bytes_before
-        assert not h.assistant(), "Old receipt resurrected interrupted speech"
+        assert h.saved[-1] == saved_before, "Old receipts changed committed context"
+        assert h.assistant() == ["fixture reply to turn 3."]
         await h.acknowledge(h.audio(current_generation))
         assert h.assistant() == ["fixture reply to turn 3."]
         return {"playback_interruptions": 3, "stale_receipts_ignored": len(interrupted),
@@ -339,8 +433,10 @@ async def backpressure_and_cleanup():
     h = await Harness(pcm_chunks=1000).start()
     try:
         await h.turn("long reply", 0)
-        await wait_for(lambda: h.session.unacked_bytes == MAX_UNACKED_BYTES,
-                       "bounded playback buffer filling")
+        await wait_for(lambda: len(h.session.pending) == MAX_PENDING_RECEIPTS,
+                       "bounded playback buffer filling", timeout=8)
+        assert h.session.unacked_bytes <= MAX_UNACKED_BYTES
+        assert h.session.queued_output_bytes <= MAX_QUEUED_AUDIO_BYTES
         assert h.provider.live_syntheses == 1
         before = len(h.audio())
         await asyncio.sleep(0.03)
@@ -349,7 +445,8 @@ async def backpressure_and_cleanup():
         await asyncio.wait_for(h.provider.synthesis_cancelled.wait(), 4)
         await wait_for(lambda: h.session.unacked_bytes == 0, "interruption clearing playback buffer")
         assert h.session.pending == {}
-        return {"max_unacked_pcm_bytes": MAX_UNACKED_BYTES, "audio_chunks_before_backpressure": before,
+        return {"configured_max_unacked_pcm_bytes": MAX_UNACKED_BYTES, "max_pending_receipts": MAX_PENDING_RECEIPTS,
+                "audio_chunks_before_backpressure": before,
                 "blocked_synthesis_canceled": True}
     finally:
         await h.close()
@@ -385,6 +482,8 @@ PROBE_CASES = {
     "receipts_and_context": receipts_and_context,
     "pause_before_end_event": pause_before_end_event,
     "pending_llm_interruption": pending_llm_interruption,
+    "smart_turn_incomplete_then_resume": smart_turn_incomplete_then_resume,
+    "smart_turn_pending_resume": smart_turn_pending_resume,
     "pending_tool_interruption": pending_tool_interruption,
     "repeated_playback_interruptions": repeated_playback_interruptions,
     "simultaneous_sessions": simultaneous_sessions,
@@ -468,7 +567,7 @@ async def run_soak(duration_seconds=600, turn_interval_seconds=5, sessions=4,
         current = h.audio(h.session.generation)
         peak_unacked = max(peak_unacked, h.session.unacked_bytes)
         # Two in three replies are only partly acknowledged and are then
-        # interrupted by the next turn. The third commits one full sentence.
+        # interrupted by the next turn. Standard context already follows output text.
         await h.acknowledge(current if turns[i] % 3 == 2 else current[:1])
         turns[i] += 1
         next_turns[i] = time.monotonic() + turn_interval_seconds
@@ -489,6 +588,8 @@ async def run_soak(duration_seconds=600, turn_interval_seconds=5, sessions=4,
         h.saved[:] = h.saved[-1:]
         h.provider.generations[:] = h.provider.generations[-1:]
         h.provider.syntheses[:] = h.provider.syntheses[-1:]
+        h.provider.turn_checks[:] = h.provider.turn_checks[-1:]
+        h.segments.clear()
         h.session.metrics.clear()
 
     async def sample():

@@ -1,0 +1,36 @@
+{
+  "source_commit": "cdd8a55051295401a5d7bdc3f33b1233ab7bc02d",
+  "version_id": "742a8942-84b6-4247-a3b0-e193af3855b4",
+  "origin": "https://pipecat-on-workers.korinne.workers.dev",
+  "activated_at": "2026-10-05T21:03:38.612Z",
+  "traffic_percent": 100,
+  "previous_version": "425815d1-a965-47bc-b863-4dad470ad0a1",
+  "rollback_version": "06111df0-88ce-4142-96e7-4158a9a6e7a9",
+  "original_rollback_version": "3f8bd208-8e4a-4f2d-96cb-d9a0e51f9542",
+  "scope": "Browser diagnostic export only; Python source, models, turn policy, transports, authorization and configuration unchanged.",
+  "fixture_routes_enabled": false,
+  "silence_fallback_enabled": false,
+  "supported_release": false,
+  "build": {
+    "passed": true,
+    "pinned_tools": true,
+    "log_sha256": "e557b180762359907aea0ec634e8202abcf2b4a61d85ff2a16bca76bb2d7ce09"
+  },
+  "attempts": [
+    {
+      "exit_code": 1,
+      "error": "fetch failed",
+      "network_code": "EPIPE",
+      "asset_upload_completed": true,
+      "previous_deployment_confirmed_active": true,
+      "log_sha256": "588be2625c4984a65fc62fbcb08fbad0fdcb7f7d9802d10ac115e1fdd542d5ec"
+    },
+    {
+      "exit_code": 0,
+      "result": "deployed",
+      "log_sha256": "9a4e5a711c8ae883fe00207f03e2a929558860a8d362f4924a32facb0f432716"
+    }
+  ],
+  "verification": "audit/results/sfu-export-status-independent-20261005.json",
+  "physical_sfu": "Latest supplied call failed; no fresh post-deployment microphone/playback result received."
+}

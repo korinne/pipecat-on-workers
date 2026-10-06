@@ -1,0 +1,37 @@
+{
+  "input_sha256": "b82f33d93545e16601d400593b55ff386c231da60e454024e4d7d10686bda0fb",
+  "exported_at": "2026-10-05T20:53:07.828Z",
+  "source": "User-supplied browser export and report of speaking throughout",
+  "measurement_schema": 2,
+  "server_diagnostics_available": false,
+  "transport": "webrtc",
+  "ready_ms": 16237,
+  "user_transcript_final_ms": 19688,
+  "first_disconnect_ms": 22871,
+  "first_close_code": 1013,
+  "failed_reconnect_codes": [
+    1006,
+    1006
+  ],
+  "local_captured_audio_seconds": 48.6,
+  "last_confirmed_server_audio_seconds": 3.92,
+  "last_confirmed_provider_audio_seconds": 3.92,
+  "server_counts_limitation": "Last browser pong snapshot; lower bound, not exact total when disconnected.",
+  "captured_audio_limitation": "Aggregate samples cannot establish uninterrupted speech or that speech reached the disconnected SFU; the user reports speaking throughout.",
+  "user_transcript_final_implication": "On reviewed source, a current COMPLETE turn decision with finalized nonempty coverage was committed. No text is retained here.",
+  "established_failure": "Active control WebSocket closed with code 1013, then two reconnects closed with code 1006. Local capture accumulated 48.6 seconds of samples and the snapshot was running/live/unmuted; capture continued after the first disconnect.",
+  "root_cause": "Not yet established; first-party application has no1013 close path. Runtime/platform logs needed.",
+  "screenshot_relation": "Screenshot shows local activity and a visible transcript. Exact correlation to the exported attempt is not established from available identifiers.",
+  "historical_logs_access": {
+    "http_status": 403,
+    "provider_error_code": 10000,
+    "token_expired": false,
+    "missing_permission": "Stored observability query permission unavailable with existing CLI login."
+  },
+  "live_tail": "Attached using existing workers_tail:read access; awaiting short microphone repeat.",
+  "conversation_behavior_changed": false,
+  "silence_fallback_enabled": false,
+  "forwarded_audio_limitation": "Forwarded counts successful local submission to the provider WebSocket, not provider acknowledgment or processing.",
+  "deployment_identity_limitation": "This schema-2 export has no loaded asset or deployment identifier; implications are conditional on the reviewed deployed source.",
+  "playback_measurement_limitation": "The first-audio array is not populated for SFU and cannot establish absent SFU playback."
+}

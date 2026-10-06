@@ -1,0 +1,18 @@
+{
+  "recorded_at": "2026-10-05T05:54:10.628961+00:00",
+  "source": "User report in current coding task",
+  "user_report": "and when i tried to do the sfu example it gave me this WebRTC could not gather a network route. Try another network or the WebSocket example.",
+  "device_scope": {
+    "device": "user laptop",
+    "browser": "Chrome",
+    "audio_output": "headphones",
+    "network": "not yet specified"
+  },
+  "active_deployment_at_report": "4d75ac46-5a71-4de4-aa12-26f8b026fc38",
+  "active_source_revision": "a5ddcae672cdc207bf046c8a363e0e2bb670385e",
+  "user_loaded_asset_revision": "not observed",
+  "result": "SFU setup failed; actual media and physical playback untested",
+  "message_origin": "public/sfu-client.mjs localDescription: eight-second wait for iceGatheringState complete",
+  "root_cause_limit": "The message proves our gathering deadline expired. It does not identify candidate counts, selected network route, STUN reachability from Chrome or a need for TURN.",
+  "automatic_browser_inspection": "Unavailable: cua.getTab with browser chrome returned Browser is not available: chrome. No alternate browser-control technology used."
+}

@@ -1,0 +1,132 @@
+{
+  "schema": 2,
+  "started_at": "2026-10-05T19:40:51.595Z",
+  "deployment_origin": "https://pipecat-on-workers.korinne.workers.dev",
+  "passed": true,
+  "scope": "Actual deployed capability WebSocket and configured STT, LLM, TTS providers; prerecorded input; wall-clock playback-receipt emulation.",
+  "physical_human_voice_acceptance_passed": false,
+  "fixture_provider_requested": false,
+  "acceptance_kind": "single_user_turn_pause_check",
+  "pause_acceptance": {
+    "requested": true,
+    "passed": true,
+    "premature_reply_observed": false,
+    "definition": "Exactly one final user transcript and no assistant transcript or audio received before the final input PCM sample completes its paced duration. This checks this recording only, not general natural-speech turn quality."
+  },
+  "input": {
+    "source": "macos-say",
+    "format": "PCM16 LE mono 16000 Hz",
+    "duration_ms": 1834.4375,
+    "samples": 29351,
+    "nonzero_samples": 29062,
+    "peak": 25026,
+    "rms": 4607.95
+  },
+  "playback": {
+    "method": "serial elapsed PCM duration, no audio device",
+    "received_chunks": 106,
+    "acknowledged_chunks": 106,
+    "acknowledged_duration_ms": 2120,
+    "completed_responses": 1,
+    "received_audio_duration_ms": 2120,
+    "output_statistics": {
+      "samples": 50880,
+      "nonzero_samples": 50342,
+      "peak": 10271,
+      "rms": 1447.06
+    }
+  },
+  "transcript": {
+    "user_final_count": 1,
+    "assistant_sentence_count": 1
+  },
+  "latency_ms": {
+    "session_create": 3001.06,
+    "ready": 4960.6,
+    "input_start": 4976.83,
+    "first_audio_from_start": 11650.89,
+    "first_audio_after_final_transcript": 2741.71,
+    "first_audio_after_input_end": 4809.4,
+    "input_finish": 6841.49
+  },
+  "latency_definitions": {
+    "first_audio_after_final_transcript": "First accepted audio packet receipt minus the latest final user transcript receipt preceding that packet. The transcript timestamp is frozen when first audio arrives; this is not acoustic response latency."
+  },
+  "end": {
+    "sent": true,
+    "acknowledged": true,
+    "socket_closed": true,
+    "close_code": 1000
+  },
+  "limitations": [
+    "No microphone permissions, capture/resampling, speakers, headphones, echo or audible latency measured.",
+    "No human assessment of intelligibility or semantic correctness; inspect private captures.",
+    "One short response only; interruption, multi-turn memory, concurrent calls and soak acceptance remain untested.",
+    "Zero local resource counts do not prove remote compute or billing stopped."
+  ],
+  "failures": [],
+  "stop_reason": "response_completed_and_all_received_audio_elapsed_receipts_sent",
+  "cleanup": {
+    "closed": true,
+    "pipecat_tasks": 0,
+    "provider_tasks": 0,
+    "provider_sockets": 0,
+    "provider_readers": 0,
+    "pending_provider_requests": 0,
+    "pending_turn_requests": 0,
+    "queued_output_bytes": 0,
+    "queued_provider_bytes": 0,
+    "unacked_audio_bytes": 0,
+    "pending_playback_chunks": 0,
+    "pending_turn_tasks": 0,
+    "pending_user_fragments": 0,
+    "pending_user_chars": 0,
+    "messages": 3,
+    "stt_connection_generation": 1,
+    "dropped_audio_bytes": 0,
+    "turn_timeout_secs": 5,
+    "metrics": [
+      {
+        "event": "startup",
+        "elapsed_ms": 379,
+        "startup_ms": 379
+      },
+      {
+        "event": "server_clear",
+        "elapsed_ms": 627,
+        "generation": 2,
+        "dispatch_ms": 0
+      },
+      {
+        "event": "user_end",
+        "elapsed_ms": 4341
+      },
+      {
+        "event": "generation_started",
+        "elapsed_ms": 4341,
+        "generation": 3
+      },
+      {
+        "event": "first_audio",
+        "elapsed_ms": 7138,
+        "generation": 3,
+        "response_ms": 2797
+      },
+      {
+        "event": "closed",
+        "elapsed_ms": 9454
+      }
+    ]
+  },
+  "cleanup_verified": true,
+  "finished_at": "2026-10-05T19:41:08.003Z",
+  "elapsed_ms": 16392.04,
+  "source_commit": "f8835e8623040c0d0e8b264c1ac28486255f5f63",
+  "deployment_version": "3b1dcd04-5515-4b83-9fe4-27511b619c03",
+  "semantic_review": {
+    "scope": "Synthetic question and generated answer inspected as text; no audible assessment",
+    "user_question": "what is the capital of france",
+    "assistant_answer": "Paris is the capital of France.",
+    "correct": true
+  }
+}

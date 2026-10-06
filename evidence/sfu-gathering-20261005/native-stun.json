@@ -1,0 +1,27 @@
+{
+  "at": "2026-10-05T05:52:25.779583+00:00",
+  "scope": "Two native host UDP STUN binding probes, no browser, microphone, SFU media or provider inference; public/local addresses and transaction IDs omitted",
+  "results": [
+    {
+      "family": "IPv4",
+      "host": "stun.cloudflare.com",
+      "port": 3478,
+      "sent_bytes": 20,
+      "timeout_seconds": 3,
+      "binding_success": true,
+      "received_bytes": 32,
+      "elapsed_ms": 21
+    },
+    {
+      "family": "IPv6",
+      "host": "stun.cloudflare.com",
+      "port": 3478,
+      "sent_bytes": 20,
+      "timeout_seconds": 3,
+      "binding_success": true,
+      "received_bytes": 44,
+      "elapsed_ms": 20
+    }
+  ],
+  "limits": "A native UDP reply does not establish Chrome ICE behavior, VPN/filter behavior, SFU media reachability or user-network identity."
+}

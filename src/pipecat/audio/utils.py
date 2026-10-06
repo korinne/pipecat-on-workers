@@ -318,15 +318,9 @@ def is_silence(pcm_bytes: bytes) -> bool:
         (SPEAKING_THRESHOLD) is set well below typical speech levels to
         reliably detect silence vs. speech.
     """
-    import numpy as np
-    # Convert raw audio bytes to a NumPy array of int16 samples
-    audio_data = np.frombuffer(pcm_bytes, dtype=np.int16)
-
-    # Check the maximum absolute amplitude in the frame
-    max_value = np.abs(audio_data).max()
-
-    # If max value is lower than SPEAKING_THRESHOLD, consider it as silence
-    return max_value <= SPEAKING_THRESHOLD
+    import struct
+    return all(abs(sample[0]) <= SPEAKING_THRESHOLD
+               for sample in struct.iter_unpack("<h", pcm_bytes))
 
 
 def detect_speech_onset(

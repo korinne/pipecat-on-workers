@@ -1,0 +1,59 @@
+{
+  "checked_at": "2026-10-05T04:33:10.137035+00:00",
+  "starting_commit": "8dde4b651fc2a6f4687733738104e8f428b77ae0",
+  "reported_deployment": "bb1d9ecc-971d-4e2b-a1d8-7608df2aa7c9",
+  "runtime": "Local JavaScript workerd with remote Workers AI binding",
+  "wrangler": "4.139.0",
+  "source": "audit/reference/nova_startup.mjs",
+  "source_sha256": "9eedd5fa47fa49f93e81437c1f6e72341f65a7178f1b98b3c93ba01bac97dad0",
+  "command": "node node_modules/wrangler/bin/wrangler.js dev --config audit/reference/nova_startup.wrangler.jsonc --ip 127.0.0.1 --port 8791",
+  "requests": [
+    "POST http://127.0.0.1:8791/original",
+    "POST http://127.0.0.1:8791/strings"
+  ],
+  "initial_test_limitation": "Starting dev with --local disabled the remote AI binding and produced Binding AI needs to be run remotely. Removing --local enabled the configured remote binding. No model request was made by that first attempt.",
+  "results": [
+    {
+      "variant": "original",
+      "model": "@cf/deepgram/nova-3",
+      "inputs": {
+        "encoding": "linear16",
+        "sample_rate": "16000",
+        "channels": 1,
+        "language": "en-US",
+        "interim_results": true,
+        "vad_events": true,
+        "endpointing": "200"
+      },
+      "audio_sent_bytes": 0,
+      "status": 400,
+      "websocket_returned": false,
+      "error": {
+        "message": "AiError: AiError: Invalid data for json payload - reason invalid type: integer `1`, expected a string"
+      }
+    },
+    {
+      "variant": "strings",
+      "model": "@cf/deepgram/nova-3",
+      "inputs": {
+        "encoding": "linear16",
+        "sample_rate": "16000",
+        "channels": "1",
+        "language": "en-US",
+        "interim_results": "true",
+        "vad_events": "true",
+        "endpointing": "200"
+      },
+      "audio_sent_bytes": 0,
+      "status": 101,
+      "websocket_returned": true
+    }
+  ],
+  "redactions": [
+    "provider request identifier removed from error message"
+  ],
+  "conclusion": "The unchanged numeric channels parameter produces HTTP400. Encoding channels, interim_results and vad_events as strings produces HTTP101 and a WebSocket. Both requests send zero audio bytes and any successful socket is immediately closed.",
+  "classification": "Application request-format defect; fake-binding tests did not exercise provider validation",
+  "limits": "No transcript, Smart Turn, LLM, TTS, SFU media or physical playback exercised. This probe uses the same JS input values as Python to_js but does not itself exercise Python FFI.",
+  "passed": true
+}

@@ -1,0 +1,176 @@
+Executing <Task pending name='WorkersTTSService#0::__process_frame_task_handler' coro=<TaskManager.create_task.<locals>.run_coroutine() running at /Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/src/pipecat/utils/asyncio/task_manager.py:191> cb=[TaskManager.create_task.<locals>.close_unawaited_coroutine() at /Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/src/pipecat/utils/asyncio/task_manager.py:204, TaskManager._task_done_handler()] created at /Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/src/pipecat/utils/asyncio/task_manager.py:201> took 0.417 seconds
+FFFFFFFFFF
+======================================================================
+FAIL: test_sfu_canceled_generation_cleanup_failure_after_text (tests.test_speech_pipeline.SpeechPipelineTests.test_sfu_canceled_generation_cleanup_failure_after_text)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/korinne/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/asyncio/runners.py", line 128, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/korinne/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/asyncio/base_events.py", line 720, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/tests/test_speech_pipeline.py", line 539, in run
+    await getattr(self, helper)(route, *args)
+  File "/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/tests/test_speech_pipeline.py", line 421, in canceled_generation_cleanup_failure
+    self.assertFalse(any(e.get("type") == "error" for e in h.events))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_sfu_canceled_generation_cleanup_failure_before_text (tests.test_speech_pipeline.SpeechPipelineTests.test_sfu_canceled_generation_cleanup_failure_before_text)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/korinne/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/asyncio/runners.py", line 128, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/korinne/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/asyncio/base_events.py", line 720, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/tests/test_speech_pipeline.py", line 539, in run
+    await getattr(self, helper)(route, *args)
+  File "/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/tests/test_speech_pipeline.py", line 421, in canceled_generation_cleanup_failure
+    self.assertFalse(any(e.get("type") == "error" for e in h.events))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_sfu_retired_failure_output_completion (tests.test_speech_pipeline.SpeechPipelineTests.test_sfu_retired_failure_output_completion)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/korinne/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/asyncio/runners.py", line 128, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/korinne/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/asyncio/base_events.py", line 720, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/tests/test_speech_pipeline.py", line 539, in run
+    await getattr(self, helper)(route, *args)
+  File "/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/tests/test_speech_pipeline.py", line 340, in retired_failure
+    self.assertEqual(h.session.generation, old_generation + 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 5 != 4
+
+======================================================================
+FAIL: test_sfu_retired_failure_synthesis (tests.test_speech_pipeline.SpeechPipelineTests.test_sfu_retired_failure_synthesis)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/korinne/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/asyncio/runners.py", line 128, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/korinne/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/asyncio/base_events.py", line 720, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/tests/test_speech_pipeline.py", line 539, in run
+    await getattr(self, helper)(route, *args)
+  File "/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/tests/test_speech_pipeline.py", line 340, in retired_failure
+    self.assertEqual(h.session.generation, old_generation + 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 5 != 4
+
+======================================================================
+FAIL: test_sfu_retired_generation_failure (tests.test_speech_pipeline.SpeechPipelineTests.test_sfu_retired_generation_failure)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/korinne/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/asyncio/runners.py", line 128, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/korinne/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/asyncio/base_events.py", line 720, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/tests/test_speech_pipeline.py", line 539, in run
+    await getattr(self, helper)(route, *args)
+  File "/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/tests/test_speech_pipeline.py", line 383, in retired_generation_failure
+    self.assertEqual(h.session.generation, retired_generation)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 5 != 4
+
+======================================================================
+FAIL: test_websocket_canceled_generation_cleanup_failure_after_text (tests.test_speech_pipeline.SpeechPipelineTests.test_websocket_canceled_generation_cleanup_failure_after_text)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/korinne/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/asyncio/runners.py", line 128, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/korinne/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/asyncio/base_events.py", line 720, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/tests/test_speech_pipeline.py", line 539, in run
+    await getattr(self, helper)(route, *args)
+  File "/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/tests/test_speech_pipeline.py", line 421, in canceled_generation_cleanup_failure
+    self.assertFalse(any(e.get("type") == "error" for e in h.events))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_websocket_canceled_generation_cleanup_failure_before_text (tests.test_speech_pipeline.SpeechPipelineTests.test_websocket_canceled_generation_cleanup_failure_before_text)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/korinne/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/asyncio/runners.py", line 128, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/korinne/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/asyncio/base_events.py", line 720, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/tests/test_speech_pipeline.py", line 539, in run
+    await getattr(self, helper)(route, *args)
+  File "/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/tests/test_speech_pipeline.py", line 421, in canceled_generation_cleanup_failure
+    self.assertFalse(any(e.get("type") == "error" for e in h.events))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_websocket_retired_failure_output_completion (tests.test_speech_pipeline.SpeechPipelineTests.test_websocket_retired_failure_output_completion)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/korinne/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/asyncio/runners.py", line 128, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/korinne/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/asyncio/base_events.py", line 720, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/tests/test_speech_pipeline.py", line 539, in run
+    await getattr(self, helper)(route, *args)
+  File "/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/tests/test_speech_pipeline.py", line 340, in retired_failure
+    self.assertEqual(h.session.generation, old_generation + 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 5 != 4
+
+======================================================================
+FAIL: test_websocket_retired_failure_synthesis (tests.test_speech_pipeline.SpeechPipelineTests.test_websocket_retired_failure_synthesis)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/korinne/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/asyncio/runners.py", line 128, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/korinne/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/asyncio/base_events.py", line 720, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/tests/test_speech_pipeline.py", line 539, in run
+    await getattr(self, helper)(route, *args)
+  File "/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/tests/test_speech_pipeline.py", line 340, in retired_failure
+    self.assertEqual(h.session.generation, old_generation + 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 5 != 4
+
+======================================================================
+FAIL: test_websocket_retired_generation_failure (tests.test_speech_pipeline.SpeechPipelineTests.test_websocket_retired_generation_failure)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/korinne/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/asyncio/runners.py", line 128, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/korinne/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/asyncio/base_events.py", line 720, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/tests/test_speech_pipeline.py", line 539, in run
+    await getattr(self, helper)(route, *args)
+  File "/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/tests/test_speech_pipeline.py", line 383, in retired_generation_failure
+    self.assertEqual(h.session.generation, retired_generation)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 5 != 4
+
+----------------------------------------------------------------------
+Ran 10 tests in 7.010s
+
+FAILED (failures=10)

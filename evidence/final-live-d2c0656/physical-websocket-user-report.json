@@ -1,0 +1,17 @@
+{
+  "recorded_at": "2026-10-05T05:33:35.121680+00:00",
+  "source_commit": "d2c0656cd2b018405a1850ddabac6266507c590e",
+  "deployment_version": "13762ff7-679d-477a-bafc-dcf37df2d5f4",
+  "transport": "websocket",
+  "source": "User report after requested physical check",
+  "selected_setup": {
+    "device": "user laptop",
+    "browser": "Chrome",
+    "output": "headphones",
+    "network": "not yet reported"
+  },
+  "reported_outcome": "failed",
+  "user_report": "its not really answering consistently i see this error Speech turn could not be completed; please repeat your request. and it forgets what im talking about, doesnt answer follow up (on websockets)",
+  "limits": "User-reported behavior; no acoustic capture or exact call diagnostics supplied. Saved-context loss is not established by the report. Independent synthetic followup reproduced rejection before LLM inference; completed stored context remained intact.",
+  "sfu_physical": "untested"
+}

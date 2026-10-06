@@ -1,0 +1,41 @@
+{
+  "recorded_at": "2026-10-05T20:29:45.032077+00:00",
+  "source": "User report and attached screenshot",
+  "user_report": "there are multiple issues here we need to debug - what on earth is going on. should we start a fresh coding session to investigate?",
+  "observations": {
+    "route": "WebRTC + SFU",
+    "status": "Listening",
+    "elapsed": "00:01",
+    "microphone_text": "Microphone is picking up sound locally.",
+    "transcript_visible": false,
+    "error": "Speech turn could not be completed; please repeat your request."
+  },
+  "screenshot_sha256": "134f6141d4ffb9e441f7a6989b9ac7c132d5bd2b106408e409d1f5679f72291f",
+  "source_at_review": "f8835e8623040c0d0e8b264c1ac28486255f5f63",
+  "deployment_last_verified": "3b1dcd04-5515-4b83-9fe4-27511b619c03",
+  "loaded_asset_revision": "not observed; microphone wording matches updated frontend",
+  "interpretation": "On the reviewed source, this exact message is emitted when an active coordinator turn aborts. It does not identify which abort reason or establish a finalized transcript, a hosted decision, generation or playback.",
+  "specific_cause": "unknown",
+  "possible_abort_reasons": [
+    "invalid_nova_event",
+    "transcript_beyond_pause",
+    "pause_audio_unavailable",
+    "detector_busy",
+    "smart_turn_failed",
+    "turn_readiness_timeout",
+    "pipecat_turn_closed"
+  ],
+  "exported_reasons": [
+    "invalid_nova_event",
+    "turn_readiness_timeout",
+    "pipecat_turn_closed"
+  ],
+  "omitted_export_reasons": [
+    "transcript_beyond_pause",
+    "pause_audio_unavailable",
+    "detector_busy",
+    "smart_turn_failed"
+  ],
+  "server_events_from_this_call": "not supplied",
+  "runtime_change_in_this_turn": false
+}

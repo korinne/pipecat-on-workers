@@ -1,0 +1,36 @@
+{
+  "source_commit": "cdd8a55051295401a5d7bdc3f33b1233ab7bc02d",
+  "version_id": "742a8942-84b6-4247-a3b0-e193af3855b4",
+  "checked_at": "2026-10-05T21:04:06.552Z",
+  "assets": [
+    {
+      "path": "/app.js",
+      "status": 200,
+      "sha256": "65087ed38d4125b58fd902459b7da1e19cbaca5dd42279953a29c98fa14b542e",
+      "expected_sha256": "65087ed38d4125b58fd902459b7da1e19cbaca5dd42279953a29c98fa14b542e",
+      "matches": true
+    },
+    {
+      "path": "/session-measurements.mjs",
+      "status": 200,
+      "sha256": "eabf01d1da1b0961e6727fb6c6427c600fffad35966a7cabf009ba1039d0eb5a",
+      "expected_sha256": "eabf01d1da1b0961e6727fb6c6427c600fffad35966a7cabf009ba1039d0eb5a",
+      "matches": true
+    }
+  ],
+  "routes": [
+    {
+      "path": "/api/health",
+      "status": 200
+    },
+    {
+      "path": "/webrtc",
+      "status": 200
+    },
+    {
+      "path": "/api/test/fixtures",
+      "status": 404
+    }
+  ],
+  "scope": "Ordinary HTTP asset/route verification; no browser automation, media, microphone, playback, provider inference or performance acceptance."
+}

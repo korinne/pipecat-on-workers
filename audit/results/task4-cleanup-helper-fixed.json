@@ -1,0 +1,18 @@
+{
+  "recorded_at_utc": "2026-10-05T05:43:40.845030+00:00",
+  "base_commit": "a5fa113b84e264fba65c6e43f8a2752a626f328c",
+  "classification": "scoped_pass",
+  "scope": "18 controlled SFU tests; simulated REST/socket leaves. This establishes test-helper settlement behavior, not live remote cleanup or performance.",
+  "source_sha256": {
+    "src/sfu_transport.py": "b18322382ec1b48903b78e420c79098854c5e8f80e9b8cc68fd9eb82316b0368",
+    "tests/test_sfu_transport.py": "feac90b76381e16fe206cf3fbab5535590aca8f618551d1fbeca744b4d70a404"
+  },
+  "assertions": "The helper waits for cached results as well as pending requests and its owned worker. The deterministic race observer sees zero cached results and retained adapters. The original zero-resource assertions and three-attempt bounds remain unchanged.",
+  "checks": [
+    {
+      "command": ".venv/bin/python -m unittest tests.test_sfu_transport -q",
+      "exit_code": 0,
+      "output": "----------------------------------------------------------------------\nRan 18 tests in 1.557s\n\nOK\n"
+    }
+  ]
+}

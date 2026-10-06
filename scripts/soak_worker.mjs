@@ -3,16 +3,26 @@ import fs from 'node:fs/promises';
 const base = process.argv[2] || 'http://127.0.0.1:8787';
 const sleep = ms => new Promise(r=>setTimeout(r,ms));
 const wait = async (test,label,ms=10000)=>{const end=Date.now()+ms;while(!test()){if(Date.now()>end)throw Error(`Timeout: ${label}`);await sleep(10);}};
-async function create(){const r=await fetch(base+'/api/session',{method:'POST',headers:{'X-Demo-Key':process.env.DEMO_ACCESS_KEY||''}});if(!r.ok)throw Error('Session create '+r.status);return r.json();}
+async function create(){const r=await fetch(base+'/api/session',{method:'POST'});if(!r.ok)throw Error('Session create '+r.status);return r.json();}
 function url(s,suffix=''){return `${base}/api/session/${s.id}${suffix}?token=${encodeURIComponent(s.token)}`;}
 async function connect(s){
  const events=[];const ws=new WebSocket(url(s).replace(/^http/,'ws')+'&fixture=1');const start=performance.now();
  ws.onmessage=e=>{const v=JSON.parse(e.data);events.push(v);if(v.type==='audio' && c.ack) ws.send(JSON.stringify({type:'played',generation:v.generation,chunk_id:v.chunk_id}));};
- const c={ws,events,ack:true,send:x=>ws.send(JSON.stringify(x)),start};
+ const c={ws,events,ack:true,audioCursor:0,start,send:x=>{if(x.type==='audio')c.audioCursor+=Buffer.from(x.data,'base64').length/32000;ws.send(JSON.stringify(x));}};
  ws.onclose=e=>{c.closed={code:e.code,reason:e.reason,elapsed_since_connect_seconds:(performance.now()-start)/1000};};
  await wait(()=>events.some(e=>e.type==='ready'),'ready');c.startupMs=performance.now()-start;return c;
 }
-async function turn(c,text,n){const clears=c.events.filter(e=>e.type==='clear').length;c.send({type:'fixture_event',event:{type:'TurnInfo',event:'StartOfTurn',turn_index:n,connection_generation:1,transcript:text}});await wait(()=>c.events.filter(e=>e.type==='clear').length>clears,'turn clear');c.send({type:'fixture_event',event:{type:'TurnInfo',event:'EndOfTurn',turn_index:n,connection_generation:1,transcript:text}});await wait(()=>c.events.some(e=>e.type==='audio'&&e.text.includes(text)),'reply');await sleep(20);}
+async function turn(c,text,n){
+ const clears=c.events.filter(e=>e.type==='clear').length;
+ const start=c.audioCursor;
+ c.send({type:'fixture_event',event:{type:'SpeechStarted',timestamp:start,connection_generation:1}});
+ c.send({type:'audio',data:Buffer.alloc(16000).toString('base64'),sample_rate:16000});
+ await wait(()=>c.events.filter(e=>e.type==='clear').length>clears,'turn clear');
+ c.send({type:'fixture_event',event:{type:'Results',start,duration:c.audioCursor-start,is_final:true,speech_final:true,channel:{alternatives:[{transcript:text,words:[{word:text,start,end:c.audioCursor}]}]},connection_generation:1}});
+ await wait(()=>c.events.some(e=>e.type==='transcript'&&e.role==='assistant'&&e.text.includes(text)),'assistant text');
+ await wait(()=>c.events.some(e=>e.type==='status'&&e.state==='listening'&&e.generation===c.events.filter(e=>e.type==='status'&&e.state==='thinking').at(-1)?.generation),'response completed');
+ await sleep(20);
+}
 async function diagnostics(s){const r=await fetch(url(s,'/diagnostics'),{signal:AbortSignal.timeout(10000)});if(!r.ok)throw Error('Diagnostics HTTP '+r.status);return r.json();}
 
 const duration=Number(process.argv[3]||600);
@@ -32,7 +42,7 @@ try {
    const text=`session_${i}_turn_${index}`;
    await turn(c,text,index);
    const audio=c.events.filter(e=>e.type==='audio');
-   if(audio.some(e=>!e.text.includes(sessions[i].id)&&e.text))throw Error('Cross-session output');
+   if(c.events.some(e=>e.type==='transcript'&&e.role==='assistant'&&!e.text.includes(`session_${i}_`)))throw Error('Cross-session output');
    if(!c.ack){const n=c.events.filter(e=>e.type==='clear').length;c.send({type:'interrupt'});await wait(()=>c.events.filter(e=>e.type==='clear').length>n,'barge-in clear');for(const a of audio)c.send({type:'played',generation:a.generation,chunk_id:a.chunk_id});interruptions++;}
    if(c.events.some(e=>e.type==='error'))throw Error('Server reported error');
    c.events.length=0;

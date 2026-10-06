@@ -14,8 +14,8 @@ let ws, session;
 const result = { started_at:new Date().toISOString(), passed:false, fixture_provider_requested:false, client_audio_sent:false };
 try {
   const origin = new URL(base);
-  if(origin.protocol !== 'https:' || origin.username || origin.password || origin.search || origin.hash || origin.pathname !== '/' || !output || !process.env.DEMO_ACCESS_KEY) throw Error('invalid_setup');
-  const r = await fetch(new URL('/api/session',origin),{method:'POST',headers:{'X-Demo-Key':process.env.DEMO_ACCESS_KEY},redirect:'error',signal:AbortSignal.timeout(10000)});
+  if(origin.protocol !== 'https:' || origin.username || origin.password || origin.search || origin.hash || origin.pathname !== '/' || !output) throw Error('invalid_setup');
+  const r = await fetch(new URL('/api/session',origin),{method:'POST',redirect:'error',signal:AbortSignal.timeout(10000)});
   if(!r.ok) throw Error('session_create_failed');
   session=await r.json();
   if(!/^[a-f0-9]{32}$/.test(session.id) || !/^[A-Za-z0-9_-]{32,128}$/.test(session.token)) throw Error('invalid_session');
@@ -25,7 +25,7 @@ try {
   await new Promise((resolve,reject)=>{
     ws=new WebSocket(u);
     const timer=setTimeout(()=>{reject(Error('abandon_timeout_not_observed'));ws.close();},45000);
-    ws.addEventListener('message',e=>{try{const m=JSON.parse(e.data);if(m.type==='ready')readyAt=performance.now();if(m.type==='error' && privateErrors.length<8){let text=String(m.message).slice(0,4000);for(const key of [session.token,process.env.DEMO_ACCESS_KEY])text=text.replaceAll(key,'[redacted]');privateErrors.push(text);}}catch{clearTimeout(timer);reject(Error('invalid_message'));}});
+    ws.addEventListener('message',e=>{try{const m=JSON.parse(e.data);if(m.type==='ready')readyAt=performance.now();if(m.type==='error' && privateErrors.length<8){let text=String(m.message).slice(0,4000);for(const key of [session.token,session.id])text=text.replaceAll(key,'[redacted]');privateErrors.push(text);}}catch{clearTimeout(timer);reject(Error('invalid_message'));}});
     ws.addEventListener('error',()=>{clearTimeout(timer);reject(Error('socket_error'));});
     ws.addEventListener('close',e=>{clearTimeout(timer);result.close_code=e.code;result.abandoned_reason_matched=e.reason==='abandoned_timeout';result.ready_observed=readyAt!==undefined;result.idle_after_ready_ms=readyAt===undefined?null:Math.round(performance.now()-readyAt);result.elapsed_ms=Math.round(performance.now()-began);resolve();});
   });

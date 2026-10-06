@@ -1,5 +1,6 @@
 import { PlaybackQueue, pcm16ToBase64 } from './audio-player.mjs';
 import { SfuAudioTransport } from './sfu-client.mjs';
+import { shareableServerDiagnostics, shareableBrowserErrors } from './session-measurements.mjs';
 
 const transport = document.body?.dataset.transport === 'webrtc' ? 'webrtc' : 'websocket';
 const usesSfu = transport === 'webrtc';
@@ -15,8 +16,8 @@ let startedAt = 0, requestedAt = 0, finalTranscriptAt = null, connectAttempt = 0
 let reconnectTimer, heartbeatTimer, elapsedTimer, lastPong = 0;
 let loudFrames = 0, quietFrames = 0, speechActive = false, lastInterrupt = -Infinity;
 let serverState = '', partial = new Map();
+const serverStatusLabels = { listening: 'Listening', thinking: 'Thinking…', generating: 'Thinking…', responding: 'Responding…', speaking: 'Speaking', tool: 'Checking availability…', connecting: 'Connecting…' };
 let knownGeneration = -1;
-let loadingAccess = false;
 let inputHealthTimer, lastCaptureAt = 0, lastSoundAt = 0, lastRms = 0;
 let audioStats = { capturedChunks: 0, capturedBytes: 0, sentChunks: 0, sentBytes: 0, maxRms: 0, receivedBytes: 0, forwardedBytes: 0 };
 let lastAudioClock = 0, lastClockAdvanceAt = 0;
@@ -42,7 +43,7 @@ function updateInputHealth() {
     else if (!stream) message = 'Waiting for microphone access…';
     else if (track?.muted) message = 'Your browser has paused the microphone.';
     else if (now-lastCaptureAt > 2500) message = 'No microphone samples are arriving. Check your input device.';
-    else if (now-lastSoundAt < 1500) message = 'Microphone is picking up sound.';
+    else if (now-lastSoundAt < 1500) message = 'Microphone is picking up sound locally.';
     else message = 'No sound detected yet. Speak to begin.';
   }
   $('mic-signal').textContent = message;
@@ -52,8 +53,7 @@ function prepareAudioContext() {
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   if (!AudioContextClass) throw new Error('This browser does not support voice playback.');
   context = new AudioContextClass({ latencyHint: 'interactive' });
-  // Run resume synchronously inside the Start click, before authentication awaits.
-  // Microphone access is still requested only after the key has been verified.
+  // Run resume synchronously inside the Start click, before asynchronous setup.
   context.resume().catch(() => {});
   context.onstatechange = updateInputHealth;
   lastAudioClock = context.currentTime; lastClockAdvanceAt = performance.now();
@@ -71,6 +71,10 @@ function record(name, value, display) {
 function status(text, kind = '') {
   ui.status.textContent = text;
   ui['status-dot'].className = `status-dot ${kind}`;
+}
+function resetResponseState() {
+  serverState = 'listening';
+  if (serverReady) status(muted ? 'Microphone muted' : 'Listening', 'live');
 }
 function notice(message) {
   ui.notice.textContent = message;
@@ -209,51 +213,13 @@ async function setupAudio(run) {
   });
 }
 
-function accessHeaders(accessKey) {
-  const headers = { 'Content-Type': 'application/json' };
-  if (accessKey) headers['X-Demo-Key'] = accessKey;
-  return headers;
-}
-async function verifyAccess(accessKey) {
-  const response = await fetch('/api/access', { method: 'POST', headers: accessHeaders(accessKey), signal: AbortSignal.timeout(15000) });
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    const error = new Error(data.error || 'The access key could not be verified. Please try again.');
-    error.accessRejected = true;
-    throw error;
-  }
-}
-async function loadKeyFile() {
-  const file = $('key-file').files?.[0];
-  if (!file || active || loadingAccess) return;
-  loadingAccess = true;
-  ui.start.disabled = $('load-key').disabled = true;
-  notice('');
-  $('key-status').textContent = 'Checking key…';
-  try {
-    if (file.size > 4096) throw new Error('Choose the small text file containing only your demo access key.');
-    const key = (await file.text()).trim();
-    if (!key || /[\r\n\x00-\x1f\x7f]/.test(key)) throw new Error('The key file must contain one complete access key on a single line.');
-    $('access-key').value = key;
-    await verifyAccess(key);
-    $('key-status').textContent = 'Access key verified. Press Start conversation.';
-  } catch (error) {
-    $('key-status').textContent = '';
-    notice(error.message);
-    $('access-key').focus();
-  } finally {
-    loadingAccess = false;
-    ui.start.disabled = active;
-    $('load-key').disabled = active;
-    $('key-file').value = '';
-  }
-}
-
 async function start() {
-  if (active || starting || loadingAccess) return;
-  const accessKey = $('access-key').value?.trim() || '';
+  if (active || starting) return;
   const run = ++lifecycle;
   active = starting = true;
+  for (const key of ['startupMs', 'firstAudioAfterTranscriptMs', 'localPlaybackClearMs', 'errors', 'events']) metrics[key] = [];
+  metrics.reconnects = 0;
+  delete metrics.audioInput;
   muted = false;
   serverReady = false;
   session = null;
@@ -267,13 +233,12 @@ async function start() {
   ui['empty-state'].hidden = false;
   ui['session-time'].textContent = '00:00';
   ui.start.disabled = true;
-  $('load-key').disabled = $('access-key').disabled = true;
   ui.end.disabled = false;
   ui.mute.disabled = true;
   ui.mute.textContent = 'Mute microphone';
   ui.mute.setAttribute('aria-pressed', 'false');
   notice('');
-  status('Checking access key…');
+  status('Opening microphone…');
   audioStats = { capturedChunks: 0, capturedBytes: 0, sentChunks: 0, sentBytes: 0, maxRms: 0, receivedBytes: 0, forwardedBytes: 0 };
   lastCaptureAt = lastSoundAt = -Infinity; lastRms = 0;
   try {
@@ -281,14 +246,10 @@ async function start() {
     prepareAudioContext();
     inputHealthTimer = setInterval(updateInputHealth, 250);
     updateInputHealth();
-    await verifyAccess(accessKey);
-    if (run !== lifecycle) return;
-    $('key-status').textContent = 'Access key verified.';
-    status('Opening microphone…');
     await setupAudio(run);
     if (run !== lifecycle) return;
     status('Starting conversation…');
-    const headers = accessHeaders(accessKey);
+    const headers = { 'Content-Type': 'application/json' };
     const response = await fetch('/api/session', { method: 'POST', headers, body: JSON.stringify({ transport }), signal: AbortSignal.timeout(20000) });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(data.error || `Session could not start (${response.status}).`);
@@ -309,7 +270,6 @@ async function start() {
     notice(error.name === 'NotAllowedError' ? 'Microphone permission was denied. Allow it in your browser, then start again.' : error.message);
     endSession(false);
     status('Could not start', 'error');
-    if (error.accessRejected) { $('key-status').textContent = ''; $('access-key').focus(); $('access-key').select(); }
   } finally { if (run === lifecycle) starting = false; }
 }
 function websocketURL(credentials) {
@@ -330,7 +290,7 @@ function completeReady() {
       ui['session-time'].textContent = `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
     }, 1000);
   }
-  status(muted ? 'Microphone muted' : 'Listening', 'live');
+  status(muted ? 'Microphone muted' : serverStatusLabels[serverState] || 'Listening', 'live');
   event('ready');
   send({ type: 'ping' });
   updateInputHealth();
@@ -374,6 +334,7 @@ function connect(run) {
   if (!active || run !== lifecycle) return;
   clearTimeout(reconnectTimer);
   serverReady = false;
+  serverState = 'listening';
   const ws = new WebSocket(websocketURL(session));
   socket = ws;
   const connectTimeout = setTimeout(() => { if (!serverReady && socket === ws) ws.close(4000, 'Startup timeout'); }, 35000);
@@ -391,6 +352,8 @@ function connect(run) {
     try {
       if (typeof e.data !== 'string' || e.data.length > 2_100_000) throw new Error('Invalid server message.');
       const packet = JSON.parse(e.data);
+      if (['clear','error','transcript'].includes(packet.type) && Object.hasOwn(packet,'generation')
+          && (!Number.isSafeInteger(packet.generation) || packet.generation < knownGeneration)) return;
       if (packet.type !== 'reset' && Number.isSafeInteger(packet.generation)) knownGeneration = Math.max(knownGeneration, packet.generation);
       switch (packet.type) {
         case 'ready':
@@ -408,16 +371,17 @@ function connect(run) {
           if (!usesSfu) player?.enqueue(packet);
           break;
         case 'clear':
+          resetResponseState();
           clearPlayback(Number.isSafeInteger(packet.generation) ? packet.generation : undefined, 'server_clear');
           break;
         case 'transcript': transcript(packet); break;
         case 'status': {
           serverState = String(packet.state || 'listening');
-          const labels = { listening: 'Listening', thinking: 'Thinking…', generating: 'Thinking…', responding: 'Responding…', speaking: 'Speaking', tool: 'Checking availability…', connecting: 'Connecting…' };
-          status(muted ? 'Microphone muted' : labels[serverState] || serverState, serverReady ? 'live' : '');
+          status(muted ? 'Microphone muted' : serverStatusLabels[serverState] || serverState, serverReady ? 'live' : '');
           break;
         }
         case 'reset':
+          resetResponseState();
           // A reset begins an ordered WebSocket stream epoch. Old socket
           // messages are independently rejected by socket identity above.
           player?.clear();
@@ -426,8 +390,8 @@ function connect(run) {
           if (player) { player.floor = knownGeneration; player.generation = player.floor - 1; }
           partial.clear();
           if (Array.isArray(packet.history)) {
-            // The server's reconstructed history replaces generated transcript
-            // text, including interrupted words that never received playback receipts.
+            // Committed speech context replaces the visible transcript after reconnect.
+            // It follows Pipecat text progress, independently of playback receipts.
             ui.transcript.replaceChildren(ui['empty-state']);
             ui['empty-state'].hidden = false;
           }
@@ -445,6 +409,8 @@ function connect(run) {
           updateInputHealth();
           break;
         case 'error':
+          // A rejected input event does not cancel an assistant already speaking.
+          if (packet.code !== 'speech_turn_start_error') resetResponseState();
           notice(packet.message || 'The server reported an error.');
           event('server_error');
           if (packet.recoverable === false) {
@@ -486,7 +452,9 @@ function connect(run) {
     metrics.reconnects++;
     $('metric-reconnect').textContent = String(metrics.reconnects);
     status(`Reconnecting (${connectAttempt}/4)…`);
-    event('reconnect', { attempt: connectAttempt, code: e.code });
+    event('reconnect', { attempt: connectAttempt,
+      ...(Number.isInteger(e.code) && e.code >= 1000 && e.code <= 4999 ? {code:e.code} : {}),
+      ...(typeof e.wasClean === 'boolean' ? {wasClean:e.wasClean} : {}) });
     reconnectTimer = setTimeout(() => connect(run), delay);
   };
 }
@@ -515,7 +483,6 @@ function endSession(tellServer = true) {
   speechActive = false;
   serverState = '';
   ui.start.disabled = false;
-  $('load-key').disabled = $('access-key').disabled = false;
   ui.start.innerHTML = '<span aria-hidden="true">↗</span> Start conversation';
   ui.mute.disabled = ui.end.disabled = true;
   status('Conversation ended');
@@ -532,9 +499,6 @@ $('resume-audio').addEventListener('click', async () => {
   }
   catch { notice('Audio could not resume. Check microphone access or try your regular browser.'); }
 });
-$('load-key').addEventListener('click', () => $('key-file').click());
-$('key-file').addEventListener('change', loadKeyFile);
-$('access-key').addEventListener('input', () => { $('key-status').textContent = ''; });
 ui.start.addEventListener('click', start);
 ui.end.addEventListener('click', () => endSession());
 ui.mute.addEventListener('click', () => {
@@ -545,13 +509,48 @@ ui.mute.addEventListener('click', () => {
   status(muted ? 'Microphone muted' : 'Listening', 'live');
   event(muted ? 'muted' : 'unmuted');
 });
-$('download-metrics').addEventListener('click', () => {
-  const blob = new Blob([JSON.stringify({ ...metrics, exportedAt: new Date().toISOString(), limitations: [usesSfu ? 'Speaker mute detaches the remote track; it does not measure acoustic silence or confirm delivery.' : 'Playback clear is a scheduling measurement, not acoustic silence.', usesSfu ? 'First-audio latency and exact chunk playback are not measured for WebRTC.' : 'First audio starts at final transcript and excludes recognition latency.', 'Only the most recent 1000 events per array are retained.', 'No transcript, audio, capability token, or session identifier is exported.'] }, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'voice-session-measurements.json';
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+$('download-metrics').addEventListener('click', async () => {
+  const button = $('download-metrics');
+  if (button.disabled) return;
+  button.disabled = true;
+  const credentials = session;
+  // Freeze the browser counters now, so End or a new call cannot mix sessions.
+  const snapshot = JSON.parse(JSON.stringify(metrics));
+  snapshot.measurementSchema = 2;
+  snapshot.errors = shareableBrowserErrors(snapshot.errors);
+  snapshot.exportedAt = new Date().toISOString();
+  snapshot.serverDiagnosticsStatus = credentials ? 'unavailable' : 'call_ended_or_not_started';
+  try {
+    if (credentials) {
+      const response = await fetch(`/api/session/${encodeURIComponent(credentials.id)}/diagnostics`, {
+        headers: { 'X-Session-Token': credentials.token }, signal: AbortSignal.timeout(5000),
+      });
+      if (Number.isInteger(response.status) && response.status >= 100 && response.status <= 599) {
+        snapshot.serverDiagnosticsHttpStatus = response.status;
+      }
+      if (response.ok) {
+        try {
+          snapshot.serverDiagnostics = shareableServerDiagnostics(await response.json());
+          snapshot.serverDiagnosticsStatus = 'available';
+        } catch (error) {
+          snapshot.serverDiagnosticsFailure = ['TimeoutError', 'AbortError'].includes(error?.name)
+            ? 'timeout' : 'invalid_response';
+        }
+      } else snapshot.serverDiagnosticsFailure = 'http_error';
+    }
+  } catch (error) {
+    // Preserve a fixed failure category, never the URL or exception message.
+    snapshot.serverDiagnosticsFailure = ['TimeoutError', 'AbortError'].includes(error?.name)
+      ? 'timeout' : 'network_error';
+  }
+  try {
+    const blob = new Blob([JSON.stringify({ ...snapshot, limitations: [usesSfu ? 'Speaker mute detaches the remote track; it does not measure acoustic silence or confirm delivery.' : 'Playback clear is a scheduling measurement, not acoustic silence.', usesSfu ? 'First-audio latency and exact chunk playback are not measured for WebRTC.' : 'First audio starts at final transcript and excludes recognition latency.', 'Only the most recent 1000 events per array are retained.', 'Server diagnostics are a later snapshot of this call; absent events do not prove they never occurred.', 'No transcript, audio, capability token, or session identifier is exported.'] }, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'voice-session-measurements.json';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } finally { button.disabled = false; }
 });
 window.addEventListener('pagehide', () => { if (active) endSession(); });

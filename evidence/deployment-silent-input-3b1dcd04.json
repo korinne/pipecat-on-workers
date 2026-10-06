@@ -1,0 +1,47 @@
+{
+  "source_commit": "f8835e8623040c0d0e8b264c1ac28486255f5f63",
+  "version_id": "3b1dcd04-5515-4b83-9fe4-27511b619c03",
+  "origin": "https://pipecat-on-workers.korinne.workers.dev",
+  "activated_at": "2026-10-05T19:40:35.902Z",
+  "tag": "input-f8835e8",
+  "rollback_version_id": "06111df0-88ce-4142-96e7-4158a9a6e7a9",
+  "original_rollback_version_id": "3f8bd208-8e4a-4f2d-96cb-d9a0e51f9542",
+  "deployment_exit_code": 0,
+  "deployment_status": "100% active, verified after deployment",
+  "worker_startup_ms": 6416,
+  "startup_measurement_is_performance_acceptance": false,
+  "tool_versions": {
+    "wrangler": "4.139.0",
+    "uv": "0.12.18",
+    "workers-py": "1.17.4",
+    "workers-runtime-sdk": "1.9.0",
+    "build_python": "3.14.7"
+  },
+  "runtime": "Actual Python Worker execution verified by provider call; precise runtime version not reread on this deployment",
+  "fixture_routes_enabled": false,
+  "secret_values_read": false,
+  "supported_release": false,
+  "turn_policy": "Positive hosted Smart Turn decision remains required; silence fallback disabled",
+  "models": {
+    "stt": "@cf/deepgram/nova-3",
+    "turn": "@cf/pipecat-ai/smart-turn-v2",
+    "llm": "@cf/openai/gpt-oss-120b",
+    "reasoning_effort": "low",
+    "max_tokens": 2048,
+    "tts": "@cf/deepgram/aura-2-en",
+    "voice": "luna"
+  },
+  "verification": "audit/results/silent-input-independent-20261005.json",
+  "direct_live": "evidence/silent-input-20261005/direct-provider-regression.json",
+  "physical_sfu": "untested after deployment; prior failed user reports preserved",
+  "browser_automation": "Chrome inspection timed out; separate in-app check denied because browser policy could not be verified",
+  "source_hashes": {
+    "public/app.js": "e8cee8aa3a51c4b367cb6082003d47b3b94c97e78c055547cd11e9e3508144c5",
+    "public/session-measurements.mjs": "050c1c2863844b513b101edf9b3a259db09ffacd6cd08d6a864628f2198ac532",
+    "src/sfu_transport.py": "20fe6d794a97cd0f316e05a80dee1b0eea778666ce0ce89285e6529684daaf6b",
+    "src/smart_turn.py": "aa8d8571bba3c907736ddad65d081aa2f6b7894f3279778ae95f02f052104a49",
+    "wrangler.jsonc": "a8e28d209ef1aa60e3b6040071e7ec4e8fb9cdff0e0cb450a818c56cbd448bf1",
+    "pyproject.toml": "fa9d56ac4683ab0b6f23c868d009b0aeccae684bd293bd011c9b58dca7e73422",
+    "uv.lock": "19b0386fd86b72c4a2df6dc2b1d093b919034f5ac1e52835d5f045253eb43e79"
+  }
+}

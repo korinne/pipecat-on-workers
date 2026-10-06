@@ -1,0 +1,514 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-05T03:10:20.641087+00:00",
+  "environment": {
+    "runner_python": "3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]",
+    "runner_executable": "/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "runner_optimization": 0,
+    "core_python_requested": "/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "platform": "macOS-14.5-arm64-arm-64bit",
+    "pythonpath": "/Users/korinne/Documents/Codex/2026-10-03/alri/work/audit-deps",
+    "repository": "/Users/korinne/Documents/Codex/2026-10-03/alri/work/pipecat-on-workers",
+    "network_requested": false,
+    "repo_mutated": false,
+    "core_interpreter": {
+      "command": [
+        "/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-c",
+        "import sys,platform,json,importlib.metadata as m; print(json.dumps({'python':sys.version,'executable':sys.executable,'optimize':sys.flags.optimize,'platform':platform.platform(),'dependency_versions':{n:m.version(n) for n in ['loguru','attrs','docstring-parser','pydantic','typing-extensions']}}))"
+      ],
+      "returncode": 0,
+      "stdout": "{\"python\": \"3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]\", \"executable\": \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3\", \"optimize\": 0, \"platform\": \"macOS-14.5-arm64-arm-64bit\", \"dependency_versions\": {\"loguru\": \"0.7.3\", \"attrs\": \"25.4.0\", \"docstring-parser\": \"0.17.0\", \"pydantic\": \"2.13.5\", \"typing-extensions\": \"4.16.0\"}}\n",
+      "stderr": "",
+      "timed_out": false,
+      "elapsed_seconds": 0.105
+    },
+    "verified_core_interpreter": {
+      "python": "3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]",
+      "executable": "/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "optimize": 0,
+      "platform": "macOS-14.5-arm64-arm-64bit",
+      "dependency_versions": {
+        "loguru": "0.7.3",
+        "attrs": "25.4.0",
+        "docstring-parser": "0.17.0",
+        "pydantic": "2.13.5",
+        "typing-extensions": "4.16.0"
+      }
+    },
+    "subprocess_pythonoptimize": "removed; optimization level verified as zero",
+    "declared_repository_environment": {
+      "name": "pipecat-on-workers",
+      "version": "0.1.0",
+      "requires-python": ">=3.14,<3.15",
+      "dependencies": [
+        "loguru==0.7.3",
+        "attrs==25.4.0",
+        "docstring-parser==0.17.0",
+        "pydantic==2.12.5",
+        "typing-extensions==4.15.0"
+      ]
+    },
+    "scope_warning": "The chosen local interpreter/dependencies may differ from repository pins; this audit is not a lockfile install or Python Workers execution."
+  },
+  "readiness": "not_established",
+  "readiness_reason": "Results are scoped observations. Live runtime, media, and performance gates remain untested.",
+  "counts": {
+    "supported_in_scope": 3,
+    "observed_gap": 6,
+    "untested": 9
+  },
+  "results": [
+    {
+      "id": "provenance.repository",
+      "domain": "source provenance",
+      "status": "supported_in_scope",
+      "claim": "The local tracked repository, vendor module set, and patch hashes match the pinned baseline.",
+      "evidence": {
+        "repository_head": "6c17c0805f13f7609ba0a93ea8bf4c945797de18",
+        "expected_head": "6c17c0805f13f7609ba0a93ea8bf4c945797de18",
+        "manifest_sha256": "a76b7916dd89a86262c5be6d45ca78fa16bc10e4a67ad84ad08d1a2e6f4b39db",
+        "vendor_python_files": 119,
+        "patches": [
+          {
+            "file": "__init__.py",
+            "changes": [
+              "Use the pinned source version without requiring installed distribution metadata."
+            ],
+            "upstream_sha256": "dafefe7f51278d81292e65ea6bc71c169e2f3c8e38993b1cb02d8ed6745cc8e2",
+            "patched_sha256": "0e1cb2df24290900eb3a3cdb050f38869a74531b43a54639b2b9857b936659e2"
+          },
+          {
+            "file": "audio/utils.py",
+            "changes": [
+              "Defer native audio/resampling dependencies until their functions are used."
+            ],
+            "upstream_sha256": "708ca93eca9e4c4751d76a3ae20d2adbe9fa863e78c9a314b0a6b137bbfd4b9b",
+            "patched_sha256": "5e4698dfeb1339a87299b797869510942b2974e34b337f4f773c2ba04659321e"
+          },
+          {
+            "file": "pipeline/worker.py",
+            "changes": [
+              "Add opt-out enable_import_prewarm=False; preserve upstream default and avoid unconditional startup threads.",
+              "Defer RTVI processor/observer imports when RTVI is disabled; keep detection of explicit RTVI classes through their MRO."
+            ],
+            "upstream_sha256": "9d7f8f97b814c50537877391728d7df00569ad67eb079cff35a3773f9aead72e",
+            "patched_sha256": "3c3b5fd952425e48e90268756ace39a6fba1742574cbe7a624ad6251c7aeaf53"
+          },
+          {
+            "file": "processors/aggregators/llm_context.py",
+            "changes": [
+              "Import Pillow only when raw images need JPEG encoding."
+            ],
+            "upstream_sha256": "85a86e49043d3407ca96dab5a5b033008cc4901b6fdfb303e46652d8e30504a7",
+            "patched_sha256": "83f1f0ab94ae0d857d5183a45ea8155215d4dc5388320a9ad634318ccd11371d"
+          },
+          {
+            "file": "processors/frameworks/rtvi/__init__.py",
+            "changes": [
+              "Resolve unchanged public exports lazily so unused optional features do not eagerly load native transports, NumPy, or provider SDKs."
+            ],
+            "upstream_sha256": "746adbc1237b002f46532a66b1852f24f18a2c94754958c988203a6ee61015f2",
+            "patched_sha256": "9f61a77b64a9946e0f7722239db8d9ebb84a27f42cf67b039b4f77ca4c057f7b"
+          },
+          {
+            "file": "turns/user_start/__init__.py",
+            "changes": [
+              "Resolve unchanged public exports lazily so unused optional features do not eagerly load native transports, NumPy, or provider SDKs."
+            ],
+            "upstream_sha256": "583aeb83317ae304a2d999fe32c160b805a659fb9be78f43f175bad45a4e66fe",
+            "patched_sha256": "4866abd7a0f0ec65588fa806ba17ddb5bb8a3093973df18048e1c2bbd6db41b1"
+          }
+        ],
+        "errors": []
+      },
+      "limitations": [
+        "This verifies source identity, not compatibility or package installation."
+      ]
+    },
+    {
+      "id": "provenance.archive",
+      "domain": "published source distribution",
+      "status": "supported_in_scope",
+      "claim": "Pinned public archive metadata and original file hashes match the vendor record.",
+      "evidence": {
+        "archive_sha256": "49e7532a1f035e8884c47448a06d998a1b7f0943d11eae9bc8600a9e749a2a04",
+        "archive_source": "/Users/korinne/Documents/Codex/2026-10-03/alri/work/pipecat_ai-1.11.0.tar.gz",
+        "name": "pipecat-ai",
+        "version": "1.11.0",
+        "requires_python": ">=3.11",
+        "requires_dist": [
+          "aiofiles<27,>=24.1.0",
+          "aiohttp<4,>=3.11.12",
+          "audioop-lts~=0.2.1; python_version >= \"3.13\"",
+          "docstring_parser<1,>=0.16",
+          "loguru~=0.7.3",
+          "loudness<1,>=0.2.0",
+          "Markdown<4,>=3.7",
+          "nltk<4,>=3.10.0",
+          "numpy<3,>=1.26.4",
+          "Pillow<13,>=11.1.0",
+          "protobuf<7,>=5.29.6",
+          "pydantic<3,>=2.10.6",
+          "pydantic>=2.13; python_full_version >= \"3.14\"",
+          "python-dotenv<2.0.0,>=1.0.0",
+          "resampy~=0.4.3",
+          "soundfile~=0.13.1",
+          "soxr~=1.0.0",
+          "openai<4,>=1.74.0",
+          "typing_extensions>=4.9",
+          "numba<1,>=0.61.2",
+          "wait_for2<1,>=0.4.1; python_version < \"3.12\"",
+          "websockets>=13.1",
+          "pyyaml<7,>=6",
+          "num2words>=0.5.14",
+          "onnxruntime~=1.24.3",
+          "aic-sdk~=3.1.0; extra == \"aic\"",
+          "anthropic<2,>=0.49.0; extra == \"anthropic\"",
+          "aiobotocore<4,>=3; extra == \"aws\"",
+          "aws_sdk_bedrock_runtime<0.10,>=0.6.0; python_version >= \"3.12\" and extra == \"aws-nova-sonic\"",
+          "azure-cognitiveservices-speech<2,>=1.47.0; extra == \"azure\"",
+          "camb-sdk<2,>=1.5.4; extra == \"camb\"",
+          "daily-python<1,>=0.29.0; extra == \"daily\"",
+          "deepgram-sdk<8,>=6.1.1; extra == \"deepgram\"",
+          "pipecat-ai[cli]; extra == \"evals\"",
+          "pipecat-ai[kokoro]; extra == \"evals\"",
+          "pipecat-ai[moonshine]; extra == \"evals\"",
+          "ormsgpack<2,>=1.7.0; extra == \"fish\"",
+          "funasr>=1.1.0; extra == \"funasr\"",
+          "google-cloud-speech<3,>=2.33.0; extra == \"google\"",
+          "google-cloud-texttospeech<3,>=2.31.0; extra == \"google\"",
+          "google-genai<3,>=2.19.0; (python_version != \"3.13\" or platform_system != \"Linux\") and extra == \"google\"",
+          "google-genai<3,>=1.68.0; extra == \"google\"",
+          "groq<2,>=0.23.0; extra == \"groq\"",
+          "pygobject~=3.50.0; extra == \"gstreamer\"",
+          "livekit<2,>=1.0.13; extra == \"heygen\"",
+          "hume<1,>=0.11.2; extra == \"hume\"",
+          "pipecat-ai[mcp]; extra == \"keenable\"",
+          "pvkoala~=2.0.3; extra == \"koala\"",
+          "kokoro-onnx<1,>=0.5.0; extra == \"kokoro\"",
+          "requests<3,>=2.32.5; extra == \"kokoro\"",
+          "langchain<2,>=1.2.13; extra == \"langchain\"",
+          "langchain-community<1,>=0.4.1; extra == \"langchain\"",
+          "langchain-openai<2,>=1.1.12; extra == \"langchain\"",
+          "pipecat-ai[daily]; extra == \"lemonslice\"",
+          "livekit<2,>=1.0.13; extra == \"livekit\"",
+          "livekit-api<2,>=1.0.5; extra == \"livekit\"",
+          "tenacity<10.0.0,>=8.2.3; extra == \"livekit\"",
+          "pyjwt<3,>=2.12.0; extra == \"livekit\"",
+          "pyaudio~=0.2.14; extra == \"local\"",
+          "coremltools>=8.0; extra == \"local-smart-turn\"",
+          "transformers<6,>=4.48.0; extra == \"local-smart-turn\"",
+          "torch<3,>=2.5.0; extra == \"local-smart-turn\"",
+          "torchaudio<3,>=2.5.0; extra == \"local-smart-turn\"",
+          "mcp[cli]<3,>=1.24.0; extra == \"mcp\"",
+          "mem0ai<3,>=2; extra == \"mem0\"",
+          "mistralai<3,>=2.0.0; extra == \"mistral\"",
+          "mlx-whisper~=0.4.2; extra == \"mlx-whisper\"",
+          "accelerate~=1.10.0; extra == \"moondream\"",
+          "einops~=0.8.0; extra == \"moondream\"",
+          "pyvips[binary]~=3.0.0; extra == \"moondream\"",
+          "timm~=1.0.13; extra == \"moondream\"",
+          "transformers<6,>=4.48.0; extra == \"moondream\"",
+          "moonshine-voice>=0.1.5; extra == \"moonshine\"",
+          "moq-rs~=0.4.4; extra == \"moq\"",
+          "cryptography>=45.0.0; extra == \"moq\"",
+          "nvidia-riva-client<3,>=2.25.1; extra == \"nvidia\"",
+          "protobuf<7,>=6.31.1; extra == \"nvidia\"",
+          "pyrnnoise~=0.4.3; extra == \"rnnoise\"",
+          "av<17.1.0; extra == \"rnnoise\"",
+          "pgmq<1.1,>=1.0.6; extra == \"pgmq\"",
+          "asyncpg>=0.30.0; extra == \"pgmq\"",
+          "piper-tts<2,>=1.3.0; extra == \"piper\"",
+          "requests<3,>=2.32.5; extra == \"piper\"",
+          "pocket-tts<3,>=2.1.0; extra == \"pocket-tts\"",
+          "redis[hiredis]>=5.0.0; extra == \"redis\"",
+          "uvicorn<1.0.0,>=0.32.0; extra == \"runner\"",
+          "fastapi<1,>=0.115.6; extra == \"runner\"",
+          "pipecat-ai-prebuilt>=1.2.1; extra == \"runner\"",
+          "aws_sdk_sagemaker_runtime_http2<0.10,>=0.6.0; python_version >= \"3.12\" and extra == \"sagemaker\"",
+          "sarvamai==0.1.28; extra == \"sarvam\"",
+          "sentry-sdk<3,>=2.28.0; extra == \"sentry\"",
+          "simli-ai~=2.0.1; extra == \"simli\"",
+          "speechmatics-agent-stt~=0.1.0; extra == \"speechmatics\"",
+          "strands-agents<2,>=1.9.1; extra == \"strands\"",
+          "pipecat-ai[daily]; extra == \"tavus\"",
+          "opentelemetry-sdk<2,>=1.33.0; extra == \"tracing\"",
+          "opentelemetry-api<2,>=1.33.0; extra == \"tracing\"",
+          "opentelemetry-instrumentation<1,>=0.54b0; extra == \"tracing\"",
+          "vonage-video-connector~=1.0.2; (python_version == \"3.13\" and platform_system == \"Linux\") and extra == \"vonage-video-connector\"",
+          "aiortc<2,>=1.14.0; extra == \"webrtc\"",
+          "opencv-python-headless<5,>=4.11.0.86; extra == \"webrtc\"",
+          "pipecat-ai[webrtc]; extra == \"webrtc-video\"",
+          "fastapi<1,>=0.115.6; extra == \"websocket\"",
+          "faster-whisper~=1.2.1; extra == \"whisper\"",
+          "typer<1,>=0.20.0; extra == \"cli\"",
+          "rich<14,>=13.0.0; extra == \"cli\"",
+          "jinja2<4,>=3.1.0; extra == \"cli\"",
+          "questionary<3,>=2.0.0; extra == \"cli\"",
+          "ruff<1,>=0.12.1; extra == \"cli\"",
+          "pipecat-ai-context-hub<1,>=0.7.0; extra == \"cli\""
+        ],
+        "base_dependencies": [
+          "aiofiles>=24.1.0,<27",
+          "aiohttp>=3.11.12,<4",
+          "audioop-lts~=0.2.1; python_version>='3.13'",
+          "docstring_parser>=0.16,<1",
+          "loguru~=0.7.3",
+          "loudness>=0.2.0,<1",
+          "Markdown>=3.7,<4",
+          "nltk>=3.10.0,<4",
+          "numpy>=1.26.4,<3",
+          "Pillow>=11.1.0,<13",
+          "protobuf>=5.29.6,<7",
+          "pydantic>=2.10.6,<3",
+          "pydantic>=2.13; python_full_version >= '3.14'",
+          "python-dotenv>=1.0.0,<2.0.0",
+          "resampy~=0.4.3",
+          "soundfile~=0.13.1",
+          "soxr~=1.0.0",
+          "openai>=1.74.0,<4",
+          "typing_extensions>=4.9",
+          "numba>=0.61.2,<1",
+          "wait_for2>=0.4.1,<1; python_version<'3.12'",
+          "websockets>=13.1",
+          "pyyaml>=6,<7",
+          "num2words>=0.5.14",
+          "onnxruntime~=1.24.3"
+        ],
+        "original_hashes_verified": 119
+      },
+      "limitations": [
+        "Archive is supplied locally; this run makes no freshness claim about later releases."
+      ]
+    },
+    {
+      "id": "package.baseline_dependencies",
+      "domain": "published package metadata",
+      "status": "observed_gap",
+      "claim": "The baseline distribution declares heavy dependencies independently of this narrow application's needs.",
+      "evidence": {
+        "base_dependencies": [
+          "aiofiles>=24.1.0,<27",
+          "aiohttp>=3.11.12,<4",
+          "audioop-lts~=0.2.1; python_version>='3.13'",
+          "docstring_parser>=0.16,<1",
+          "loguru~=0.7.3",
+          "loudness>=0.2.0,<1",
+          "Markdown>=3.7,<4",
+          "nltk>=3.10.0,<4",
+          "numpy>=1.26.4,<3",
+          "Pillow>=11.1.0,<13",
+          "protobuf>=5.29.6,<7",
+          "pydantic>=2.10.6,<3",
+          "pydantic>=2.13; python_full_version >= '3.14'",
+          "python-dotenv>=1.0.0,<2.0.0",
+          "resampy~=0.4.3",
+          "soundfile~=0.13.1",
+          "soxr~=1.0.0",
+          "openai>=1.74.0,<4",
+          "typing_extensions>=4.9",
+          "numba>=0.61.2,<1",
+          "wait_for2>=0.4.1,<1; python_version<'3.12'",
+          "websockets>=13.1",
+          "pyyaml>=6,<7",
+          "num2words>=0.5.14",
+          "onnxruntime~=1.24.3"
+        ]
+      },
+      "limitations": [
+        "Individual runtime availability and resolver behavior require a Workers installation test."
+      ]
+    },
+    {
+      "id": "core.baseline",
+      "domain": "vendored Pipecat / local CPython",
+      "status": "supported_in_scope",
+      "claim": "The patched narrow core handles two synthetic turns, interruption, context, and task cleanup.",
+      "evidence": {
+        "command": [
+          "/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "-B",
+          "/var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/pipecat-gap-audit-_56zlhvy/baseline/scripts/check_pipecat_core.py"
+        ],
+        "returncode": 0,
+        "stdout": "{\n  \"passed\": true,\n  \"scope\": \"CPython core runtime; synthetic frames, no provider audio\",\n  \"generations\": 2,\n  \"server_cancellation_ms\": 0.443,\n  \"interruption_frames\": 2,\n  \"context\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Compatibility check.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"First question.\"\n    },\n    {\n      \"role\": \"assistant\",\n      \"content\": \"Acknowledged prefix.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"New question.\"\n    },\n    {\n      \"role\": \"assistant\",\n      \"content\": \"Second reply.\"\n    }\n  ],\n  \"live_pipecat_tasks_after_cancel\": [],\n  \"forbidden_imports_loaded\": [],\n  \"threads_created\": 0\n}\n",
+        "stderr": "",
+        "timed_out": false,
+        "elapsed_seconds": 0.738
+      },
+      "limitations": [
+        "Local CPython; synthetic frames; no Workers runtime, network, codecs, providers, or physical playback.",
+        "The guard denies selected imports and threading.Thread.start; it is not an exhaustive native-code or thread sandbox."
+      ]
+    },
+    {
+      "id": "ablation.eager_audio",
+      "domain": "upstream import behavior / local CPython",
+      "status": "observed_gap",
+      "claim": "Restoring upstream audio imports violates the selected unsupported-import guard.",
+      "evidence": {
+        "command": [
+          "/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "-B",
+          "/var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/pipecat-gap-audit-_56zlhvy/baseline/scripts/check_pipecat_core.py"
+        ],
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "Traceback (most recent call last):\n  File \"/var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/pipecat-gap-audit-_56zlhvy/baseline/scripts/check_pipecat_core.py\", line 40, in <module>\n    from pipecat.frames.frames import (\n  File \"/private/var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/pipecat-gap-audit-_56zlhvy/baseline/src/pipecat/frames/frames.py\", line 33, in <module>\n    from pipecat.audio.vad.vad_analyzer import VADParams\n  File \"/private/var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/pipecat-gap-audit-_56zlhvy/baseline/src/pipecat/audio/vad/vad_analyzer.py\", line 22, in <module>\n    from pipecat.audio.utils import exp_smoothing\n  File \"/private/var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/pipecat-gap-audit-_56zlhvy/baseline/src/pipecat/audio/utils.py\", line 14, in <module>\n    import audioop\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1322, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 1262, in _find_spec\n  File \"/var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/pipecat-gap-audit-_56zlhvy/baseline/scripts/check_pipecat_core.py\", line 26, in find_spec\n    raise RuntimeError(f\"Unsupported dependency imported in narrow configuration: {fullname}\")\nRuntimeError: Unsupported dependency imported in narrow configuration: audioop\n",
+        "timed_out": false,
+        "elapsed_seconds": 0.328
+      },
+      "limitations": [
+        "This isolates import behavior; it does not measure actual codec execution."
+      ]
+    },
+    {
+      "id": "ablation.prewarm",
+      "domain": "startup behavior / local CPython",
+      "status": "observed_gap",
+      "claim": "Enabling the existing prewarm path attempts prohibited OS thread creation.",
+      "evidence": {
+        "command": [
+          "/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "-B",
+          "/var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/pipecat-gap-audit-_56zlhvy/baseline/scripts/check_pipecat_core.py"
+        ],
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "Traceback (most recent call last):\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py\", line 520, in wait_for\n    return await fut\n           ^^^^^^^^^\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/locks.py\", line 212, in wait\n    await fut\nasyncio.exceptions.CancelledError\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py\", line 195, in run\n    return runner.run(main)\n           ^^^^^^^^^^^^^^^^\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py\", line 691, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"/var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/pipecat-gap-audit-_56zlhvy/baseline/scripts/check_pipecat_core.py\", line 126, in check\n    await asyncio.wait_for(started.wait(), 3)\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py\", line 519, in wait_for\n    async with timeouts.timeout(timeout):\n               ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/timeouts.py\", line 115, in __aexit__\n    raise TimeoutError from exc_val\nTimeoutError\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/pipecat-gap-audit-_56zlhvy/baseline/scripts/check_pipecat_core.py\", line 177, in <module>\n    asyncio.run(check(parser.parse_args().record_modules))\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py\", line 194, in run\n    with Runner(debug=debug, loop_factory=loop_factory) as runner:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py\", line 62, in __exit__\n    self.close()\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py\", line 72, in close\n    loop.run_until_complete(\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py\", line 691, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py\", line 602, in shutdown_default_executor\n    thread.start()\n  File \"/var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/pipecat-gap-audit-_56zlhvy/baseline/scripts/check_pipecat_core.py\", line 33, in deny_thread\n    raise RuntimeError(\"OS thread creation is forbidden in this compatibility check\")\nRuntimeError: OS thread creation is forbidden in this compatibility check\nTask exception was never retrieved\nfuture: <Task finished name='Task-2' coro=<PipelineWorker.run() done, defined at /private/var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/pipecat-gap-audit-_56zlhvy/baseline/src/pipecat/pipeline/worker.py:855> exception=TypeError('cannot unpack non-iterable NoneType object')>\nTraceback (most recent call last):\n  File \"/private/var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/pipecat-gap-audit-_56zlhvy/baseline/src/pipecat/pipeline/worker.py\", line 866, in run\n    if not await self._setup_within_timeout(params):\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/pipecat-gap-audit-_56zlhvy/baseline/src/pipecat/pipeline/worker.py\", line 1277, in _setup_within_timeout\n    await asyncio.wait_for(self._setup(params), timeout=self._setup_timeout_secs)\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py\", line 520, in wait_for\n    return await fut\n           ^^^^^^^^^\n  File \"/private/var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/pipecat-gap-audit-_56zlhvy/baseline/src/pipecat/pipeline/worker.py\", line 1338, in _setup\n    warm_started_at_ns, warm_finished_at_ns = await lazy_imports_task\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: cannot unpack non-iterable NoneType object\n",
+        "timed_out": false,
+        "elapsed_seconds": 3.615
+      },
+      "limitations": [
+        "This exposes the behavior by removing the opt-out in the test; the vendor source remains otherwise unchanged."
+      ]
+    },
+    {
+      "id": "regression.existing",
+      "domain": "local regression tests",
+      "status": "untested",
+      "claim": "Use --existing-tests to run repository Python and JavaScript tests.",
+      "evidence": {},
+      "limitations": []
+    },
+    {
+      "id": "candidate.core",
+      "domain": "installed candidate / local CPython",
+      "status": "untested",
+      "claim": "No installed candidate interpreter was supplied.",
+      "evidence": {},
+      "limitations": []
+    },
+    {
+      "id": "sfu.history",
+      "domain": "application source",
+      "status": "observed_gap",
+      "claim": "The SFU application path omits assistant replies from history.",
+      "evidence": {
+        "source": "src/conversation.py:84",
+        "regression": "tests/test_sfu_conversation.py:71"
+      },
+      "limitations": [
+        "This is an explicit application policy tied to missing playback confirmation, not proof the SFU cannot support another policy."
+      ]
+    },
+    {
+      "id": "sfu.interruption_cleanup",
+      "domain": "application source",
+      "status": "observed_gap",
+      "claim": "Transport clear awaits remote cleanup; latency is not independent of control-plane responses.",
+      "evidence": {
+        "source": "src/sfu_transport.py:496",
+        "await": "await self._cleanup_retired()"
+      },
+      "limitations": [
+        "No measured audible latency is claimed; browser clear happens earlier."
+      ]
+    },
+    {
+      "id": "sfu.cleanup_contract",
+      "domain": "application source",
+      "status": "observed_gap",
+      "claim": "Cleanup records failures and can retain remote resources without a guaranteed successful retry.",
+      "evidence": {
+        "source": "src/sfu_transport.py:516",
+        "close": "src/sfu_transport.py:581"
+      },
+      "limitations": [
+        "This is an application contract gap, not a measured remote leak or proof of an SFU service limitation."
+      ]
+    },
+    {
+      "id": "workers.selected_pipeline",
+      "domain": "selected Workers AI / Pipecat voice pipeline",
+      "status": "untested",
+      "claim": "Verify hosted Smart Turn coordination and the selected STT, LLM, TTS, output, and assistant-aggregator components on actual Workers; the guarded core is a smaller configuration.",
+      "evidence": {},
+      "limitations": [
+        "Requires a separate implementation or live environment; never promoted from local mocks."
+      ]
+    },
+    {
+      "id": "candidate.artifact_integrity",
+      "domain": "candidate package provenance",
+      "status": "untested",
+      "claim": "Verify the release artifact checksum/signature and installed-file RECORD hashes. Distribution ownership alone does not establish an unchanged installation.",
+      "evidence": {},
+      "limitations": [
+        "Requires a separate implementation or live environment; never promoted from local mocks."
+      ]
+    },
+    {
+      "id": "package.installability",
+      "domain": "packaging",
+      "status": "untested",
+      "claim": "Resolve and install the final package in Python Workers without copied source or local edits; importing an existing environment does not prove this.",
+      "evidence": {},
+      "limitations": [
+        "Requires a separate implementation or live environment; never promoted from local mocks."
+      ]
+    },
+    {
+      "id": "workers.runtime",
+      "domain": "deployed Python Durable Object",
+      "status": "untested",
+      "claim": "Deploy the same candidate on a pinned Python/Pyodide/workerd runtime; run real turns, cancellation, concurrent sessions, reconnect, and cleanup.",
+      "evidence": {},
+      "limitations": [
+        "Requires a separate implementation or live environment; never promoted from local mocks."
+      ]
+    },
+    {
+      "id": "sfu.live",
+      "domain": "live WebRTC / SFU",
+      "status": "untested",
+      "claim": "Measure actual bidirectional media, stop-to-silence, stale speech, reconnect, standard conversation context, and confirmed remote resource cleanup.",
+      "evidence": {},
+      "limitations": [
+        "Requires a separate implementation or live environment; never promoted from local mocks."
+      ]
+    },
+    {
+      "id": "workers.performance",
+      "domain": "deployed workload measurements",
+      "status": "untested",
+      "claim": "Measure CPU time (not wall time), memory, copies, queue depth, sustained streams, burst input, loss, PCM conversion, and concurrent objects against actual configured runtime limits and target latency.",
+      "evidence": {},
+      "limitations": [
+        "Requires a separate implementation or live environment; never promoted from local mocks."
+      ]
+    },
+    {
+      "id": "physical.audio",
+      "domain": "physical browser microphone / speaker",
+      "status": "untested",
+      "claim": "Use physical audio and aligned loopback recordings to measure intelligibility, echo, turn endings, and audible interruption; synthetic frame checks cannot substitute.",
+      "evidence": {},
+      "limitations": [
+        "Requires a separate implementation or live environment; never promoted from local mocks."
+      ]
+    }
+  ]
+}

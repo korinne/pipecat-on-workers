@@ -1,0 +1,50 @@
+{
+  "recorded_at": "2026-10-05T19:12:15.184769+00:00",
+  "source": "User report and attached screenshot in current coding task",
+  "user_report": "hmm its not hearing me at all but im not using headphones",
+  "screenshot": {
+    "path": "user-screenshot.png",
+    "sha256": "7a26b41157b0a2274e71db84646341b195db7dd21a02e6c6a8da3485f2df183f",
+    "filename_local_time": "2026-10-05 12:05:21",
+    "timezone": "America/Los_Angeles"
+  },
+  "device_scope": {
+    "device": "user laptop",
+    "browser": "Chrome from agreed test setup; not visible in screenshot",
+    "headphones": false,
+    "audio_input_device": "not specified",
+    "audio_output_device": "not specified",
+    "network": "not specified"
+  },
+  "deployment_status_checked_at": "2026-10-05T19:12:15.185263+00:00",
+  "active_deployment": "06111df0-88ce-4142-96e7-4158a9a6e7a9",
+  "active_source_revision": "3f62b680c32afa8b9f343a4eafb95d34b32c9daa",
+  "user_loaded_asset_revision": "not observed; active deployment does not identify cached browser assets",
+  "visible_observations": {
+    "route": "WebRTC + SFU",
+    "status": "Listening",
+    "elapsed": "00:08",
+    "connection_text": "Connected. Say hello to start.",
+    "user_transcript": "hello hello",
+    "microphone_text": "Microphone is picking up sound.",
+    "assistant_reply_visible": false,
+    "error_text_visible": false
+  },
+  "result": "User reports no response. Screenshot supports successful microphone input and recognition on the SFU route. Completed turn, assistant output and audible playback are not established.",
+  "diagnostic_limits": [
+    "The transcript can be an application partial even if Nova finalized those words. Application final is emitted only after all turn-readiness gates pass.",
+    "Listening can occur after readiness, clearing, completion or error. The timer measures call time, not silence duration.",
+    "The screenshot alone cannot distinguish an incomplete Smart Turn decision, pending transcript coverage, cancellation or a downstream response failure.",
+    "No error text is legible in the captured area. The page bottom is cut off.",
+    "No headphones may allow echo during assistant playback; this observation does not identify echo as the cause.",
+    "No server events or measurements from this specific call have been obtained."
+  ],
+  "pending_clarification": "Whether stopping speech produces the repeat-request turn error, another error or only Listening",
+  "acceptance": {
+    "B2": "failed user conversation check; SFU speech input observed",
+    "physical_playback": "untested",
+    "performance": "untested at user request"
+  },
+  "application_changed": false,
+  "silence_fallback_enabled": false
+}

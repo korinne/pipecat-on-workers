@@ -2,7 +2,6 @@
 /**
  * One bounded, actual-provider turn. Node 22+, no added dependencies.
  *
- * DEMO_ACCESS_KEY must be supplied through the environment, never an argument.
  * node scripts/smoke_real_voice.mjs --base https://YOUR-WORKER.workers.dev \
  *   --pcm work/prompt.pcm --speech-source macos-say
  *
@@ -51,6 +50,19 @@ export function isPrematureReply(message, receivedAt, inputDoneAt) {
   return reply && (inputDoneAt === undefined || receivedAt < inputDoneAt);
 }
 
+export function isAllowedBase(origin) {
+  const protocol = origin.protocol === 'https:' || (origin.protocol === 'http:'
+    && ['localhost', '127.0.0.1', '[::1]'].includes(origin.hostname));
+  return protocol && !origin.username && !origin.password && !origin.search && !origin.hash && origin.pathname === '/';
+}
+
+export function isCompletedResponse({ userFinals, assistantSentences, received, acknowledged,
+  queueLength, replyGeneration, listeningGeneration, generation }) {
+  return userFinals > 0 && assistantSentences > 0 && received > 0 && received === acknowledged
+    && queueLength === 0 && Number.isSafeInteger(replyGeneration)
+    && listeningGeneration === replyGeneration && generation === replyGeneration;
+}
+
 function pcmStats(bytes) {
   let sum = 0, peak = 0, nonzero = 0;
   for (let i = 0; i < bytes.length; i += 2) {
@@ -72,7 +84,7 @@ function wave(pcm) {
 }
 
 const RESOURCE_KEYS = ['pipecat_tasks', 'provider_tasks', 'provider_sockets', 'provider_readers',
-  'pending_provider_requests', 'queued_provider_bytes', 'unacked_audio_bytes', 'pending_playback_chunks',
+  'pending_provider_requests', 'pending_turn_requests', 'queued_output_bytes', 'queued_provider_bytes', 'unacked_audio_bytes', 'pending_playback_chunks',
   'pending_turn_tasks', 'pending_user_fragments', 'pending_user_chars'];
 const METRIC_FIELDS = {
   startup: ['startup_ms'], user_end: [], generation_started: ['generation'],
@@ -81,7 +93,7 @@ const METRIC_FIELDS = {
 };
 function safeDiagnostics(d) {
   const out = { closed: d.closed === true };
-  for (const key of [...RESOURCE_KEYS, 'messages', 'stt_connection_generation', 'dropped_audio_bytes', 'turn_end_grace_ms']) {
+  for (const key of [...RESOURCE_KEYS, 'messages', 'stt_connection_generation', 'dropped_audio_bytes', 'turn_timeout_secs']) {
     if (Number.isFinite(d[key])) out[key] = d[key];
   }
   out.metrics = (Array.isArray(d.metrics) ? d.metrics : []).flatMap(m => {
@@ -98,7 +110,7 @@ function safeDiagnostics(d) {
 async function main() {
   const opt = options(process.argv.slice(2));
   if (opt.help) {
-    console.log('Usage: DEMO_ACCESS_KEY=<environment only> node PATH/TO/scripts/smoke_real_voice.mjs --base https://HOST --pcm work/prompt.pcm [--speech-source macos-say|prerecorded-tts|prerecorded-human|prerecorded-unspecified] [--capture-root PATH] [--evidence PATH] [--validate-input] [--expect-single-user-turn]\nHeaderless PCM16 LE, mono, 16000 Hz, 0.2–15 seconds. The single-turn flag requires exactly one final user transcript and no assistant transcript/audio before the paced input ends. No audio device playback/recording. Private captures default to the working directory/work and must be outside outputs/.');
+    console.log('Usage: node PATH/TO/scripts/smoke_real_voice.mjs --base https://HOST --pcm work/prompt.pcm [--speech-source macos-say|prerecorded-tts|prerecorded-human|prerecorded-unspecified] [--capture-root PATH] [--evidence PATH] [--validate-input] [--expect-single-user-turn]\nHeaderless PCM16 LE, mono, 16000 Hz, 0.2–15 seconds. The single-turn flag requires exactly one final user transcript and no assistant transcript/audio before the paced input ends. No audio device playback/recording. Private captures default to the working directory/work and must be outside outputs/.');
     return;
   }
   if (!opt.pcm) fail('pcm_path_required');
@@ -115,8 +127,7 @@ async function main() {
   if (!opt.base) fail('base_required');
   let origin;
   try { origin = new URL(opt.base); } catch { fail('invalid_base'); }
-  if (origin.protocol !== 'https:' || origin.username || origin.password || origin.search || origin.hash || origin.pathname !== '/') fail('base_must_be_https_origin_without_credentials_or_query');
-  if (!process.env.DEMO_ACCESS_KEY) fail('demo_access_key_environment_required');
+  if (!isAllowedBase(origin)) fail('base_must_be_https_or_loopback_origin_without_credentials_or_query');
   if (typeof WebSocket === 'undefined') fail('node_22_or_newer_required');
   const workDir = path.resolve(opt.captureRoot || path.resolve(process.cwd(), 'work'));
   const ensureOutsideOutputs = directory => {
@@ -130,7 +141,7 @@ async function main() {
   await fs.chmod(runDir, 0o700);
   const evidenceFile = opt.evidence ? path.resolve(opt.evidence) : path.join(runDir, 'evidence.json');
   const evidence = {
-    schema: 1, started_at: new Date().toISOString(), deployment_origin: origin.origin, passed: false,
+    schema: 2, started_at: new Date().toISOString(), deployment_origin: origin.origin, passed: false,
     scope: 'Actual deployed capability WebSocket and configured STT, LLM, TTS providers; prerecorded input; wall-clock playback-receipt emulation.',
     physical_human_voice_acceptance_passed: false, fixture_provider_requested: false,
     acceptance_kind: opt.expectSingleUserTurn ? 'single_user_turn_pause_check' : 'generic_provider_integration',
@@ -138,7 +149,7 @@ async function main() {
       premature_reply_observed: opt.expectSingleUserTurn ? false : null,
       definition: 'Exactly one final user transcript and no assistant transcript or audio received before the final input PCM sample completes its paced duration. This checks this recording only, not general natural-speech turn quality.' },
     input: { source: opt.source, format: 'PCM16 LE mono 16000 Hz', duration_ms: input.length / 32, ...inputStats },
-    playback: { method: 'serial elapsed PCM duration, no audio device', received_chunks: 0, acknowledged_chunks: 0, acknowledged_duration_ms: 0, completed_sentences: 0 },
+    playback: { method: 'serial elapsed PCM duration, no audio device', received_chunks: 0, acknowledged_chunks: 0, acknowledged_duration_ms: 0, completed_responses: 0 },
     transcript: { user_final_count: 0, assistant_sentence_count: 0 },
     latency_ms: {},
     latency_definitions: { first_audio_after_final_transcript: 'First accepted audio packet receipt minus the latest final user transcript receipt preceding that packet. The transcript timestamp is frozen when first audio arrives; this is not acoustic response latency.' },
@@ -153,7 +164,7 @@ async function main() {
   const transcripts = [], privateErrors = [], audio = [], receiptTrace = [], queue = [], seen = new Set();
   let session, socket, fatal, ready = false, closing = false, generation = -1;
   let scheduledEnd = 0, userFinalAt, userFinalBeforeFirstAudioAt, inputDoneAt, firstAudioAt, receiptTimer, heartbeat;
-  let inputTask, stopInput = false, totalOutputBytes = 0;
+  let inputTask, stopInput = false, totalOutputBytes = 0, replyGeneration, listeningGeneration;
   const markFailure = code => { fatal ||= new Failure(code); };
   const send = value => {
     if (socket?.readyState !== WebSocket.OPEN) fail('websocket_not_open');
@@ -178,13 +189,13 @@ async function main() {
   process.on('SIGINT', interrupted); process.on('SIGTERM', interrupted);
   try {
     const response = await fetch(new URL('/api/session', origin), {
-      method: 'POST', headers: { 'X-Demo-Key': process.env.DEMO_ACCESS_KEY }, redirect: 'error', signal: AbortSignal.timeout(10000),
+      method: 'POST', redirect: 'error', signal: AbortSignal.timeout(10000),
     }).catch(() => fail('session_create_transport_failed'));
     if (!response.ok) fail(`session_create_http_${response.status}`);
     session = await response.json().catch(() => fail('session_create_invalid_json'));
     if (!/^[a-f0-9]{32}$/.test(session.id) || !/^[A-Za-z0-9_-]{32,128}$/.test(session.token)) fail('session_create_invalid_capability');
     evidence.latency_ms.session_create = round(elapsed());
-    const url = sessionURL(''); url.protocol = 'wss:';
+    const url = sessionURL(''); url.protocol = origin.protocol === 'https:' ? 'wss:' : 'ws:';
     socket = new WebSocket(url);
     socket.addEventListener('error', () => markFailure('websocket_transport_error'));
     socket.addEventListener('close', event => {
@@ -200,8 +211,8 @@ async function main() {
           if (privateErrors.length < 8 && typeof message.message === 'string') {
             let detail = message.message;
             // Preserve bounded provider diagnostics privately, without retaining
-            // our known access key or session capability even if echoed upstream.
-            for (const secret of [session?.token, process.env.DEMO_ACCESS_KEY]) {
+            // session identifiers and capabilities even if echoed upstream.
+            for (const secret of [session?.token, session?.id]) {
               if (secret) detail = detail.replaceAll(secret, '[redacted]');
             }
             privateErrors.push({ elapsed_ms: round(elapsed()), message: detail.slice(0, 4096), truncated: detail.length > 4096 });
@@ -214,6 +225,10 @@ async function main() {
           evidence.pause_acceptance.premature_reply_observed = true;
           evidence.pause_acceptance.first_premature_reply_from_start_ms ??= round(messageReceivedAt - started);
           markFailure('premature_reply_before_input_end');
+        }
+        if (message.type === 'status' && Number.isSafeInteger(message.generation)) {
+          if (message.state === 'thinking') replyGeneration = message.generation;
+          if (message.state === 'listening') listeningGeneration = message.generation;
         }
         if (message.type === 'ready') { ready = true; evidence.latency_ms.ready = round(elapsed()); }
         if (message.type === 'reset' || message.type === 'clear') {
@@ -249,7 +264,7 @@ async function main() {
             firstAudioAt = now;
             userFinalBeforeFirstAudioAt = userFinalAt;
           }
-          queue.push({ generation, chunk_id: message.chunk_id, due: scheduledEnd, duration, received_at: now, sentence: Boolean(message.text?.trim()) });
+          queue.push({ generation, chunk_id: message.chunk_id, due: scheduledEnd, duration, received_at: now });
           audio.push(pcm); evidence.playback.received_chunks++;
         }
       } catch (error) { markFailure(error instanceof Failure ? error.code : 'server_message_parse_failed'); }
@@ -265,7 +280,6 @@ async function main() {
             received_elapsed_ms: round(item.received_at - started), due_elapsed_ms: round(item.due - started), receipt_elapsed_ms: round(elapsed()) });
           evidence.playback.acknowledged_chunks++;
           evidence.playback.acknowledged_duration_ms += item.duration;
-          if (item.sentence) { evidence.playback.completed_sentences++; break; }
         }
       } catch (error) { markFailure(error instanceof Failure ? error.code : 'receipt_send_failed'); }
     }, 10);
@@ -282,16 +296,22 @@ async function main() {
         const count = Math.min(pcm.length, input.length - offset);
         if (count > 0) { input.copy(pcm, 0, offset, offset + count); offset += count; }
         send({ type: 'audio', sample_rate: INPUT_RATE, data: pcm.toString('base64') });
-        // Continue real-time silence so Flux can detect the end of the utterance.
+        // Continue paced silence so Nova can report the pause for Smart Turn.
         if (offset >= input.length) inputDoneAt ??= performance.now() + count / 32;
         await sleep(CHUNK_MS);
       }
     })().catch(error => markFailure(error instanceof Failure ? error.code : 'input_send_failed'));
-    await waitFor(() => evidence.playback.completed_sentences > 0, 55000, 'response_timeout');
+    await waitFor(() => isCompletedResponse({
+      userFinals: evidence.transcript.user_final_count,
+      assistantSentences: evidence.transcript.assistant_sentence_count,
+      received: evidence.playback.received_chunks, acknowledged: evidence.playback.acknowledged_chunks,
+      queueLength: queue.length, replyGeneration, listeningGeneration, generation,
+    }), 55000, 'response_timeout');
+    evidence.playback.completed_responses = 1;
     if (!evidence.transcript.user_final_count || !evidence.transcript.assistant_sentence_count || !firstAudioAt) fail('missing_real_turn_evidence');
     if (opt.expectSingleUserTurn && evidence.transcript.user_final_count !== 1) fail('unexpected_user_turn_split');
     if (!pcmStats(Buffer.concat(audio)).nonzero_samples) fail('provider_output_is_silent');
-    evidence.stop_reason = 'first_complete_sentence_received_and_elapsed_playback_receipts_sent';
+    evidence.stop_reason = 'response_completed_and_all_received_audio_elapsed_receipts_sent';
   } catch (error) {
     evidence.failures.push(error instanceof Failure ? error.code : 'unexpected_runtime_failure');
   } finally {
@@ -330,12 +350,12 @@ async function main() {
     evidence.playback.output_statistics = pcmStats(Buffer.concat(audio));
     evidence.finished_at = new Date().toISOString();
     evidence.elapsed_ms = round(elapsed());
-    // A provider/transport error can arrive after the first sentence completes
+    // A provider/transport error can arrive after the response completes
     // while End is in flight. It must still make the smoke result fail.
     if (fatal && !evidence.failures.includes(fatal.code)) evidence.failures.push(fatal.code);
     if (opt.expectSingleUserTurn && evidence.transcript.user_final_count > 1 && !evidence.failures.includes('unexpected_user_turn_split')) evidence.failures.push('unexpected_user_turn_split');
     if (inputDoneAt !== undefined) evidence.latency_ms.input_finish = round(inputDoneAt - started);
-    evidence.passed = evidence.failures.length === 0 && evidence.playback.completed_sentences > 0 && evidence.cleanup_verified;
+    evidence.passed = evidence.failures.length === 0 && evidence.playback.completed_responses > 0 && evidence.cleanup_verified;
     if (opt.expectSingleUserTurn) {
       evidence.pause_acceptance.passed = evidence.passed && evidence.transcript.user_final_count === 1
         && inputDoneAt !== undefined && !evidence.pause_acceptance.premature_reply_observed;

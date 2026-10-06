@@ -1,0 +1,222 @@
+{
+  "task": 1,
+  "readiness": "not_established",
+  "evidence_kind": "controlled_fixture",
+  "recorded_at": "2026-10-05T03:39:11.771115+00:00",
+  "revision": "e0ddc037d760b45e5411a9e2aaead00e9ae34a78",
+  "runtime": {
+    "python": "3.9.6 (default, Feb  3 2024, 15:58:27) \n[Clang 15.0.0 (clang-1500.3.9.4)]",
+    "platform": "macOS-14.5-arm64-arm-64bit",
+    "workers": false
+  },
+  "source_hashes": {
+    "src/providers.py": "ef9e2070bc32dec27da203f5509b83025e24e084aaaac7835868f1b3adad984c",
+    "audit/reference/gpt_probe.py": "cfc050d7cfaf7a9cccb1ed17aa55cf598339510c856327e80bbb0b0a1728f688",
+    "audit/reference/gpt-fixtures.json": "0f3442b6ce01330d632da56d4744401b7684999bff1e10a2430ab460548dfa52"
+  },
+  "actual_baseline_request": {
+    "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+    "inputs": {
+      "messages": [
+        {
+          "role": "user",
+          "content": "Controlled fixture"
+        }
+      ],
+      "stream": true,
+      "max_tokens": 192,
+      "temperature": 0.6
+    }
+  },
+  "selected_reference_request": {
+    "model": "@cf/openai/gpt-oss-120b",
+    "inputs": {
+      "messages": [
+        {
+          "role": "system",
+          "content": "Answer in one brief sentence."
+        },
+        {
+          "role": "user",
+          "content": "What is two plus two?"
+        }
+      ],
+      "stream": true,
+      "reasoning_effort": "low",
+      "max_tokens": 2048
+    }
+  },
+  "reference_request_status": "documented_source_shape_not_live_accepted",
+  "budget_note": "2048 is a bounded initial probe allocation, not an established application budget. Verify reasoning-plus-answer accounting and token-limit behavior on the binding before implementation.",
+  "results": [
+    {
+      "id": "answer-and-reasoning-content",
+      "status": "scoped_pass",
+      "classification": "test_limitation",
+      "evidence_kind": "controlled_fixture",
+      "fixture_provenance": "Cloudflare workers-ai-provider streaming.ts at 0e5bc3b2f489e4b8215905812a36fe69d37afb8d; fabricated values, no live capture.",
+      "observation": {
+        "text": "Four \ud83d\udc08.",
+        "exception_type": null,
+        "reader_canceled": true,
+        "reader_released": true,
+        "owned_readers_after": 0
+      },
+      "finding": "The baseline separates delta.reasoning_content from delta.content for this documented client shape and handles one-byte UTF-8 chunks."
+    },
+    {
+      "id": "answer-and-reasoning-alias",
+      "status": "scoped_pass",
+      "classification": "test_limitation",
+      "evidence_kind": "controlled_fixture",
+      "fixture_provenance": "Cloudflare workers-ai-provider streaming.ts at 0e5bc3b2f489e4b8215905812a36fe69d37afb8d; fabricated values, no live capture.",
+      "observation": {
+        "text": "Four.",
+        "exception_type": null,
+        "reader_canceled": true,
+        "reader_released": true,
+        "owned_readers_after": 0
+      },
+      "finding": "The baseline also skips delta.reasoning when no generic response fallback is present."
+    },
+    {
+      "id": "token-limit-with-partial-answer",
+      "status": "observed_gap",
+      "classification": "application_defect",
+      "evidence_kind": "controlled_fixture",
+      "fixture_provenance": "Cloudflare workers-ai-provider streaming.ts at 0e5bc3b2f489e4b8215905812a36fe69d37afb8d; fabricated values, no live capture.",
+      "observation": {
+        "text": "Four",
+        "exception_type": null,
+        "reader_canceled": true,
+        "reader_released": true,
+        "owned_readers_after": 0
+      },
+      "finding": "The baseline returns truncated text without exposing finish_reason=length; its caller cannot distinguish a complete answer from this limit."
+    },
+    {
+      "id": "reasoning-only-token-limit",
+      "status": "observed_gap",
+      "classification": "application_defect",
+      "evidence_kind": "controlled_fixture",
+      "fixture_provenance": "Cloudflare workers-ai-provider streaming.ts at 0e5bc3b2f489e4b8215905812a36fe69d37afb8d; fabricated values, no live capture.",
+      "observation": {
+        "text": "",
+        "exception_type": null,
+        "reader_canceled": true,
+        "reader_released": true,
+        "owned_readers_after": 0
+      },
+      "finding": "The baseline returns an empty success after the fixture spends its entire output on reasoning. The real budget and token accounting remain untested."
+    },
+    {
+      "id": "finish-reason-error",
+      "status": "observed_gap",
+      "classification": "application_defect",
+      "evidence_kind": "controlled_fixture",
+      "fixture_provenance": "Cloudflare workers-ai-provider streaming.ts at 0e5bc3b2f489e4b8215905812a36fe69d37afb8d; fabricated values, no live capture.",
+      "observation": {
+        "text": "Partial",
+        "exception_type": null,
+        "reader_canceled": true,
+        "reader_released": true,
+        "owned_readers_after": 0
+      },
+      "finding": "The baseline ignores finish_reason=error and returns partial text as a normal generator completion."
+    },
+    {
+      "id": "unexpected-eof",
+      "status": "observed_gap",
+      "classification": "application_defect",
+      "evidence_kind": "controlled_fixture",
+      "fixture_provenance": "Cloudflare workers-ai-provider streaming.ts at 0e5bc3b2f489e4b8215905812a36fe69d37afb8d; fabricated values, no live capture.",
+      "observation": {
+        "text": "Partial",
+        "exception_type": null,
+        "reader_canceled": true,
+        "reader_released": true,
+        "owned_readers_after": 0
+      },
+      "finding": "EOF with neither finish_reason nor [DONE] is accepted as normal completion."
+    },
+    {
+      "id": "empty-completed-stream",
+      "status": "observed_gap",
+      "classification": "application_defect",
+      "evidence_kind": "controlled_fixture",
+      "fixture_provenance": "Cloudflare workers-ai-provider streaming.ts at 0e5bc3b2f489e4b8215905812a36fe69d37afb8d; fabricated values, no live capture.",
+      "observation": {
+        "text": "",
+        "exception_type": null,
+        "reader_canceled": true,
+        "reader_released": true,
+        "owned_readers_after": 0
+      },
+      "finding": "The baseline exposes no empty-result outcome; callers get the same empty generator as the reasoning-only limit."
+    },
+    {
+      "id": "provider-error-object",
+      "status": "scoped_pass",
+      "classification": "test_limitation",
+      "evidence_kind": "controlled_fixture",
+      "fixture_provenance": "Baseline documented error convention in src/providers.py; fabricated values, no live capture.",
+      "observation": {
+        "text": "Partial",
+        "exception_type": "ProviderError",
+        "reader_canceled": true,
+        "reader_released": true,
+        "owned_readers_after": 0
+      },
+      "finding": "A top-level error raises ProviderError after partial text and reader cleanup completes."
+    },
+    {
+      "id": "reasoning-response-fallback",
+      "status": "observed_gap",
+      "classification": "application_defect",
+      "evidence_kind": "controlled_fixture",
+      "fixture_provenance": "Adversarial format fixture assembled for this probe; not claimed as a Cloudflare stream format.",
+      "observation": {
+        "text": "Ambiguous fixture payload",
+        "exception_type": null,
+        "reader_canceled": true,
+        "reader_released": true,
+        "owned_readers_after": 0
+      },
+      "finding": "A deliberately ambiguous event causes generic response to be spoken despite a reasoning delta. This is a defensive fixture, not evidence GPT-OSS emits this shape."
+    },
+    {
+      "id": "cancel-before-answer",
+      "status": "scoped_pass",
+      "classification": "test_limitation",
+      "evidence_kind": "controlled_fixture",
+      "observation": {
+        "reader_canceled": true,
+        "reader_released": true
+      },
+      "finding": "Canceling the Python task closes the fake owned reader before any answer. This does not measure the real binding or remote compute."
+    },
+    {
+      "id": "cancel-after-answer-start",
+      "status": "scoped_pass",
+      "classification": "test_limitation",
+      "evidence_kind": "controlled_fixture",
+      "observation": {
+        "first_text": "first",
+        "late_text": [],
+        "reader_canceled": true,
+        "reader_released": true
+      },
+      "finding": "Closing the generator suppresses its later fixture answer and releases its reader. Transport playback and remote compute are not exercised."
+    }
+  ],
+  "untested": [
+    "Live Python binding request and FFI",
+    "Actual GPT-OSS stream schema",
+    "Provider acceptance and effect of reasoning_effort=low",
+    "Budget sufficiency and reasoning accounting",
+    "Real empty/error/length results",
+    "Time to first speakable answer and audible audio",
+    "Remote inference or billing cancellation",
+    "Context-dependent follow-up through both transports"
+  ]
+}

@@ -13,14 +13,37 @@ version = "25.4.0"
 wheels = [{ url = "https://files.pythonhosted.org/packages/3a/2a/7cc015f5b9f5db42b7d48157e23356022889fc354a2813c15934b7cb5c0e/attrs-25.4.0-py3-none-any.whl", upload-time = 2025-10-06T13:54:43Z, size = 67615, hashes = { sha256 = "adcf7e2a1fb3b36ac48d97835bb6d8ade15b8dcce26aba8bf1d14847b57a3373" } }]
 
 [[packages]]
+name = "click"
+version = "8.5.0"
+wheels = [{ url = "https://files.pythonhosted.org/packages/58/50/6c0d534c5f134586a8e1ba4e330569e32f057e33372ae556463212fb4cd3/click-8.5.0-py3-none-any.whl", upload-time = 2026-08-26T13:33:12Z, size = 125251, hashes = { sha256 = "255bc9599cf7748b4b1a446ccc735421bd08a2ae529a8b88597d3de5664ee360" } }]
+
+[[packages]]
+name = "cloudpickle"
+version = "3.1.2"
+wheels = [
+    { url = "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/cloudpickle-3.1.2-py3-none-any.whl", hashes = { sha256 = "2e98667189dc634623d01f42ed32a624df38cd2043ca293111484da8ee4fc4a9" } },
+    { url = "https://files.pythonhosted.org/packages/88/39/799be3f2f0f38cc727ee3b4f1445fe6d5e4133064ec2e4115069418a5bb6/cloudpickle-3.1.2-py3-none-any.whl", hashes = { sha256 = "9acb47f6afd73f60dc1df93bb801b472f05ff42fa6c84167d25cb206be1fbf4a" } },
+]
+
+[[packages]]
 name = "docstring-parser"
 version = "0.17.0"
 wheels = [{ url = "https://files.pythonhosted.org/packages/55/e2/2537ebcff11c1ee1ff17d8d0b6f4db75873e3b0fb32c2d4a2ee31ecb310a/docstring_parser-0.17.0-py3-none-any.whl", upload-time = 2025-07-21T07:35:00Z, size = 36896, hashes = { sha256 = "cf2569abd23dce8099b300f9b4fa8191e9582dda731fd533daf54c4551658708" } }]
 
 [[packages]]
+name = "joblib"
+version = "1.6.0"
+wheels = [{ url = "https://files.pythonhosted.org/packages/18/53/84099323c2ec4be98d935f63c033ac4151ee83836ca1050ede3b3aadf155/joblib-1.6.0-py3-none-any.whl", upload-time = 2026-08-31T09:39:02Z, size = 306115, hashes = { sha256 = "3dbbf9f6e4b592a2357b854608e980fe6390d131d7a82f011a377ef2ebef7aba" } }]
+
+[[packages]]
 name = "loguru"
 version = "0.7.3"
 wheels = [{ url = "https://files.pythonhosted.org/packages/0c/29/0348de65b8cc732daa3e33e67806420b2ae89bdce2b04af740289c5c6c8c/loguru-0.7.3-py3-none-any.whl", upload-time = 2024-12-06T11:20:54Z, size = 61595, hashes = { sha256 = "31a33c10c8e1e10422bfd431aeb5d351c7cf7fa671e3c4df004162264b28220c" } }]
+
+[[packages]]
+name = "nltk"
+version = "3.9.2"
+wheels = [{ url = "https://files.pythonhosted.org/packages/60/90/81ac364ef94209c100e12579629dc92bf7a709a84af32f8c551b02c07e94/nltk-3.9.2-py3-none-any.whl", upload-time = 2025-10-01T07:19:21Z, size = 1513404, hashes = { sha256 = "1e209d2b3009110635ed9709a67a1a3e33a10f799490fa71cf4bec218c11c88a" } }]
 
 [[packages]]
 name = "pydantic"
@@ -36,6 +59,16 @@ version = "2.41.5"
 wheels = [{ url = "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pydantic_core-2.41.5-cp314-cp314-pyemscripten_2026_0_wasm32.whl", hashes = { sha256 = "54703fa42a0d4d574283cfb8f08050ba7820c9a42b0a21bc1286407d9a9e54da" } }]
 
 [[packages]]
+name = "regex"
+version = "2026.3.32"
+wheels = [{ url = "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/regex-2026.3.32-cp314-cp314-pyemscripten_2026_0_wasm32.whl", hashes = { sha256 = "872e5bbab799991b2c0570c30e20f30404d7b0fd979dadd4f161f91645a0c1ac" } }]
+
+[[packages]]
+name = "tqdm"
+version = "4.70.1"
+wheels = [{ url = "https://files.pythonhosted.org/packages/a7/03/921a3d3c75785aca9ebfbfcabfbc3a1be12e2ab5265deb026d55a5a3f83e/tqdm-4.70.1-py3-none-any.whl", upload-time = 2026-09-11T07:25:14Z, size = 80199, hashes = { sha256 = "c293e525e6fef9c20e8728fd4612df02a0aa31bb5fe91ecd93e123b1b7bffa73" } }]
+
+[[packages]]
 name = "typing-extensions"
 version = "4.15.0"
 wheels = [
@@ -47,6 +80,11 @@ wheels = [
 name = "typing-inspection"
 version = "0.4.4"
 wheels = [{ url = "https://files.pythonhosted.org/packages/67/81/4add07e5172b7ac40d8ed5ff580409a7801a4fe26d529bdd915401dabfbe/typing_inspection-0.4.4-py3-none-any.whl", upload-time = 2026-08-12T12:37:24Z, size = 14750, hashes = { sha256 = "65b8397ba37ccbce054456aaccddfc91e6e3083c92824df348d96ca832f3f147" } }]
+
+[[packages]]
+name = "websockets"
+version = "15.0.1"
+wheels = [{ url = "https://files.pythonhosted.org/packages/fa/a8/5b41e0da817d64113292ab1f8247140aac61cbf6cfd085d6a0fa77f4984f/websockets-15.0.1-py3-none-any.whl", upload-time = 2025-03-05T20:03:39Z, size = 169743, hashes = { sha256 = "f7a866fbc1e97b5c617ee4116daaa09b722101d4a3c170c787450ba409f9736f" } }]
 
 [[packages]]
 name = "workers-runtime-sdk"

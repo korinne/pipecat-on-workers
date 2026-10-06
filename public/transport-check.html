@@ -13,16 +13,15 @@
     <section class="intro">
       <p class="eyebrow">Prerecorded speech → WebRTC → SFU → Pipecat</p>
       <h1>Check the audio path.</h1>
-      <p class="description">Choose a speech WAV and your key file. The recording is sent as a live WebRTC track after the SFU connection is ready. This page does not open your microphone.</p>
+      <p class="description">Choose a speech WAV. The recording is sent as a live WebRTC track after the SFU connection is ready. This page does not open your microphone.</p>
     </section>
     <section class="conversation" aria-label="SFU transport acceptance check">
-      <div class="session-bar"><span id="check-status" role="status">Choose the two files to begin.</span><span id="check-generation">Generation —</span></div>
-      <div class="access-row" style="align-items:flex-start;text-align:left;padding-bottom:16px">
-        <label>Access key text file<br><input id="check-key" type="file" accept=".txt,text/plain"></label>
+      <div class="session-bar"><span id="check-status" role="status">Choose a speech WAV to begin.</span><span id="check-generation">Generation —</span></div>
+      <div class="recording-row" style="align-items:flex-start;text-align:left;padding-bottom:16px">
         <label>Prerecorded speech WAV<br><input id="check-wav" type="file" accept=".wav,audio/wav,audio/wave,audio/x-wav"></label>
       </div>
       <div class="controls"><button id="check-start" class="primary" type="button">Start check</button><button id="check-replay" type="button" disabled>Replay input</button><button id="check-interrupt" type="button" disabled>Interrupt</button><button id="check-end" class="end" type="button" disabled>End</button><button id="check-resume" type="button" hidden>Resume audio</button></div>
-      <p class="input-hint">Generated speech may play through your speakers. Use headphones to listen.</p>
+      <p id="check-playback-note" class="input-hint">Generated speech may play through your speakers. Use headphones to listen.</p>
       <audio id="check-audio" autoplay playsinline hidden></audio>
       <div id="check-transcript" class="transcript" role="log" aria-label="Check transcript" aria-live="polite"></div>
     </section>
@@ -42,8 +41,11 @@
         <div><dt>Nonzero sample windows</dt><dd id="check-nonzero-windows">0</dd></div>
         <div><dt>Peak received level</dt><dd id="check-peak">0.0000</dd></div>
       </dl>
+      <p id="check-mode"></p>
+      <pre id="check-result" hidden aria-label="Sanitized check result"></pre>
+      <a id="check-capture" download="sfu-returned-audio.wav" hidden>Save received audio WAV</a>
       <p id="check-summary" role="status">Waiting for a check.</p>
-      <p>Input duration measures the recording scheduled into the synthetic track. Incoming bytes are browser RTP counters; sample windows observe the decoded remote track. Neither proves physical speaker playback. This page never sends playback receipts. Transcripts, recordings, keys, and session tokens are not saved in browser storage.</p>
+      <p>Input duration measures the recording scheduled into the synthetic track. Incoming bytes are browser RTP counters; sample windows observe the decoded remote track. Neither proves physical speaker playback. This page never sends playback receipts. Transcripts, recordings, and session tokens are not saved in browser storage.</p>
     </section>
   </main>
 </body>

@@ -1,0 +1,33 @@
+{
+  "source_sha256": "0d95bbf6d506502291f5898a8e837791742d8d61efd928e5c0ead2a3a976746b",
+  "fixtures": [
+    {
+      "case": "result_without_onset",
+      "frames": [],
+      "events": [],
+      "metrics": [
+        {
+          "event": "turn_discarded",
+          "reason": "closed"
+        }
+      ],
+      "inference_calls": []
+    },
+    {
+      "case": "invalid_initial_onset",
+      "frames": [],
+      "events": [],
+      "metrics": [
+        {
+          "event": "turn_discarded",
+          "reason": "invalid_nova_event"
+        },
+        {
+          "event": "turn_discarded",
+          "reason": "closed"
+        }
+      ],
+      "inference_calls": []
+    }
+  ]
+}

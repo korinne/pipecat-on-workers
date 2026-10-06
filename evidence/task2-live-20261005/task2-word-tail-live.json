@@ -1,0 +1,140 @@
+[
+  {
+    "task": 2,
+    "mode": "smart-turn",
+    "python": "3.14.2",
+    "fixture_label": "incomplete: Nova word end + 0.1s observed input",
+    "fixture_sha256": "935374b77a3dc9ddc89a626b8a693501d11d069fc6371afce84e39d25a3ed934",
+    "fixture_seconds": 1.22,
+    "audio_format": "PCM16 LE, 16000 Hz, mono",
+    "events": [],
+    "remote_compute_canceled": "unverified",
+    "model": "@cf/pipecat-ai/smart-turn-v2",
+    "python_response_type": "JsDict",
+    "response_shape": "{'is_complete': False, 'probability': 0.22819741070270538}",
+    "result_keys": [
+      "is_complete",
+      "probability"
+    ],
+    "is_complete": false,
+    "probability": 0.22819741070270538,
+    "outcome": "decision_received",
+    "elapsed_seconds": 0.8460001945495605,
+    "tail_seconds": 0.1
+  },
+  {
+    "task": 2,
+    "mode": "smart-turn",
+    "python": "3.14.2",
+    "fixture_label": "incomplete: Nova word end + 0.2s observed input",
+    "fixture_sha256": "ed40d5d8851046871614d9679c0f330ec8da6d7ef55a1660c6ef0dddeb222f8e",
+    "fixture_seconds": 1.32,
+    "audio_format": "PCM16 LE, 16000 Hz, mono",
+    "events": [],
+    "remote_compute_canceled": "unverified",
+    "model": "@cf/pipecat-ai/smart-turn-v2",
+    "python_response_type": "JsDict",
+    "response_shape": "{'is_complete': False, 'probability': 0.4729490876197815}",
+    "result_keys": [
+      "is_complete",
+      "probability"
+    ],
+    "is_complete": false,
+    "probability": 0.4729490876197815,
+    "outcome": "decision_received",
+    "elapsed_seconds": 0.5299999713897705,
+    "tail_seconds": 0.2
+  },
+  {
+    "task": 2,
+    "mode": "smart-turn",
+    "python": "3.14.2",
+    "fixture_label": "complete: Nova word end + 0.1s observed input",
+    "fixture_sha256": "2dd46a1fb1a3a43490702fee5b5a0e44c28d2559a693a489ba7eddf1e55a55f3",
+    "fixture_seconds": 1.78,
+    "audio_format": "PCM16 LE, 16000 Hz, mono",
+    "events": [],
+    "remote_compute_canceled": "unverified",
+    "model": "@cf/pipecat-ai/smart-turn-v2",
+    "python_response_type": "JsDict",
+    "response_shape": "{'is_complete': True, 'probability': 0.8222471475601196}",
+    "result_keys": [
+      "is_complete",
+      "probability"
+    ],
+    "is_complete": true,
+    "probability": 0.8222471475601196,
+    "outcome": "decision_received",
+    "elapsed_seconds": 0.7100000381469727,
+    "tail_seconds": 0.1
+  },
+  {
+    "task": 2,
+    "mode": "smart-turn",
+    "python": "3.14.2",
+    "fixture_label": "complete: Nova word end + 0.2s observed input",
+    "fixture_sha256": "f281d15577dbe7a2ef88a2d4e40b51ff418d714bc47f74682c5c10471b1b6ade",
+    "fixture_seconds": 1.88,
+    "audio_format": "PCM16 LE, 16000 Hz, mono",
+    "events": [],
+    "remote_compute_canceled": "unverified",
+    "model": "@cf/pipecat-ai/smart-turn-v2",
+    "python_response_type": "JsDict",
+    "response_shape": "{'is_complete': True, 'probability': 0.8164653182029724}",
+    "result_keys": [
+      "is_complete",
+      "probability"
+    ],
+    "is_complete": true,
+    "probability": 0.8164653182029724,
+    "outcome": "decision_received",
+    "elapsed_seconds": 1.0820000171661377,
+    "tail_seconds": 0.2
+  },
+  {
+    "task": 2,
+    "mode": "smart-turn",
+    "python": "3.14.2",
+    "fixture_label": "resumed: Nova word end + 0.1s observed input",
+    "fixture_sha256": "bd5b09779e44e2b20778c809adcd7f4f530c75154470ced06f238fdb2ebefb6d",
+    "fixture_seconds": 4.91,
+    "audio_format": "PCM16 LE, 16000 Hz, mono",
+    "events": [],
+    "remote_compute_canceled": "unverified",
+    "model": "@cf/pipecat-ai/smart-turn-v2",
+    "python_response_type": "JsDict",
+    "response_shape": "{'is_complete': False, 'probability': 0.06255845725536346}",
+    "result_keys": [
+      "is_complete",
+      "probability"
+    ],
+    "is_complete": false,
+    "probability": 0.06255845725536346,
+    "outcome": "decision_received",
+    "elapsed_seconds": 1.0270001888275146,
+    "tail_seconds": 0.1
+  },
+  {
+    "task": 2,
+    "mode": "smart-turn",
+    "python": "3.14.2",
+    "fixture_label": "resumed: Nova word end + 0.2s observed input",
+    "fixture_sha256": "1df10b1031988507e41e0354c2ed7a52db48a38a2d2148017f28fcef28e8c0c8",
+    "fixture_seconds": 5.01,
+    "audio_format": "PCM16 LE, 16000 Hz, mono",
+    "events": [],
+    "remote_compute_canceled": "unverified",
+    "model": "@cf/pipecat-ai/smart-turn-v2",
+    "python_response_type": "JsDict",
+    "response_shape": "{'is_complete': False, 'probability': 0.012835489585995674}",
+    "result_keys": [
+      "is_complete",
+      "probability"
+    ],
+    "is_complete": false,
+    "probability": 0.012835489585995674,
+    "outcome": "decision_received",
+    "elapsed_seconds": 1.1540002822875977,
+    "tail_seconds": 0.2
+  }
+]

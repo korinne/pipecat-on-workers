@@ -1,0 +1,76 @@
+{
+  "application_revision": "d2c0656cd2b018405a1850ddabac6266507c590e",
+  "deployment_version": "13762ff7-679d-477a-bafc-dcf37df2d5f4",
+  "started_at": "2026-10-05T05:25:07.124Z",
+  "scope": "Four prerecorded turns; live providers; elapsed receipts; no physical audio or performance acceptance",
+  "inputs": [
+    {
+      "sha256": "c97884eb23ad91e268731e685839924e624a221061371d385d25d1c0c28f0794",
+      "seconds": 1.8344375
+    },
+    {
+      "sha256": "36addda33af2be3e269151300b499eb6f3fb79ba40a46036e10acac7f567f919",
+      "seconds": 1.8111875
+    },
+    {
+      "sha256": "59d00e6ae3ef2252394e6891fb87a5e4a218fdb44831f8255b799e4a6c74dbe7",
+      "seconds": 1.7415625
+    }
+  ],
+  "passed": false,
+  "model_input_observation": "Restored persisted context and context-dependent answer; provider request arguments are verified by controlled tests, not captured by this live harness",
+  "calls": [
+    {
+      "initial": {
+        "user": "what is the capital of france",
+        "answer": "Paris is the capital of France.",
+        "audio_bytes": 99840
+      },
+      "restored_history": [
+        {
+          "role": "user",
+          "content": "what is the capital of france"
+        },
+        {
+          "role": "assistant",
+          "content": "Paris is the capital of France."
+        }
+      ],
+      "cleanup": {
+        "closed": true,
+        "pipecat_tasks": 0,
+        "provider_tasks": 0,
+        "provider_sockets": 0,
+        "provider_readers": 0,
+        "pending_provider_requests": 0,
+        "pending_turn_requests": 0,
+        "queued_output_bytes": 0,
+        "unacked_audio_bytes": 0,
+        "pending_playback_chunks": 0
+      }
+    },
+    {
+      "initial": {
+        "user": "what is the capital of germany",
+        "answer": "Berlin is the capital of Germany.",
+        "audio_bytes": 113280
+      },
+      "cleanup": {
+        "closed": true,
+        "pipecat_tasks": 0,
+        "provider_tasks": 0,
+        "provider_sockets": 0,
+        "provider_readers": 0,
+        "pending_provider_requests": 0,
+        "pending_turn_requests": 0,
+        "queued_output_bytes": 0,
+        "unacked_audio_bytes": 0,
+        "pending_playback_chunks": 0
+      }
+    }
+  ],
+  "checks": [],
+  "failure": "turn_error",
+  "finished_at": "2026-10-05T05:25:39.671Z",
+  "recorded_source_file_sha256": "ea81675fea8f199dde052fefc55c69144595d8fa7c128e43854c403dd6ca4fe7"
+}

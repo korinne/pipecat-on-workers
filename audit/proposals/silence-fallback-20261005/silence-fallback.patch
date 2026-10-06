@@ -1,0 +1,464 @@
+--- a/src/smart_turn.py
++++ b/src/smart_turn.py
+@@ -5,6 +5,7 @@
+ """
+ import asyncio
+ import math
++import time
+ from dataclasses import dataclass
+ from datetime import datetime, timezone
+ 
+@@ -135,9 +136,17 @@
+ 
+ 
+ class NovaTurnCoordinator:
+-    def __init__(self, provider, queue, send, measure, *, timeout=5):
++    def __init__(self, provider, queue, send, measure, *, timeout=5,
++                 silence_timeout=3, clock=time.monotonic):
+         self.provider, self.queue, self.send, self.measure = provider, queue, send, measure
+         self.timeout = timeout
++        self.silence_timeout = silence_timeout
++        self.clock = clock
++        self.pause_observed_at = None
++        self.pause_observed_cursor = None
++        self.silence_ranges = []
++        self.silence_timer = None
++        self.ready_task = None
+         self.connection = None
+         self.revision = 0
+         self.active = False
+@@ -165,10 +174,12 @@
+         return task
+ 
+     def _cancel_pending(self):
+-        for task in (self.detector, self.deadline):
++        for task in (self.detector, self.deadline, self.silence_timer, self.ready_task):
+             if task and task is not asyncio.current_task() and not task.done():
+                 task.cancel()
+-        self.detector = self.deadline = None
++        self.detector = self.deadline = self.silence_timer = self.ready_task = None
++        self.pause_observed_at = self.pause_observed_cursor = None
++        self.silence_ranges.clear()
+ 
+     def discard(self, reason):
+         self.revision += 1  # before any await or cancellation callback
+@@ -204,6 +215,11 @@
+         self.audio.extend(pcm)
+         if len(self.audio) > MAX_BUFFER:
+             del self.audio[:-MAX_BUFFER]
++        # Forwarded bytes alone never count as silence. A fresh Nova empty
++        # result must cover the same input while its VAD remains paused.
++        if (not self.queued and self.ready(self.revision) and
++                (self.ready_task is None or self.ready_task.done())):
++            self.ready_task = self._task(self._maybe_ready())
+ 
+     @staticmethod
+     def _sample(value):
+@@ -269,6 +285,11 @@
+             # They add no transcript and must not invalidate a held decision.
+             if text:
+                 await self.abort("transcript_beyond_pause")
++            elif not alternative.get("words", []):
++                self._record_empty_progress(start, end)
++                await self._maybe_ready()
++            else:
++                await self.abort("inconsistent_empty_result")
+             return
+         words = alternative.get("words", [])
+         word_end = None
+@@ -303,8 +324,12 @@
+         if event["speech_final"] and end > self.latest_onset and self.pause_end is None:
+             self.speaking = False
+             self.pause_end = end
++            self.pause_observed_at = self.clock()
++            self.pause_observed_cursor = self.cursor
++            self.silence_ranges.clear()
+             revision = self.revision
+             self.deadline = self._task(self._expire(revision))
++            self.silence_timer = self._task(self._after_silence_pause(revision))
+             await self.queue(VADUserStoppedSpeakingFrame())
+             # Transcript end bounds the snapshot; it is NOT a processed-audio
+             # or trailing-silence watermark. Do not include later queued speech.
+@@ -360,6 +385,44 @@
+         finally:
+             analyzer.clear()
+ 
++    def _record_empty_progress(self, start, end):
++        # These ranges provide fresh processing evidence while Nova reports no
++        # recognized text. They do not finalize the transcript or prove acoustic
++        # silence. Pause state still comes from Nova VAD, and every normal
++        # revision, coverage and deadline check remains in force.
++        if self.pause_end is None or start < self.pause_end or end <= start:
++            return
++        ranges = sorted(self.silence_ranges + [(start, end)])
++        merged = []
++        for left, right in ranges:
++            if merged and left <= merged[-1][1]:
++                merged[-1] = (merged[-1][0], max(merged[-1][1], right))
++            else:
++                merged.append((left, right))
++        self.silence_ranges = merged[:MAX_FRAGMENTS]
++
++    def _silence_ready(self):
++        if (self.decision != EndOfTurnState.INCOMPLETE or
++                self.pause_observed_at is None or self.pause_observed_cursor is None or
++                self.clock() - self.pause_observed_at < self.silence_timeout):
++            return False
++        target = self.pause_observed_cursor + round(self.silence_timeout * RATE)
++        if self.cursor < target:
++            return False
++        cursor = self.pause_observed_cursor
++        for start, end in self.silence_ranges:
++            if start > cursor:
++                return False
++            cursor = max(cursor, end)
++            if cursor >= target:
++                return True
++        return False
++
++    async def _after_silence_pause(self, revision):
++        await asyncio.sleep(self.silence_timeout)
++        if revision == self.revision:
++            await self._maybe_ready()
++
+     async def _expire(self, revision):
+         await asyncio.sleep(self.timeout)
+         if revision == self.revision and self.active:
+@@ -367,7 +430,10 @@
+ 
+     def ready(self, revision):
+         return (revision == self.revision and self.active and not self.speaking and
+-                self.decision == EndOfTurnState.COMPLETE and self._covered() and bool(self.text()))
++                self.pause_observed_at is not None and
++                self.clock() - self.pause_observed_at < self.timeout and
++                (self.decision == EndOfTurnState.COMPLETE or self._silence_ready()) and
++                self._covered() and bool(self.text()))
+ 
+     async def _maybe_ready(self):
+         if not self.queued and self.ready(self.revision):
+@@ -377,12 +443,14 @@
+     def claim(self, revision):
+         if not self.ready(revision):
+             return False
++        completion_reason = ("smart_turn" if self.decision == EndOfTurnState.COMPLETE
++                             else "silence_timeout")
+         self.consumed = self.pause_end
+         self.active = self.speaking = False
+         self.segments.clear()
+         self.word_ends.clear()
+         self._cancel_pending()
+-        self.measure("user_end", {"revision": revision})
++        self.measure("user_end", {"revision": revision, "completion_reason": completion_reason})
+         return True
+ 
+     async def committed(self, text):
+@@ -392,7 +460,9 @@
+         return {"pending_turn_tasks": sum(not t.done() for t in self.tasks),
+                 "pending_user_fragments": len(self.segments), "pending_user_chars": len(self.text()),
+                 "turn_audio_bytes": len(self.audio), "turn_revision": self.revision,
+-                "turn_timeout_secs": self.timeout}
++                "turn_timeout_secs": self.timeout,
++                "turn_silence_timeout_secs": self.silence_timeout,
++                "pending_silence_ranges": len(self.silence_ranges)}
+ 
+     async def close(self):
+         self.closed = True
+--- /dev/null
++++ b/tests/test_silence_fallback.py
+@@ -0,0 +1,296 @@
++"""Draft policy checks. Manual monotonic time is controlled; no live silence claim."""
++import asyncio
++import copy
++import unittest
++from tests.test_speech_pipeline import SpeechHarness, QUESTION, FOLLOWUP, ANSWER
++from runtime_probe import wait_for
++from smart_turn import ReadyTurnFrame, EndOfTurnState, MAX_FRAGMENTS
++
++class SilenceFallbackTests(unittest.IsolatedAsyncioTestCase):
++    async def paused(self, route, *, final=True):
++        h = await SpeechHarness(route).start()
++        h.clock = [100.0]
++        h.session.turn.clock = lambda: h.clock[0]
++        h.provider.turn_decisions = [False]
++        await h.inner.begin(QUESTION, 0)
++        await h.inner.finish(QUESTION, 0, final=final)
++        await wait_for(lambda: h.session.turn.decision == EndOfTurnState.INCOMPLETE,
++                       "controlled incomplete detector decision")
++        h.original_pause = h.session.turn.pause_end
++        h.observed_cursor = h.session.turn.pause_observed_cursor
++        return h
++
++    async def audio(self, h, seconds):
++        remaining = round(seconds * 32000)
++        while remaining:
++            size = min(16000, remaining)
++            await h.session.audio(bytes(size))
++            remaining -= size
++
++    async def empty(self, h, start=None, end=None, *, final=False, words=None):
++        await h.session.provider_event({"type":"Results", "start":
++            h.original_pause / 16000 if start is None else start,
++            "duration": (h.provider.audio_cursor if end is None else end) -
++                        (h.original_pause / 16000 if start is None else start),
++            "is_final":final, "speech_final":False,
++            "channel":{"alternatives":[{"transcript":"", "words":[] if words is None else words}]},
++            "connection_generation":h.provider.connection_generation})
++
++    async def no_response(self, h):
++        await asyncio.sleep(.03)
++        self.assertEqual(h.provider.generations, [])
++        self.assertFalse(any(m["role"] == "user" for m in h.session.context.get_messages()))
++
++    async def completes_once(self, route):
++        h = await self.paused(route)
++        try:
++            h.clock[0] += 2.98
++            await self.audio(h, 2.98)
++            await self.empty(h)
++            await self.no_response(h)
++            h.clock[0] += .020001
++            await self.audio(h, .02)
++            await self.empty(h)
++            await h.complete()
++            self.assertEqual(h.session.turn.consumed, h.original_pause)
++            self.assertEqual(len(h.provider.turn_checks), 1)
++            model = [m for m in h.session.metrics if m["event"] == "smart_turn"]
++            self.assertEqual([m["complete"] for m in model], [False])
++            ends = [m for m in h.session.metrics if m["event"] == "user_end"]
++            self.assertEqual([m["completion_reason"] for m in ends], ["silence_timeout"])
++            self.assertEqual(h.provider.generations[0][-1]["content"], QUESTION)
++            await self.empty(h)
++            await self.empty(h, final=True)
++            await asyncio.sleep(.03)
++            self.assertEqual(len(h.provider.generations), 1)
++            await h.turn(FOLLOWUP, 1)
++            await h.complete(2)
++            self.assertEqual(h.provider.generations[1][-2:], [
++                {"role":"assistant", "content":ANSWER}, {"role":"user", "content":FOLLOWUP}])
++        finally:
++            await h.close()
++
++    async def insufficient(self, route, missing):
++        h = await self.paused(route, final=missing != "final_user_text")
++        try:
++            h.clock[0] += (5.001 if missing == "deadline" else
++                           3.001 if missing != "wall_time" else 0)
++            if missing != "forwarded_audio":
++                await self.audio(h, 3)
++            if missing == "empty_progress":
++                pass
++            elif missing == "coverage_gap":
++                await self.empty(h, start=h.original_pause / 16000 + .1)
++            elif missing == "old_progress":
++                await self.empty(h, end=h.original_pause / 16000)
++            elif missing == "forwarded_audio":
++                await self.empty(h, end=h.original_pause / 16000)
++            else:
++                await self.empty(h)
++            await self.no_response(h)
++            # The existing absolute readiness deadline still discards the turn.
++            h.session.turn.timeout = .01
++            await h.session.turn._expire(h.session.turn.revision)
++            await wait_for(lambda: any(e.get("type") == "error" for e in h.events), "readiness abort")
++            self.assertEqual(h.provider.generations, [])
++        finally:
++            await h.close()
++
++    async def resumed(self, route, queued):
++        h = await self.paused(route)
++        entered, release = asyncio.Event(), asyncio.Event()
++        if queued:
++            @h.session.user.event_handler("on_before_process_frame")
++            async def hold_ready(processor, frame):
++                if isinstance(frame, ReadyTurnFrame) and not entered.is_set():
++                    entered.set()
++                    await release.wait()
++        try:
++            h.clock[0] += 3.001 if queued else 2.98
++            await self.audio(h, 3 if queued else 2.98)
++            await self.empty(h)
++            if queued:
++                await asyncio.wait_for(entered.wait(), 3)
++            await h.inner.begin("and the remainder.", 1, resume=True)
++            release.set()
++            await self.no_response(h)
++            self.assertEqual(h.session.turn.silence_ranges, [])
++            # Empty progress never became transcript text. Final coverage of
++            # the resumed speech must span from Nova's previous final cursor.
++            final = h.inner.result("and the remainder.", 1)
++            final["start"] = h.original_pause / 16000
++            final["duration"] = h.provider.audio_cursor - final["start"]
++            await h.session.provider_event(final)
++            await h.complete()
++            self.assertEqual(len(h.provider.generations), 1)
++            self.assertEqual(h.provider.generations[0][-1]["content"], QUESTION + " and the remainder.")
++            self.assertEqual([m["completion_reason"] for m in h.session.metrics if m["event"] == "user_end"], ["smart_turn"])
++        finally:
++            release.set()
++            await h.close()
++
++    async def resumed_complete(self, route):
++        h = await self.paused(route)
++        try:
++            h.clock[0] += 2.98
++            await self.audio(h, 2.98)
++            await self.empty(h)
++            await h.inner.begin("and the remainder.", 1, resume=True)
++            await self.no_response(h)
++            self.assertEqual(h.session.turn.silence_ranges, [])
++            event = h.inner.result("and the remainder.", 1)
++            event["start"] = h.original_pause / 16000
++            event["duration"] = h.provider.audio_cursor - event["start"]
++            await h.session.provider_event(event)
++            await h.complete()
++            self.assertEqual(h.provider.generations[0][-1]["content"], QUESTION + " and the remainder.")
++            self.assertEqual([m["completion_reason"] for m in h.session.metrics if m["event"] == "user_end"], ["smart_turn"])
++        finally:
++            await h.close()
++
++    async def invalidated(self, route, reason):
++        h = await self.paused(route)
++        try:
++            h.clock[0] += 3.001
++            await self.audio(h, 3)
++            if reason == "reconnect":
++                await h.provider.reconnect()
++            elif reason == "end":
++                await h.session.close("ended")
++            elif reason == "new_text":
++                event={"type":"Results", "start":h.original_pause/16000, "duration":3,
++                    "is_final":False,"speech_final":False,
++                    "channel":{"alternatives":[{"transcript":"More speech", "words":
++                        [{"start":h.original_pause/16000, "end":h.provider.audio_cursor}]}]},
++                    "connection_generation":h.provider.connection_generation}
++                await h.session.provider_event(event)
++            await self.empty(h)
++            await self.no_response(h)
++        finally:
++            await h.close()
++
++    async def held_detector(self, route):
++        h = await SpeechHarness(route).start()
++        clock=[100.0]
++        h.session.turn.clock=lambda:clock[0]
++        h.provider.turn_gate=asyncio.Event()
++        h.provider.turn_decisions=[False]
++        try:
++            await h.turn()
++            await h.provider.turn_started.wait()
++            h.original_pause=h.session.turn.pause_end
++            clock[0]+=3.001
++            await self.audio(h,3)
++            await self.empty(h)
++            await self.no_response(h)
++            h.session.turn.timeout=.01
++            await h.session.turn._expire(h.session.turn.revision)
++            h.provider.turn_gate.set()
++            await self.no_response(h)
++        finally:
++            h.provider.turn_gate.set()
++            await h.close()
++
++    async def queued_deadline(self, route):
++        h = await self.paused(route)
++        entered, release = asyncio.Event(), asyncio.Event()
++        @h.session.user.event_handler("on_before_process_frame")
++        async def hold_ready(processor, frame):
++            if isinstance(frame, ReadyTurnFrame) and not entered.is_set():
++                entered.set()
++                await release.wait()
++        try:
++            h.clock[0] += 3.001
++            await self.audio(h, 3)
++            await self.empty(h)
++            await asyncio.wait_for(entered.wait(), 3)
++            revision = h.session.turn.revision
++            h.session.turn.timeout = .01
++            await h.session.turn._expire(revision)
++            release.set()
++            await self.no_response(h)
++            self.assertFalse(h.session.turn.ready(revision))
++        finally:
++            release.set()
++            await h.close()
++
++    async def detector_error(self, route):
++        h = await SpeechHarness(route).start()
++        clock = [100.0]
++        h.session.turn.clock = lambda: clock[0]
++        h.provider.turn_decisions = [RuntimeError("controlled detector failure")]
++        try:
++            await h.turn()
++            await wait_for(lambda: any(e.get("type") == "error" for e in h.events), "detector error")
++            h.original_pause = round(h.provider.audio_cursor * 16000)
++            clock[0] += 3.001
++            await self.audio(h, 3)
++            await self.empty(h)
++            await self.no_response(h)
++            self.assertFalse(any(m["event"] == "user_end" for m in h.session.metrics))
++        finally:
++            await h.close()
++
++    async def invalid_empty(self, route):
++        h = await self.paused(route)
++        try:
++            h.clock[0] += 3.001
++            await self.audio(h, 3)
++            await self.empty(h, end=h.provider.audio_cursor + .1)
++            await self.no_response(h)
++            self.assertTrue(any(m["event"] == "turn_discarded" and m["reason"] == "invalid_nova_event"
++                                for m in h.session.metrics))
++        finally:
++            await h.close()
++
++    async def gapped_user_final(self, route):
++        h = await SpeechHarness(route).start()
++        h.clock = [100.0]
++        h.session.turn.clock = lambda: h.clock[0]
++        h.provider.turn_decisions = [False]
++        try:
++            await h.inner.begin("", 0)
++            await h.inner.input_segment(1)
++            await h.inner.finish("second part.", 1)
++            await wait_for(lambda: h.session.turn.decision == EndOfTurnState.INCOMPLETE,
++                           "incomplete with gapped final transcript")
++            h.original_pause = h.session.turn.pause_end
++            h.clock[0] += 3.001
++            await self.audio(h, 3)
++            await self.empty(h)
++            await self.no_response(h)
++            self.assertFalse(h.session.turn._covered())
++            await h.inner.finish("First part and", 0, pause=False)
++            await h.complete()
++            self.assertEqual(h.provider.generations[0][-1]["content"], "First part and second part.")
++            self.assertEqual([m["completion_reason"] for m in h.session.metrics if m["event"] == "user_end"], ["silence_timeout"])
++        finally:
++            await h.close()
++
++    async def test_empty_progress_ranges_remain_bounded(self):
++        h = await self.paused("websocket")
++        try:
++            await self.audio(h, 3)
++            for index in range(100):
++                start = h.original_pause / 16000 + index * .02
++                await self.empty(h, start=start, end=start + .01)
++            self.assertLessEqual(len(h.session.turn.silence_ranges), MAX_FRAGMENTS)
++            self.assertEqual(h.session.turn.segments, {(0, h.original_pause): QUESTION})
++            await self.no_response(h)
++        finally:
++            await h.close()
++
++
++def install_cases():
++    for route in ("websocket","sfu"):
++        cases=[("completes_once",()),("resumed_complete",()),("held_detector",()),("queued_deadline",()),("detector_error",()),("invalid_empty",()),("gapped_user_final",())]
++        cases += [("insufficient",(x,)) for x in ("wall_time","deadline","forwarded_audio","empty_progress","coverage_gap","old_progress","final_user_text")]
++        cases += [("invalidated",(x,)) for x in ("reconnect","end","new_text")]
++        cases += [("resumed",(True,))]
++        for helper,args in cases:
++            async def run(self,route=route,helper=helper,args=args):
++                await getattr(self,helper)(route,*args)
++            name="test_"+route+"_"+helper+("_"+str(args[0]) if args else "")
++            setattr(SilenceFallbackTests,name,run)
++install_cases()
++if __name__ == '__main__': unittest.main()

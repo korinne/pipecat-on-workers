@@ -1,0 +1,69 @@
+{
+  "source_commit": "d2c0656cd2b018405a1850ddabac6266507c590e",
+  "deployment_version": "13762ff7-679d-477a-bafc-dcf37df2d5f4",
+  "checked_at": "2026-10-05T05:25:17.232Z",
+  "scope": "HTTP pages/access only; no provider calls or media opened. Created unused session records expire by existing policy.",
+  "checks": [
+    {
+      "route": "/api/health",
+      "status": 200,
+      "runtime": {
+        "runtime": "Python Worker",
+        "python": "3.14.2",
+        "pyodide": "314.0.6",
+        "pipecat": "1.11.0-patched",
+        "voice_validated": false
+      }
+    },
+    {
+      "route": "/websocket.html",
+      "status": 200
+    },
+    {
+      "route": "/webrtc.html",
+      "status": 200
+    },
+    {
+      "transport": "websocket",
+      "public_create": 201,
+      "private_token_present": true
+    },
+    {
+      "transport": "websocket",
+      "check": "no_token",
+      "status": 403
+    },
+    {
+      "transport": "websocket",
+      "check": "wrong_token",
+      "status": 403
+    },
+    {
+      "transport": "websocket",
+      "check": "fixture_disabled",
+      "status": 426
+    },
+    {
+      "transport": "webrtc",
+      "public_create": 201,
+      "private_token_present": true
+    },
+    {
+      "transport": "webrtc",
+      "check": "no_token",
+      "status": 403
+    },
+    {
+      "transport": "webrtc",
+      "check": "wrong_token",
+      "status": 403
+    },
+    {
+      "transport": "webrtc",
+      "check": "fixture_disabled",
+      "status": 426
+    }
+  ],
+  "application_revision": "d2c0656cd2b018405a1850ddabac6266507c590e",
+  "recorded_source_file_sha256": "8b93bafaeddb7a09e1bc3e62c21ea68c8035ec984e016e9cffe7fb6953d34782"
+}

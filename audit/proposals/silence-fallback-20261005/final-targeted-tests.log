@@ -1,0 +1,5 @@
+Executing <Task pending name='WorkersTTSService#1::__process_frame_task_handler' coro=<TaskManager.create_task.<locals>.run_coroutine() running at /private/tmp/pipecat-silence-draft-4ffc5a9/src/pipecat/utils/asyncio/task_manager.py:191> cb=[TaskManager.create_task.<locals>.close_unawaited_coroutine() at /private/tmp/pipecat-silence-draft-4ffc5a9/src/pipecat/utils/asyncio/task_manager.py:204, TaskManager._task_done_handler()] created at /private/tmp/pipecat-silence-draft-4ffc5a9/src/pipecat/utils/asyncio/task_manager.py:201> took 0.232 seconds
+----------------------------------------------------------------------
+Ran 57 tests in 17.289s
+
+OK

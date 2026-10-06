@@ -1,0 +1,10 @@
+{
+  "source_commit": "f8835e8623040c0d0e8b264c1ac28486255f5f63",
+  "command": "uv run --frozen pywrangler deploy --dry-run --outdir <private temporary build directory>",
+  "exit_code": 0,
+  "wrangler": "4.139.0",
+  "total_upload_kib": 17915.91,
+  "gzip_kib": 4450.36,
+  "scope": "Build only; provider execution recorded separately",
+  "build_log_sha256": "c6331f1f63b9e3d2c2d24adf2a1fb1608e24cc92edc6f751cd5e8c832d4ffb0e"
+}

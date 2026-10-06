@@ -1,0 +1,40 @@
+{
+  "scope": "Precommit application integration; controlled providers except separately labeled live Python Worker captures. Not final revision acceptance.",
+  "python": "3.14.7",
+  "full_application_suite": {
+    "tests": 137,
+    "passed": 136,
+    "failed": 1,
+    "failure": "Existing test_audio_input restored-history fixture lacked context_schema=2 and correctly migrated to fresh context. Fixture now declares schema2; two focused tests pass. Legacy reset has separate speech coverage."
+  },
+  "javascript": {
+    "tests": 64,
+    "passed": 64
+  },
+  "supporting_checks": {
+    "core": "passed; zero guarded threads and remaining pipeline tasks",
+    "providers": "passed; controlled I/O",
+    "entry_lifecycle": "7 passed",
+    "access": "48 passed after expected diagnostic schema update; auth assertions retained",
+    "sfu_entry": "16 passed"
+  },
+  "speech_tests": 38,
+  "persistence_tests": 7,
+  "live_local": {
+    "python_workers": true,
+    "remote_workers_ai": true,
+    "fixture_providers": false,
+    "result": "One complete question produced exactly one response with nonzero PCM and committed context, then End reached zero owned provider/pipeline counters.",
+    "source_identity": "Frozen local copy of pending speech implementation; diagnostic-only Nova timing logging. Not final exact-revision evidence.",
+    "earlier_failure": "Empty silence result aborted pending decision, now corrected.",
+    "physical_audio": "untested"
+  },
+  "sources": {
+    "src/conversation.py": "9040186bc62e59191501ade9ca0f1bf6105a43bd9bc2311a4bed3fea101f2442",
+    "src/speech_pipeline.py": "92775ea67392b91e3a67e9444ed40dfad3ecdc3a64db981dd0ddf8d26bc73436",
+    "src/smart_turn.py": "0d95bbf6d506502291f5898a8e837791742d8d61efd928e5c0ead2a3a976746b",
+    "src/entry.py": "aec666404cd6e29b9b6e544325fe732ecf7c5cd67954eeb8368cc0a533b8ab8c",
+    "src/providers.py": "7c5e59634829f8e15b906dd958dec8c07901230bda92e4663031bf9219493ed7",
+    "src/pipecat/VENDOR_MANIFEST.json": "c50f06b01732b8b9fe96a4a742400124987c9a6c17f6f292b1be416933ea60fc"
+  }
+}

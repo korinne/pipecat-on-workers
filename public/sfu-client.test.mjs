@@ -2,6 +2,7 @@
 // or prove what a physical speaker played.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { getEventListeners } from 'node:events';
 import { SfuAudioTransport } from './sfu-client.mjs';
 
 const settle = () => new Promise(resolve => setImmediate(resolve));
@@ -24,7 +25,8 @@ function setup({ signal, gather = true, connect = true, trackLate = false } = {}
       this.operations.push('local:'+description.type);
       if(description.type==='offer') { assert.equal(this.signalingState,'stable'); this.signalingState='have-local-offer'; }
       else { assert.equal(this.signalingState,'have-remote-offer'); this.signalingState='stable'; }
-      this.localDescription = description;
+      this.localDescription = { ...description };
+      this.iceGatheringState = 'gathering';
       this.transceivers.forEach((t,i)=>t.mid=String(i));
       if (this.gathers) this.finishGathering();
     }
@@ -182,3 +184,123 @@ test('playback readiness does not await playing events or the audio play promise
   assert.equal(h.requests.at(-1).body.action,'playback_ready');
   assert.equal(h.requests.some(r=>r.body.action==='played'),false); h.transport.close();
 });
+
+
+const candidateSDP = 'a=candidate:1 1 udp 2122260223 192.0.2.1 40000 typ host';
+function addPendingCandidate(peer) {
+  peer.localDescription.sdp += `\r\n${candidateSDP}\r\n`;
+  peer.dispatchEvent(new Event('icecandidate'));
+}
+function assertGatheringWaitRemoved(transport, peer) {
+  assert.equal(getEventListeners(peer, 'icegatheringstatechange').length, 0);
+  assert.equal([...transport.cleanups].filter(p=>p.role === (transport.input?.pc===peer?'input':'output')).length, 0);
+}
+
+test('gathering deadline publishes current candidates but input readiness still waits for connection', async t=>{
+  t.mock.timers.enable({apis:['setTimeout']});
+  const h=setup({gather:false,connect:false}); const publishing=h.transport.publish();
+  await settle(); const peer=h.peers[0];
+  addPendingCandidate(peer);
+  t.mock.timers.tick(7999); await settle(); assert.equal(h.requests.length,0);
+  t.mock.timers.tick(1); await settle();
+  assert.equal(peer.iceGatheringState,'gathering');
+  assert.deepEqual(h.requests.map(r=>r.body.action),['publish']);
+  assert.match(h.requests[0].body.sessionDescription.sdp,/a=candidate:/);
+  assert.equal(getEventListeners(peer,'icegatheringstatechange').length,0);
+  assert.equal(h.transport.cleanups.size,1,'connection wait still owns readiness');
+  peer.connected(); await publishing;
+  assert.deepEqual(h.requests.map(r=>r.body.action),['publish','input_ready']);
+  assertGatheringWaitRemoved(h.transport,peer); h.transport.close();
+  t.mock.timers.tick(20000); await settle();
+  assert.equal(h.requests.length,2,'late timer does not repeat publication');
+});
+test('gathering deadline renegotiates current answer candidates but output readiness waits for connection', async t=>{
+  t.mock.timers.enable({apis:['setTimeout']});
+  const h=setup({gather:false,connect:false}); const subscribing=h.transport.subscribe(31);
+  await settle(); const peer=h.peers[0]; addPendingCandidate(peer);
+  assert.deepEqual(h.requests.map(r=>r.body.action),['subscribe']);
+  t.mock.timers.tick(8000); await settle();
+  assert.equal(peer.iceGatheringState,'gathering');
+  assert.deepEqual(h.requests.map(r=>r.body.action),['subscribe','renegotiate']);
+  assert.match(h.requests[1].body.sessionDescription.sdp,/a=candidate:/);
+  assert.equal(h.requests[1].body.sessionDescription.type,'answer');
+  assert.equal(h.requests[1].body.generation,31);
+  assert.equal(getEventListeners(peer,'icegatheringstatechange').length,0);
+  peer.connected(); await subscribing;
+  assert.equal(h.requests.at(-1).body.action,'playback_ready');
+  assertGatheringWaitRemoved(h.transport,peer); h.transport.close();
+});
+for (const role of ['input','output']) {
+  test(`${role} gathering deadline still rejects without a candidate`,async t=>{
+    t.mock.timers.enable({apis:['setTimeout']});
+    const h=setup({gather:false});
+    const pending=role==='input'?h.transport.publish():h.transport.subscribe(32);
+    await settle(); const peer=h.peers[0];
+    // Mentioning a candidate elsewhere in SDP is not an ICE candidate line.
+    peer.localDescription.sdp+='\r\na=label:not-a=candidate:route\r\n';
+    t.mock.timers.tick(8000);
+    await assert.rejects(pending,/could not gather a network route/);
+    assert.deepEqual(h.requests.map(r=>r.body.action),role==='input'?[]:['subscribe']);
+    assertGatheringWaitRemoved(h.transport,peer); h.transport.close();
+  });
+  test(`End cancels ${role} gathering even when a candidate is available at the deadline`,async t=>{
+    t.mock.timers.enable({apis:['setTimeout']});
+    const h=setup({gather:false});
+    const pending=role==='input'?h.transport.publish():h.transport.subscribe(33);
+    await settle(); const peer=h.peers[0]; addPendingCandidate(peer);
+    t.mock.timers.tick(7999);
+    h.transport.close(); await assert.rejects(pending,{name:'AbortError'});
+    assertGatheringWaitRemoved(h.transport,peer);
+    t.mock.timers.tick(1); peer.finishGathering(); await settle();
+    assert.deepEqual(h.requests.map(r=>r.body.action),role==='input'?[]:['subscribe']);
+  });
+}
+test('replacement during candidate gathering cannot renegotiate or announce readiness for the old output',async t=>{
+  t.mock.timers.enable({apis:['setTimeout']});
+  const h=setup({gather:false}); const old=h.transport.subscribe(40);
+  await settle(); const retired=h.peers[0]; addPendingCandidate(retired);
+  // The deadline resolves the old wait; replacement wins before its awaiting
+  // continuation can submit the answer or report readiness.
+  t.mock.timers.tick(8000);
+  const replacement=h.transport.subscribe(41);
+  await assert.rejects(old,{name:'AbortError'}); await settle();
+  const current=h.peers[1]; current.finishGathering(); await replacement;
+  const source=h.audio.srcObject;
+  t.mock.timers.tick(8000); retired.finishGathering(); await settle();
+  assert.equal(h.audio.srcObject,source);
+  assert.deepEqual(h.requests.filter(r=>r.body.action==='renegotiate').map(r=>r.body.generation),[41]);
+  assert.deepEqual(h.requests.filter(r=>r.body.action==='playback_ready').map(r=>r.body.generation),[41]);
+  assert.equal(h.transport.cleanups.size,0);
+  assert.equal(getEventListeners(retired,'icegatheringstatechange').length,0);
+  assert.equal(getEventListeners(current,'icegatheringstatechange').length,0);
+  h.transport.close();
+});
+
+for (const role of ['input','output']) {
+  test(`${role} candidates do not bypass the connection timeout`,async t=>{
+    t.mock.timers.enable({apis:['setTimeout']});
+    const h=setup({gather:false,connect:false});
+    const pending=role==='input'?h.transport.publish():h.transport.subscribe(50);
+    await settle(); const peer=h.peers[0]; addPendingCandidate(peer);
+    t.mock.timers.tick(8000); await settle();
+    assert.equal(h.requests.some(r=>['input_ready','playback_ready'].includes(r.body.action)),false);
+    t.mock.timers.tick(15000);
+    await assert.rejects(pending,role==='input'?/microphone could not connect/:/audio could not connect/);
+    assert.equal(h.requests.some(r=>['input_ready','playback_ready'].includes(r.body.action)),false);
+    assertGatheringWaitRemoved(h.transport,peer); h.transport.close();
+  });
+}
+
+for (const role of ['input','output']) {
+  test(`End after ${role} gathering deadline wins before negotiation resumes`,async t=>{
+    t.mock.timers.enable({apis:['setTimeout']});
+    const h=setup({gather:false});
+    const pending=role==='input'?h.transport.publish():h.transport.subscribe(60);
+    await settle(); const peer=h.peers[0]; addPendingCandidate(peer);
+    t.mock.timers.tick(8000);
+    h.transport.close(); await assert.rejects(pending,{name:'AbortError'});
+    assertGatheringWaitRemoved(h.transport,peer);
+    peer.finishGathering(); t.mock.timers.tick(20000); await settle();
+    assert.deepEqual(h.requests.map(r=>r.body.action),role==='input'?[]:['subscribe']);
+  });
+}

@@ -32,7 +32,7 @@ export class SfuAudioTransport {
       throw error;
     } finally { clearTimeout(timeout); this.controllers.delete(pending); }
   }
-  async waitFor(peer, role, predicate, eventNames, timeoutMs, message) {
+  async waitFor(peer, role, predicate, eventNames, timeoutMs, message, timeoutPredicate = () => false) {
     this.assertCurrent(peer, role);
     if (predicate()) return;
     const names = Array.isArray(eventNames) ? eventNames : [eventNames];
@@ -52,7 +52,10 @@ export class SfuAudioTransport {
       const pending = { cancel, role };
       this.cleanups.add(pending);
       for (const name of names) peer.addEventListener(name, changed);
-      timer = setTimeout(() => finish(new Error(message)), timeoutMs);
+      timer = setTimeout(() => {
+        try { this.assertCurrent(peer, role); finish(timeoutPredicate() ? undefined : new Error(message)); }
+        catch (error) { finish(error); }
+      }, timeoutMs);
       changed();
     });
   }
@@ -75,9 +78,12 @@ export class SfuAudioTransport {
     this.assertCurrent(peer, role);
     await peer.setLocalDescription(description);
     this.assertCurrent(peer, role);
-    // Signaling does not trickle candidates. Both the microphone offer and the
-    // receiver answer must contain the completed local ICE candidate set.
-    await this.waitFor(peer, role, () => peer.iceGatheringState === 'complete', 'icegatheringstatechange', 8000, 'WebRTC could not gather a network route. Try another network or the WebSocket example.');
+    // Signaling does not trickle candidates. Bound gathering, then allow the
+    // gathered candidates to attempt connectivity if other lookups are pending.
+    // publish/subscribe still require a connected peer before reporting ready.
+    const hasCandidate = () => peer.localDescription?.sdp.split(/\r?\n/).some(line => line.startsWith('a=candidate:')) === true;
+    await this.waitFor(peer, role, () => peer.iceGatheringState === 'complete', 'icegatheringstatechange', 8000,
+      'WebRTC could not gather a network route. Try another network or the WebSocket example.', hasCandidate);
     this.assertCurrent(peer, role);
     return { type: peer.localDescription.type, sdp: peer.localDescription.sdp };
   }

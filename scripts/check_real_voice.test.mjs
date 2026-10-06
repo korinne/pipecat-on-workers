@@ -26,7 +26,7 @@ test('default plan is twenty turns; supported plans never exceed twenty-four', (
   assert.equal(options(['--pcm-second', 'second.pcm']).pcmSecond, 'second.pcm');
 });
 
-test('receipts wait for serial PCM duration and preserve the final sentence marker', () => {
+test('receipts wait for serial PCM duration without sentence markers', () => {
   const q = new ReceiptQueue();
   q.enqueue(packet(4, 1), 1000);
   q.enqueue(packet(4, 2, 1200, 'Private sentence.'), 1001);
@@ -35,7 +35,7 @@ test('receipts wait for serial PCM duration and preserve the final sentence mark
   assert.deepEqual(q.due(1149), []);
   const last = q.due(1150);
   assert.equal(last[0].chunk_id, 2);
-  assert.equal(last[0].text, 'Private sentence.');
+  assert.equal(Object.hasOwn(last[0], 'text'), false);
   assert.equal(last[0].duration, 50);
 });
 
@@ -63,10 +63,10 @@ test('output bounds reject invalid PCM and more than twelve seconds queued', () 
 test('public diagnostics exclude transcripts, identifiers, URLs, errors and unknown fields', () => {
   const result = safeDiagnostics({ closed: true, pipecat_tasks: 0, provider_sockets: 0,
     messages: 5, token: 'secret', id: 'session-id', history: [{ text: 'private' }],
-    pending_turn_tasks: 0, pending_user_fragments: 0, pending_user_chars: 0, turn_end_grace_ms: 1200,
+    pending_turn_tasks: 0, pending_user_fragments: 0, pending_user_chars: 0, turn_timeout_secs: 5,
     metrics: [{ event: 'error', message: 'private secret' }], provider_readers: 'secret', url: 'https://host?token=secret' });
   assert.deepEqual(result, { closed: true, pipecat_tasks: 0, provider_sockets: 0,
-    pending_turn_tasks: 0, pending_user_fragments: 0, pending_user_chars: 0, messages: 5, turn_end_grace_ms: 1200 });
+    pending_turn_tasks: 0, pending_user_fragments: 0, pending_user_chars: 0, messages: 5, turn_timeout_secs: 5 });
   assert.ok(!JSON.stringify(result).includes('secret'));
 });
 

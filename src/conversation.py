@@ -9,29 +9,37 @@ import contextlib
 import copy
 import re
 import time
-from datetime import datetime, timezone
 
 from pipecat.frames.frames import (
-    Frame, InterruptionFrame, LLMContextFrame, ProposedUserStartedSpeakingFrame,
-    ProposedUserStoppedSpeakingFrame, TranscriptionFrame, UserStoppedSpeakingFrame,
+    Frame, InterruptionFrame, LLMContextFrame,
 )
 from pipecat.pipeline.pipeline import Pipeline
 from pipecat.pipeline.worker import PipelineParams, PipelineWorker
 from pipecat.processors.aggregators.llm_context import LLMContext
 from pipecat.processors.aggregators.llm_response_universal import LLMUserAggregator, LLMUserAggregatorParams
 from pipecat.processors.frame_processor import FrameDirection, FrameProcessor
-from pipecat.turns.user_turn_strategies import ExternalUserTurnStrategies
+from pipecat.turns.user_turn_strategies import UserTurnStrategies
+from pipecat.turns.user_start.vad_user_turn_start_strategy import VADUserTurnStartStrategy
+from smart_turn import NovaTurnCoordinator, HostedTurnStopStrategy, HostedUserAggregator
 from pipecat.utils.asyncio.task_manager import TaskManager
 from pipecat.workers.base_worker import WorkerParams
+from audio_transport import WebSocketAudioTransport, MAX_UNACKED_BYTES, MAX_PENDING_RECEIPTS
+from speech_pipeline import (WorkersLLMService, WorkersTTSService, WorkersOutputTransport,
+    PersistedAssistantAggregator, MAX_QUEUED_AUDIO_BYTES)
 
 SYSTEM = ('You are a concise, friendly voice assistant. Reply in one or two short sentences, '
           'without markdown. Remember the conversation. Appointment availability is fictional '
-          'and read-only. Never claim a booking was made. If a tool result is provided, use it. '
-          'Assistant history includes only fully played sentences; an interrupted sentence may be absent.')
-MAX_UNACKED_BYTES = 384000  # eight seconds of 24 kHz mono PCM16
-MAX_PENDING_RECEIPTS = 256  # also bounds already-played pieces of an unfinished sentence
+          'and read-only. Never claim a booking was made. If a tool result is provided, use it.')
+CONTEXT_SCHEMA = 2
 MAX_PENDING_USER_FRAGMENTS = 16
 MAX_PENDING_USER_CHARS = 8192
+PERSIST_ATTEMPTS = 3
+PERSIST_TIMEOUT = 1
+PERSIST_RETRY_DELAY = .05
+
+
+class ContextPersistenceError(RuntimeError):
+    """The call cannot proceed with context that storage has not acknowledged."""
 
 
 async def lookup_availability():
@@ -40,75 +48,55 @@ async def lookup_availability():
     return {"fictional": True, "appointments": ["Tuesday at 10 AM", "Thursday at 2 PM"], "booked": False}
 
 
-class GenerateResponse(FrameProcessor):
-    def __init__(self, session):
-        super().__init__()
-        self.session = session
-
-    async def process_frame(self, frame: Frame, direction: FrameDirection):
-        # Pipecat cancels its in-flight data-frame processing task here when an
-        # InterruptionFrame arrives. No detached generation task bypasses it.
-        await super().process_frame(frame, direction)
-        if isinstance(frame, InterruptionFrame):
-            await self.session.invalidate("pipecat_interruption")
-        elif isinstance(frame, LLMContextFrame) and direction == FrameDirection.DOWNSTREAM:
-            try:
-                await self.session.respond()
-            except asyncio.CancelledError:
-                self.session.measure("generation_cancelled", {})
-                raise
-            except Exception as exc:
-                self.session.measure("error", {"message": str(exc)})
-                await self.session.send({"type": "error", "message": f"Response failed: {exc}"})
-                await self.session.invalidate("response_error")
-            return
-        await self.push_frame(frame, direction)
-
-
 class ConversationSession:
     def __init__(self, state, provider_factory, send, save, *, tool=lookup_availability,
-                 on_fatal=None, turn_end_grace_ms=0, audio_transport=None):
+                 on_fatal=None, turn_timeout_secs=5, user_turn_stop_timeout=30, audio_transport=None):
         self.state = state
         self.send = send
         self.save = save
         self.tool = tool
         self.on_fatal = on_fatal
         self.audio_transport = audio_transport
-        self.turn_end_grace_ms = max(0, int(turn_end_grace_ms))
-        self._turn_lock = asyncio.Lock()
-        self._turn_commit_task = None
-        self._turn_open = False
-        self._turn_fragments = []
-        self._turn_chars = 0
-        self._turn_key = None
-        system = SYSTEM if audio_transport is None else SYSTEM.replace(
-            'Assistant history includes only fully played sentences; an interrupted sentence may be absent.',
-            'Audio playback cannot be confirmed for this call. Prior assistant replies are omitted from history; '
-            'do not assume the user heard any prior reply.')
-        self.context = LLMContext(copy.deepcopy(state.get("messages") or [{"role": "system", "content": system}]))
+        # Older histories omit SFU answers or have receipt-dependent fragments.
+        # Start fresh instead of fabricating missing speech. Existing tokens and
+        # cleanup ownership are preserved; only conversation context is reset.
+        self.history_reset = bool(state.get("messages")) and state.get("context_schema") != CONTEXT_SCHEMA
+        messages = copy.deepcopy(state.get("messages", [])) if state.get("context_schema") == CONTEXT_SCHEMA else []
+        dialogue = [m for m in messages if m.get("role") in ("user", "assistant") and isinstance(m.get("content"), str)]
+        self.context = LLMContext([{"role": "system", "content": SYSTEM}] + dialogue[-80:])
         self.generation = int(state.get("generation", 0)) + 1
-        self.next_chunk = 0
-        self.pending = {}
-        self.unacked_bytes = 0
+        self.context_ready = asyncio.Event()
+        self.context_ready.set()
+        self.transport_kind = "webrtc" if audio_transport else "websocket"
+        self.transport = audio_transport or WebSocketAudioTransport(
+            lambda event: self.send(event), is_current=self.is_current, initial_generation=self.generation)
+        self.queued_output_bytes = 0
+        self.output_credit = asyncio.Event()
+        self.output_credit.set()
+        self.response_started = time.monotonic()
         self.input_audio_chunks = 0
         self.input_audio_bytes = 0
         self.forwarded_audio_bytes = 0
-        self.credit = asyncio.Event()
-        self.credit.set()
+        self.next_input_trace_bytes = 0
         self.started = asyncio.Event()
         self.closed = False
         self.provider = provider_factory(self.provider_event)
         self.manager = TaskManager()
-        turn_strategies = ExternalUserTurnStrategies()
-        # We deliver final text before the normal stop proposal. An aborted
-        # empty turn must also close without waiting for text that was discarded.
-        turn_strategies.stop[0].wait_for_transcript = False
-        self.user = LLMUserAggregator(self.context, params=LLMUserAggregatorParams(
-            user_turn_strategies=turn_strategies, vad_analyzer=None,
-            audio_idle_timeout=0, user_turn_stop_timeout=30,
+        self.turn = NovaTurnCoordinator(self.provider, self._queue_turn_frame, self.send,
+                                        self.measure, timeout=turn_timeout_secs)
+        stop = HostedTurnStopStrategy(self.turn)
+        self.user = HostedUserAggregator(self.context, coordinator=self.turn, params=LLMUserAggregatorParams(
+            user_turn_strategies=UserTurnStrategies(start=[VADUserTurnStartStrategy()], stop=[stop]),
+            vad_analyzer=None, audio_idle_timeout=0, user_turn_stop_timeout=user_turn_stop_timeout,
         ))
-        self.processor = GenerateResponse(self)
-        self.worker = PipelineWorker(Pipeline([self.user, self.processor]),
+        stop.aggregator = self.user
+        self.user.before_commit = self.wait_for_context
+        self.user.before_interrupt = self.context_ready.clear
+        self.processor = WorkersLLMService(self)
+        self.tts = WorkersTTSService(self)
+        self.output = WorkersOutputTransport(self)
+        self.assistant = PersistedAssistantAggregator(self, self.user)
+        self.worker = PipelineWorker(Pipeline([self.user, self.processor, self.tts, self.output, self.assistant]),
             params=PipelineParams(audio_in_sample_rate=16000, audio_out_sample_rate=24000),
             enable_rtvi=False, enable_turn_tracking=False, enable_import_prewarm=False,
             idle_timeout_secs=None, cancel_timeout_secs=3,
@@ -117,11 +105,19 @@ class ConversationSession:
         self.last_activity = time.monotonic()
         self.began = self.last_activity
         self.metrics = []
-        self.seen_turns = set()
+        self.provider.measure_turn = self.measure
         self.last_interrupt = None
         self.responding = False
-        self.sentence_parts = []
-        self.last_assistant_message = None
+        self.persistence_lock = asyncio.Lock()
+        self.persistence_failed = False
+        self.persistence_uncertain = False
+        self.persistence_attempts = 0
+        self.persistence_tasks = set()
+        self.last_saved_state = copy.deepcopy(state)
+        self.last_saved_context = copy.deepcopy(self.context.get_messages())
+        self.save_sequence = self.saved_sequence = 0
+        self.fatal_close_task = None
+        self.close_task = None
 
         @self.worker.event_handler("on_pipeline_started")
         async def on_started(worker, frame):
@@ -131,14 +127,103 @@ class ConversationSession:
         self.metrics.append({"event": kind, "elapsed_ms": round((time.monotonic() - self.began) * 1000, 3), **values})
         self.metrics = self.metrics[-500:]
 
+    def _persistence_failed(self, reason):
+        if self.persistence_failed:
+            return
+        self.persistence_failed = True
+        self.closed = True
+        self.responding = False
+        self.generation += 1
+        self.context_ready.clear()
+        self.context.set_messages(copy.deepcopy(self.last_saved_context))
+        self.state.clear()
+        self.state.update(copy.deepcopy(self.last_saved_state))
+        self.queued_output_bytes = 0
+        self.output_credit.set()
+        self.turn.discard("context_persistence_failed")
+        self.measure("context_persistence_failed", {"reason": reason,
+                                                   "uncertain": self.persistence_uncertain})
+        # A processor must not await cancellation of its own pipeline task.
+        self.fatal_close_task = asyncio.create_task(self._end_after_persistence_failure())
+        self.fatal_close_task.add_done_callback(lambda done: None if done.cancelled() else done.exception())
+
+    async def _end_after_persistence_failure(self):
+        for event in ({"type": "error", "code": "context_persistence_failed", "recoverable": False,
+                       "message": "Conversation history could not be saved. This call has ended; start a new call."},
+                      {"type": "clear", "generation": self.generation, "reason": "context_persistence_failed"}):
+            with contextlib.suppress(Exception):
+                await asyncio.wait_for(self.send(event), PERSIST_TIMEOUT)
+        with contextlib.suppress(Exception):
+            await asyncio.wait_for(self.transport.clear(self.generation), PERSIST_TIMEOUT)
+        if self.on_fatal:
+            try:
+                await asyncio.wait_for(self.on_fatal(), PERSIST_TIMEOUT)
+                return
+            except Exception:
+                self.measure("fatal_owner_failed", {})
+        await self.close("context_persistence_failed")
+
     async def persist(self):
-        messages = self.context.get_messages()
-        # Explicit finite memory budget, preserving the system instruction.
-        if len(messages) > 81:
-            self.context.set_messages([messages[0]] + messages[-80:])
-        self.state.update(messages=copy.deepcopy(self.context.get_messages()), generation=self.generation,
-                          updated_at=time.time(), status="ended" if self.closed else "active")
-        await self.save(copy.deepcopy(self.state))
+        async with self.persistence_lock:
+            if self.persistence_failed:
+                raise ContextPersistenceError("Conversation history was not saved")
+            # An interrupted write retains its owner until settlement. Do not
+            # race a replacement write with a cancellation-resistant old one.
+            pending = [task for task in self.persistence_tasks if not task.done()]
+            if pending:
+                _, unsettled = await asyncio.wait(pending, timeout=PERSIST_TIMEOUT)
+                if unsettled:
+                    self.persistence_uncertain = True
+                    self._persistence_failed("previous_write_unsettled")
+                    raise ContextPersistenceError("Conversation storage is still pending")
+            messages = self.context.get_messages()
+            if len(messages) > 81:
+                self.context.set_messages([messages[0]] + messages[-80:])
+            snapshot = copy.deepcopy(self.state)
+            snapshot.update(context_schema=CONTEXT_SCHEMA, messages=copy.deepcopy(self.context.get_messages()),
+                            generation=self.generation, updated_at=time.time(),
+                            status="ended" if self.closed else "active")
+            for attempt in range(PERSIST_ATTEMPTS):
+                self.persistence_attempts += 1
+                self.save_sequence += 1
+                sequence = self.save_sequence
+                task = asyncio.create_task(self.save(copy.deepcopy(snapshot)))
+                self.persistence_tasks.add(task)
+
+                def settled(done, snapshot=copy.deepcopy(snapshot), sequence=sequence):
+                    self.persistence_tasks.discard(done)
+                    if done.cancelled() or done.exception() is not None:
+                        return
+                    if sequence > self.saved_sequence:
+                        self.saved_sequence = sequence
+                        self.last_saved_state = copy.deepcopy(snapshot)
+                        self.last_saved_context = copy.deepcopy(snapshot["messages"])
+                        if not self.persistence_failed:
+                            self.state.clear()
+                            self.state.update(copy.deepcopy(snapshot))
+
+                task.add_done_callback(settled)
+                try:
+                    done, _ = await asyncio.wait((task,), timeout=PERSIST_TIMEOUT)
+                except asyncio.CancelledError:
+                    task.cancel()
+                    raise
+                if not done:
+                    # Cancellation does not prove that storage rejected the
+                    # write. Stop this call without overlapping another attempt.
+                    self.persistence_uncertain = True
+                    task.cancel()
+                    self._persistence_failed("write_timeout")
+                    raise ContextPersistenceError("Conversation storage did not acknowledge the write")
+                try:
+                    task.result()
+                except (Exception, asyncio.CancelledError):
+                    if attempt + 1 < PERSIST_ATTEMPTS:
+                        await asyncio.sleep(PERSIST_RETRY_DELAY * (attempt + 1))
+                        continue
+                    self._persistence_failed("write_failed")
+                    raise ContextPersistenceError("Conversation history could not be saved") from None
+                return
 
     async def start(self):
         self.run_task = asyncio.create_task(self.worker.run(WorkerParams(task_manager=self.manager)))
@@ -150,19 +235,25 @@ class ConversationSession:
             history = self.context.get_messages()[1:]
             await self.send({"type": "reset", "generation": self.generation,
                              "history": history,
-                             "message": "Reconnected. Your conversation history is restored." if history else
+                             "message": "This saved call used an older history format. Starting with a fresh conversation." if self.history_reset else
+                                        "Reconnected. Your conversation history is restored." if history else
                                         "Connected. Say hello to start."})
             await self.send({"type": "ready", "generation": self.generation})
         except BaseException:
             await self.close("startup_failed")
             raise
 
+    async def _queue_turn_frame(self, frame):
+        from pipecat.frames.frames import VADUserStartedSpeakingFrame
+        if isinstance(frame, VADUserStartedSpeakingFrame):
+            self.last_interrupt = time.monotonic()
+        await self.worker.queue_frame(frame)
+
     async def provider_event(self, event):
         if self.closed:
             return
         if event.get("type") == "ProviderError":
-            async with self._turn_lock:
-                await self._cancel_turn_commit(discard=True)
+            await self.turn.abort("provider_error", notify=False)
             terminal = not event.get("recoverable", False)
             await self.send({"type": "error", "message": event.get("message", "Speech connection failed") +
                              (" Speech recognition stopped; start a new call." if terminal else
@@ -173,106 +264,10 @@ class ConversationSession:
                     await self.on_fatal()
                 else:
                     await self.close("terminal_provider_failure")
-                return
-            await self.interrupt()
-            return
-        if event.get("type") != "TurnInfo":
-            return
-        async with self._turn_lock:
-            if not self.closed:
-                await self._turn_info(event)
-
-    async def _turn_info(self, event):
-        kind, text = event.get("event"), event.get("transcript", "")
-        if kind == "StartOfTurn":
-            await self._cancel_turn_commit()
-            # A resumed fragment belongs to the open Pipecat turn. Repeating
-            # its start signal would reset the external-turn strategy.
-            if not self._turn_open:
-                self._turn_open = True
-                self.last_interrupt = time.monotonic()
-                await self.worker.queue_frame(ProposedUserStartedSpeakingFrame())
-        elif kind == "EndOfTurn":
-            key = (event.get("connection_generation", 0), event.get("turn_index"))
-            if key in self.seen_turns or not text.strip():
-                return
-            self.seen_turns.add(key)
-            if len(self.seen_turns) > 200:
-                self.seen_turns = {key}
-            text = text.strip()
-            chars = self._turn_chars + len(text) + bool(self._turn_fragments)
-            if len(self._turn_fragments) >= MAX_PENDING_USER_FRAGMENTS or chars > MAX_PENDING_USER_CHARS:
-                await self._cancel_turn_commit(discard=True)
-                await self.send({"type": "error", "message":
-                                 "Speech turn exceeded its text limit; please repeat a shorter request."})
+            else:
                 await self.interrupt()
-                return
-            await self._cancel_turn_commit()
-            self._turn_fragments.append(text)
-            self._turn_chars = chars
-            self._turn_key = key
-            self.measure("provider_end", {"turn": str(key), "grace_ms": self.turn_end_grace_ms})
-            if self.turn_end_grace_ms:
-                await self.send({"type": "transcript", "role": "user",
-                                 "text": " ".join(self._turn_fragments), "final": False})
-                self._turn_commit_task = asyncio.create_task(self._commit_turn_after_grace())
-            else:
-                await self._commit_user_turn()
-        elif kind == "Update" and text:
-            preview = " ".join([*self._turn_fragments, text])[:MAX_PENDING_USER_CHARS]
-            await self.send({"type": "transcript", "role": "user", "text": preview, "final": False})
-
-    async def _cancel_turn_commit(self, *, discard=False):
-        task, self._turn_commit_task = self._turn_commit_task, None
-        if task is not None and task is not asyncio.current_task():
-            task.cancel()
-            with contextlib.suppress(asyncio.CancelledError):
-                await task
-        if discard:
-            self._turn_fragments.clear()
-            self._turn_chars = 0
-            self._turn_key = None
-            if self._turn_open and not self.closed:
-                # This system frame survives interruption and precedes a
-                # reconnected start. No transcription was given to Pipecat,
-                # so closing this empty turn cannot trigger model inference.
-                await self.worker.queue_frame(UserStoppedSpeakingFrame())
-            self._turn_open = False
-
-    async def _commit_turn_after_grace(self):
-        current = asyncio.current_task()
-        try:
-            await asyncio.sleep(self.turn_end_grace_ms / 1000)
-            async with self._turn_lock:
-                if not self.closed and self._turn_commit_task is current:
-                    await self._commit_user_turn()
-        except asyncio.CancelledError:
-            raise
-        except Exception as exc:
-            self.measure("error", {"message": f"Turn commit failed: {exc}"})
-            await self.send({"type": "error", "message": "Speech turn could not be committed; start a new call."})
-            if self.on_fatal:
-                await self.on_fatal()
-            else:
-                await self.close("turn_commit_failed")
-        finally:
-            if self._turn_commit_task is current:
-                self._turn_commit_task = None
-
-    async def _commit_user_turn(self):
-        if self.closed or not self._turn_fragments:
             return
-        text = " ".join(self._turn_fragments)
-        key, fragments = self._turn_key, len(self._turn_fragments)
-        self._turn_fragments.clear()
-        self._turn_chars = 0
-        self._turn_key = None
-        self._turn_open = False
-        await self.send({"type": "transcript", "role": "user", "text": text, "final": True})
-        self.measure("user_end", {"turn": str(key), "fragments": fragments,
-                                  "grace_ms": self.turn_end_grace_ms})
-        await self.worker.queue_frame(TranscriptionFrame(text, "user", datetime.now(timezone.utc).isoformat()))
-        await self.worker.queue_frame(ProposedUserStoppedSpeakingFrame())
+        await self.turn.event(event)
 
     async def audio(self, pcm):
         if self.closed:
@@ -284,195 +279,145 @@ class ConversationSession:
         self.input_audio_bytes += len(pcm)
         if await self.provider.send_audio(pcm) is True:
             self.forwarded_audio_bytes += len(pcm)
+            self.turn.append_audio(pcm)
+        # First packet and then roughly once per audio second. The shared
+        # 500-event ring bounds retention; no PCM or text enters this trace.
+        if self.input_audio_bytes >= self.next_input_trace_bytes:
+            self.next_input_trace_bytes = self.input_audio_bytes + 32000
+            transport = self.transport.diagnostics()
+            self.measure("input_audio_progress", {**self.turn.trace_state(),
+                "input_audio_chunks": self.input_audio_chunks,
+                "input_audio_bytes": self.input_audio_bytes,
+                "forwarded_audio_bytes": self.forwarded_audio_bytes,
+                **{key: value for key, value in transport.items() if key in (
+                    "sfu_input_bytes", "sfu_dropped_packets", "sfu_input_packets", "sfu_decoded_pcm_bytes",
+                    "sfu_input_connections", "sfu_last_sequence", "sfu_last_packet_timestamp",
+                    "sfu_first_callback_ms", "sfu_first_pcm_ms", "sfu_input_socket_open",
+                    "sfu_input_pcm_ready", "sfu_input_failed")}})
 
     async def interrupt(self):
         if self.closed:
             return
         self.last_interrupt = time.monotonic()
+        self.context_ready.clear()
         await self.worker.queue_frame(InterruptionFrame())
+
+    def is_current(self, generation):
+        return not self.closed and generation == self.generation
+
+    @property
+    def pending(self):
+        return getattr(self.transport, "pending", {})
+
+    @property
+    def unacked_bytes(self):
+        return getattr(self.transport, "unacked_bytes", 0)
+
+    @property
+    def next_chunk(self):
+        return getattr(self.transport, "next_chunk", 0)
+
+    async def wait_for_context(self):
+        await asyncio.wait_for(self.context_ready.wait(), 5)
 
     async def invalidate(self, reason):
         self.generation += 1
-        self.pending.clear()
-        self.unacked_bytes = 0
-        self.sentence_parts = []
-        self.credit.set()
+        self.queued_output_bytes = 0
+        self.output_credit.set()
         await self.send({"type": "clear", "generation": self.generation, "reason": reason})
-        if self.audio_transport:
-            await self.audio_transport.clear(self.generation)
         delay = None if self.last_interrupt is None else (time.monotonic() - self.last_interrupt) * 1000
         self.measure("server_clear", {"dispatch_ms": None if delay is None else round(delay, 3), "generation": self.generation})
+        await self.transport.clear(self.generation)
         await self.persist()
 
-    async def respond(self):
-        self.generation += 1
-        generation = self.generation
-        self.last_assistant_message = None
-        await self.persist()
-        messages = copy.deepcopy(self.context.get_messages())
-        user_text = next((m["content"] for m in reversed(messages) if m["role"] == "user"), "")
-        self.responding = True
-        started = time.monotonic()
-        self.measure("generation_started", {"generation": generation})
-        try:
-            # Deliberately narrow application tool dispatch, not generic model tool calling.
-            if re.search(r"\b(appointments?|availability|available times|free slots)\b", user_text, re.I):
-                await self.send({"type": "status", "state": "tool", "generation": generation})
-                result = await self.tool()
-                self.measure("tool_completed", {"name": "lookup_availability", "fictional": True})
-                messages.append({"role": "system", "content": f"lookup_availability returned: {result}"})
-            await self.send({"type": "status", "state": "thinking", "generation": generation})
-            text = ""
-            stream = self.provider.generate(messages)
-            try:
-                async for token in stream:
-                    if self.closed or generation != self.generation:
-                        return
-                    text += token
-                    # Sentence-sized TTS flushes preserve streaming and a conservative
-                    # played-text boundary without assuming word timing alignment.
-                    while True:
-                        boundary = re.search(r"[.!?](?:\s|$)", text)
-                        if not boundary and len(text) < 180:
-                            break
-                        end = boundary.end() if boundary else text.rfind(" ", 0, 180) + 1
-                        if end <= 0:
-                            end = 180
-                        sentence, text = text[:end].strip(), text[end:]
-                        await self.speak(sentence, generation, started)
-                if text.strip():
-                    await self.speak(text.strip(), generation, started)
-            finally:
-                await stream.aclose()
-            if self.audio_transport and not self.closed and generation == self.generation:
-                await self.audio_transport.finish_generation(generation)
-        finally:
-            self.responding = False
-            if not self.closed and generation == self.generation:
-                await self.send({"type": "status", "state": "listening", "generation": generation})
-
-    async def speak(self, text, generation, started):
-        if not text:
+    async def fail_response(self, stage, exc):
+        if self.closed:
             return
-        await self.send({"type": "status", "state": "speaking", "generation": generation})
-        await self.send({"type": "transcript", "role": "assistant", "text": text, "final": True})
-        stream = self.provider.synthesize(text)
-        previous = None
-        remainder = bytearray()
-        sentence_ids = []
-        try:
-            async for pcm in stream:
-                if generation != self.generation or self.closed:
-                    return
-                # Coalesce small provider packets into 100 ms frames. Keep at
-                # most one full frame plus a 4800-byte remainder so the final
-                # frame can carry the sentence's playback receipt marker.
-                offset = 0
-                while offset < len(pcm):
-                    size = min(4800 - len(remainder), len(pcm) - offset)
-                    remainder.extend(pcm[offset:offset+size])
-                    offset += size
-                    if len(remainder) == 4800:
-                        if previous is not None:
-                            sentence_ids.append(await self.output_audio(previous, generation, "", [], started))
-                        previous = bytes(remainder)
-                        remainder.clear()
-            if remainder:
-                if previous is not None:
-                    sentence_ids.append(await self.output_audio(previous, generation, "", [], started))
-                previous = bytes(remainder)
-            if previous:
-                await self.output_audio(previous, generation, text, sentence_ids, started)
-        finally:
-            await stream.aclose()
+        self.measure("response_failed", {"stage": stage, "exception_type": type(exc).__name__})
+        await self.send({"type": "error", "message": f"Response failed during {stage}; please try again."})
+        await self.invalidate("response_error")
+        self.context_ready.clear()
+        await self.worker.queue_frame(InterruptionFrame())
 
-    async def output_audio(self, pcm, generation, text, sentence_ids, started):
-        if self.audio_transport:
-            if self.closed or generation != self.generation:
+    async def reserve_output(self, size, generation):
+        while self.queued_output_bytes + size > MAX_QUEUED_AUDIO_BYTES:
+            if not self.is_current(generation):
                 raise asyncio.CancelledError()
-            if not await self.audio_transport.send_audio(pcm, generation):
-                raise asyncio.CancelledError()
-            self.next_chunk += 1
-            # Submission is observable; it is never evidence of playback. No
-            # receipt ledger or confirmed assistant history is created here.
-            if not any(m["event"] == "first_audio_submitted" and m.get("generation") == generation for m in self.metrics):
-                self.measure("first_audio_submitted", {"generation": generation,
-                    "response_ms": round((time.monotonic()-started)*1000, 3)})
-            return self.next_chunk
-        if len(self.pending) >= MAX_PENDING_RECEIPTS:
-            raise ValueError("Speech segment exceeded the 256-chunk receipt limit")
-        while self.unacked_bytes + len(pcm) > MAX_UNACKED_BYTES:
-            self.credit.clear()
-            await asyncio.wait_for(self.credit.wait(), 12)
-        if self.closed or generation != self.generation:
+            self.output_credit.clear()
+            await asyncio.wait_for(self.output_credit.wait(), 12)
+        if not self.is_current(generation):
             raise asyncio.CancelledError()
-        self.next_chunk += 1
-        chunk = self.next_chunk
-        self.pending[chunk] = {"bytes": len(pcm), "text": text, "before": sentence_ids, "played": False,
-                               "generation": generation}
-        self.unacked_bytes += len(pcm)
-        await self.send({"type": "audio", "data": base64.b64encode(pcm).decode(), "sample_rate": 24000,
-                         "generation": generation, "chunk_id": chunk, "text": text})
-        if not any(m["event"] == "first_audio" and m.get("generation") == generation for m in self.metrics):
-            self.measure("first_audio", {"generation": generation, "response_ms": round((time.monotonic()-started)*1000, 3)})
-        return chunk
+        self.queued_output_bytes += size
+
+    def release_output(self, size, generation):
+        if self.is_current(generation):
+            self.queued_output_bytes = max(0, self.queued_output_bytes - size)
+            self.output_credit.set()
+
+    def note_first_audio(self, generation):
+        event = "first_audio_submitted" if self.transport_kind == "webrtc" else "first_audio"
+        if not any(m["event"] == event and m.get("generation") == generation for m in self.metrics):
+            self.measure(event, {"generation": generation,
+                "response_ms": round((time.monotonic() - self.response_started) * 1000, 3)})
 
     async def played(self, generation, chunk):
-        if self.audio_transport:
-            return
-        item = self.pending.get(chunk)
-        if generation != self.generation or not item or item["played"] or item["generation"] != generation:
-            return
-        item["played"] = True
-        self.unacked_bytes -= item["bytes"]
-        self.credit.set()
-        # Only commit a sentence once every constituent chunk was acknowledged.
-        for last, candidate in list(self.pending.items()):
-            if not candidate["text"] or not candidate["played"]:
-                continue
-            ids = candidate["before"] + [last]
-            if not all(self.pending.get(i, {}).get("played") for i in ids):
-                continue
-            content = candidate["text"]
-            messages = self.context.get_messages()
-            if self.last_assistant_message is not None and messages and messages[-1] is self.last_assistant_message:
-                self.last_assistant_message["content"] += " " + content
-            else:
-                self.last_assistant_message = {"role": "assistant", "content": content}
-                self.context.add_message(self.last_assistant_message)
-            for i in ids:
-                self.pending.pop(i, None)
-            await self.persist()
+        if self.transport_kind == "websocket":
+            await self.transport.played(generation, chunk)
 
     def diagnostics(self):
         return {"generation": self.generation, "closed": self.closed,
                 "pipecat_tasks": len([t for t in self.manager.current_tasks() if not t.done()]),
-                "pending_turn_tasks": int(self._turn_commit_task is not None and not self._turn_commit_task.done()),
-                "pending_user_fragments": len(self._turn_fragments),
-                "pending_user_chars": self._turn_chars, "turn_end_grace_ms": self.turn_end_grace_ms,
+                **self.turn.diagnostics(),
                 "input_audio_chunks": self.input_audio_chunks,
                 "input_audio_bytes": self.input_audio_bytes,
                 "forwarded_audio_bytes": self.forwarded_audio_bytes,
                 "unacked_audio_bytes": self.unacked_bytes, "pending_playback_chunks": len(self.pending),
                 "messages": len(self.context.get_messages()), "metrics": self.metrics,
-                "transport": "webrtc" if self.audio_transport else "websocket",
+                "transport": self.transport_kind, "queued_output_bytes": self.queued_output_bytes,
+                "context_schema": CONTEXT_SCHEMA, "history_reset": self.history_reset,
+                "context_persistence_failed": self.persistence_failed,
+                "context_persistence_uncertain": self.persistence_uncertain,
+                "context_persistence_attempts": self.persistence_attempts,
+                "context_pending_writes": sum(not task.done() for task in self.persistence_tasks),
+                "context_saved_messages": len(self.last_saved_context),
+                "context_fatal_close_tasks": int(bool(self.fatal_close_task and not self.fatal_close_task.done())),
                 **self.provider.diagnostics(),
-                **(self.audio_transport.diagnostics() if self.audio_transport else {})}
+                **self.transport.diagnostics()}
 
     async def close(self, reason="ended"):
-        if self.closed:
-            return
+        if self.close_task is None:
+            self.close_task = asyncio.create_task(self._close_resources(reason))
+            self.close_task.add_done_callback(lambda done: None if done.cancelled() else done.exception())
+        if asyncio.current_task() is not self.close_task:
+            await asyncio.shield(self.close_task)
+
+    async def _close_resources(self, reason):
         self.closed = True
-        await self._cancel_turn_commit(discard=True)
-        await self.worker.cancel(reason=reason)
+        for stage, action in (("turn", self.turn.close),
+                              ("pipeline", lambda: self.worker.cancel(reason=reason))):
+            try:
+                await action()
+            except Exception:
+                self.measure("close_failed", {"stage": stage})
         if self.run_task:
-            with contextlib.suppress(asyncio.TimeoutError, asyncio.CancelledError):
-                await asyncio.wait_for(self.run_task, 5)
-        await self.provider.close()
-        if self.audio_transport:
-            await self.audio_transport.close()
-        self.pending.clear()
-        self.unacked_bytes = 0
-        self.credit.set()
+            with contextlib.suppress(asyncio.TimeoutError, asyncio.CancelledError, Exception):
+                await asyncio.wait_for(asyncio.shield(self.run_task), 5)
+        for stage, action in (("provider", self.provider.close), ("transport", self.transport.close)):
+            try:
+                await action()
+            except Exception:
+                self.measure("close_failed", {"stage": stage})
+        self.responding = False
+        self.queued_output_bytes = 0
+        self.output_credit.set()
+        self.context_ready.set()
         self.measure("closed", {"reason": reason})
-        await self.persist()
+        if not self.persistence_failed:
+            with contextlib.suppress(ContextPersistenceError):
+                await self.persist()
+        if self.persistence_failed:
+            # CancelFrame can flush aggregator text while the pipeline stops.
+            # It cannot turn a rejected write into committed in-memory context.
+            self.context.set_messages(copy.deepcopy(self.last_saved_context))
+            self.state.clear()
+            self.state.update(copy.deepcopy(self.last_saved_state))

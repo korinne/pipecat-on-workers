@@ -5,9 +5,10 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import { PlaybackQueue, pcm16ToBase64 } from './audio-player.mjs';
+import { shareableServerDiagnostics, shareableBrowserErrors } from './session-measurements.mjs';
 const settle = () => new Promise(resolve => setImmediate(resolve));
 
-function harness({ fetchSession, fetchAccess, transport = 'websocket', publish } = {}) {
+function harness({ fetchSession, capture, transport = 'websocket', publish, fetchDiagnostics } = {}) {
   class Element {
     children = []; listeners = {}; hidden = false; disabled = false;
     classList = { toggle() {} }; attributes = {}; textContent = '';
@@ -25,17 +26,20 @@ function harness({ fetchSession, fetchAccess, transport = 'websocket', publish }
   const elements = new Map();
   const element = id => { if (!elements.has(id)) elements.set(id, new Element()); return elements.get(id); };
   element('transcript').append(element('empty-state'));
-  element('access-key').value = 'demo-key';
-  const requests = [];
+  const requests = [], downloads = [];
+  class ExportURL extends URL {
+    static createObjectURL(blob) { downloads.push(blob); return 'blob:measurements'; }
+    static revokeObjectURL() {}
+  }
   const timers = new Map();
   let nextTimer = 0;
   const contexts = [], sockets = [], nodes = [], mediaRequests = [], sfus = [];
   class SfuAudioTransport {
-    floor = -1; generations = []; closed = false;
+    floor = -1; generations = []; closed = false; output = null;
     constructor(options) { this.options = options; sfus.push(this); }
     async publish() { if (publish) await publish(this); }
-    async subscribe(generation) { if (generation >= this.floor) this.generations.push(generation); }
-    clearOutput(generation) { this.floor = Math.max(this.floor, generation ?? this.floor+1); return 0; }
+    async subscribe(generation) { if (generation >= this.floor) { this.generations.push(generation); this.output = {generation}; } }
+    clearOutput(generation) { this.floor = Math.max(this.floor, generation ?? this.floor+1); this.output = null; return 0; }
     close() { this.closed = true; }
     async resumePlayback() { this.options.onPlaybackBlocked(false); }
   }
@@ -68,16 +72,17 @@ function harness({ fetchSession, fetchAccess, transport = 'websocket', publish }
   }
   const windowListeners = {};
   const sandbox = vm.createContext({
-    PlaybackQueue, pcm16ToBase64, SfuAudioTransport,
+    PlaybackQueue, pcm16ToBase64, SfuAudioTransport, shareableServerDiagnostics, shareableBrowserErrors,
     document: { body: {dataset: {transport}}, getElementById: element, createElement: () => new Element() },
     window: { AudioContext, RTCPeerConnection: class {}, MediaStream: class {}, AudioWorkletNode: Node, addEventListener(type, fn) { windowListeners[type] = fn; } },
-    navigator: { mediaDevices: { async getUserMedia(options) { mediaRequests.push(options); return { getTracks: () => [track], getAudioTracks: () => [track] }; } } },
-    AudioWorkletNode: Node, WebSocket: Socket, URL, AbortSignal, Int16Array,
+    navigator: { mediaDevices: { async getUserMedia(options) { mediaRequests.push(options); return capture ? capture(track) : { getTracks: () => [track], getAudioTracks: () => [track] }; } } },
+    AudioWorkletNode: Node, WebSocket: Socket, URL: ExportURL, AbortSignal, Int16Array,
     location: { href: 'https://voice.example/', protocol: 'https:' },
     performance, Date, Blob, console,
     fetch: async (url, options) => {
       requests.push({url, options});
-      if (url === '/api/access') return fetchAccess ? fetchAccess(url, options) : {ok:true, json:async()=>({ok:true})};
+      if (url.endsWith('/diagnostics')) return fetchDiagnostics ? fetchDiagnostics(url, options) : {ok:false};
+      assert.equal(url, '/api/session');
       return fetchSession ? fetchSession(url, options) : { ok: true, json: async () => ({ id: 'session-id', token: 'secret-token' }) };
     },
     setTimeout(fn, delay) { const id = ++nextTimer; timers.set(id, { fn, delay, interval: false }); return id; },
@@ -86,7 +91,7 @@ function harness({ fetchSession, fetchAccess, transport = 'websocket', publish }
   });
   const code = fs.readFileSync(new URL('./app.js', import.meta.url), 'utf8').replace(/^import .*\n/gm, '');
   vm.runInContext(code, sandbox);
-  return { element, sockets, contexts, nodes, timers, track, requests, mediaRequests, sfus, run: code => vm.runInContext(code, sandbox), windowListeners };
+  return { element, sockets, contexts, nodes, timers, track, requests, downloads, mediaRequests, sfus, run: code => vm.runInContext(code, sandbox), windowListeners };
 }
 
 test('Start, ready, mute, and End release all client resources', async () => {
@@ -154,14 +159,17 @@ test('failed session creation closes microphone and shows a recoverable error', 
   assert.equal(h.contexts[0].state, 'closed');
   assert.equal(h.element('start').disabled, false);
 });
-test('access key stays in authentication headers and out of capability URLs', async () => {
-  let request;
-  const h = harness({ fetchSession: async (url, options) => { request = options; return { ok: true, json: async () => ({ id: 'id', token: 'capability' }) }; } });
-  h.element('access-key').value = 'demo-key';
-  await h.element('start').click();
-  assert.equal(request.headers['X-Demo-Key'], 'demo-key');
-  assert.doesNotMatch(h.sockets[0].url, /demo-key/);
-  h.element('end').click();
+test('both transports create a session without a demo key and keep its capability', async () => {
+  for (const transport of ['websocket', 'webrtc']) {
+    const h = harness({transport});
+    await h.element('start').click();
+    assert.equal(h.requests.length, 1);
+    assert.equal(h.requests[0].url, '/api/session');
+    assert.deepEqual(Object.keys(h.requests[0].options.headers), ['Content-Type']);
+    assert.equal(JSON.parse(h.requests[0].options.body).transport, transport);
+    assert.match(h.sockets[0].url, /\?token=secret-token$/);
+    h.element('end').click();
+  }
 });
 test('speech onset during pending generation rejects its delayed first audio', async () => {
   const h = harness();
@@ -233,63 +241,56 @@ test('terminal startup error preserves explanation and releases microphone witho
   assert.equal(h.element('start').disabled, false);
 });
 
-test('rejected key does not open the microphone or create a session', async () => {
-  const h = harness({ fetchAccess: async () => ({ok:false, status:401, json:async()=>({error:'That access key was not accepted.'})}) });
+test('microphone permission denial creates no session and releases the audio engine', async () => {
+  const h = harness({capture: async () => { const error = new Error('denied'); error.name = 'NotAllowedError'; throw error; }});
   await h.element('start').click();
-  assert.equal(h.requests.length, 1);
-  assert.equal(h.requests[0].url, '/api/access');
-  assert.equal(h.contexts.length, 1);
+  assert.equal(h.requests.length, 0);
   assert.equal(h.contexts[0].state, 'closed');
-  assert.equal(h.mediaRequests.length, 0);
   assert.equal(h.sockets.length, 0);
-  assert.equal(h.element('access-key').focused, true);
-  assert.equal(h.element('access-key').selected, true);
-  assert.equal(h.element('notice').textContent, 'That access key was not accepted.');
-});
-test('key is trimmed and captured before asynchronous permission setup', async () => {
-  let h;
-  h = harness({fetchAccess: async () => {
-    h.element('access-key').value = 'changed-during-setup';
-    return {ok:true, json:async()=>({ok:true})};
-  }});
-  h.element('access-key').value = '  Original_Key-42  \n';
-  await h.element('start').click();
-  assert.equal(h.requests.length, 2);
-  assert.ok(h.requests.every(r => r.options.headers['X-Demo-Key'] === 'Original_Key-42'));
-  h.element('end').click();
-});
-test('loading the key file verifies access without microphone, session, or persistent storage', async () => {
-  const h = harness();
-  h.element('key-file').files = [{size:44, text:async()=> 'file-key\n'}];
-  await h.element('key-file').listeners.change();
-  assert.equal(h.element('access-key').value, 'file-key');
-  assert.match(h.element('key-status').textContent, /Access key verified/);
-  assert.equal(h.requests.length, 1);
-  assert.equal(h.requests[0].options.headers['X-Demo-Key'], 'file-key');
-  assert.equal(h.contexts.length, 0);
-  assert.equal(h.sockets.length, 0);
+  assert.match(h.element('notice').textContent, /Microphone permission was denied/);
   assert.equal(h.element('start').disabled, false);
+  assert.equal(h.timers.size, 0);
 });
-test('oversized or multiline key files are rejected before any request', async () => {
-  for (const file of [{size:5000, text:async()=> 'too big'}, {size:20,text:async()=> 'key\nsecond-line'}]) {
-    const h = harness(); h.element('key-file').files = [file];
-    await h.element('key-file').listeners.change();
-    assert.equal(h.requests.length, 0);
-    assert.equal(h.contexts.length, 0);
-    assert.notEqual(h.element('notice').textContent, '');
-  }
+test('End while microphone permission is pending stops a late track without creating a session', async () => {
+  let finish;
+  const h = harness({capture: track => new Promise(resolve => {
+    finish = () => resolve({getTracks: () => [track], getAudioTracks: () => [track]});
+  })});
+  const starting = h.element('start').click();
+  await settle();
+  h.element('end').click();
+  finish(); await starting;
+  assert.equal(h.track.stopped, true);
+  assert.equal(h.contexts[0].state, 'closed');
+  assert.equal(h.requests.length, 0);
+  assert.equal(h.sockets.length, 0);
+  assert.equal(h.timers.size, 0);
 });
-
-test('audio engine is prepared before the authentication await, microphone after it', async () => {
-  let h;
-  h = harness({fetchAccess: async () => {
-    assert.equal(h.contexts.length, 1);
-    assert.equal(h.contexts[0].state, 'running');
-    assert.equal(h.mediaRequests.length, 0);
-    return {ok:true, json:async()=>({ok:true})};
-  }});
-  await h.element('start').click();
+test('End during session creation retires the late capability and leaves audio stopped', async () => {
+  let finish;
+  const h = harness({fetchSession: () => new Promise(resolve => { finish = resolve; })});
+  const starting = h.element('start').click();
+  await settle();
+  h.element('end').click();
+  finish({ok:true, json:async()=>({id:'late-id',token:'late-token'})});
+  await starting;
+  assert.equal(h.track.stopped, true);
+  assert.equal(h.contexts[0].state, 'closed');
+  assert.equal(h.sockets.length, 1);
+  assert.match(h.sockets[0].url, /late-id\?token=late-token$/);
+  h.sockets[0].open();
+  assert.deepEqual(h.sockets[0].sent, [{type:'end'}]);
+  assert.equal(h.timers.size, 0);
+});
+test('audio engine resumes inside the Start click before asynchronous microphone setup', async () => {
+  const h = harness();
+  const starting = h.element('start').click();
+  assert.equal(h.contexts.length, 1);
+  assert.equal(h.contexts[0].state, 'running');
+  assert.equal(h.mediaRequests.length, 0);
+  await starting;
   assert.equal(h.mediaRequests.length, 1);
+  assert.equal(h.requests.length, 1);
   h.element('end').click();
 });
 test('capture, upload and server delivery counters distinguish each stage without audio capture', async () => {
@@ -391,4 +392,252 @@ test('SFU failures release all client resources and preserve the visible explana
   assert.equal(h.element('notice').textContent,'The SFU is not configured.');
   assert.equal(h.track.stopped,true); assert.equal(h.sfus[0].closed,true);
   assert.equal(socket.sent.at(-1).type,'end'); assert.equal(h.timers.size,0);
+});
+
+test('clear and recoverable error stop stale response states from interrupting resumed speech', async () => {
+  for (const transport of ['websocket','webrtc']) for (const stop of ['clear','error']) {
+    const h=harness({transport}); await h.element('start').click();
+    const socket=h.sockets[0]; socket.open(); socket.receive({type:'ready',generation:4}); await settle();
+    socket.receive({type:'status',state:stop==='clear'?'thinking':'speaking',generation:4});
+    const loud=()=>h.run('observeMicrophone({pcm:new Int16Array(320).buffer,rms:.1})');
+    const resume=()=>{
+      for(let i=0;i<12;i++) h.run('observeMicrophone({pcm:new Int16Array(320).buffer,rms:0})');
+      h.run('lastInterrupt=-Infinity'); // The next onset is beyond the debounce window.
+      for(let i=0;i<3;i++) loud();
+    };
+    for(let i=0;i<3;i++) loud();
+    assert.equal(socket.sent.filter(p=>p.type==='interrupt').length,1);
+    const clears=h.run('metrics.localPlaybackClearMs.length');
+    socket.receive(stop==='clear'?{type:'clear',generation:5}:{type:'error',message:'Repeat the last turn.',recoverable:true});
+    assert.equal(h.run('serverState'),'listening');
+    assert.equal(h.element('status').textContent,'Listening');
+    assert.equal(h.run('metrics.localPlaybackClearMs.length'),clears+(stop==='clear'?1:0));
+    resume(); assert.equal(socket.sent.filter(p=>p.type==='interrupt').length,1);
+    assert.equal(h.track.stopped,false); assert.equal(h.sockets.length,1); assert.equal(h.requests.length,1);
+    if(stop==='error') assert.equal(h.element('notice').textContent,'Repeat the last turn.');
+    // A later real response must still be interruptible.
+    socket.receive({type:'status',state:'thinking',generation:6});
+    resume(); assert.equal(socket.sent.filter(p=>p.type==='interrupt').length,2);
+    h.element('end').click();
+  }
+});
+test('an old clear cannot reset the state of a newer response',async()=>{
+  const h=harness(); await h.element('start').click();
+  const socket=h.sockets[0]; socket.open(); socket.receive({type:'ready',generation:4});
+  socket.receive({type:'status',state:'thinking',generation:6});
+  socket.receive({type:'clear',generation:5});
+  assert.equal(h.run('serverState'),'thinking');
+  h.element('end').click();
+});
+
+test('late tagged errors preserve interruption of the current response on both routes',async()=>{
+  for(const transport of ['websocket','webrtc']) {
+    const h=harness({transport}); await h.element('start').click();
+    const socket=h.sockets[0]; socket.open(); socket.receive({type:'ready',generation:4}); await settle();
+    socket.receive({type:'status',state:'speaking',generation:6});
+    socket.receive({type:'error',generation:5,recoverable:true,message:'Old response failed.'});
+    assert.equal(h.run('serverState'),'speaking'); assert.equal(h.element('status').textContent,'Speaking');
+    for(let i=0;i<3;i++) h.run('observeMicrophone({pcm:new Int16Array(320).buffer,rms:.1})');
+    assert.equal(socket.sent.filter(p=>p.type==='interrupt').length,1);
+    assert.equal(h.run('active'),true);
+    h.element('end').click();
+  }
+});
+test('reconnect clears stale response state before the first idle microphone onset on both routes',async()=>{
+  for(const transport of ['websocket','webrtc']) {
+    const h=harness({transport}); await h.element('start').click();
+    const first=h.sockets[0]; first.open(); first.receive({type:'ready',generation:4}); await settle();
+    first.receive({type:'status',state:'speaking',generation:4}); first.close();
+    const retry=[...h.timers].find(([,t])=>t.delay===500); h.timers.delete(retry[0]); retry[1].fn();
+    const next=h.sockets[1]; next.open();
+    next.receive({type:'reset',generation:5,history:[{role:'assistant',content:'Saved answer.'}]});
+    next.receive({type:'ready',generation:5}); await settle();
+    assert.equal(h.element('status').textContent,'Listening'); assert.equal(h.run('serverState'),'listening');
+    for(let i=0;i<3;i++) h.run('observeMicrophone({pcm:new Int16Array(320).buffer,rms:.1})');
+    assert.equal(next.sent.filter(p=>p.type==='interrupt').length,0);
+    assert.deepEqual(h.element('transcript').children.map(row=>row.lastElementChild?.textContent).filter(Boolean),['Saved answer.']);
+    h.element('end').click();
+  }
+});
+test('SFU readiness cannot overwrite a current response received during publishing',async()=>{
+  let ready; const h=harness({transport:'webrtc',publish:()=>new Promise(resolve=>{ready=resolve;})});
+  await h.element('start').click(); const socket=h.sockets[0]; socket.open();
+  socket.receive({type:'reset',generation:4,history:[]}); socket.receive({type:'ready',generation:4});
+  socket.receive({type:'status',state:'thinking',generation:5}); ready(); await settle();
+  assert.equal(h.run('serverState'),'thinking');
+  assert.equal(h.element('status').textContent,'Thinking…');
+  for(let i=0;i<3;i++) h.run('observeMicrophone({pcm:new Int16Array(320).buffer,rms:.1})');
+  assert.equal(socket.sent.filter(p=>p.type==='interrupt').length,1);
+  h.element('end').click();
+});
+
+test('explicitly stale clear and terminal error leave current audio and receiver intact',async()=>{
+  for(const transport of ['websocket','webrtc']) {
+    const h=harness({transport}); await h.element('start').click();
+    try {
+      const socket=h.sockets[0]; socket.open(); socket.receive({type:'ready',generation:4}); await settle();
+      socket.receive({type:'status',state:'speaking',generation:6});
+      if(transport==='websocket') socket.receive({type:'audio',generation:6,chunk_id:1,sample_rate:16000,data:pcm16ToBase64(new Int16Array(1600).buffer)});
+      else socket.receive({type:'sfu_track',generation:6});
+      const receiver=h.sfus[0]?.output, clearCount=h.run('metrics.localPlaybackClearMs.length');
+      socket.receive({type:'clear',generation:5});
+      socket.receive({type:'error',generation:5,recoverable:false,message:'Old response failed.'});
+      socket.receive({type:'transcript',generation:5,role:'assistant',text:'Old answer.',final:true});
+      assert.equal(h.run('active'),true); assert.equal(h.run('serverState'),'speaking');
+      assert.equal(h.run('metrics.localPlaybackClearMs.length'),clearCount);
+      assert.equal(h.element('notice').textContent,'');
+      assert.equal(h.element('transcript').children.some(row=>row.lastElementChild?.textContent==='Old answer.'),false);
+      if(transport==='websocket') assert.equal(h.run('player.hasPending'),true);
+      else { assert.ok(receiver); assert.equal(h.sfus[0].output,receiver); }
+    } finally { h.element('end').click(); }
+  }
+});
+
+
+test('measurement export requests private diagnostics and excludes their internal fields', async()=>{
+  const h=harness({transport:'webrtc',fetchDiagnostics:async(url, options)=>{
+    assert.equal(url,'/api/session/session-id/diagnostics');
+    assert.equal(options.headers['X-Session-Token'],'secret-token');
+    assert.ok(options.signal);
+    return {ok:true,json:async()=>({input_audio_bytes:640,token:'PRIVATE',history:['PRIVATE'],
+      metrics:[{event:'smart_turn',complete:false,probability:.1,text:'PRIVATE'}]})};
+  }});
+  await h.element('start').click();
+  h.run("metrics.errors.push({at:'2026-10-05T20:00:00.000Z',message:'PRIVATE provider URL or transcript'})");
+  await h.element('download-metrics').click();
+  const text=await h.downloads[0].text(), report=JSON.parse(text);
+  assert.equal(report.serverDiagnosticsStatus,'available');
+  assert.equal(report.measurementSchema,2);
+  assert.deepEqual(report.errors,[{code:'redacted',at:'2026-10-05T20:00:00.000Z'}]);
+  assert.equal(report.serverDiagnostics.input_audio_bytes,640);
+  assert.equal(report.serverDiagnostics.events[0].complete,false);
+  assert.doesNotMatch(text,/PRIVATE|secret-token|session-id/);
+  assert.equal(h.element('download-metrics').disabled,false);
+  h.element('end').click();
+});
+test('failed diagnostics still export the frozen browser snapshot across End and a new call',async()=>{
+  let reject;
+  const h=harness({fetchDiagnostics:()=>new Promise((_,r)=>{reject=r;})});
+  await h.element('start').click();
+  h.run("event('old_call_marker')");
+  const pending=h.element('download-metrics').click();
+  await h.element('download-metrics').click(); // Duplicate clicks cannot start another request.
+  assert.equal(h.requests.filter(r=>r.url.endsWith('/diagnostics')).length,1);
+  h.element('end').click(); await h.element('start').click();
+  h.run("event('new_call_marker')");
+  reject(new Error('private failing URL')); await pending;
+  const report=JSON.parse(await h.downloads[0].text());
+  assert.equal(report.serverDiagnosticsStatus,'unavailable');
+  assert.ok(report.events.some(e=>e.event==='old_call_marker'));
+  assert.ok(!report.events.some(e=>e.event==='new_call_marker'));
+  assert.ok(!h.run("metrics.events.some(e=>e.event==='old_call_marker')"));
+  assert.equal(h.element('download-metrics').disabled,false);
+  h.element('end').click();
+});
+test('ended call measurements explicitly mark missing server snapshot',async()=>{
+  const h=harness(); await h.element('start').click(); h.element('end').click();
+  await h.element('download-metrics').click();
+  const report=JSON.parse(await h.downloads[0].text());
+  assert.equal(report.serverDiagnosticsStatus,'call_ended_or_not_started');
+  assert.equal(h.requests.filter(r=>r.url.endsWith('/diagnostics')).length,0);
+});
+
+test('diagnostic export distinguishes HTTP rejection without exposing response content',async()=>{
+  for(const status of [403,500]) {
+    let readBody=false;
+    const h=harness({fetchDiagnostics:async()=>({ok:false,status,
+      url:'https://PRIVATE/?token=PRIVATE',statusText:'PRIVATE',
+      json:async()=>{readBody=true;return {error:'PRIVATE'};}})});
+    await h.element('start').click();
+    await h.element('download-metrics').click();
+    const text=await h.downloads[0].text(), report=JSON.parse(text);
+    assert.equal(report.serverDiagnosticsStatus,'unavailable');
+    assert.equal(report.serverDiagnosticsHttpStatus,status);
+    assert.equal(report.serverDiagnosticsFailure,'http_error');
+    assert.equal(readBody,false);
+    assert.equal(h.element('download-metrics').disabled,false);
+    assert.doesNotMatch(text,/PRIVATE|secret-token|session-id/);
+    h.element('end').click();
+  }
+});
+
+test('diagnostic export distinguishes timeout, network, invalid JSON and invalid diagnostic shape',async()=>{
+  const cases=[
+    ['timeout',async()=>{throw Object.assign(new Error('PRIVATE timeout URL'),{name:'TimeoutError'});}],
+    ['timeout',async()=>{throw Object.assign(new Error('PRIVATE abort URL'),{name:'AbortError'});}],
+    ['network_error',async()=>{throw new TypeError('PRIVATE network URL');}],
+    ['invalid_response',async()=>({ok:true,status:200,json:async()=>{throw new SyntaxError('PRIVATE invalid JSON');}})],
+    ['invalid_response',async()=>({ok:true,status:200,json:async()=>null})],
+    ['invalid_response',async()=>({ok:true,status:200,json:async()=>['PRIVATE']})],
+    ['timeout',async()=>({ok:true,status:200,json:async()=>{throw Object.assign(new Error('PRIVATE body timeout'),{name:'TimeoutError'});}})],
+  ];
+  for(const [failure,fetchDiagnostics] of cases) {
+    const h=harness({fetchDiagnostics}); await h.element('start').click();
+    await h.element('download-metrics').click();
+    const text=await h.downloads[0].text(), report=JSON.parse(text);
+    assert.equal(report.serverDiagnosticsStatus,'unavailable');
+    assert.equal(report.serverDiagnosticsFailure,failure);
+    assert.equal('serverDiagnostics' in report,false);
+    assert.ok(!('serverDiagnosticsHttpStatus' in report)||report.serverDiagnosticsHttpStatus===200);
+    assert.equal(h.element('download-metrics').disabled,false);
+    assert.doesNotMatch(text,/PRIVATE|secret-token|session-id/);
+    h.element('end').click();
+  }
+});
+
+test('diagnostic HTTP status only exports integer values in the HTTP range',async()=>{
+  for(const status of ['PRIVATE',NaN,Infinity,-1,0,99,600,200.5,{token:'PRIVATE'}]) {
+    const h=harness({fetchDiagnostics:async()=>({ok:false,status})});
+    await h.element('start').click(); await h.element('download-metrics').click();
+    const report=JSON.parse(await h.downloads[0].text());
+    assert.equal('serverDiagnosticsHttpStatus' in report,false);
+    assert.equal(report.serverDiagnosticsFailure,'http_error');
+    h.element('end').click();
+  }
+});
+
+test('reconnect diagnostics retain bounded close code and cleanliness without reason text',async()=>{
+  const h=harness(); await h.element('start').click();
+  const socket=h.sockets[0]; socket.open(); socket.receive({type:'ready',generation:1});
+  socket.readyState=3; socket.onclose({code:1013,wasClean:true,reason:'PRIVATE token or transcript'});
+  const event=JSON.parse(h.run("JSON.stringify(metrics.events.find(event=>event.event==='reconnect'))"));
+  assert.equal(event.code,1013); assert.equal(event.wasClean,true); assert.equal(event.attempt,1);
+  assert.equal('reason' in event,false);
+  assert.equal(h.run('metrics.reconnects'),1);
+  assert.ok([...h.timers.values()].some(timer=>timer.delay===500));
+  assert.doesNotMatch(JSON.stringify(event),/PRIVATE/);
+  h.element('end').click();
+});
+
+test('malformed close metadata cannot leak into reconnect diagnostics',async()=>{
+  for(const code of ['PRIVATE',NaN,Infinity,-1,999,5000,1013.5,{token:'PRIVATE'}]) {
+    const h=harness(); await h.element('start').click();
+    const socket=h.sockets[0]; socket.open(); socket.receive({type:'ready',generation:1});
+    socket.readyState=3; socket.onclose({code,wasClean:'PRIVATE',reason:'PRIVATE'});
+    const event=JSON.parse(h.run("JSON.stringify(metrics.events.find(event=>event.event==='reconnect'))"));
+    assert.equal('code' in event,false); assert.equal('wasClean' in event,false);
+    assert.doesNotMatch(JSON.stringify(event),/PRIVATE/);
+    assert.equal(h.run('metrics.reconnects'),1);
+    h.element('end').click();
+  }
+});
+
+
+test('a speech-start error leaves the current assistant response interruptible',async()=>{
+  for(const transport of ['websocket','webrtc']) {
+    const h=harness({transport}); await h.element('start').click();
+    const socket=h.sockets[0]; socket.open(); socket.receive({type:'ready',generation:4}); await settle();
+    socket.receive({type:'status',state:'speaking',generation:6});
+    if(transport==='websocket') socket.receive({type:'audio',generation:6,chunk_id:1,sample_rate:16000,data:pcm16ToBase64(new Int16Array(1600).buffer)});
+    else socket.receive({type:'sfu_track',generation:6});
+    const output=h.sfus[0]?.output;
+    socket.receive({type:'error',code:'speech_turn_start_error',recoverable:true,message:'Please repeat.'});
+    assert.equal(h.run('serverState'),'speaking');
+    assert.equal(h.element('notice').textContent,'Please repeat.');
+    if(transport==='websocket') assert.equal(h.run('player.hasPending'),true);
+    else assert.equal(h.sfus[0].output,output);
+    for(let i=0;i<3;i++) h.run('observeMicrophone({pcm:new Int16Array(320).buffer,rms:.1})');
+    assert.equal(socket.sent.filter(p=>p.type==='interrupt').length,1);
+    h.element('end').click();
+  }
 });

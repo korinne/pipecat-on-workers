@@ -1,0 +1,292 @@
+{
+  "scope": "Actual local workerd Python Durable Objects and network WebSockets; fixture providers, silent PCM; no real voice",
+  "started_at": "2026-10-05T05:18:24.763Z",
+  "restart_strategy": "SDK ctx.abort",
+  "runtime": {
+    "runtime": "Python Worker",
+    "python": "3.14.2",
+    "pyodide": "314.0.6",
+    "pipecat": "1.11.0-patched",
+    "voice_validated": false
+  },
+  "checks": [
+    "two distinct DOs have isolated transcript and PCM metadata",
+    "actual socket disconnect/reconnect restores persisted history, creates fresh pipeline",
+    "SDK ctx.abort controlled real DO restart closes call and next socket restores stored history",
+    "End releases both DO pipelines and queued playback accounting",
+    "silent abandoned socket closes and releases pipeline after 30 s"
+  ],
+  "startup_ms": [
+    164,
+    205
+  ],
+  "cleanup": [
+    {
+      "generation": 9,
+      "closed": true,
+      "pipecat_tasks": 0,
+      "pending_turn_tasks": 0,
+      "pending_user_fragments": 0,
+      "pending_user_chars": 0,
+      "turn_audio_bytes": 0,
+      "turn_revision": 3,
+      "turn_timeout_secs": 5,
+      "input_audio_chunks": 1,
+      "input_audio_bytes": 16000,
+      "forwarded_audio_bytes": 16000,
+      "unacked_audio_bytes": 0,
+      "pending_playback_chunks": 0,
+      "messages": 7,
+      "metrics": [
+        {
+          "event": "turn_discarded",
+          "elapsed_ms": 7,
+          "reason": "stt_connection_changed"
+        },
+        {
+          "event": "startup",
+          "elapsed_ms": 9,
+          "startup_ms": 9
+        },
+        {
+          "event": "speech_started",
+          "elapsed_ms": 21,
+          "revision": 2
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 23,
+          "dispatch_ms": 2,
+          "generation": 8
+        },
+        {
+          "event": "turn_pause",
+          "elapsed_ms": 32,
+          "revision": 2,
+          "snapshot_samples": 8000,
+          "transcript_end_sample": 8000,
+          "audio_end_sample": 8000
+        },
+        {
+          "event": "smart_turn",
+          "elapsed_ms": 32,
+          "revision": 2,
+          "complete": true,
+          "probability": 0.9
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 33,
+          "revision": 2
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 36,
+          "generation": 9
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 41,
+          "generation": 9,
+          "response_ms": 6
+        },
+        {
+          "event": "turn_discarded",
+          "elapsed_ms": 422,
+          "reason": "closed"
+        },
+        {
+          "event": "closed",
+          "elapsed_ms": 580,
+          "reason": "ended"
+        }
+      ],
+      "transport": "websocket",
+      "queued_output_bytes": 0,
+      "context_schema": 2,
+      "history_reset": false,
+      "context_persistence_failed": false,
+      "context_persistence_uncertain": false,
+      "context_persistence_attempts": 5,
+      "context_pending_writes": 0,
+      "context_saved_messages": 7,
+      "context_fatal_close_tasks": 0,
+      "fixture_live_generations": 0,
+      "fixture_live_syntheses": 0,
+      "fixture_provider_closed": true,
+      "fixture_audio_bytes_received": 16000,
+      "sfu_retired_connections": 0,
+      "sfu_cleanup_records": [],
+      "sfu_cleanup_persistence_failed": false
+    },
+    {
+      "generation": 3,
+      "closed": true,
+      "pipecat_tasks": 0,
+      "pending_turn_tasks": 0,
+      "pending_user_fragments": 0,
+      "pending_user_chars": 0,
+      "turn_audio_bytes": 0,
+      "turn_revision": 3,
+      "turn_timeout_secs": 5,
+      "input_audio_chunks": 1,
+      "input_audio_bytes": 16000,
+      "forwarded_audio_bytes": 16000,
+      "unacked_audio_bytes": 0,
+      "pending_playback_chunks": 0,
+      "messages": 3,
+      "metrics": [
+        {
+          "event": "turn_discarded",
+          "elapsed_ms": 19,
+          "reason": "stt_connection_changed"
+        },
+        {
+          "event": "startup",
+          "elapsed_ms": 24,
+          "startup_ms": 24
+        },
+        {
+          "event": "speech_started",
+          "elapsed_ms": 89,
+          "revision": 2
+        },
+        {
+          "event": "server_clear",
+          "elapsed_ms": 97,
+          "dispatch_ms": 7,
+          "generation": 2
+        },
+        {
+          "event": "turn_pause",
+          "elapsed_ms": 156,
+          "revision": 2,
+          "snapshot_samples": 8000,
+          "transcript_end_sample": 8000,
+          "audio_end_sample": 8000
+        },
+        {
+          "event": "smart_turn",
+          "elapsed_ms": 157,
+          "revision": 2,
+          "complete": true,
+          "probability": 0.9
+        },
+        {
+          "event": "user_end",
+          "elapsed_ms": 162,
+          "revision": 2
+        },
+        {
+          "event": "generation_started",
+          "elapsed_ms": 170,
+          "generation": 3
+        },
+        {
+          "event": "first_audio",
+          "elapsed_ms": 183,
+          "generation": 3,
+          "response_ms": 17
+        },
+        {
+          "event": "turn_discarded",
+          "elapsed_ms": 1881,
+          "reason": "closed"
+        },
+        {
+          "event": "closed",
+          "elapsed_ms": 1910,
+          "reason": "ended"
+        }
+      ],
+      "transport": "websocket",
+      "queued_output_bytes": 0,
+      "context_schema": 2,
+      "history_reset": false,
+      "context_persistence_failed": false,
+      "context_persistence_uncertain": false,
+      "context_persistence_attempts": 5,
+      "context_pending_writes": 0,
+      "context_saved_messages": 3,
+      "context_fatal_close_tasks": 0,
+      "fixture_live_generations": 0,
+      "fixture_live_syntheses": 0,
+      "fixture_provider_closed": true,
+      "fixture_audio_bytes_received": 16000,
+      "sfu_retired_connections": 0,
+      "sfu_cleanup_records": [],
+      "sfu_cleanup_persistence_failed": false
+    }
+  ],
+  "abandoned": {
+    "generation": 1,
+    "closed": true,
+    "pipecat_tasks": 0,
+    "pending_turn_tasks": 0,
+    "pending_user_fragments": 0,
+    "pending_user_chars": 0,
+    "turn_audio_bytes": 0,
+    "turn_revision": 2,
+    "turn_timeout_secs": 5,
+    "input_audio_chunks": 0,
+    "input_audio_bytes": 0,
+    "forwarded_audio_bytes": 0,
+    "unacked_audio_bytes": 0,
+    "pending_playback_chunks": 0,
+    "messages": 1,
+    "metrics": [
+      {
+        "event": "turn_discarded",
+        "elapsed_ms": 7,
+        "reason": "stt_connection_changed"
+      },
+      {
+        "event": "startup",
+        "elapsed_ms": 9,
+        "startup_ms": 9
+      },
+      {
+        "event": "turn_discarded",
+        "elapsed_ms": 30012,
+        "reason": "closed"
+      },
+      {
+        "event": "closed",
+        "elapsed_ms": 30056,
+        "reason": "abandoned_timeout"
+      }
+    ],
+    "transport": "websocket",
+    "queued_output_bytes": 0,
+    "context_schema": 2,
+    "history_reset": false,
+    "context_persistence_failed": false,
+    "context_persistence_uncertain": false,
+    "context_persistence_attempts": 2,
+    "context_pending_writes": 0,
+    "context_saved_messages": 1,
+    "context_fatal_close_tasks": 0,
+    "fixture_live_generations": 0,
+    "fixture_live_syntheses": 0,
+    "fixture_provider_closed": true,
+    "fixture_audio_bytes_received": 0,
+    "sfu_retired_connections": 0,
+    "sfu_cleanup_records": [],
+    "sfu_cleanup_persistence_failed": false
+  },
+  "passed": true,
+  "finished_at": "2026-10-05T05:19:52.058Z",
+  "application_commit": "670fa94a3179283c44ff907d18435111a09358c8",
+  "verification_status": "scoped_pass",
+  "provenance": "final-workerd-provenance-670fa94.json",
+  "limitations": [
+    "Fixture providers and silent PCM; no real AI provider or physical playback evidence",
+    "This lifecycle runner exercises direct network WebSocket transport; SFU media is covered separately",
+    "No approved performance thresholds were applied; timing values are observations only",
+    "Published package installation remains blocked; runtime uses disclosed vendored Pipecat"
+  ],
+  "runtime_notes": [
+    "Initial cold /api/health request took about 54.7 seconds while starting this local runtime; subsequent lifecycle startup values are separate observations",
+    "The intentional SDK ctx.abort restart returned HTTP500 and logged controlled restart errors plus a cross-request promise warning; restored history, subsequent turns and cleanup assertions passed"
+  ]
+}

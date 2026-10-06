@@ -1,0 +1,30 @@
+{
+  "recorded_at_utc": "2026-10-05T03:46:21.406144+00:00",
+  "starting_commit": "e0ddc037d760b45e5411a9e2aaead00e9ae34a78",
+  "branch": "codex/transport-contract",
+  "initial_checkout_clean": true,
+  "production_and_existing_tests_unchanged": true,
+  "historical_results_preserved": [
+    "acceptance/results/docs-consolidation-diagnostics.json",
+    "acceptance/results/handoff-verification.json",
+    "acceptance/results/local-baseline.json",
+    "audit/results/current-audit.json",
+    "audit/results/docs-consolidation-audit.json",
+    "audit/results/local-media-costs.json",
+    "audit/results/sfu-gaps.json"
+  ],
+  "starting_manifest_verified": true,
+  "new_python_syntax_checked": true,
+  "new_json_parsed": true,
+  "local_document_links_resolve": true,
+  "latest_probe_hashes_match": true,
+  "speech_evidence_overwrite_refused_and_original_hash_preserved": true,
+  "final_speech_cases": 10,
+  "turn_controller_cases": 6,
+  "gpt_fixture_cases": 11,
+  "runtime_checks": 29,
+  "live_model_requests": 0,
+  "deployed": false,
+  "readiness": "not_established",
+  "note": "These checks verify Task 1 artifacts and evidence integrity. Known fixture gaps are observations, not successful capability acceptance. No production regression suite rerun was needed because production and existing tests are unchanged."
+}

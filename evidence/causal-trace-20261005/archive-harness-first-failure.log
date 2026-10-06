@@ -1,0 +1,2 @@
+System Python3 extraction attempt failed: TypeError: extractall() got an unexpected keyword argument 'filter'
+No test ran in this attempt; original archive and empty checkout retained under /private/tmp/pipecat-causal-independent-39fe5b0-* sibling.

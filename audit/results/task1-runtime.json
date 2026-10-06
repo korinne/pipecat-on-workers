@@ -1,0 +1,979 @@
+{
+  "application_source_revision": "e0ddc037d760b45e5411a9e2aaead00e9ae34a78",
+  "archive": {
+    "name": "pipecat_ai-1.11.0.tar.gz",
+    "sha256": "49e7532a1f035e8884c47448a06d998a1b7f0943d11eae9bc8600a9e749a2a04"
+  },
+  "counts": {
+    "observed_gap": 19,
+    "scoped_pass": 9,
+    "source_observation": 1,
+    "test_error": 0
+  },
+  "distribution": {
+    "direct_url": "{\"archive_info\": {\"hash\": \"sha256=49e7532a1f035e8884c47448a06d998a1b7f0943d11eae9bc8600a9e749a2a04\", \"hashes\": {\"sha256\": \"49e7532a1f035e8884c47448a06d998a1b7f0943d11eae9bc8600a9e749a2a04\"}}, \"url\": \"file:///Users/korinne/Documents/Codex/2026-10-03/alri/work/pipecat_ai-1.11.0.tar.gz\"}",
+    "name": "pipecat-ai",
+    "requires_dist": [
+      "aiofiles<27,>=24.1.0",
+      "aiohttp<4,>=3.11.12",
+      "audioop-lts~=0.2.1; python_version >= \"3.13\"",
+      "docstring_parser<1,>=0.16",
+      "loguru~=0.7.3",
+      "loudness<1,>=0.2.0",
+      "Markdown<4,>=3.7",
+      "nltk<4,>=3.10.0",
+      "numpy<3,>=1.26.4",
+      "Pillow<13,>=11.1.0",
+      "protobuf<7,>=5.29.6",
+      "pydantic<3,>=2.10.6",
+      "pydantic>=2.13; python_full_version >= \"3.14\"",
+      "python-dotenv<2.0.0,>=1.0.0",
+      "resampy~=0.4.3",
+      "soundfile~=0.13.1",
+      "soxr~=1.0.0",
+      "openai<4,>=1.74.0",
+      "typing_extensions>=4.9",
+      "numba<1,>=0.61.2",
+      "wait_for2<1,>=0.4.1; python_version < \"3.12\"",
+      "websockets>=13.1",
+      "pyyaml<7,>=6",
+      "num2words>=0.5.14",
+      "onnxruntime~=1.24.3",
+      "aic-sdk~=3.1.0; extra == \"aic\"",
+      "anthropic<2,>=0.49.0; extra == \"anthropic\"",
+      "aiobotocore<4,>=3; extra == \"aws\"",
+      "aws_sdk_bedrock_runtime<0.10,>=0.6.0; python_version >= \"3.12\" and extra == \"aws-nova-sonic\"",
+      "azure-cognitiveservices-speech<2,>=1.47.0; extra == \"azure\"",
+      "camb-sdk<2,>=1.5.4; extra == \"camb\"",
+      "daily-python<1,>=0.29.0; extra == \"daily\"",
+      "deepgram-sdk<8,>=6.1.1; extra == \"deepgram\"",
+      "pipecat-ai[cli]; extra == \"evals\"",
+      "pipecat-ai[kokoro]; extra == \"evals\"",
+      "pipecat-ai[moonshine]; extra == \"evals\"",
+      "ormsgpack<2,>=1.7.0; extra == \"fish\"",
+      "funasr>=1.1.0; extra == \"funasr\"",
+      "google-cloud-speech<3,>=2.33.0; extra == \"google\"",
+      "google-cloud-texttospeech<3,>=2.31.0; extra == \"google\"",
+      "google-genai<3,>=2.19.0; (python_version != \"3.13\" or platform_system != \"Linux\") and extra == \"google\"",
+      "google-genai<3,>=1.68.0; extra == \"google\"",
+      "groq<2,>=0.23.0; extra == \"groq\"",
+      "pygobject~=3.50.0; extra == \"gstreamer\"",
+      "livekit<2,>=1.0.13; extra == \"heygen\"",
+      "hume<1,>=0.11.2; extra == \"hume\"",
+      "pipecat-ai[mcp]; extra == \"keenable\"",
+      "pvkoala~=2.0.3; extra == \"koala\"",
+      "kokoro-onnx<1,>=0.5.0; extra == \"kokoro\"",
+      "requests<3,>=2.32.5; extra == \"kokoro\"",
+      "langchain<2,>=1.2.13; extra == \"langchain\"",
+      "langchain-community<1,>=0.4.1; extra == \"langchain\"",
+      "langchain-openai<2,>=1.1.12; extra == \"langchain\"",
+      "pipecat-ai[daily]; extra == \"lemonslice\"",
+      "livekit<2,>=1.0.13; extra == \"livekit\"",
+      "livekit-api<2,>=1.0.5; extra == \"livekit\"",
+      "tenacity<10.0.0,>=8.2.3; extra == \"livekit\"",
+      "pyjwt<3,>=2.12.0; extra == \"livekit\"",
+      "pyaudio~=0.2.14; extra == \"local\"",
+      "coremltools>=8.0; extra == \"local-smart-turn\"",
+      "transformers<6,>=4.48.0; extra == \"local-smart-turn\"",
+      "torch<3,>=2.5.0; extra == \"local-smart-turn\"",
+      "torchaudio<3,>=2.5.0; extra == \"local-smart-turn\"",
+      "mcp[cli]<3,>=1.24.0; extra == \"mcp\"",
+      "mem0ai<3,>=2; extra == \"mem0\"",
+      "mistralai<3,>=2.0.0; extra == \"mistral\"",
+      "mlx-whisper~=0.4.2; extra == \"mlx-whisper\"",
+      "accelerate~=1.10.0; extra == \"moondream\"",
+      "einops~=0.8.0; extra == \"moondream\"",
+      "pyvips[binary]~=3.0.0; extra == \"moondream\"",
+      "timm~=1.0.13; extra == \"moondream\"",
+      "transformers<6,>=4.48.0; extra == \"moondream\"",
+      "moonshine-voice>=0.1.5; extra == \"moonshine\"",
+      "moq-rs~=0.4.4; extra == \"moq\"",
+      "cryptography>=45.0.0; extra == \"moq\"",
+      "nvidia-riva-client<3,>=2.25.1; extra == \"nvidia\"",
+      "protobuf<7,>=6.31.1; extra == \"nvidia\"",
+      "pyrnnoise~=0.4.3; extra == \"rnnoise\"",
+      "av<17.1.0; extra == \"rnnoise\"",
+      "pgmq<1.1,>=1.0.6; extra == \"pgmq\"",
+      "asyncpg>=0.30.0; extra == \"pgmq\"",
+      "piper-tts<2,>=1.3.0; extra == \"piper\"",
+      "requests<3,>=2.32.5; extra == \"piper\"",
+      "pocket-tts<3,>=2.1.0; extra == \"pocket-tts\"",
+      "redis[hiredis]>=5.0.0; extra == \"redis\"",
+      "uvicorn<1.0.0,>=0.32.0; extra == \"runner\"",
+      "fastapi<1,>=0.115.6; extra == \"runner\"",
+      "pipecat-ai-prebuilt>=1.2.1; extra == \"runner\"",
+      "aws_sdk_sagemaker_runtime_http2<0.10,>=0.6.0; python_version >= \"3.12\" and extra == \"sagemaker\"",
+      "sarvamai==0.1.28; extra == \"sarvam\"",
+      "sentry-sdk<3,>=2.28.0; extra == \"sentry\"",
+      "simli-ai~=2.0.1; extra == \"simli\"",
+      "speechmatics-agent-stt~=0.1.0; extra == \"speechmatics\"",
+      "strands-agents<2,>=1.9.1; extra == \"strands\"",
+      "pipecat-ai[daily]; extra == \"tavus\"",
+      "opentelemetry-sdk<2,>=1.33.0; extra == \"tracing\"",
+      "opentelemetry-api<2,>=1.33.0; extra == \"tracing\"",
+      "opentelemetry-instrumentation<1,>=0.54b0; extra == \"tracing\"",
+      "vonage-video-connector~=1.0.2; (python_version == \"3.13\" and platform_system == \"Linux\") and extra == \"vonage-video-connector\"",
+      "aiortc<2,>=1.14.0; extra == \"webrtc\"",
+      "opencv-python-headless<5,>=4.11.0.86; extra == \"webrtc\"",
+      "pipecat-ai[webrtc]; extra == \"webrtc-video\"",
+      "fastapi<1,>=0.115.6; extra == \"websocket\"",
+      "faster-whisper~=1.2.1; extra == \"whisper\"",
+      "typer<1,>=0.20.0; extra == \"cli\"",
+      "rich<14,>=13.0.0; extra == \"cli\"",
+      "jinja2<4,>=3.1.0; extra == \"cli\"",
+      "questionary<3,>=2.0.0; extra == \"cli\"",
+      "ruff<1,>=0.12.1; extra == \"cli\"",
+      "pipecat-ai-context-hub<1,>=0.7.0; extra == \"cli\""
+    ],
+    "version": "1.11.0"
+  },
+  "guard_scope": {
+    "denied_import_roots": [
+      "PIL",
+      "aiohttp",
+      "audioop",
+      "loudness",
+      "nltk",
+      "numba",
+      "numpy",
+      "onnxruntime",
+      "openai",
+      "resampy",
+      "soundfile",
+      "soxr"
+    ],
+    "limits": [
+      "The guard identifies import/thread requirements on local CPython; it is not a Workers emulator.",
+      "No dependency is declared unsupported on Workers solely because this guard denies it.",
+      "Other native extensions, direct low-level thread APIs, networking, snapshotting, and deployment packaging are not covered.",
+      "Imports run in fresh isolated subprocesses without vendored source on sys.path. Package source and dependency modules are unchanged."
+    ],
+    "thread_operation": "threading.Thread.start"
+  },
+  "harness_development_note": "The initial classifier expected the prewarm rejection to propagate. TaskManager catches it and startup raises a secondary TypeError. This version records thread attempts and their call stacks, preserving the secondary exception, so an unrelated TypeError cannot count as the expected gap.",
+  "observations": [
+    {
+      "case": "import:tts",
+      "classification": "local CPython import",
+      "exit_code": 0,
+      "raw": {
+        "observation": {
+          "module": "pipecat.services.tts_service",
+          "path": "/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/services/tts_service.py"
+        },
+        "ok": true
+      },
+      "status": "scoped_pass",
+      "stderr": "2026-10-04 20:39:03.488 | INFO     | pipecat:<module>:54 - \u14da\u160f\u15e2 Pipecat 1.11.0 (Python 3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]) \u14da\u160f\u15e2\n"
+    },
+    {
+      "case": "import:output",
+      "classification": "local CPython import",
+      "exit_code": 0,
+      "raw": {
+        "observation": {
+          "module": "pipecat.transports.base_output",
+          "path": "/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/transports/base_output.py"
+        },
+        "ok": true
+      },
+      "status": "scoped_pass",
+      "stderr": "2026-10-04 20:39:03.874 | INFO     | pipecat:<module>:54 - \u14da\u160f\u15e2 Pipecat 1.11.0 (Python 3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]) \u14da\u160f\u15e2\n"
+    },
+    {
+      "case": "import:aggregators",
+      "classification": "local CPython import",
+      "exit_code": 0,
+      "raw": {
+        "observation": {
+          "module": "pipecat.processors.aggregators.llm_response_universal",
+          "path": "/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/processors/aggregators/llm_response_universal.py"
+        },
+        "ok": true
+      },
+      "status": "scoped_pass",
+      "stderr": "2026-10-04 20:39:04.258 | INFO     | pipecat:<module>:54 - \u14da\u160f\u15e2 Pipecat 1.11.0 (Python 3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]) \u14da\u160f\u15e2\n"
+    },
+    {
+      "case": "import:stt",
+      "classification": "local CPython import",
+      "exit_code": 0,
+      "raw": {
+        "observation": {
+          "module": "pipecat.services.stt_service",
+          "path": "/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/services/stt_service.py"
+        },
+        "ok": true
+      },
+      "status": "scoped_pass",
+      "stderr": "2026-10-04 20:39:04.653 | INFO     | pipecat:<module>:54 - \u14da\u160f\u15e2 Pipecat 1.11.0 (Python 3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]) \u14da\u160f\u15e2\n"
+    },
+    {
+      "case": "import:llm",
+      "classification": "local CPython import",
+      "exit_code": 0,
+      "raw": {
+        "observation": {
+          "module": "pipecat.services.llm_service",
+          "path": "/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/services/llm_service.py"
+        },
+        "ok": true
+      },
+      "status": "scoped_pass",
+      "stderr": "2026-10-04 20:39:05.024 | INFO     | pipecat:<module>:54 - \u14da\u160f\u15e2 Pipecat 1.11.0 (Python 3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]) \u14da\u160f\u15e2\n"
+    },
+    {
+      "case": "import:turn_strategy",
+      "classification": "local CPython import",
+      "exit_code": 0,
+      "raw": {
+        "observation": {
+          "module": "pipecat.turns.user_stop.turn_analyzer_user_turn_stop_strategy",
+          "path": "/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/turns/user_stop/turn_analyzer_user_turn_stop_strategy.py"
+        },
+        "ok": true
+      },
+      "status": "scoped_pass",
+      "stderr": "2026-10-04 20:39:05.415 | INFO     | pipecat:<module>:54 - \u14da\u160f\u15e2 Pipecat 1.11.0 (Python 3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]) \u14da\u160f\u15e2\n"
+    },
+    {
+      "case": "import:http_smart_turn",
+      "classification": "local CPython import",
+      "exit_code": 0,
+      "raw": {
+        "observation": {
+          "module": "pipecat.audio.turn.smart_turn.http_smart_turn",
+          "path": "/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/audio/turn/smart_turn/http_smart_turn.py"
+        },
+        "ok": true
+      },
+      "status": "scoped_pass",
+      "stderr": "2026-10-04 20:39:05.810 | INFO     | pipecat:<module>:54 - \u14da\u160f\u15e2 Pipecat 1.11.0 (Python 3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]) \u14da\u160f\u15e2\n"
+    },
+    {
+      "case": "import:base_smart_turn",
+      "classification": "local CPython import",
+      "exit_code": 0,
+      "raw": {
+        "observation": {
+          "module": "pipecat.audio.turn.smart_turn.base_smart_turn",
+          "path": "/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/audio/turn/smart_turn/base_smart_turn.py"
+        },
+        "ok": true
+      },
+      "status": "scoped_pass",
+      "stderr": "2026-10-04 20:39:06.445 | INFO     | pipecat:<module>:54 - \u14da\u160f\u15e2 Pipecat 1.11.0 (Python 3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]) \u14da\u160f\u15e2\n"
+    },
+    {
+      "case": "import:worker",
+      "classification": "local CPython import",
+      "exit_code": 0,
+      "raw": {
+        "observation": {
+          "module": "pipecat.pipeline.worker",
+          "path": "/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/pipeline/worker.py"
+        },
+        "ok": true
+      },
+      "status": "scoped_pass",
+      "stderr": "2026-10-04 20:39:06.857 | INFO     | pipecat:<module>:54 - \u14da\u160f\u15e2 Pipecat 1.11.0 (Python 3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]) \u14da\u160f\u15e2\n"
+    },
+    {
+      "case": "guard-import:tts",
+      "classification": "package/runtime incompatibility under local guard",
+      "exit_code": 0,
+      "raw": {
+        "exception": {
+          "message": "import denied by local probe: audioop",
+          "traceback": "Traceback (most recent call last):\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 197, in child\n    result = {\"ok\": True, \"observation\": run_case(case)}\n                                         ^^^^^^^^^^^^^^\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 158, in run_case\n    module = importlib.import_module(COMPONENTS[name])\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1331, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 935, in _load_unlocked\n  File \"<frozen importlib._bootstrap_external>\", line 999, in exec_module\n  File \"<frozen importlib._bootstrap>\", line 488, in _call_with_frames_removed\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/services/tts_service.py\", line 22, in <module>\n    from pipecat.audio.utils import create_stream_resampler\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/audio/utils.py\", line 14, in <module>\n    import audioop\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1322, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 1262, in _find_spec\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 62, in find_spec\n    raise GuardRejection(f\"import denied by local probe: {fullname}\")\nGuardRejection: import denied by local probe: audioop\n",
+          "type": "GuardRejection"
+        },
+        "ok": false
+      },
+      "status": "observed_gap",
+      "stderr": "2026-10-04 20:39:07.387 | INFO     | pipecat:<module>:54 - \u14da\u160f\u15e2 Pipecat 1.11.0 (Python 3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]) \u14da\u160f\u15e2\n"
+    },
+    {
+      "case": "guard-import:output",
+      "classification": "package/runtime incompatibility under local guard",
+      "exit_code": 0,
+      "raw": {
+        "exception": {
+          "message": "import denied by local probe: PIL",
+          "traceback": "Traceback (most recent call last):\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 197, in child\n    result = {\"ok\": True, \"observation\": run_case(case)}\n                                         ^^^^^^^^^^^^^^\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 158, in run_case\n    module = importlib.import_module(COMPONENTS[name])\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1331, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 935, in _load_unlocked\n  File \"<frozen importlib._bootstrap_external>\", line 999, in exec_module\n  File \"<frozen importlib._bootstrap>\", line 488, in _call_with_frames_removed\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/transports/base_output.py\", line 21, in <module>\n    from PIL import Image\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1322, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 1262, in _find_spec\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 62, in find_spec\n    raise GuardRejection(f\"import denied by local probe: {fullname}\")\nGuardRejection: import denied by local probe: PIL\n",
+          "type": "GuardRejection"
+        },
+        "ok": false
+      },
+      "status": "observed_gap",
+      "stderr": "2026-10-04 20:39:07.582 | INFO     | pipecat:<module>:54 - \u14da\u160f\u15e2 Pipecat 1.11.0 (Python 3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]) \u14da\u160f\u15e2\n"
+    },
+    {
+      "case": "guard-import:aggregators",
+      "classification": "package/runtime incompatibility under local guard",
+      "exit_code": 0,
+      "raw": {
+        "exception": {
+          "message": "import denied by local probe: audioop",
+          "traceback": "Traceback (most recent call last):\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 197, in child\n    result = {\"ok\": True, \"observation\": run_case(case)}\n                                         ^^^^^^^^^^^^^^\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 158, in run_case\n    module = importlib.import_module(COMPONENTS[name])\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1331, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 935, in _load_unlocked\n  File \"<frozen importlib._bootstrap_external>\", line 999, in exec_module\n  File \"<frozen importlib._bootstrap>\", line 488, in _call_with_frames_removed\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/processors/aggregators/llm_response_universal.py\", line 25, in <module>\n    from pipecat.audio.vad.vad_analyzer import VADAnalyzer\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/audio/vad/vad_analyzer.py\", line 22, in <module>\n    from pipecat.audio.utils import exp_smoothing\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/audio/utils.py\", line 14, in <module>\n    import audioop\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1322, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 1262, in _find_spec\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 62, in find_spec\n    raise GuardRejection(f\"import denied by local probe: {fullname}\")\nGuardRejection: import denied by local probe: audioop\n",
+          "type": "GuardRejection"
+        },
+        "ok": false
+      },
+      "status": "observed_gap",
+      "stderr": "2026-10-04 20:39:07.776 | INFO     | pipecat:<module>:54 - \u14da\u160f\u15e2 Pipecat 1.11.0 (Python 3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]) \u14da\u160f\u15e2\n"
+    },
+    {
+      "case": "guard-import:stt",
+      "classification": "package/runtime incompatibility under local guard",
+      "exit_code": 0,
+      "raw": {
+        "exception": {
+          "message": "import denied by local probe: audioop",
+          "traceback": "Traceback (most recent call last):\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 197, in child\n    result = {\"ok\": True, \"observation\": run_case(case)}\n                                         ^^^^^^^^^^^^^^\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 158, in run_case\n    module = importlib.import_module(COMPONENTS[name])\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1331, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 935, in _load_unlocked\n  File \"<frozen importlib._bootstrap_external>\", line 999, in exec_module\n  File \"<frozen importlib._bootstrap>\", line 488, in _call_with_frames_removed\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/services/stt_service.py\", line 19, in <module>\n    from pipecat.audio.utils import pcm_to_wav\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/audio/utils.py\", line 14, in <module>\n    import audioop\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1322, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 1262, in _find_spec\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 62, in find_spec\n    raise GuardRejection(f\"import denied by local probe: {fullname}\")\nGuardRejection: import denied by local probe: audioop\n",
+          "type": "GuardRejection"
+        },
+        "ok": false
+      },
+      "status": "observed_gap",
+      "stderr": "2026-10-04 20:39:08.026 | INFO     | pipecat:<module>:54 - \u14da\u160f\u15e2 Pipecat 1.11.0 (Python 3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]) \u14da\u160f\u15e2\n"
+    },
+    {
+      "case": "guard-import:llm",
+      "classification": "package/runtime incompatibility under local guard",
+      "exit_code": 0,
+      "raw": {
+        "exception": {
+          "message": "import denied by local probe: PIL",
+          "traceback": "Traceback (most recent call last):\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 197, in child\n    result = {\"ok\": True, \"observation\": run_case(case)}\n                                         ^^^^^^^^^^^^^^\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 158, in run_case\n    module = importlib.import_module(COMPONENTS[name])\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1331, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 935, in _load_unlocked\n  File \"<frozen importlib._bootstrap_external>\", line 999, in exec_module\n  File \"<frozen importlib._bootstrap>\", line 488, in _call_with_frames_removed\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/services/llm_service.py\", line 30, in <module>\n    from pipecat.adapters.base_llm_adapter import BaseLLMAdapter\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/adapters/base_llm_adapter.py\", line 22, in <module>\n    from pipecat.processors.aggregators.llm_context import (\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/processors/aggregators/llm_context.py\", line 26, in <module>\n    from PIL import Image\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1322, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 1262, in _find_spec\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 62, in find_spec\n    raise GuardRejection(f\"import denied by local probe: {fullname}\")\nGuardRejection: import denied by local probe: PIL\n",
+          "type": "GuardRejection"
+        },
+        "ok": false
+      },
+      "status": "observed_gap",
+      "stderr": "2026-10-04 20:39:08.216 | INFO     | pipecat:<module>:54 - \u14da\u160f\u15e2 Pipecat 1.11.0 (Python 3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]) \u14da\u160f\u15e2\n"
+    },
+    {
+      "case": "guard-import:turn_strategy",
+      "classification": "package/runtime incompatibility under local guard",
+      "exit_code": 0,
+      "raw": {
+        "exception": {
+          "message": "import denied by local probe: audioop",
+          "traceback": "Traceback (most recent call last):\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 197, in child\n    result = {\"ok\": True, \"observation\": run_case(case)}\n                                         ^^^^^^^^^^^^^^\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 158, in run_case\n    module = importlib.import_module(COMPONENTS[name])\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1310, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 488, in _call_with_frames_removed\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1331, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 935, in _load_unlocked\n  File \"<frozen importlib._bootstrap_external>\", line 999, in exec_module\n  File \"<frozen importlib._bootstrap>\", line 488, in _call_with_frames_removed\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/turns/user_stop/__init__.py\", line 7, in <module>\n    from .base_user_turn_stop_strategy import BaseUserTurnStopStrategy, UserTurnStoppedParams\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/turns/user_stop/base_user_turn_stop_strategy.py\", line 12, in <module>\n    from pipecat.frames.frames import Frame\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/frames/frames.py\", line 33, in <module>\n    from pipecat.audio.vad.vad_analyzer import VADParams\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/audio/vad/vad_analyzer.py\", line 22, in <module>\n    from pipecat.audio.utils import exp_smoothing\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/audio/utils.py\", line 14, in <module>\n    import audioop\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1322, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 1262, in _find_spec\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 62, in find_spec\n    raise GuardRejection(f\"import denied by local probe: {fullname}\")\nGuardRejection: import denied by local probe: audioop\n",
+          "type": "GuardRejection"
+        },
+        "ok": false
+      },
+      "status": "observed_gap",
+      "stderr": "2026-10-04 20:39:08.405 | INFO     | pipecat:<module>:54 - \u14da\u160f\u15e2 Pipecat 1.11.0 (Python 3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]) \u14da\u160f\u15e2\n"
+    },
+    {
+      "case": "guard-import:http_smart_turn",
+      "classification": "package/runtime incompatibility under local guard",
+      "exit_code": 0,
+      "raw": {
+        "exception": {
+          "message": "import denied by local probe: aiohttp",
+          "traceback": "Traceback (most recent call last):\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 197, in child\n    result = {\"ok\": True, \"observation\": run_case(case)}\n                                         ^^^^^^^^^^^^^^\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 158, in run_case\n    module = importlib.import_module(COMPONENTS[name])\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1331, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 935, in _load_unlocked\n  File \"<frozen importlib._bootstrap_external>\", line 999, in exec_module\n  File \"<frozen importlib._bootstrap>\", line 488, in _call_with_frames_removed\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/audio/turn/smart_turn/http_smart_turn.py\", line 17, in <module>\n    import aiohttp\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1322, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 1262, in _find_spec\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 62, in find_spec\n    raise GuardRejection(f\"import denied by local probe: {fullname}\")\nGuardRejection: import denied by local probe: aiohttp\n",
+          "type": "GuardRejection"
+        },
+        "ok": false
+      },
+      "status": "observed_gap",
+      "stderr": "2026-10-04 20:39:08.662 | INFO     | pipecat:<module>:54 - \u14da\u160f\u15e2 Pipecat 1.11.0 (Python 3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]) \u14da\u160f\u15e2\n"
+    },
+    {
+      "case": "guard-import:base_smart_turn",
+      "classification": "package/runtime incompatibility under local guard",
+      "exit_code": 0,
+      "raw": {
+        "exception": {
+          "message": "import denied by local probe: numpy",
+          "traceback": "Traceback (most recent call last):\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 197, in child\n    result = {\"ok\": True, \"observation\": run_case(case)}\n                                         ^^^^^^^^^^^^^^\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 158, in run_case\n    module = importlib.import_module(COMPONENTS[name])\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1331, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 935, in _load_unlocked\n  File \"<frozen importlib._bootstrap_external>\", line 999, in exec_module\n  File \"<frozen importlib._bootstrap>\", line 488, in _call_with_frames_removed\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/audio/turn/smart_turn/base_smart_turn.py\", line 20, in <module>\n    import numpy as np\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1322, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 1262, in _find_spec\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 62, in find_spec\n    raise GuardRejection(f\"import denied by local probe: {fullname}\")\nGuardRejection: import denied by local probe: numpy\n",
+          "type": "GuardRejection"
+        },
+        "ok": false
+      },
+      "status": "observed_gap",
+      "stderr": "2026-10-04 20:39:08.873 | INFO     | pipecat:<module>:54 - \u14da\u160f\u15e2 Pipecat 1.11.0 (Python 3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]) \u14da\u160f\u15e2\n"
+    },
+    {
+      "case": "guard-import:worker",
+      "classification": "package/runtime incompatibility under local guard",
+      "exit_code": 0,
+      "raw": {
+        "exception": {
+          "message": "import denied by local probe: audioop",
+          "traceback": "Traceback (most recent call last):\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 197, in child\n    result = {\"ok\": True, \"observation\": run_case(case)}\n                                         ^^^^^^^^^^^^^^\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 158, in run_case\n    module = importlib.import_module(COMPONENTS[name])\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1331, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 935, in _load_unlocked\n  File \"<frozen importlib._bootstrap_external>\", line 999, in exec_module\n  File \"<frozen importlib._bootstrap>\", line 488, in _call_with_frames_removed\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/pipeline/worker.py\", line 25, in <module>\n    from pipecat.bus import (\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/bus/__init__.py\", line 22, in <module>\n    from pipecat.bus.bridge_processor import BusBridgeProcessor\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/bus/bridge_processor.py\", line 22, in <module>\n    from pipecat.bus.bus import WorkerBus\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/bus/bus.py\", line 20, in <module>\n    from pipecat.bus.messages import BusLocalMessage, BusMessage, BusSystemMessage\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/bus/messages.py\", line 18, in <module>\n    from pipecat.frames.frames import Frame\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/frames/frames.py\", line 33, in <module>\n    from pipecat.audio.vad.vad_analyzer import VADParams\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/audio/vad/vad_analyzer.py\", line 22, in <module>\n    from pipecat.audio.utils import exp_smoothing\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/audio/utils.py\", line 14, in <module>\n    import audioop\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1322, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 1262, in _find_spec\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 62, in find_spec\n    raise GuardRejection(f\"import denied by local probe: {fullname}\")\nGuardRejection: import denied by local probe: audioop\n",
+          "type": "GuardRejection"
+        },
+        "ok": false
+      },
+      "status": "observed_gap",
+      "stderr": "2026-10-04 20:39:09.080 | INFO     | pipecat:<module>:54 - \u14da\u160f\u15e2 Pipecat 1.11.0 (Python 3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]) \u14da\u160f\u15e2\n"
+    },
+    {
+      "case": "deny-one:tts:loudness",
+      "classification": "package/runtime incompatibility under local guard",
+      "exit_code": 0,
+      "raw": {
+        "exception": {
+          "message": "import denied by local probe: loudness",
+          "traceback": "Traceback (most recent call last):\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 197, in child\n    result = {\"ok\": True, \"observation\": run_case(case)}\n                                         ^^^^^^^^^^^^^^\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 163, in run_case\n    module = importlib.import_module(COMPONENTS[component])\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1331, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 935, in _load_unlocked\n  File \"<frozen importlib._bootstrap_external>\", line 999, in exec_module\n  File \"<frozen importlib._bootstrap>\", line 488, in _call_with_frames_removed\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/services/tts_service.py\", line 22, in <module>\n    from pipecat.audio.utils import create_stream_resampler\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/audio/utils.py\", line 18, in <module>\n    import loudness\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1322, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 1262, in _find_spec\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 62, in find_spec\n    raise GuardRejection(f\"import denied by local probe: {fullname}\")\nGuardRejection: import denied by local probe: loudness\n",
+          "type": "GuardRejection"
+        },
+        "ok": false
+      },
+      "status": "observed_gap",
+      "stderr": "2026-10-04 20:39:09.414 | INFO     | pipecat:<module>:54 - \u14da\u160f\u15e2 Pipecat 1.11.0 (Python 3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]) \u14da\u160f\u15e2\n"
+    },
+    {
+      "case": "deny-one:tts:soxr",
+      "classification": "package/runtime incompatibility under local guard",
+      "exit_code": 0,
+      "raw": {
+        "exception": {
+          "message": "import denied by local probe: soxr",
+          "traceback": "Traceback (most recent call last):\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 197, in child\n    result = {\"ok\": True, \"observation\": run_case(case)}\n                                         ^^^^^^^^^^^^^^\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 163, in run_case\n    module = importlib.import_module(COMPONENTS[component])\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1331, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 935, in _load_unlocked\n  File \"<frozen importlib._bootstrap_external>\", line 999, in exec_module\n  File \"<frozen importlib._bootstrap>\", line 488, in _call_with_frames_removed\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/services/tts_service.py\", line 22, in <module>\n    from pipecat.audio.utils import create_stream_resampler\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/audio/utils.py\", line 22, in <module>\n    from pipecat.audio.resamplers.soxr_resampler import SOXRAudioResampler\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/audio/resamplers/soxr_resampler.py\", line 19, in <module>\n    import soxr\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1322, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 1262, in _find_spec\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 62, in find_spec\n    raise GuardRejection(f\"import denied by local probe: {fullname}\")\nGuardRejection: import denied by local probe: soxr\n",
+          "type": "GuardRejection"
+        },
+        "ok": false
+      },
+      "status": "observed_gap",
+      "stderr": "2026-10-04 20:39:09.703 | INFO     | pipecat:<module>:54 - \u14da\u160f\u15e2 Pipecat 1.11.0 (Python 3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]) \u14da\u160f\u15e2\n"
+    },
+    {
+      "case": "deny-one:output:PIL",
+      "classification": "package/runtime incompatibility under local guard",
+      "exit_code": 0,
+      "raw": {
+        "exception": {
+          "message": "import denied by local probe: PIL",
+          "traceback": "Traceback (most recent call last):\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 197, in child\n    result = {\"ok\": True, \"observation\": run_case(case)}\n                                         ^^^^^^^^^^^^^^\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 163, in run_case\n    module = importlib.import_module(COMPONENTS[component])\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1331, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 935, in _load_unlocked\n  File \"<frozen importlib._bootstrap_external>\", line 999, in exec_module\n  File \"<frozen importlib._bootstrap>\", line 488, in _call_with_frames_removed\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/transports/base_output.py\", line 21, in <module>\n    from PIL import Image\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1322, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 1262, in _find_spec\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 62, in find_spec\n    raise GuardRejection(f\"import denied by local probe: {fullname}\")\nGuardRejection: import denied by local probe: PIL\n",
+          "type": "GuardRejection"
+        },
+        "ok": false
+      },
+      "status": "observed_gap",
+      "stderr": "2026-10-04 20:39:09.973 | INFO     | pipecat:<module>:54 - \u14da\u160f\u15e2 Pipecat 1.11.0 (Python 3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]) \u14da\u160f\u15e2\n"
+    },
+    {
+      "case": "deny-one:http_smart_turn:numpy",
+      "classification": "package/runtime incompatibility under local guard",
+      "exit_code": 0,
+      "raw": {
+        "exception": {
+          "message": "import denied by local probe: numpy",
+          "traceback": "Traceback (most recent call last):\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 197, in child\n    result = {\"ok\": True, \"observation\": run_case(case)}\n                                         ^^^^^^^^^^^^^^\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 163, in run_case\n    module = importlib.import_module(COMPONENTS[component])\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1331, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 935, in _load_unlocked\n  File \"<frozen importlib._bootstrap_external>\", line 999, in exec_module\n  File \"<frozen importlib._bootstrap>\", line 488, in _call_with_frames_removed\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/audio/turn/smart_turn/http_smart_turn.py\", line 18, in <module>\n    import numpy as np\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1322, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 1262, in _find_spec\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 62, in find_spec\n    raise GuardRejection(f\"import denied by local probe: {fullname}\")\nGuardRejection: import denied by local probe: numpy\n",
+          "type": "GuardRejection"
+        },
+        "ok": false
+      },
+      "status": "observed_gap",
+      "stderr": "2026-10-04 20:39:10.169 | INFO     | pipecat:<module>:54 - \u14da\u160f\u15e2 Pipecat 1.11.0 (Python 3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]) \u14da\u160f\u15e2\n"
+    },
+    {
+      "case": "deny-one:http_smart_turn:aiohttp",
+      "classification": "package/runtime incompatibility under local guard",
+      "exit_code": 0,
+      "raw": {
+        "exception": {
+          "message": "import denied by local probe: aiohttp",
+          "traceback": "Traceback (most recent call last):\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 197, in child\n    result = {\"ok\": True, \"observation\": run_case(case)}\n                                         ^^^^^^^^^^^^^^\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 163, in run_case\n    module = importlib.import_module(COMPONENTS[component])\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1331, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 935, in _load_unlocked\n  File \"<frozen importlib._bootstrap_external>\", line 999, in exec_module\n  File \"<frozen importlib._bootstrap>\", line 488, in _call_with_frames_removed\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/audio/turn/smart_turn/http_smart_turn.py\", line 17, in <module>\n    import aiohttp\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1322, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 1262, in _find_spec\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 62, in find_spec\n    raise GuardRejection(f\"import denied by local probe: {fullname}\")\nGuardRejection: import denied by local probe: aiohttp\n",
+          "type": "GuardRejection"
+        },
+        "ok": false
+      },
+      "status": "observed_gap",
+      "stderr": "2026-10-04 20:39:10.488 | INFO     | pipecat:<module>:54 - \u14da\u160f\u15e2 Pipecat 1.11.0 (Python 3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]) \u14da\u160f\u15e2\n"
+    },
+    {
+      "case": "worker-prewarm",
+      "classification": "package/runtime incompatibility under local thread guard",
+      "exit_code": 0,
+      "raw": {
+        "observation": {
+          "exception": {
+            "message": "cannot unpack non-iterable NoneType object",
+            "traceback": "Traceback (most recent call last):\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 139, in check_worker_prewarm\n    await asyncio.wait_for(worker._setup(WorkerParams(task_manager=manager)), 3)\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py\", line 520, in wait_for\n    return await fut\n           ^^^^^^^^^\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/pipeline/worker.py\", line 1323, in _setup\n    warm_started_at_ns, warm_finished_at_ns = await lazy_imports_task\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: cannot unpack non-iterable NoneType object\n",
+            "type": "TypeError"
+          },
+          "thread_start_attempts": [
+            {
+              "stack": [
+                "  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 304, in <module>\n    raise SystemExit(main())\n",
+                "  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 250, in main\n    child(args.case)\n",
+                "  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 197, in child\n    result = {\"ok\": True, \"observation\": run_case(case)}\n",
+                "  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 166, in run_case\n    return asyncio.run(check_worker_prewarm())\n",
+                "  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py\", line 195, in run\n    return runner.run(main)\n",
+                "  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n",
+                "  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py\", line 678, in run_until_complete\n    self.run_forever()\n",
+                "  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py\", line 645, in run_forever\n    self._run_once()\n",
+                "  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py\", line 1999, in _run_once\n    handle._run()\n",
+                "  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/events.py\", line 88, in _run\n    self._context.run(self._callback, *self._args)\n",
+                "  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/utils/asyncio/task_manager.py\", line 191, in run_coroutine\n    return await coroutine\n",
+                "  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/pipeline/worker.py\", line 1293, in warm_lazy_imports\n    await asyncio.to_thread(warm_deferred_imports)\n",
+                "  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/threads.py\", line 25, in to_thread\n    return await loop.run_in_executor(None, func_call)\n",
+                "  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py\", line 867, in run_in_executor\n    executor.submit(func, *args), loop=self)\n",
+                "  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/concurrent/futures/thread.py\", line 180, in submit\n    self._adjust_thread_count()\n",
+                "  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/concurrent/futures/thread.py\", line 203, in _adjust_thread_count\n    t.start()\n",
+                "  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 70, in deny\n    attempts.append({\"thread_name\": self.name, \"stack\": traceback.format_stack()})\n"
+              ],
+              "thread_name": "asyncio_0"
+            }
+          ]
+        },
+        "ok": true
+      },
+      "status": "observed_gap",
+      "stderr": "2026-10-04 20:39:10.686 | INFO     | pipecat:<module>:54 - \u14da\u160f\u15e2 Pipecat 1.11.0 (Python 3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]) \u14da\u160f\u15e2\n"
+    },
+    {
+      "case": "http-analyzer-thread-guard",
+      "classification": "package/runtime incompatibility under local thread guard",
+      "exit_code": 0,
+      "raw": {
+        "observation": {
+          "exception": {
+            "message": "threading.Thread.start denied by local probe",
+            "traceback": "Traceback (most recent call last):\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 105, in check_http_analyzer\n    state, metrics = await asyncio.wait_for(analyzer.analyze_end_of_turn(), 3)\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py\", line 520, in wait_for\n    return await fut\n           ^^^^^^^^^\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/audio/turn/smart_turn/base_smart_turn.py\", line 162, in analyze_end_of_turn\n    state, result = await loop.run_in_executor(\n                          ^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py\", line 867, in run_in_executor\n    executor.submit(func, *args), loop=self)\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/concurrent/futures/thread.py\", line 180, in submit\n    self._adjust_thread_count()\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/concurrent/futures/thread.py\", line 203, in _adjust_thread_count\n    t.start()\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 71, in deny\n    raise GuardRejection(\"threading.Thread.start denied by local probe\")\nGuardRejection: threading.Thread.start denied by local probe\n",
+            "type": "GuardRejection"
+          },
+          "logs": [],
+          "network": "No remote provider called; an unused loopback URL records any request attempt.",
+          "requests_started": []
+        },
+        "ok": true
+      },
+      "status": "observed_gap",
+      "stderr": "2026-10-04 20:39:11.463 | INFO     | pipecat:<module>:54 - \u14da\u160f\u15e2 Pipecat 1.11.0 (Python 3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]) \u14da\u160f\u15e2\n"
+    },
+    {
+      "case": "http-analyzer-original",
+      "classification": "package defect",
+      "exit_code": 0,
+      "raw": {
+        "observation": {
+          "logs": [
+            "2026-10-04 20:39:12.116 | ERROR    | pipecat.audio.turn.smart_turn.http_smart_turn:_predict_endpoint:117 - Smart turn prediction failed: no running event loop\n",
+            "2026-10-04 20:39:12.117 | DEBUG    | pipecat.audio.turn.smart_turn.base_smart_turn:analyze_end_of_turn:167 - End of Turn result: EndOfTurnState.INCOMPLETE\n"
+          ],
+          "metrics": {
+            "e2e_processing_time_ms": 1.0353339894209057,
+            "is_complete": false,
+            "model": null,
+            "probability": 0.0,
+            "processor": "BaseSmartTurn"
+          },
+          "network": "No remote provider called; an unused loopback URL records any request attempt.",
+          "requests_started": [],
+          "state": "EndOfTurnState.INCOMPLETE"
+        },
+        "ok": true
+      },
+      "status": "observed_gap",
+      "stderr": "2026-10-04 20:39:12.002 | INFO     | pipecat:<module>:54 - \u14da\u160f\u15e2 Pipecat 1.11.0 (Python 3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]) \u14da\u160f\u15e2\n"
+    },
+    {
+      "case": "http-wire",
+      "classification": "integration adapter requirement",
+      "exit_code": 0,
+      "raw": {
+        "observation": {
+          "consumer_result_keys": [
+            "prediction",
+            "probability"
+          ],
+          "content_type": "application/octet-stream",
+          "encoding": "NumPy .npy float32 array",
+          "payload_bytes": 1408,
+          "payload_magic_hex": "934e554d5059",
+          "source_only_limit": "Response-key comparison uses published schema; hosted API not called.",
+          "workers_ai_documented_result_keys": [
+            "is_complete",
+            "probability"
+          ]
+        },
+        "ok": true
+      },
+      "status": "source_observation",
+      "stderr": "2026-10-04 20:39:12.371 | INFO     | pipecat:<module>:54 - \u14da\u160f\u15e2 Pipecat 1.11.0 (Python 3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]) \u14da\u160f\u15e2\n"
+    },
+    {
+      "case": "sentence-tokenizer-import",
+      "classification": "package/runtime incompatibility under local guard",
+      "exit_code": 0,
+      "raw": {
+        "exception": {
+          "message": "import denied by local probe: nltk",
+          "traceback": "Traceback (most recent call last):\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 197, in child\n    result = {\"ok\": True, \"observation\": run_case(case)}\n                                         ^^^^^^^^^^^^^^\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 187, in run_case\n    _sent_tokenizer()\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/utils/string.py\", line 52, in _sent_tokenizer\n    import nltk\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1322, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 1262, in _find_spec\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 62, in find_spec\n    raise GuardRejection(f\"import denied by local probe: {fullname}\")\nGuardRejection: import denied by local probe: nltk\n",
+          "type": "GuardRejection"
+        },
+        "ok": false
+      },
+      "status": "observed_gap",
+      "stderr": "2026-10-04 20:39:12.736 | INFO     | pipecat:<module>:54 - \u14da\u160f\u15e2 Pipecat 1.11.0 (Python 3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]) \u14da\u160f\u15e2\n"
+    },
+    {
+      "case": "default-turn-import",
+      "classification": "package/runtime incompatibility under local guard",
+      "exit_code": 0,
+      "raw": {
+        "exception": {
+          "message": "import denied by local probe: onnxruntime",
+          "traceback": "Traceback (most recent call last):\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 197, in child\n    result = {\"ok\": True, \"observation\": run_case(case)}\n                                         ^^^^^^^^^^^^^^\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 191, in run_case\n    UserTurnStrategies()\n  File \"<string>\", line 5, in __init__\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/turns/user_turn_strategies.py\", line 80, in __post_init__\n    self.stop = default_user_turn_stop_strategies()\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/turns/user_turn_strategies.py\", line 51, in default_user_turn_stop_strategies\n    from pipecat.audio.turn.smart_turn.local_smart_turn_v3 import LocalSmartTurnAnalyzerV3\n  File \"/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/audio/turn/smart_turn/local_smart_turn_v3.py\", line 16, in <module>\n    import onnxruntime as ort\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1322, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 1262, in _find_spec\n  File \"/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers/audit/reference/runtime_probe.py\", line 62, in find_spec\n    raise GuardRejection(f\"import denied by local probe: {fullname}\")\nGuardRejection: import denied by local probe: onnxruntime\n",
+          "type": "GuardRejection"
+        },
+        "ok": false
+      },
+      "status": "observed_gap",
+      "stderr": "2026-10-04 20:39:12.942 | INFO     | pipecat:<module>:54 - \u14da\u160f\u15e2 Pipecat 1.11.0 (Python 3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]) \u14da\u160f\u15e2\n"
+    }
+  ],
+  "probe_sha256": "7ff9d6648806dcc8d20366e048e184c7d067c0a3b15e5a62c5b72dc8ca2a3e06",
+  "readiness": "not_established",
+  "resolved_distributions": [
+    {
+      "name": "aiofiles",
+      "version": "25.1.0"
+    },
+    {
+      "name": "aiohappyeyeballs",
+      "version": "2.7.1"
+    },
+    {
+      "name": "aiohttp",
+      "version": "3.14.3"
+    },
+    {
+      "name": "aiosignal",
+      "version": "1.4.0"
+    },
+    {
+      "name": "annotated-types",
+      "version": "0.8.0"
+    },
+    {
+      "name": "anyio",
+      "version": "4.15.1"
+    },
+    {
+      "name": "attrs",
+      "version": "26.1.0"
+    },
+    {
+      "name": "cffi",
+      "version": "2.1.1"
+    },
+    {
+      "name": "click",
+      "version": "8.5.0"
+    },
+    {
+      "name": "cloudpickle",
+      "version": "3.1.2"
+    },
+    {
+      "name": "defusedxml",
+      "version": "0.7.1"
+    },
+    {
+      "name": "docopt",
+      "version": "0.6.2"
+    },
+    {
+      "name": "docstring_parser",
+      "version": "0.18.0"
+    },
+    {
+      "name": "flatbuffers",
+      "version": "25.12.19"
+    },
+    {
+      "name": "frozenlist",
+      "version": "1.8.0"
+    },
+    {
+      "name": "h11",
+      "version": "0.16.0"
+    },
+    {
+      "name": "httpcore2",
+      "version": "2.13.1"
+    },
+    {
+      "name": "httpx2",
+      "version": "2.13.1"
+    },
+    {
+      "name": "idna",
+      "version": "3.20"
+    },
+    {
+      "name": "jiter",
+      "version": "0.17.0"
+    },
+    {
+      "name": "joblib",
+      "version": "1.6.0"
+    },
+    {
+      "name": "llvmlite",
+      "version": "0.50.0"
+    },
+    {
+      "name": "loguru",
+      "version": "0.7.3"
+    },
+    {
+      "name": "loudness",
+      "version": "0.2.0"
+    },
+    {
+      "name": "Markdown",
+      "version": "3.11"
+    },
+    {
+      "name": "mpmath",
+      "version": "1.3.0"
+    },
+    {
+      "name": "multidict",
+      "version": "6.9.1"
+    },
+    {
+      "name": "nltk",
+      "version": "3.10.3"
+    },
+    {
+      "name": "num2words",
+      "version": "0.5.14"
+    },
+    {
+      "name": "numba",
+      "version": "0.68.0"
+    },
+    {
+      "name": "numpy",
+      "version": "2.5.3"
+    },
+    {
+      "name": "onnxruntime",
+      "version": "1.24.4"
+    },
+    {
+      "name": "openai",
+      "version": "3.24.0"
+    },
+    {
+      "name": "packaging",
+      "version": "26.3"
+    },
+    {
+      "name": "pillow",
+      "version": "12.3.0"
+    },
+    {
+      "name": "pip",
+      "version": "25.0.1"
+    },
+    {
+      "name": "pipecat-ai",
+      "version": "1.11.0"
+    },
+    {
+      "name": "propcache",
+      "version": "0.5.4"
+    },
+    {
+      "name": "protobuf",
+      "version": "6.33.6"
+    },
+    {
+      "name": "pycparser",
+      "version": "3.0"
+    },
+    {
+      "name": "pydantic",
+      "version": "2.13.5"
+    },
+    {
+      "name": "pydantic_core",
+      "version": "2.46.5"
+    },
+    {
+      "name": "python-dotenv",
+      "version": "1.2.4"
+    },
+    {
+      "name": "PyYAML",
+      "version": "6.0.3"
+    },
+    {
+      "name": "regex",
+      "version": "2026.9.29"
+    },
+    {
+      "name": "resampy",
+      "version": "0.4.3"
+    },
+    {
+      "name": "sniffio",
+      "version": "1.3.1"
+    },
+    {
+      "name": "soundfile",
+      "version": "0.13.1"
+    },
+    {
+      "name": "soxr",
+      "version": "1.0.0"
+    },
+    {
+      "name": "sympy",
+      "version": "1.14.0"
+    },
+    {
+      "name": "tqdm",
+      "version": "4.70.1"
+    },
+    {
+      "name": "truststore",
+      "version": "0.10.4"
+    },
+    {
+      "name": "typing-inspection",
+      "version": "0.4.4"
+    },
+    {
+      "name": "typing_extensions",
+      "version": "4.16.0"
+    },
+    {
+      "name": "websockets",
+      "version": "17.2"
+    },
+    {
+      "name": "yarl",
+      "version": "1.25.1"
+    }
+  ],
+  "runtime": {
+    "assertions_enabled": true,
+    "executable": "/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/bin/python",
+    "isolated": true,
+    "machine": "arm64",
+    "platform": "macOS-14.5-arm64-arm-64bit",
+    "python": "3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]"
+  },
+  "schema": "task1-runtime-reference-v1",
+  "source_provenance": [
+    {
+      "archive_source_sha256": "ff470bf5b57f6c35ef399581e8cf1fc99313a019ad61b319af2982566731e00b",
+      "installed_sha256": "ff470bf5b57f6c35ef399581e8cf1fc99313a019ad61b319af2982566731e00b",
+      "matches_archive": true,
+      "module": "pipecat.services.tts_service",
+      "path": "/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/services/tts_service.py"
+    },
+    {
+      "archive_source_sha256": "c1d28cc7968916839d7b72dcd68e180d17902716f85aaf5db2cc93f40a650d4d",
+      "installed_sha256": "c1d28cc7968916839d7b72dcd68e180d17902716f85aaf5db2cc93f40a650d4d",
+      "matches_archive": true,
+      "module": "pipecat.transports.base_output",
+      "path": "/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/transports/base_output.py"
+    },
+    {
+      "archive_source_sha256": "1838386fb208d0cb4856a3f842cce4dbdaf0d6018b3558c1e945c8004649f113",
+      "installed_sha256": "1838386fb208d0cb4856a3f842cce4dbdaf0d6018b3558c1e945c8004649f113",
+      "matches_archive": true,
+      "module": "pipecat.processors.aggregators.llm_response_universal",
+      "path": "/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/processors/aggregators/llm_response_universal.py"
+    },
+    {
+      "archive_source_sha256": "d4a9d849417cde328ad76c4550a7ac2d3ec3c2fe780690fa7a4f193bdac30cf2",
+      "installed_sha256": "d4a9d849417cde328ad76c4550a7ac2d3ec3c2fe780690fa7a4f193bdac30cf2",
+      "matches_archive": true,
+      "module": "pipecat.services.stt_service",
+      "path": "/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/services/stt_service.py"
+    },
+    {
+      "archive_source_sha256": "2f163bdbe4fae48855caa0db8f3fea6ecd0d9042cab4090809bd5ee342ae0b96",
+      "installed_sha256": "2f163bdbe4fae48855caa0db8f3fea6ecd0d9042cab4090809bd5ee342ae0b96",
+      "matches_archive": true,
+      "module": "pipecat.services.llm_service",
+      "path": "/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/services/llm_service.py"
+    },
+    {
+      "archive_source_sha256": "4f70cec7ae4fefc1ee24c88ad19bde8b18da3c83d697cbe56dcf09acfd258266",
+      "installed_sha256": "4f70cec7ae4fefc1ee24c88ad19bde8b18da3c83d697cbe56dcf09acfd258266",
+      "matches_archive": true,
+      "module": "pipecat.turns.user_stop.turn_analyzer_user_turn_stop_strategy",
+      "path": "/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/turns/user_stop/turn_analyzer_user_turn_stop_strategy.py"
+    },
+    {
+      "archive_source_sha256": "225e1364979d52f76b4bc1ec456e9753335ce0166f9050393f110ff3f8c244a5",
+      "installed_sha256": "225e1364979d52f76b4bc1ec456e9753335ce0166f9050393f110ff3f8c244a5",
+      "matches_archive": true,
+      "module": "pipecat.audio.turn.smart_turn.http_smart_turn",
+      "path": "/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/audio/turn/smart_turn/http_smart_turn.py"
+    },
+    {
+      "archive_source_sha256": "8c5c11aa3a72abb9d37447baa58475126bee7eb5932d5c8a17ee56d858be6c8a",
+      "installed_sha256": "8c5c11aa3a72abb9d37447baa58475126bee7eb5932d5c8a17ee56d858be6c8a",
+      "matches_archive": true,
+      "module": "pipecat.audio.turn.smart_turn.base_smart_turn",
+      "path": "/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/audio/turn/smart_turn/base_smart_turn.py"
+    },
+    {
+      "archive_source_sha256": "9d7f8f97b814c50537877391728d7df00569ad67eb079cff35a3773f9aead72e",
+      "installed_sha256": "9d7f8f97b814c50537877391728d7df00569ad67eb079cff35a3773f9aead72e",
+      "matches_archive": true,
+      "module": "pipecat.pipeline.worker",
+      "path": "/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/pipeline/worker.py"
+    },
+    {
+      "archive_source_sha256": "6499e9ee8befa84169d37533380b301bb3d878d851c6f24f58d822879d951e9a",
+      "installed_sha256": "6499e9ee8befa84169d37533380b301bb3d878d851c6f24f58d822879d951e9a",
+      "matches_archive": true,
+      "module": "pipecat.utils.string",
+      "path": "/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/utils/string.py"
+    },
+    {
+      "archive_source_sha256": "708ca93eca9e4c4751d76a3ae20d2adbe9fa863e78c9a314b0a6b137bbfd4b9b",
+      "installed_sha256": "708ca93eca9e4c4751d76a3ae20d2adbe9fa863e78c9a314b0a6b137bbfd4b9b",
+      "matches_archive": true,
+      "module": "pipecat.audio.utils",
+      "path": "/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/audio/utils.py"
+    },
+    {
+      "archive_source_sha256": "a1359e3f4d5be2d7b6e3659369d12c979581aa37e9afcaed179d6e68c62b62b6",
+      "installed_sha256": "a1359e3f4d5be2d7b6e3659369d12c979581aa37e9afcaed179d6e68c62b62b6",
+      "matches_archive": true,
+      "module": "pipecat.turns.user_turn_strategies",
+      "path": "/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/turns/user_turn_strategies.py"
+    },
+    {
+      "archive_source_sha256": "6a6f5212ba363e9bdafb96d5ef0d3f9ec59e3b7aa4efb9e5c052fb6e357a2c90",
+      "installed_sha256": "6a6f5212ba363e9bdafb96d5ef0d3f9ec59e3b7aa4efb9e5c052fb6e357a2c90",
+      "matches_archive": true,
+      "module": "pipecat.utils.prewarm",
+      "path": "/Users/korinne/Documents/Codex/2026-10-04/work-on-task-1-from-docs/work/task1-speech/venv/lib/python3.12/site-packages/pipecat/utils/prewarm.py"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://developers.cloudflare.com/workers-ai/models/smart-turn-v2/",
+      "use": "documented is_complete and probability result fields; checked during Task 1"
+    }
+  ],
+  "timestamp_utc": "2026-10-05T03:39:03.235613+00:00",
+  "untested": [
+    "Normal Pipecat dependency installation on actual Workers/Pyodide",
+    "Selected installed components executing in a Python Durable Object",
+    "Async hosted Smart Turn client through Python/JavaScript binding",
+    "NLTK punkt_tab build-time packaging and runtime loading on Workers",
+    "Deployed audio-only output without threads",
+    "Workers compatibility of each mandatory native dependency"
+  ]
+}

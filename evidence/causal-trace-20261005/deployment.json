@@ -1,0 +1,42 @@
+{
+  "source_commit": "39fe5b0d78770ba78d9f087c751907b8e0c37cef",
+  "version_id": "425815d1-a965-47bc-b863-4dad470ad0a1",
+  "origin": "https://pipecat-on-workers.korinne.workers.dev",
+  "activated_at": "2026-10-05T20:45:53.635982Z",
+  "traffic_percent": 100,
+  "tag": "trace-39fe5b0",
+  "previous_version": "3b1dcd04-5515-4b83-9fe4-27511b619c03",
+  "rollback_version_id": "06111df0-88ce-4142-96e7-4158a9a6e7a9",
+  "original_rollback_version_id": "3f8bd208-8e4a-4f2d-96cb-d9a0e51f9542",
+  "fixture_routes_enabled": false,
+  "silence_fallback_enabled": false,
+  "conversation_policy_changed": false,
+  "secret_values_read": false,
+  "supported_release": false,
+  "build": {
+    "command": "uv run --frozen pywrangler deploy --dry-run --outdir <private temp>",
+    "exit_code": 0,
+    "log_sha256": "598193875c4c3af4942e9c35a8a55b65544f247031f9d7596f8799dd996236e3"
+  },
+  "deployment_exit_code": 0,
+  "tool_versions": {
+    "uv": "0.12.18",
+    "wrangler": "4.139.0",
+    "workers-py": "1.17.4",
+    "workers-runtime-sdk": "1.9.0",
+    "build_python": "3.14.7"
+  },
+  "models": {
+    "stt": "@cf/deepgram/nova-3",
+    "turn": "@cf/pipecat-ai/smart-turn-v2",
+    "llm": "@cf/openai/gpt-oss-120b",
+    "reasoning_effort": "low",
+    "max_tokens": 2048,
+    "tts": "@cf/deepgram/aura-2-en",
+    "voice": "luna"
+  },
+  "verification": "audit/results/causal-diagnostics-independent-20261005.json",
+  "assets": "evidence/causal-trace-20261005/deployment-verification.json",
+  "direct_live": "evidence/causal-trace-20261005/direct-provider.json",
+  "physical_sfu": "Not retested: awaiting user active-call measurements; original failure remains unexplained."
+}

@@ -1,0 +1,31 @@
+{
+  "scope": "Controlled real SFU transport with simulated REST/socket leaves; no live media.",
+  "source_sha256": "b18322382ec1b48903b78e420c79098854c5e8f80e9b8cc68fd9eb82316b0368",
+  "cases": [
+    {
+      "callback": false,
+      "input_ready_result": {
+        "ok": true
+      },
+      "socket_attached": false,
+      "decoded_audio_chunks": 0,
+      "input_bytes": 0,
+      "errors": []
+    },
+    {
+      "callback": true,
+      "input_ready_result": {
+        "ok": true
+      },
+      "socket_attached": true,
+      "decoded_audio_chunks": 0,
+      "input_bytes": 0,
+      "errors": []
+    }
+  ],
+  "recorded_at_utc": "2026-10-05T19:36:28.675445+00:00",
+  "classification": "reproduced_readiness_gap",
+  "base_commit": "b3627a5",
+  "reproducer": "import asyncio, hashlib, json, pathlib, sys\nroot=pathlib.Path('/Users/korinne/Documents/Codex/2026-10-03/alri/outputs/pipecat-on-workers')\nsys.path.insert(0,str(root))\nfrom tests.test_sfu_transport import SfuTransportTests\nasync def probe(callback):\n    case=SfuTransportTests('test_publish_waits_for_input_ready_and_decodes_audio')\n    await case.asyncSetUp()\n    original=case.transport.request\n    async def request(url,method,payload,secret):\n        if url.endswith('adapters/websocket/new') and payload['tracks'][0]['location']=='remote':\n            if callback:\n                case.transport.attach_socket('input',object())\n            return 200, {'tracks':[{'adapterId':'allocated-without-audio','trackName':'microphone'}]}\n        return await original(url,method,payload,secret)\n    case.transport.request=request\n    try:\n        await case.transport.signal('publish', {'sessionDescription':{'type':'offer','sdp':'v=0\\r\\n'},'mid':'0'})\n        result=await case.transport.signal('input_ready',{})\n        await asyncio.sleep(0)\n        return {'callback':callback,'input_ready_result':result,'socket_attached':case.transport.input_socket is not None,'decoded_audio_chunks':len(case.audio),'input_bytes':case.transport.received_bytes,'errors':case.events}\n    finally:\n        await case.asyncTearDown()\nasync def main():\n    print(json.dumps({'scope':'Controlled real SFU transport with simulated REST/socket leaves; no live media.', 'source_sha256':hashlib.sha256((root/'src/sfu_transport.py').read_bytes()).hexdigest(),'cases':[await probe(False),await probe(True)]},indent=2))\nasyncio.run(main())\n",
+  "interpretation": "Controlled REST success with absent or empty callback media was incorrectly enough to report input_ready. This does not establish the cause of the user microphone observation or imply that a real successful adapter creation skipped its handshake."
+}

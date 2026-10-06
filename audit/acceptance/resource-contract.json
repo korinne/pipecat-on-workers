@@ -1,0 +1,48 @@
+{
+  "purpose": "Proposed measurement contract; fill before deployed benchmarking",
+  "status": "undecided",
+  "thresholds_approved": false,
+  "approved_by": null,
+  "approved_at": null,
+  "target": {
+    "transport": null,
+    "runtime_build": null,
+    "compatibility_date": null,
+    "cpu_accounting_contract": null,
+    "concurrent_calls": null,
+    "call_duration_seconds": null,
+    "input_rate_hz": 16000,
+    "input_channels": 1,
+    "output_rate_hz": 24000,
+    "output_channels": 1,
+    "packet_ms": 20,
+    "note": "Rates reflect the current provider boundary. Record the selected pipeline and both transport boundaries before benchmarking.",
+    "application_revision": null,
+    "pipecat_artifact_sha256": null,
+    "turn_model": null,
+    "stt_model": null,
+    "llm_model": null,
+    "tts_model": null,
+    "model_options": null,
+    "device_and_network_profile": null
+  },
+  "thresholds": {
+    "max_platform_cpu_ms_per_audio_second_duplex": null,
+    "max_platform_cpu_ms_per_invocation": null,
+    "max_whole_isolate_memory_bytes": null,
+    "max_p99_frame_processing_ms": null,
+    "max_queue_age_ms": null,
+    "max_p95_end_of_speech_to_first_audio_ms": null,
+    "max_p95_interruption_to_last_stale_audible_sample_ms": null,
+    "max_cost_per_call_minute": null,
+    "speech_quality_metric_and_threshold": null
+  },
+  "required_invariants": [
+    "No sustained queue growth",
+    "No stale generation replay after cancellation and reconnect",
+    "No resource-limit termination",
+    "Remote resource state reconciled; unknown allocations do not count as zero"
+  ],
+  "measurements": null,
+  "warning": "This is an unfilled contract, not test evidence or a benchmark result."
+}

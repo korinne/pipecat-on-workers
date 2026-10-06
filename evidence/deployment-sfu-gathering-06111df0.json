@@ -1,0 +1,39 @@
+{
+  "source_commit": "3f62b680c32afa8b9f343a4eafb95d34b32c9daa",
+  "version_id": "06111df0-88ce-4142-96e7-4158a9a6e7a9",
+  "origin": "https://pipecat-on-workers.korinne.workers.dev",
+  "created_at": "2026-10-05T05:56:59.906Z",
+  "tag": "sfu-3f62b68",
+  "rollback_version_id": "4d75ac46-5a71-4de4-aa12-26f8b026fc38",
+  "previous_version_id": "4d75ac46-5a71-4de4-aa12-26f8b026fc38",
+  "deployment_exit_code": 0,
+  "worker_startup_ms": 2477,
+  "tool_versions": {
+    "wrangler": "4.139.0",
+    "uv": "0.12.18",
+    "workers-py": "1.17.4",
+    "workers-runtime-sdk": "1.9.0",
+    "build_python": "3.14.7"
+  },
+  "runtime": {
+    "python": "3.14.2",
+    "pyodide": "314.0.6",
+    "pipecat": "1.11.0-patched"
+  },
+  "fixture_routes_enabled": false,
+  "secret_values_read": false,
+  "supported_release": false,
+  "models": {
+    "stt": "@cf/deepgram/nova-3",
+    "turn": "@cf/pipecat-ai/smart-turn-v2",
+    "llm": "@cf/openai/gpt-oss-120b",
+    "reasoning_effort": "low",
+    "max_tokens": 2048,
+    "tts": "@cf/deepgram/aura-2-en",
+    "voice": "luna"
+  },
+  "vendor_manifest_sha256": "c50f06b01732b8b9fe96a4a742400124987c9a6c17f6f292b1be416933ea60fc",
+  "checks": "Controlled browser gathering checks and independent review passed. Served SFU client hash matches; a direct provider regression passed. Real Chrome SFU retry is pending, and known turn failures remain.",
+  "original_rollback_version_id": "3f8bd208-8e4a-4f2d-96cb-d9a0e51f9542",
+  "turn_policy": "Positive hosted Smart Turn decision required; guarded silence fallback remains an unapproved proposal."
+}

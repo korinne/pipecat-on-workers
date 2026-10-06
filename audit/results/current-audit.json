@@ -1,0 +1,578 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-03T21:57:01.820970+00:00",
+  "environment": {
+    "runner_python": "3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]",
+    "runner_executable": "/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "runner_optimization": 2,
+    "core_python_requested": "/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "platform": "macOS-14.5-arm64-arm-64bit",
+    "pythonpath": "/Users/korinne/Documents/Codex/2026-10-03/alri/work/audit-deps",
+    "repository": "/Users/korinne/Documents/Codex/2026-10-03/alri/work/pipecat-on-workers",
+    "network_requested": false,
+    "repo_mutated": false,
+    "core_interpreter": {
+      "command": [
+        "/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-c",
+        "import sys,platform,json,importlib.metadata as m; print(json.dumps({'python':sys.version,'executable':sys.executable,'optimize':sys.flags.optimize,'platform':platform.platform(),'dependency_versions':{n:m.version(n) for n in ['loguru','attrs','docstring-parser','pydantic','typing-extensions']}}))"
+      ],
+      "returncode": 0,
+      "stdout": "{\"python\": \"3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]\", \"executable\": \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3\", \"optimize\": 0, \"platform\": \"macOS-14.5-arm64-arm-64bit\", \"dependency_versions\": {\"loguru\": \"0.7.3\", \"attrs\": \"25.4.0\", \"docstring-parser\": \"0.17.0\", \"pydantic\": \"2.13.5\", \"typing-extensions\": \"4.16.0\"}}\n",
+      "stderr": "",
+      "timed_out": false,
+      "elapsed_seconds": 0.09
+    },
+    "verified_core_interpreter": {
+      "python": "3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]",
+      "executable": "/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "optimize": 0,
+      "platform": "macOS-14.5-arm64-arm-64bit",
+      "dependency_versions": {
+        "loguru": "0.7.3",
+        "attrs": "25.4.0",
+        "docstring-parser": "0.17.0",
+        "pydantic": "2.13.5",
+        "typing-extensions": "4.16.0"
+      }
+    },
+    "subprocess_pythonoptimize": "removed; optimization level verified as zero",
+    "declared_repository_environment": {
+      "name": "pipecat-on-workers",
+      "version": "0.1.0",
+      "requires-python": ">=3.14,<3.15",
+      "dependencies": [
+        "loguru==0.7.3",
+        "attrs==25.4.0",
+        "docstring-parser==0.17.0",
+        "pydantic==2.12.5",
+        "typing-extensions==4.15.0"
+      ]
+    },
+    "scope_warning": "The chosen local interpreter/dependencies may differ from repository pins; this audit is not a lockfile install or Python Workers execution."
+  },
+  "readiness": "not_established",
+  "readiness_reason": "Results are scoped observations. Live runtime, media, and performance gates remain untested.",
+  "counts": {
+    "supported_in_scope": 5,
+    "observed_gap": 6,
+    "untested": 10
+  },
+  "results": [
+    {
+      "id": "provenance.repository",
+      "domain": "source provenance",
+      "status": "supported_in_scope",
+      "claim": "The local tracked repository, vendor module set, and patch hashes match the pinned baseline.",
+      "evidence": {
+        "repository_head": "6c17c0805f13f7609ba0a93ea8bf4c945797de18",
+        "expected_head": "6c17c0805f13f7609ba0a93ea8bf4c945797de18",
+        "manifest_sha256": "a76b7916dd89a86262c5be6d45ca78fa16bc10e4a67ad84ad08d1a2e6f4b39db",
+        "vendor_python_files": 119,
+        "patches": [
+          {
+            "file": "__init__.py",
+            "changes": [
+              "Use the pinned source version without requiring installed distribution metadata."
+            ],
+            "upstream_sha256": "dafefe7f51278d81292e65ea6bc71c169e2f3c8e38993b1cb02d8ed6745cc8e2",
+            "patched_sha256": "0e1cb2df24290900eb3a3cdb050f38869a74531b43a54639b2b9857b936659e2"
+          },
+          {
+            "file": "audio/utils.py",
+            "changes": [
+              "Defer native audio/resampling dependencies until their functions are used."
+            ],
+            "upstream_sha256": "708ca93eca9e4c4751d76a3ae20d2adbe9fa863e78c9a314b0a6b137bbfd4b9b",
+            "patched_sha256": "5e4698dfeb1339a87299b797869510942b2974e34b337f4f773c2ba04659321e"
+          },
+          {
+            "file": "pipeline/worker.py",
+            "changes": [
+              "Add opt-out enable_import_prewarm=False; preserve upstream default and avoid unconditional startup threads.",
+              "Defer RTVI processor/observer imports when RTVI is disabled; keep detection of explicit RTVI classes through their MRO."
+            ],
+            "upstream_sha256": "9d7f8f97b814c50537877391728d7df00569ad67eb079cff35a3773f9aead72e",
+            "patched_sha256": "3c3b5fd952425e48e90268756ace39a6fba1742574cbe7a624ad6251c7aeaf53"
+          },
+          {
+            "file": "processors/aggregators/llm_context.py",
+            "changes": [
+              "Import Pillow only when raw images need JPEG encoding."
+            ],
+            "upstream_sha256": "85a86e49043d3407ca96dab5a5b033008cc4901b6fdfb303e46652d8e30504a7",
+            "patched_sha256": "83f1f0ab94ae0d857d5183a45ea8155215d4dc5388320a9ad634318ccd11371d"
+          },
+          {
+            "file": "processors/frameworks/rtvi/__init__.py",
+            "changes": [
+              "Resolve unchanged public exports lazily so unused optional features do not eagerly load native transports, NumPy, or provider SDKs."
+            ],
+            "upstream_sha256": "746adbc1237b002f46532a66b1852f24f18a2c94754958c988203a6ee61015f2",
+            "patched_sha256": "9f61a77b64a9946e0f7722239db8d9ebb84a27f42cf67b039b4f77ca4c057f7b"
+          },
+          {
+            "file": "turns/user_start/__init__.py",
+            "changes": [
+              "Resolve unchanged public exports lazily so unused optional features do not eagerly load native transports, NumPy, or provider SDKs."
+            ],
+            "upstream_sha256": "583aeb83317ae304a2d999fe32c160b805a659fb9be78f43f175bad45a4e66fe",
+            "patched_sha256": "4866abd7a0f0ec65588fa806ba17ddb5bb8a3093973df18048e1c2bbd6db41b1"
+          }
+        ],
+        "errors": []
+      },
+      "limitations": [
+        "This verifies source identity, not compatibility or package installation."
+      ]
+    },
+    {
+      "id": "provenance.archive",
+      "domain": "published source distribution",
+      "status": "supported_in_scope",
+      "claim": "Pinned public archive metadata and original file hashes match the vendor record.",
+      "evidence": {
+        "archive_sha256": "49e7532a1f035e8884c47448a06d998a1b7f0943d11eae9bc8600a9e749a2a04",
+        "archive_source": "/Users/korinne/Documents/Codex/2026-10-03/alri/work/pipecat_ai-1.11.0.tar.gz",
+        "name": "pipecat-ai",
+        "version": "1.11.0",
+        "requires_python": ">=3.11",
+        "requires_dist": [
+          "aiofiles<27,>=24.1.0",
+          "aiohttp<4,>=3.11.12",
+          "audioop-lts~=0.2.1; python_version >= \"3.13\"",
+          "docstring_parser<1,>=0.16",
+          "loguru~=0.7.3",
+          "loudness<1,>=0.2.0",
+          "Markdown<4,>=3.7",
+          "nltk<4,>=3.10.0",
+          "numpy<3,>=1.26.4",
+          "Pillow<13,>=11.1.0",
+          "protobuf<7,>=5.29.6",
+          "pydantic<3,>=2.10.6",
+          "pydantic>=2.13; python_full_version >= \"3.14\"",
+          "python-dotenv<2.0.0,>=1.0.0",
+          "resampy~=0.4.3",
+          "soundfile~=0.13.1",
+          "soxr~=1.0.0",
+          "openai<4,>=1.74.0",
+          "typing_extensions>=4.9",
+          "numba<1,>=0.61.2",
+          "wait_for2<1,>=0.4.1; python_version < \"3.12\"",
+          "websockets>=13.1",
+          "pyyaml<7,>=6",
+          "num2words>=0.5.14",
+          "onnxruntime~=1.24.3",
+          "aic-sdk~=3.1.0; extra == \"aic\"",
+          "anthropic<2,>=0.49.0; extra == \"anthropic\"",
+          "aiobotocore<4,>=3; extra == \"aws\"",
+          "aws_sdk_bedrock_runtime<0.10,>=0.6.0; python_version >= \"3.12\" and extra == \"aws-nova-sonic\"",
+          "azure-cognitiveservices-speech<2,>=1.47.0; extra == \"azure\"",
+          "camb-sdk<2,>=1.5.4; extra == \"camb\"",
+          "daily-python<1,>=0.29.0; extra == \"daily\"",
+          "deepgram-sdk<8,>=6.1.1; extra == \"deepgram\"",
+          "pipecat-ai[cli]; extra == \"evals\"",
+          "pipecat-ai[kokoro]; extra == \"evals\"",
+          "pipecat-ai[moonshine]; extra == \"evals\"",
+          "ormsgpack<2,>=1.7.0; extra == \"fish\"",
+          "funasr>=1.1.0; extra == \"funasr\"",
+          "google-cloud-speech<3,>=2.33.0; extra == \"google\"",
+          "google-cloud-texttospeech<3,>=2.31.0; extra == \"google\"",
+          "google-genai<3,>=2.19.0; (python_version != \"3.13\" or platform_system != \"Linux\") and extra == \"google\"",
+          "google-genai<3,>=1.68.0; extra == \"google\"",
+          "groq<2,>=0.23.0; extra == \"groq\"",
+          "pygobject~=3.50.0; extra == \"gstreamer\"",
+          "livekit<2,>=1.0.13; extra == \"heygen\"",
+          "hume<1,>=0.11.2; extra == \"hume\"",
+          "pipecat-ai[mcp]; extra == \"keenable\"",
+          "pvkoala~=2.0.3; extra == \"koala\"",
+          "kokoro-onnx<1,>=0.5.0; extra == \"kokoro\"",
+          "requests<3,>=2.32.5; extra == \"kokoro\"",
+          "langchain<2,>=1.2.13; extra == \"langchain\"",
+          "langchain-community<1,>=0.4.1; extra == \"langchain\"",
+          "langchain-openai<2,>=1.1.12; extra == \"langchain\"",
+          "pipecat-ai[daily]; extra == \"lemonslice\"",
+          "livekit<2,>=1.0.13; extra == \"livekit\"",
+          "livekit-api<2,>=1.0.5; extra == \"livekit\"",
+          "tenacity<10.0.0,>=8.2.3; extra == \"livekit\"",
+          "pyjwt<3,>=2.12.0; extra == \"livekit\"",
+          "pyaudio~=0.2.14; extra == \"local\"",
+          "coremltools>=8.0; extra == \"local-smart-turn\"",
+          "transformers<6,>=4.48.0; extra == \"local-smart-turn\"",
+          "torch<3,>=2.5.0; extra == \"local-smart-turn\"",
+          "torchaudio<3,>=2.5.0; extra == \"local-smart-turn\"",
+          "mcp[cli]<3,>=1.24.0; extra == \"mcp\"",
+          "mem0ai<3,>=2; extra == \"mem0\"",
+          "mistralai<3,>=2.0.0; extra == \"mistral\"",
+          "mlx-whisper~=0.4.2; extra == \"mlx-whisper\"",
+          "accelerate~=1.10.0; extra == \"moondream\"",
+          "einops~=0.8.0; extra == \"moondream\"",
+          "pyvips[binary]~=3.0.0; extra == \"moondream\"",
+          "timm~=1.0.13; extra == \"moondream\"",
+          "transformers<6,>=4.48.0; extra == \"moondream\"",
+          "moonshine-voice>=0.1.5; extra == \"moonshine\"",
+          "moq-rs~=0.4.4; extra == \"moq\"",
+          "cryptography>=45.0.0; extra == \"moq\"",
+          "nvidia-riva-client<3,>=2.25.1; extra == \"nvidia\"",
+          "protobuf<7,>=6.31.1; extra == \"nvidia\"",
+          "pyrnnoise~=0.4.3; extra == \"rnnoise\"",
+          "av<17.1.0; extra == \"rnnoise\"",
+          "pgmq<1.1,>=1.0.6; extra == \"pgmq\"",
+          "asyncpg>=0.30.0; extra == \"pgmq\"",
+          "piper-tts<2,>=1.3.0; extra == \"piper\"",
+          "requests<3,>=2.32.5; extra == \"piper\"",
+          "pocket-tts<3,>=2.1.0; extra == \"pocket-tts\"",
+          "redis[hiredis]>=5.0.0; extra == \"redis\"",
+          "uvicorn<1.0.0,>=0.32.0; extra == \"runner\"",
+          "fastapi<1,>=0.115.6; extra == \"runner\"",
+          "pipecat-ai-prebuilt>=1.2.1; extra == \"runner\"",
+          "aws_sdk_sagemaker_runtime_http2<0.10,>=0.6.0; python_version >= \"3.12\" and extra == \"sagemaker\"",
+          "sarvamai==0.1.28; extra == \"sarvam\"",
+          "sentry-sdk<3,>=2.28.0; extra == \"sentry\"",
+          "simli-ai~=2.0.1; extra == \"simli\"",
+          "speechmatics-agent-stt~=0.1.0; extra == \"speechmatics\"",
+          "strands-agents<2,>=1.9.1; extra == \"strands\"",
+          "pipecat-ai[daily]; extra == \"tavus\"",
+          "opentelemetry-sdk<2,>=1.33.0; extra == \"tracing\"",
+          "opentelemetry-api<2,>=1.33.0; extra == \"tracing\"",
+          "opentelemetry-instrumentation<1,>=0.54b0; extra == \"tracing\"",
+          "vonage-video-connector~=1.0.2; (python_version == \"3.13\" and platform_system == \"Linux\") and extra == \"vonage-video-connector\"",
+          "aiortc<2,>=1.14.0; extra == \"webrtc\"",
+          "opencv-python-headless<5,>=4.11.0.86; extra == \"webrtc\"",
+          "pipecat-ai[webrtc]; extra == \"webrtc-video\"",
+          "fastapi<1,>=0.115.6; extra == \"websocket\"",
+          "faster-whisper~=1.2.1; extra == \"whisper\"",
+          "typer<1,>=0.20.0; extra == \"cli\"",
+          "rich<14,>=13.0.0; extra == \"cli\"",
+          "jinja2<4,>=3.1.0; extra == \"cli\"",
+          "questionary<3,>=2.0.0; extra == \"cli\"",
+          "ruff<1,>=0.12.1; extra == \"cli\"",
+          "pipecat-ai-context-hub<1,>=0.7.0; extra == \"cli\""
+        ],
+        "base_dependencies": [
+          "aiofiles>=24.1.0,<27",
+          "aiohttp>=3.11.12,<4",
+          "audioop-lts~=0.2.1; python_version>='3.13'",
+          "docstring_parser>=0.16,<1",
+          "loguru~=0.7.3",
+          "loudness>=0.2.0,<1",
+          "Markdown>=3.7,<4",
+          "nltk>=3.10.0,<4",
+          "numpy>=1.26.4,<3",
+          "Pillow>=11.1.0,<13",
+          "protobuf>=5.29.6,<7",
+          "pydantic>=2.10.6,<3",
+          "pydantic>=2.13; python_full_version >= '3.14'",
+          "python-dotenv>=1.0.0,<2.0.0",
+          "resampy~=0.4.3",
+          "soundfile~=0.13.1",
+          "soxr~=1.0.0",
+          "openai>=1.74.0,<4",
+          "typing_extensions>=4.9",
+          "numba>=0.61.2,<1",
+          "wait_for2>=0.4.1,<1; python_version<'3.12'",
+          "websockets>=13.1",
+          "pyyaml>=6,<7",
+          "num2words>=0.5.14",
+          "onnxruntime~=1.24.3"
+        ],
+        "original_hashes_verified": 119
+      },
+      "limitations": [
+        "Archive is supplied locally; this run makes no freshness claim about later releases."
+      ]
+    },
+    {
+      "id": "package.baseline_dependencies",
+      "domain": "published package metadata",
+      "status": "observed_gap",
+      "claim": "The baseline distribution declares heavy dependencies independently of this narrow application's needs.",
+      "evidence": {
+        "base_dependencies": [
+          "aiofiles>=24.1.0,<27",
+          "aiohttp>=3.11.12,<4",
+          "audioop-lts~=0.2.1; python_version>='3.13'",
+          "docstring_parser>=0.16,<1",
+          "loguru~=0.7.3",
+          "loudness>=0.2.0,<1",
+          "Markdown>=3.7,<4",
+          "nltk>=3.10.0,<4",
+          "numpy>=1.26.4,<3",
+          "Pillow>=11.1.0,<13",
+          "protobuf>=5.29.6,<7",
+          "pydantic>=2.10.6,<3",
+          "pydantic>=2.13; python_full_version >= '3.14'",
+          "python-dotenv>=1.0.0,<2.0.0",
+          "resampy~=0.4.3",
+          "soundfile~=0.13.1",
+          "soxr~=1.0.0",
+          "openai>=1.74.0,<4",
+          "typing_extensions>=4.9",
+          "numba>=0.61.2,<1",
+          "wait_for2>=0.4.1,<1; python_version<'3.12'",
+          "websockets>=13.1",
+          "pyyaml>=6,<7",
+          "num2words>=0.5.14",
+          "onnxruntime~=1.24.3"
+        ]
+      },
+      "limitations": [
+        "Individual runtime availability and resolver behavior require a Workers installation test."
+      ]
+    },
+    {
+      "id": "core.baseline",
+      "domain": "vendored Pipecat / local CPython",
+      "status": "supported_in_scope",
+      "claim": "The patched narrow core handles two synthetic turns, interruption, context, and task cleanup.",
+      "evidence": {
+        "command": [
+          "/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "-B",
+          "/var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/pipecat-gap-audit-o01gelzu/baseline/scripts/check_pipecat_core.py"
+        ],
+        "returncode": 0,
+        "stdout": "{\n  \"passed\": true,\n  \"scope\": \"CPython core runtime; synthetic frames, no provider audio\",\n  \"generations\": 2,\n  \"server_cancellation_ms\": 0.363,\n  \"interruption_frames\": 2,\n  \"context\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Compatibility check.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"First question.\"\n    },\n    {\n      \"role\": \"assistant\",\n      \"content\": \"Acknowledged prefix.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"New question.\"\n    },\n    {\n      \"role\": \"assistant\",\n      \"content\": \"Second reply.\"\n    }\n  ],\n  \"live_pipecat_tasks_after_cancel\": [],\n  \"forbidden_imports_loaded\": [],\n  \"threads_created\": 0\n}\n",
+        "stderr": "",
+        "timed_out": false,
+        "elapsed_seconds": 0.644
+      },
+      "limitations": [
+        "Local CPython; synthetic frames; no Workers runtime, network, codecs, providers, or physical playback.",
+        "The guard denies selected imports and threading.Thread.start; it is not an exhaustive native-code or thread sandbox."
+      ]
+    },
+    {
+      "id": "ablation.eager_audio",
+      "domain": "upstream import behavior / local CPython",
+      "status": "observed_gap",
+      "claim": "Restoring upstream audio imports violates the selected unsupported-import guard.",
+      "evidence": {
+        "command": [
+          "/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "-B",
+          "/var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/pipecat-gap-audit-o01gelzu/baseline/scripts/check_pipecat_core.py"
+        ],
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "Traceback (most recent call last):\n  File \"/var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/pipecat-gap-audit-o01gelzu/baseline/scripts/check_pipecat_core.py\", line 40, in <module>\n    from pipecat.frames.frames import (\n  File \"/private/var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/pipecat-gap-audit-o01gelzu/baseline/src/pipecat/frames/frames.py\", line 33, in <module>\n    from pipecat.audio.vad.vad_analyzer import VADParams\n  File \"/private/var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/pipecat-gap-audit-o01gelzu/baseline/src/pipecat/audio/vad/vad_analyzer.py\", line 22, in <module>\n    from pipecat.audio.utils import exp_smoothing\n  File \"/private/var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/pipecat-gap-audit-o01gelzu/baseline/src/pipecat/audio/utils.py\", line 14, in <module>\n    import audioop\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1322, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 1262, in _find_spec\n  File \"/var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/pipecat-gap-audit-o01gelzu/baseline/scripts/check_pipecat_core.py\", line 26, in find_spec\n    raise RuntimeError(f\"Unsupported dependency imported in narrow configuration: {fullname}\")\nRuntimeError: Unsupported dependency imported in narrow configuration: audioop\n",
+        "timed_out": false,
+        "elapsed_seconds": 0.303
+      },
+      "limitations": [
+        "This isolates import behavior; it does not measure actual codec execution."
+      ]
+    },
+    {
+      "id": "ablation.prewarm",
+      "domain": "startup behavior / local CPython",
+      "status": "observed_gap",
+      "claim": "Enabling the existing prewarm path attempts prohibited OS thread creation.",
+      "evidence": {
+        "command": [
+          "/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "-B",
+          "/var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/pipecat-gap-audit-o01gelzu/baseline/scripts/check_pipecat_core.py"
+        ],
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "Traceback (most recent call last):\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py\", line 520, in wait_for\n    return await fut\n           ^^^^^^^^^\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/locks.py\", line 212, in wait\n    await fut\nasyncio.exceptions.CancelledError\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py\", line 195, in run\n    return runner.run(main)\n           ^^^^^^^^^^^^^^^^\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py\", line 691, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"/var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/pipecat-gap-audit-o01gelzu/baseline/scripts/check_pipecat_core.py\", line 126, in check\n    await asyncio.wait_for(started.wait(), 3)\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py\", line 519, in wait_for\n    async with timeouts.timeout(timeout):\n               ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/timeouts.py\", line 115, in __aexit__\n    raise TimeoutError from exc_val\nTimeoutError\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/pipecat-gap-audit-o01gelzu/baseline/scripts/check_pipecat_core.py\", line 177, in <module>\n    asyncio.run(check(parser.parse_args().record_modules))\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py\", line 194, in run\n    with Runner(debug=debug, loop_factory=loop_factory) as runner:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py\", line 62, in __exit__\n    self.close()\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py\", line 72, in close\n    loop.run_until_complete(\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py\", line 691, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py\", line 602, in shutdown_default_executor\n    thread.start()\n  File \"/var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/pipecat-gap-audit-o01gelzu/baseline/scripts/check_pipecat_core.py\", line 33, in deny_thread\n    raise RuntimeError(\"OS thread creation is forbidden in this compatibility check\")\nRuntimeError: OS thread creation is forbidden in this compatibility check\nTask exception was never retrieved\nfuture: <Task finished name='Task-2' coro=<PipelineWorker.run() done, defined at /private/var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/pipecat-gap-audit-o01gelzu/baseline/src/pipecat/pipeline/worker.py:855> exception=TypeError('cannot unpack non-iterable NoneType object')>\nTraceback (most recent call last):\n  File \"/private/var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/pipecat-gap-audit-o01gelzu/baseline/src/pipecat/pipeline/worker.py\", line 866, in run\n    if not await self._setup_within_timeout(params):\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/pipecat-gap-audit-o01gelzu/baseline/src/pipecat/pipeline/worker.py\", line 1277, in _setup_within_timeout\n    await asyncio.wait_for(self._setup(params), timeout=self._setup_timeout_secs)\n  File \"/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py\", line 520, in wait_for\n    return await fut\n           ^^^^^^^^^\n  File \"/private/var/folders/r9/f9wjh3hj7b54g4t5sdv_q98m0000gn/T/pipecat-gap-audit-o01gelzu/baseline/src/pipecat/pipeline/worker.py\", line 1338, in _setup\n    warm_started_at_ns, warm_finished_at_ns = await lazy_imports_task\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: cannot unpack non-iterable NoneType object\n",
+        "timed_out": false,
+        "elapsed_seconds": 3.505
+      },
+      "limitations": [
+        "This exposes the behavior by removing the opt-out in the test; the vendor source remains otherwise unchanged."
+      ]
+    },
+    {
+      "id": "regression.python",
+      "domain": "local mocked regression suite",
+      "status": "supported_in_scope",
+      "claim": "Existing python regression assertions remain true.",
+      "evidence": {
+        "command": [
+          "/Users/korinne/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "-B",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests"
+        ],
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "#27)\n2026-10-03 14:56:58.479 | DEBUG    | pipecat.processors.frame_processor:broadcast_interruption:1019 - LLMUserAggregator#27: broadcasting interruption\n2026-10-03 14:56:58.483 | DEBUG    | pipecat.turns.user_stop.external_user_turn_stop_strategy:_trigger_user_turn_stopped:212 - ExternalUserTurnStopStrategy#27: adopting a user turn stop decided elsewhere\n2026-10-03 14:56:58.485 | DEBUG    | pipecat.processors.aggregators.llm_response_universal:_on_user_turn_inference_triggered:1359 - LLMUserAggregator#27: User turn inference triggered (strategy: ExternalUserTurnStopStrategy#27)\n2026-10-03 14:56:58.486 | DEBUG    | pipecat.processors.aggregators.llm_response_universal:_on_user_turn_stopped:1407 - LLMUserAggregator#27: User stopped speaking (strategy: ExternalUserTurnStopStrategy#27)\n2026-10-03 14:56:58.488 | DEBUG    | pipecat.turns.user_start.external_user_turn_start_strategy:process_frame:71 - ExternalUserTurnStartStrategy#27: resolving a proposed user turn start\n2026-10-03 14:56:58.489 | DEBUG    | pipecat.processors.aggregators.llm_response_universal:_on_user_turn_started:1318 - LLMUserAggregator#27: User started speaking (strategy: ExternalUserTurnStartStrategy#27)\n2026-10-03 14:56:58.490 | DEBUG    | pipecat.processors.frame_processor:broadcast_interruption:1019 - LLMUserAggregator#27: broadcasting interruption\n2026-10-03 14:56:59.499 | DEBUG    | pipecat.turns.user_stop.external_user_turn_stop_strategy:_trigger_user_turn_stopped:214 - ExternalUserTurnStopStrategy#27: resolving a proposed user turn stop\n2026-10-03 14:56:59.500 | DEBUG    | pipecat.processors.aggregators.llm_response_universal:_on_user_turn_inference_triggered:1359 - LLMUserAggregator#27: User turn inference triggered (strategy: ExternalUserTurnStopStrategy#27)\n2026-10-03 14:56:59.501 | DEBUG    | pipecat.processors.aggregators.llm_response_universal:_on_user_turn_stopped:1407 - LLMUserAggregator#27: User stopped speaking (strategy: ExternalUserTurnStopStrategy#27)\n2026-10-03 14:56:59.508 | DEBUG    | pipecat.pipeline.worker:_cancel:1144 - Cancelling pipeline worker PipelineWorker#27\n2026-10-03 14:56:59.509 | DEBUG    | pipecat.pipeline.worker:_wait_for_pipeline_end:1244 - PipelineWorker#27: Closing. Waiting for CancelFrame#27(reason: synthetic_probe_complete) to reach the end of the pipeline...\n2026-10-03 14:56:59.512 | DEBUG    | pipecat.pipeline.worker:wait_for_cancel:1235 - PipelineWorker#27: CancelFrame#27(reason: synthetic_probe_complete) reached the end of the pipeline.\n2026-10-03 14:56:59.513 | DEBUG    | pipecat.utils.base_object:cleanup:176 - PipelineWorker#27: waiting on event handlers to finish ['on_pipeline_finished']...\n2026-10-03 14:56:59.517 | DEBUG    | pipecat.pipeline.worker:run:894 - Pipeline worker PipelineWorker#27 is finishing...\n2026-10-03 14:56:59.517 | DEBUG    | pipecat.pipeline.worker:run:898 - Pipeline worker PipelineWorker#27 has finished\n2026-10-03 14:56:59.518 | DEBUG    | pipecat.processors.frame_processor:link:679 - Linking Pipeline#56::Source -> LLMUserAggregator#28\n2026-10-03 14:56:59.520 | DEBUG    | pipecat.processors.frame_processor:link:679 - Linking LLMUserAggregator#28 -> GenerateResponse#28\n2026-10-03 14:56:59.520 | DEBUG    | pipecat.processors.frame_processor:link:679 - Linking GenerateResponse#28 -> Pipeline#56::Sink\n2026-10-03 14:56:59.521 | DEBUG    | pipecat.processors.frame_processor:link:679 - Linking PipelineWorker#28::Source -> Pipeline#56\n2026-10-03 14:56:59.522 | DEBUG    | pipecat.processors.frame_processor:link:679 - Linking Pipeline#56 -> PipelineWorker#28::Sink\n2026-10-03 14:56:59.527 | DEBUG    | pipecat.pipeline.worker:_wait_for_pipeline_start:1211 - PipelineWorker#28: Starting. Waiting for StartFrame#28 to reach the end of the pipeline...\n2026-10-03 14:56:59.530 | DEBUG    | pipecat.workers.base_worker:_maybe_activate:1277 - Worker 'PipelineWorker#28': activated\n2026-10-03 14:56:59.531 | DEBUG    | pipecat.pipeline.worker:_wait_for_pipeline_start:1224 - PipelineWorker#28: StartFrame#28 reached the end of the pipeline, pipeline is now ready.\n2026-10-03 14:56:59.533 | DEBUG    | pipecat.turns.user_start.external_user_turn_start_strategy:process_frame:71 - ExternalUserTurnStartStrategy#28: resolving a proposed user turn start\n2026-10-03 14:56:59.534 | DEBUG    | pipecat.processors.aggregators.llm_response_universal:_on_user_turn_started:1318 - LLMUserAggregator#28: User started speaking (strategy: ExternalUserTurnStartStrategy#28)\n2026-10-03 14:56:59.535 | DEBUG    | pipecat.processors.frame_processor:broadcast_interruption:1019 - LLMUserAggregator#28: broadcasting interruption\n2026-10-03 14:56:59.561 | DEBUG    | pipecat.turns.user_stop.external_user_turn_stop_strategy:_trigger_user_turn_stopped:212 - ExternalUserTurnStopStrategy#28: adopting a user turn stop decided elsewhere\n2026-10-03 14:56:59.563 | DEBUG    | pipecat.processors.aggregators.llm_response_universal:_on_user_turn_inference_triggered:1359 - LLMUserAggregator#28: User turn inference triggered (strategy: ExternalUserTurnStopStrategy#28)\n2026-10-03 14:56:59.564 | DEBUG    | pipecat.processors.aggregators.llm_response_universal:_on_user_turn_stopped:1407 - LLMUserAggregator#28: User stopped speaking (strategy: ExternalUserTurnStopStrategy#28)\n2026-10-03 14:56:59.568 | DEBUG    | pipecat.turns.user_start.external_user_turn_start_strategy:process_frame:71 - ExternalUserTurnStartStrategy#28: resolving a proposed user turn start\n2026-10-03 14:56:59.569 | DEBUG    | pipecat.processors.aggregators.llm_response_universal:_on_user_turn_started:1318 - LLMUserAggregator#28: User started speaking (strategy: ExternalUserTurnStartStrategy#28)\n2026-10-03 14:56:59.570 | DEBUG    | pipecat.processors.frame_processor:broadcast_interruption:1019 - LLMUserAggregator#28: broadcasting interruption\n2026-10-03 14:57:00.579 | DEBUG    | pipecat.turns.user_stop.external_user_turn_stop_strategy:_trigger_user_turn_stopped:214 - ExternalUserTurnStopStrategy#28: resolving a proposed user turn stop\n2026-10-03 14:57:00.580 | DEBUG    | pipecat.processors.aggregators.llm_response_universal:_on_user_turn_inference_triggered:1359 - LLMUserAggregator#28: User turn inference triggered (strategy: ExternalUserTurnStopStrategy#28)\n2026-10-03 14:57:00.581 | DEBUG    | pipecat.processors.aggregators.llm_response_universal:_on_user_turn_stopped:1407 - LLMUserAggregator#28: User stopped speaking (strategy: ExternalUserTurnStopStrategy#28)\n2026-10-03 14:57:00.589 | DEBUG    | pipecat.pipeline.worker:_cancel:1144 - Cancelling pipeline worker PipelineWorker#28\n2026-10-03 14:57:00.590 | DEBUG    | pipecat.pipeline.worker:_wait_for_pipeline_end:1244 - PipelineWorker#28: Closing. Waiting for CancelFrame#28(reason: synthetic_probe_complete) to reach the end of the pipeline...\n2026-10-03 14:57:00.593 | DEBUG    | pipecat.pipeline.worker:wait_for_cancel:1235 - PipelineWorker#28: CancelFrame#28(reason: synthetic_probe_complete) reached the end of the pipeline.\n2026-10-03 14:57:00.594 | DEBUG    | pipecat.utils.base_object:cleanup:176 - PipelineWorker#28: waiting on event handlers to finish ['on_pipeline_finished']...\n2026-10-03 14:57:00.598 | DEBUG    | pipecat.pipeline.worker:run:894 - Pipeline worker PipelineWorker#28 is finishing...\n2026-10-03 14:57:00.599 | DEBUG    | pipecat.pipeline.worker:run:898 - Pipeline worker PipelineWorker#28 has finished\n.2026-10-03 14:57:00.601 | DEBUG    | pipecat.processors.frame_processor:link:679 - Linking Pipeline#58::Source -> LLMUserAggregator#29\n2026-10-03 14:57:00.602 | DEBUG    | pipecat.processors.frame_processor:link:679 - Linking LLMUserAggregator#29 -> GenerateResponse#29\n2026-10-03 14:57:00.603 | DEBUG    | pipecat.processors.frame_processor:link:679 - Linking GenerateResponse#29 -> Pipeline#58::Sink\n2026-10-03 14:57:00.605 | DEBUG    | pipecat.processors.frame_processor:link:679 - Linking PipelineWorker#29::Source -> Pipeline#58\n2026-10-03 14:57:00.606 | DEBUG    | pipecat.processors.frame_processor:link:679 - Linking Pipeline#58 -> PipelineWorker#29::Sink\n2026-10-03 14:57:00.610 | DEBUG    | pipecat.pipeline.worker:_wait_for_pipeline_start:1211 - PipelineWorker#29: Starting. Waiting for StartFrame#29 to reach the end of the pipeline...\n2026-10-03 14:57:00.613 | DEBUG    | pipecat.workers.base_worker:_maybe_activate:1277 - Worker 'PipelineWorker#29': activated\n2026-10-03 14:57:00.614 | DEBUG    | pipecat.pipeline.worker:_wait_for_pipeline_start:1224 - PipelineWorker#29: StartFrame#29 reached the end of the pipeline, pipeline is now ready.\n2026-10-03 14:57:00.615 | DEBUG    | pipecat.turns.user_start.external_user_turn_start_strategy:process_frame:71 - ExternalUserTurnStartStrategy#29: resolving a proposed user turn start\n2026-10-03 14:57:00.616 | DEBUG    | pipecat.processors.aggregators.llm_response_universal:_on_user_turn_started:1318 - LLMUserAggregator#29: User started speaking (strategy: ExternalUserTurnStartStrategy#29)\n2026-10-03 14:57:00.617 | DEBUG    | pipecat.processors.frame_processor:broadcast_interruption:1019 - LLMUserAggregator#29: broadcasting interruption\n2026-10-03 14:57:00.654 | DEBUG    | pipecat.turns.user_stop.external_user_turn_stop_strategy:_trigger_user_turn_stopped:214 - ExternalUserTurnStopStrategy#29: resolving a proposed user turn stop\n2026-10-03 14:57:00.655 | DEBUG    | pipecat.processors.aggregators.llm_response_universal:_on_user_turn_inference_triggered:1359 - LLMUserAggregator#29: User turn inference triggered (strategy: ExternalUserTurnStopStrategy#29)\n2026-10-03 14:57:00.656 | DEBUG    | pipecat.processors.aggregators.llm_response_universal:_on_user_turn_stopped:1407 - LLMUserAggregator#29: User stopped speaking (strategy: ExternalUserTurnStopStrategy#29)\n2026-10-03 14:57:00.665 | DEBUG    | pipecat.turns.user_start.external_user_turn_start_strategy:process_frame:71 - ExternalUserTurnStartStrategy#29: resolving a proposed user turn start\n2026-10-03 14:57:00.666 | DEBUG    | pipecat.processors.aggregators.llm_response_universal:_on_user_turn_started:1318 - LLMUserAggregator#29: User started speaking (strategy: ExternalUserTurnStartStrategy#29)\n2026-10-03 14:57:00.666 | DEBUG    | pipecat.processors.frame_processor:broadcast_interruption:1019 - LLMUserAggregator#29: broadcasting interruption\n2026-10-03 14:57:00.671 | DEBUG    | pipecat.turns.user_stop.external_user_turn_stop_strategy:_trigger_user_turn_stopped:212 - ExternalUserTurnStopStrategy#29: adopting a user turn stop decided elsewhere\n2026-10-03 14:57:00.672 | DEBUG    | pipecat.processors.aggregators.llm_response_universal:_on_user_turn_inference_triggered:1359 - LLMUserAggregator#29: User turn inference triggered (strategy: ExternalUserTurnStopStrategy#29)\n2026-10-03 14:57:00.673 | DEBUG    | pipecat.processors.aggregators.llm_response_universal:_on_user_turn_stopped:1407 - LLMUserAggregator#29: User stopped speaking (strategy: ExternalUserTurnStopStrategy#29)\n2026-10-03 14:57:00.723 | DEBUG    | pipecat.turns.user_start.external_user_turn_start_strategy:process_frame:71 - ExternalUserTurnStartStrategy#29: resolving a proposed user turn start\n2026-10-03 14:57:00.724 | DEBUG    | pipecat.processors.aggregators.llm_response_universal:_on_user_turn_started:1318 - LLMUserAggregator#29: User started speaking (strategy: ExternalUserTurnStartStrategy#29)\n2026-10-03 14:57:00.725 | DEBUG    | pipecat.processors.frame_processor:broadcast_interruption:1019 - LLMUserAggregator#29: broadcasting interruption\n2026-10-03 14:57:00.759 | DEBUG    | pipecat.turns.user_stop.external_user_turn_stop_strategy:_trigger_user_turn_stopped:214 - ExternalUserTurnStopStrategy#29: resolving a proposed user turn stop\n2026-10-03 14:57:00.760 | DEBUG    | pipecat.processors.aggregators.llm_response_universal:_on_user_turn_inference_triggered:1359 - LLMUserAggregator#29: User turn inference triggered (strategy: ExternalUserTurnStopStrategy#29)\n2026-10-03 14:57:00.761 | DEBUG    | pipecat.processors.aggregators.llm_response_universal:_on_user_turn_stopped:1407 - LLMUserAggregator#29: User stopped speaking (strategy: ExternalUserTurnStopStrategy#29)\n2026-10-03 14:57:00.768 | DEBUG    | pipecat.pipeline.worker:_cancel:1144 - Cancelling pipeline worker PipelineWorker#29\n2026-10-03 14:57:00.770 | DEBUG    | pipecat.pipeline.worker:_wait_for_pipeline_end:1244 - PipelineWorker#29: Closing. Waiting for CancelFrame#29(reason: synthetic_probe_complete) to reach the end of the pipeline...\n2026-10-03 14:57:00.773 | DEBUG    | pipecat.pipeline.worker:wait_for_cancel:1235 - PipelineWorker#29: CancelFrame#29(reason: synthetic_probe_complete) reached the end of the pipeline.\n2026-10-03 14:57:00.774 | DEBUG    | pipecat.utils.base_object:cleanup:176 - PipelineWorker#29: waiting on event handlers to finish ['on_pipeline_finished']...\n2026-10-03 14:57:00.778 | DEBUG    | pipecat.pipeline.worker:run:894 - Pipeline worker PipelineWorker#29 is finishing...\n2026-10-03 14:57:00.779 | DEBUG    | pipecat.pipeline.worker:run:898 - Pipeline worker PipelineWorker#29 has finished\n2026-10-03 14:57:00.780 | DEBUG    | pipecat.processors.frame_processor:link:679 - Linking Pipeline#60::Source -> LLMUserAggregator#30\n2026-10-03 14:57:00.780 | DEBUG    | pipecat.processors.frame_processor:link:679 - Linking LLMUserAggregator#30 -> GenerateResponse#30\n2026-10-03 14:57:00.781 | DEBUG    | pipecat.processors.frame_processor:link:679 - Linking GenerateResponse#30 -> Pipeline#60::Sink\n2026-10-03 14:57:00.782 | DEBUG    | pipecat.processors.frame_processor:link:679 - Linking PipelineWorker#30::Source -> Pipeline#60\n2026-10-03 14:57:00.782 | DEBUG    | pipecat.processors.frame_processor:link:679 - Linking Pipeline#60 -> PipelineWorker#30::Sink\n2026-10-03 14:57:00.787 | DEBUG    | pipecat.pipeline.worker:_wait_for_pipeline_start:1211 - PipelineWorker#30: Starting. Waiting for StartFrame#30 to reach the end of the pipeline...\n2026-10-03 14:57:00.790 | DEBUG    | pipecat.workers.base_worker:_maybe_activate:1277 - Worker 'PipelineWorker#30': activated\n2026-10-03 14:57:00.791 | DEBUG    | pipecat.pipeline.worker:_wait_for_pipeline_start:1224 - PipelineWorker#30: StartFrame#30 reached the end of the pipeline, pipeline is now ready.\n2026-10-03 14:57:00.792 | DEBUG    | pipecat.turns.user_start.external_user_turn_start_strategy:process_frame:71 - ExternalUserTurnStartStrategy#30: resolving a proposed user turn start\n2026-10-03 14:57:00.793 | DEBUG    | pipecat.processors.aggregators.llm_response_universal:_on_user_turn_started:1318 - LLMUserAggregator#30: User started speaking (strategy: ExternalUserTurnStartStrategy#30)\n2026-10-03 14:57:00.794 | DEBUG    | pipecat.processors.frame_processor:broadcast_interruption:1019 - LLMUserAggregator#30: broadcasting interruption\n2026-10-03 14:57:00.829 | DEBUG    | pipecat.turns.user_stop.external_user_turn_stop_strategy:_trigger_user_turn_stopped:214 - ExternalUserTurnStopStrategy#30: resolving a proposed user turn stop\n2026-10-03 14:57:00.830 | DEBUG    | pipecat.processors.aggregators.llm_response_universal:_on_user_turn_inference_triggered:1359 - LLMUserAggregator#30: User turn inference triggered (strategy: ExternalUserTurnStopStrategy#30)\n2026-10-03 14:57:00.831 | DEBUG    | pipecat.processors.aggregators.llm_response_universal:_on_user_turn_stopped:1407 - LLMUserAggregator#30: User stopped speaking (strategy: ExternalUserTurnStopStrategy#30)\n2026-10-03 14:57:00.839 | DEBUG    | pipecat.turns.user_start.external_user_turn_start_strategy:process_frame:71 - ExternalUserTurnStartStrategy#30: resolving a proposed user turn start\n2026-10-03 14:57:00.840 | DEBUG    | pipecat.processors.aggregators.llm_response_universal:_on_user_turn_started:1318 - LLMUserAggregator#30: User started speaking (strategy: ExternalUserTurnStartStrategy#30)\n2026-10-03 14:57:00.840 | DEBUG    | pipecat.processors.frame_processor:broadcast_interruption:1019 - LLMUserAggregator#30: broadcasting interruption\n2026-10-03 14:57:00.844 | DEBUG    | pipecat.pipeline.worker:_cancel:1144 - Cancelling pipeline worker PipelineWorker#30\n2026-10-03 14:57:00.845 | DEBUG    | pipecat.pipeline.worker:_wait_for_pipeline_end:1244 - PipelineWorker#30: Closing. Waiting for CancelFrame#30(reason: terminal_provider_failure) to reach the end of the pipeline...\n2026-10-03 14:57:00.846 | DEBUG    | pipecat.turns.user_stop.external_user_turn_stop_strategy:_trigger_user_turn_stopped:212 - ExternalUserTurnStopStrategy#30: adopting a user turn stop decided elsewhere\n2026-10-03 14:57:00.847 | DEBUG    | pipecat.processors.aggregators.llm_response_universal:_on_user_turn_inference_triggered:1359 - LLMUserAggregator#30: User turn inference triggered (strategy: ExternalUserTurnStopStrategy#30)\n2026-10-03 14:57:00.848 | DEBUG    | pipecat.processors.aggregators.llm_response_universal:_on_user_turn_stopped:1407 - LLMUserAggregator#30: User stopped speaking (strategy: ExternalUserTurnStopStrategy#30)\n2026-10-03 14:57:00.850 | DEBUG    | pipecat.pipeline.worker:wait_for_cancel:1235 - PipelineWorker#30: CancelFrame#30(reason: terminal_provider_failure) reached the end of the pipeline.\n2026-10-03 14:57:00.851 | DEBUG    | pipecat.utils.base_object:cleanup:176 - PipelineWorker#30: waiting on event handlers to finish ['on_pipeline_finished']...\n2026-10-03 14:57:00.855 | DEBUG    | pipecat.pipeline.worker:run:894 - Pipeline worker PipelineWorker#30 is finishing...\n2026-10-03 14:57:00.855 | DEBUG    | pipecat.pipeline.worker:run:898 - Pipeline worker PipelineWorker#30 has finished\n.2026-10-03 14:57:00.909 | DEBUG    | pipecat.processors.frame_processor:link:679 - Linking Pipeline#62::Source -> LLMUserAggregator#31\n2026-10-03 14:57:00.910 | DEBUG    | pipecat.processors.frame_processor:link:679 - Linking LLMUserAggregator#31 -> GenerateResponse#31\n2026-10-03 14:57:00.910 | DEBUG    | pipecat.processors.frame_processor:link:679 - Linking GenerateResponse#31 -> Pipeline#62::Sink\n2026-10-03 14:57:00.911 | DEBUG    | pipecat.processors.frame_processor:link:679 - Linking PipelineWorker#31::Source -> Pipeline#62\n2026-10-03 14:57:00.912 | DEBUG    | pipecat.processors.frame_processor:link:679 - Linking Pipeline#62 -> PipelineWorker#31::Sink\n2026-10-03 14:57:00.916 | DEBUG    | pipecat.pipeline.worker:_wait_for_pipeline_start:1211 - PipelineWorker#31: Starting. Waiting for StartFrame#31 to reach the end of the pipeline...\n2026-10-03 14:57:00.919 | DEBUG    | pipecat.workers.base_worker:_maybe_activate:1277 - Worker 'PipelineWorker#31': activated\n2026-10-03 14:57:00.920 | DEBUG    | pipecat.pipeline.worker:_wait_for_pipeline_start:1224 - PipelineWorker#31: StartFrame#31 reached the end of the pipeline, pipeline is now ready.\n2026-10-03 14:57:00.921 | DEBUG    | pipecat.turns.user_start.external_user_turn_start_strategy:process_frame:71 - ExternalUserTurnStartStrategy#31: resolving a proposed user turn start\n2026-10-03 14:57:00.922 | DEBUG    | pipecat.processors.aggregators.llm_response_universal:_on_user_turn_started:1318 - LLMUserAggregator#31: User started speaking (strategy: ExternalUserTurnStartStrategy#31)\n2026-10-03 14:57:00.923 | DEBUG    | pipecat.processors.frame_processor:broadcast_interruption:1019 - LLMUserAggregator#31: broadcasting interruption\n2026-10-03 14:57:01.061 | DEBUG    | pipecat.turns.user_stop.external_user_turn_stop_strategy:_trigger_user_turn_stopped:214 - ExternalUserTurnStopStrategy#31: resolving a proposed user turn stop\n2026-10-03 14:57:01.070 | DEBUG    | pipecat.processors.aggregators.llm_response_universal:_on_user_turn_inference_triggered:1359 - LLMUserAggregator#31: User turn inference triggered (strategy: ExternalUserTurnStopStrategy#31)\n2026-10-03 14:57:01.077 | DEBUG    | pipecat.processors.aggregators.llm_response_universal:_on_user_turn_stopped:1407 - LLMUserAggregator#31: User stopped speaking (strategy: ExternalUserTurnStopStrategy#31)\n2026-10-03 14:57:01.090 | DEBUG    | pipecat.pipeline.worker:_cancel:1144 - Cancelling pipeline worker PipelineWorker#31\n2026-10-03 14:57:01.092 | DEBUG    | pipecat.pipeline.worker:_wait_for_pipeline_end:1244 - PipelineWorker#31: Closing. Waiting for CancelFrame#31(reason: synthetic_probe_complete) to reach the end of the pipeline...\n2026-10-03 14:57:01.095 | DEBUG    | pipecat.pipeline.worker:wait_for_cancel:1235 - PipelineWorker#31: CancelFrame#31(reason: synthetic_probe_complete) reached the end of the pipeline.\n2026-10-03 14:57:01.096 | DEBUG    | pipecat.utils.base_object:cleanup:176 - PipelineWorker#31: waiting on event handlers to finish ['on_pipeline_finished']...\n2026-10-03 14:57:01.100 | DEBUG    | pipecat.pipeline.worker:run:894 - Pipeline worker PipelineWorker#31 is finishing...\n2026-10-03 14:57:01.101 | DEBUG    | pipecat.pipeline.worker:run:898 - Pipeline worker PipelineWorker#31 has finished\n.2026-10-03 14:57:01.104 | DEBUG    | pipecat.processors.frame_processor:link:679 - Linking Pipeline#64::Source -> LLMUserAggregator#32\n2026-10-03 14:57:01.105 | DEBUG    | pipecat.processors.frame_processor:link:679 - Linking LLMUserAggregator#32 -> GenerateResponse#32\n2026-10-03 14:57:01.106 | DEBUG    | pipecat.processors.frame_processor:link:679 - Linking GenerateResponse#32 -> Pipeline#64::Sink\n2026-10-03 14:57:01.107 | DEBUG    | pipecat.processors.frame_processor:link:679 - Linking PipelineWorker#32::Source -> Pipeline#64\n2026-10-03 14:57:01.108 | DEBUG    | pipecat.processors.frame_processor:link:679 - Linking Pipeline#64 -> PipelineWorker#32::Sink\n2026-10-03 14:57:01.112 | DEBUG    | pipecat.pipeline.worker:_wait_for_pipeline_start:1211 - PipelineWorker#32: Starting. Waiting for StartFrame#32 to reach the end of the pipeline...\n2026-10-03 14:57:01.117 | DEBUG    | pipecat.workers.base_worker:_maybe_activate:1277 - Worker 'PipelineWorker#32': activated\n2026-10-03 14:57:01.122 | DEBUG    | pipecat.pipeline.worker:_wait_for_pipeline_start:1224 - PipelineWorker#32: StartFrame#32 reached the end of the pipeline, pipeline is now ready.\n2026-10-03 14:57:01.125 | DEBUG    | pipecat.turns.user_start.external_user_turn_start_strategy:process_frame:71 - ExternalUserTurnStartStrategy#32: resolving a proposed user turn start\n2026-10-03 14:57:01.127 | DEBUG    | pipecat.processors.aggregators.llm_response_universal:_on_user_turn_started:1318 - LLMUserAggregator#32: User started speaking (strategy: ExternalUserTurnStartStrategy#32)\n2026-10-03 14:57:01.128 | DEBUG    | pipecat.processors.frame_processor:broadcast_interruption:1019 - LLMUserAggregator#32: broadcasting interruption\n2026-10-03 14:57:01.169 | DEBUG    | pipecat.turns.user_stop.external_user_turn_stop_strategy:_trigger_user_turn_stopped:214 - ExternalUserTurnStopStrategy#32: resolving a proposed user turn stop\n2026-10-03 14:57:01.170 | DEBUG    | pipecat.processors.aggregators.llm_response_universal:_on_user_turn_inference_triggered:1359 - LLMUserAggregator#32: User turn inference triggered (strategy: ExternalUserTurnStopStrategy#32)\n2026-10-03 14:57:01.171 | DEBUG    | pipecat.processors.aggregators.llm_response_universal:_on_user_turn_stopped:1407 - LLMUserAggregator#32: User stopped speaking (strategy: ExternalUserTurnStopStrategy#32)\n2026-10-03 14:57:01.231 | DEBUG    | pipecat.pipeline.worker:_cancel:1144 - Cancelling pipeline worker PipelineWorker#32\n2026-10-03 14:57:01.232 | DEBUG    | pipecat.pipeline.worker:_wait_for_pipeline_end:1244 - PipelineWorker#32: Closing. Waiting for CancelFrame#32(reason: synthetic_probe_complete) to reach the end of the pipeline...\n2026-10-03 14:57:01.234 | DEBUG    | pipecat.pipeline.worker:wait_for_cancel:1235 - PipelineWorker#32: CancelFrame#32(reason: synthetic_probe_complete) reached the end of the pipeline.\n2026-10-03 14:57:01.235 | DEBUG    | pipecat.utils.base_object:cleanup:176 - PipelineWorker#32: waiting on event handlers to finish ['on_pipeline_finished']...\n2026-10-03 14:57:01.239 | DEBUG    | pipecat.pipeline.worker:run:894 - Pipeline worker PipelineWorker#32 is finishing...\n2026-10-03 14:57:01.240 | DEBUG    | pipecat.pipeline.worker:run:898 - Pipeline worker PipelineWorker#32 has finished\n.\n----------------------------------------------------------------------\nRan 41 tests in 5.111s\n\nOK\n",
+        "timed_out": false,
+        "elapsed_seconds": 5.701
+      },
+      "limitations": [
+        "Mocks and intentional limitations are included. In particular, SFU tests expect absent assistant history; this is not an SFU capability pass."
+      ]
+    },
+    {
+      "id": "regression.javascript",
+      "domain": "local mocked regression suite",
+      "status": "supported_in_scope",
+      "claim": "Existing javascript regression assertions remain true.",
+      "evidence": {
+        "command": [
+          "node",
+          "--test",
+          "public/app.test.mjs",
+          "public/audio-player.test.mjs",
+          "public/sfu-client.test.mjs",
+          "public/transport-check.test.mjs",
+          "scripts/check_real_pending.test.mjs",
+          "scripts/check_real_voice.test.mjs",
+          "scripts/smoke_real_voice.test.mjs"
+        ],
+        "returncode": 0,
+        "stdout": "TAP version 13\n# Subtest: Start, ready, mute, and End release all client resources\nok 1 - Start, ready, mute, and End release all client resources\n  ---\n  duration_ms: 106.162625\n  ...\n# Subtest: disconnect clears playback and reconnect reuses capability with a bounded retry budget\nok 2 - disconnect clears playback and reconnect reuses capability with a bounded retry budget\n  ---\n  duration_ms: 9.516375\n  ...\n# Subtest: reset creates a new stream epoch and stale socket messages are ignored\nok 3 - reset creates a new stream epoch and stale socket messages are ignored\n  ---\n  duration_ms: 3.391916\n  ...\n# Subtest: failed session creation closes microphone and shows a recoverable error\nok 4 - failed session creation closes microphone and shows a recoverable error\n  ---\n  duration_ms: 2.325208\n  ...\n# Subtest: access key stays in authentication headers and out of capability URLs\nok 5 - access key stays in authentication headers and out of capability URLs\n  ---\n  duration_ms: 1.749958\n  ...\n# Subtest: speech onset during pending generation rejects its delayed first audio\nok 6 - speech onset during pending generation rejects its delayed first audio\n  ---\n  duration_ms: 2.680292\n  ...\n# Subtest: reset replaces visible history and excludes restored turns from response metrics\nok 7 - reset replaces visible history and excludes restored turns from response metrics\n  ---\n  duration_ms: 3.237792\n  ...\n# Subtest: terminal server close releases microphone without futile reconnect\nok 8 - terminal server close releases microphone without futile reconnect\n  ---\n  duration_ms: 1.532209\n  ...\n# Subtest: server session time limit is explained and releases resources\nok 9 - server session time limit is explained and releases resources\n  ---\n  duration_ms: 2.523709\n  ...\n# Subtest: terminal startup error preserves explanation and releases microphone without reconnect\nok 10 - terminal startup error preserves explanation and releases microphone without reconnect\n  ---\n  duration_ms: 1.977833\n  ...\n# Subtest: rejected key does not open the microphone or create a session\nok 11 - rejected key does not open the microphone or create a session\n  ---\n  duration_ms: 2.136917\n  ...\n# Subtest: key is trimmed and captured before asynchronous permission setup\nok 12 - key is trimmed and captured before asynchronous permission setup\n  ---\n  duration_ms: 1.301416\n  ...\n# Subtest: loading the key file verifies access without microphone, session, or persistent storage\nok 13 - loading the key file verifies access without microphone, session, or persistent storage\n  ---\n  duration_ms: 1.108042\n  ...\n# Subtest: oversized or multiline key files are rejected before any request\nok 14 - oversized or multiline key files are rejected before any request\n  ---\n  duration_ms: 2.512292\n  ...\n# Subtest: audio engine is prepared before the authentication await, microphone after it\nok 15 - audio engine is prepared before the authentication await, microphone after it\n  ---\n  duration_ms: 1.992667\n  ...\n# Subtest: capture, upload and server delivery counters distinguish each stage without audio capture\nok 16 - capture, upload and server delivery counters distinguish each stage without audio capture\n  ---\n  duration_ms: 2.499083\n  ...\n# Subtest: paused audio exposes resume action and fatal worklet errors stop the call\nok 17 - paused audio exposes resume action and fatal worklet errors stop the call\n  ---\n  duration_ms: 1.45025\n  ...\n# Subtest: resume remains reachable while initial audio startup is waiting\nok 18 - resume remains reachable while initial audio startup is waiting\n  ---\n  duration_ms: 1.644667\n  ...\n# Subtest: SFU mode sends microphone over WebRTC and leaves the control socket audio-free\nok 19 - SFU mode sends microphone over WebRTC and leaves the control socket audio-free\n  ---\n  duration_ms: 16.217833\n  ...\n# Subtest: SFU output replaces by generation and local speech clears it without fake receipts\nok 20 - SFU output replaces by generation and local speech clears it without fake receipts\n  ---\n  duration_ms: 2.278542\n  ...\n# Subtest: SFU reconnect closes peers and rejects old startup completion\nok 21 - SFU reconnect closes peers and rejects old startup completion\n  ---\n  duration_ms: 1.981375\n  ...\n# Subtest: SFU failures release all client resources and preserve the visible explanation\nok 22 - SFU failures release all client resources and preserve the visible explanation\n  ---\n  duration_ms: 1.781208\n  ...\n# Subtest: PCM is explicitly little endian and preserves signed extrema\nok 23 - PCM is explicitly little endian and preserves signed extrema\n  ---\n  duration_ms: 4.7715\n  ...\n# Subtest: schedules a bounded horizon and acknowledges only a wholly played chunk\nok 24 - schedules a bounded horizon and acknowledges only a wholly played chunk\n  ---\n  duration_ms: 6.603542\n  ...\n# Subtest: interruption cancels queued and scheduled audio without acknowledging it\nok 25 - interruption cancels queued and scheduled audio without acknowledging it\n  ---\n  duration_ms: 4.705542\n  ...\n# Subtest: clear generation is a minimum accepted new generation\nok 26 - clear generation is a minimum accepted new generation\n  ---\n  duration_ms: 2.510167\n  ...\n# Subtest: a newer generation stops older sources and old events cannot ack\nok 27 - a newer generation stops older sources and old events cannot ack\n  ---\n  duration_ms: 1.249042\n  ...\n# Subtest: duplicate packets never schedule or acknowledge twice\nok 28 - duplicate packets never schedule or acknowledge twice\n  ---\n  duration_ms: 0.49725\n  ...\n# Subtest: buffer and malformed-packet bounds fail explicitly\nok 29 - buffer and malformed-packet bounds fail explicitly\n  ---\n  duration_ms: 33.384333\n  ...\n# Subtest: closing prevents future playback or acknowledgments\nok 30 - closing prevents future playback or acknowledgments\n  ---\n  duration_ms: 0.52925\n  ...\n# Subtest: capture resamples actual 16000 Hz into 16 kHz / 20 ms frames\nok 31 - capture resamples actual 16000 Hz into 16 kHz / 20 ms frames\n  ---\n  duration_ms: 25.276959\n  ...\n# Subtest: capture resamples actual 44100 Hz into 16 kHz / 20 ms frames\nok 32 - capture resamples actual 44100 Hz into 16 kHz / 20 ms frames\n  ---\n  duration_ms: 33.359958\n  ...\n# Subtest: capture resamples actual 48000 Hz into 16 kHz / 20 ms frames\nok 33 - capture resamples actual 48000 Hz into 16 kHz / 20 ms frames\n  ---\n  duration_ms: 25.512792\n  ...\n# Subtest: microphone publish and response subscribe use separate peers with capability-free signaling bodies\nok 34 - microphone publish and response subscribe use separate peers with capability-free signaling bodies\n  ---\n  duration_ms: 34.357208\n  ...\n# Subtest: interrupt detaches a generation immediately and stale tracks cannot reattach\nok 35 - interrupt detaches a generation immediately and stale tracks cannot reattach\n  ---\n  duration_ms: 2.110084\n  ...\n# Subtest: End cancels gathering waits and late local descriptions cannot publish\nok 36 - End cancels gathering waits and late local descriptions cannot publish\n  ---\n  duration_ms: 10.06625\n  ...\n# Subtest: late signaling from a replaced receiver cannot attach or send readiness\nok 37 - late signaling from a replaced receiver cannot attach or send readiness\n  ---\n  duration_ms: 2.001583\n  ...\n# Subtest: clearing an output does not cancel an input connection still establishing\nok 38 - clearing an output does not cancel an input connection still establishing\n  ---\n  duration_ms: 1.793417\n  ...\n# Subtest: track arriving after connected still triggers readiness\nok 39 - track arriving after connected still triggers readiness\n  ---\n  duration_ms: 1.7345\n  ...\n# Subtest: blocked playback exposes an explicit resume without faking played receipts\nok 40 - blocked playback exposes an explicit resume without faking played receipts\n  ---\n  duration_ms: 1.241084\n  ...\n# Subtest: server output offers are answered through the owned generation\nok 41 - server output offers are answered through the owned generation\n  ---\n  duration_ms: 1.545375\n  ...\n# Subtest: input_ready waits for the microphone connection and finishes before publish resolves\nok 42 - input_ready waits for the microphone connection and finishes before publish resolves\n  ---\n  duration_ms: 3.396084\n  ...\n# Subtest: output answer completes ICE before serialized renegotiation and readiness\nok 43 - output answer completes ICE before serialized renegotiation and readiness\n  ---\n  duration_ms: 4.170375\n  ...\n# Subtest: duplicate generation announcements cannot start concurrent negotiation\nok 44 - duplicate generation announcements cannot start concurrent negotiation\n  ---\n  duration_ms: 0.930042\n  ...\n# Subtest: a generation canceled during renegotiation never sends playback readiness\nok 45 - a generation canceled during renegotiation never sends playback readiness\n  ---\n  duration_ms: 1.688\n  ...\n# Subtest: playback readiness does not await playing events or the audio play promise\nok 46 - playback readiness does not await playing events or the audio play promise\n  ---\n  duration_ms: 0.675042\n  ...\n# Subtest: developer check publishes synthetic audio and starts the WAV only after input readiness\nok 47 - developer check publishes synthetic audio and starts the WAV only after input readiness\n  ---\n  duration_ms: 18.311291\n  ...\n# Subtest: developer check observes nonzero remote audio and RTP without playback receipts\nok 48 - developer check observes nonzero remote audio and RTP without playback receipts\n  ---\n  duration_ms: 6.472959\n  ...\n# Subtest: End during media negotiation prevents late WAV playback\nok 49 - End during media negotiation prevents late WAV playback\n  ---\n  duration_ms: 6.846667\n  ...\n# Subtest: End during session creation retires the late capability without starting audio\nok 50 - End during session creation retires the late capability without starting audio\n  ---\n  duration_ms: 6.096625\n  ...\n# Subtest: only the selected pending status triggers one interrupt, before audio\nok 51 - only the selected pending status triggers one interrupt, before audio\n  ---\n  duration_ms: 1.863542\n  ...\n# Subtest: only a newer generation proves cancellation; late canceled audio fails even during recovery\nok 52 - only a newer generation proves cancellation; late canceled audio fails even during recovery\n  ---\n  duration_ms: 0.301834\n  ...\n# Subtest: arguments keep credentials environment-only and require values\nok 53 - arguments keep credentials environment-only and require values\n  ---\n  duration_ms: 0.65525\n  ...\n# Subtest: four-input validation needs neither credentials nor network\nok 54 - four-input validation needs neither credentials nor network\n  ---\n  duration_ms: 191.764416\n  ...\n# Subtest: default plan is twenty turns; supported plans never exceed twenty-four\nok 55 - default plan is twenty turns; supported plans never exceed twenty-four\n  ---\n  duration_ms: 2.421625\n  ...\n# Subtest: receipts wait for serial PCM duration and preserve the final sentence marker\nok 56 - receipts wait for serial PCM duration and preserve the final sentence marker\n  ---\n  duration_ms: 2.303542\n  ...\n# Subtest: interruption drops outstanding receipts and ignores late old-generation audio\nok 57 - interruption drops outstanding receipts and ignores late old-generation audio\n  ---\n  duration_ms: 0.563875\n  ...\n# Subtest: output bounds reject invalid PCM and more than twelve seconds queued\nok 58 - output bounds reject invalid PCM and more than twelve seconds queued\n  ---\n  duration_ms: 5.705667\n  ...\n# Subtest: public diagnostics exclude transcripts, identifiers, URLs, errors and unknown fields\nok 59 - public diagnostics exclude transcripts, identifiers, URLs, errors and unknown fields\n  ---\n  duration_ms: 0.246209\n  ...\n# Subtest: input-only mode validates both recordings without credentials or network setup\nok 60 - input-only mode validates both recordings without credentials or network setup\n  ---\n  duration_ms: 108.709458\n  ...\n# Subtest: single-user-turn acceptance is opt-in without changing normal option defaults\nok 61 - single-user-turn acceptance is opt-in without changing normal option defaults\n  ---\n  duration_ms: 1.187042\n  ...\n# Subtest: assistant partial/final transcripts and audio are premature until paced input ends\nok 62 - assistant partial/final transcripts and audio are premature until paced input ends\n  ---\n  duration_ms: 0.168291\n  ...\n1..62\n# tests 62\n# suites 0\n# pass 62\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 317.755417\n",
+        "stderr": "",
+        "timed_out": false,
+        "elapsed_seconds": 0.516
+      },
+      "limitations": [
+        "Mocks and intentional limitations are included. In particular, SFU tests expect absent assistant history; this is not an SFU capability pass."
+      ]
+    },
+    {
+      "id": "candidate.core",
+      "domain": "installed candidate / local CPython",
+      "status": "untested",
+      "claim": "No installed candidate interpreter was supplied.",
+      "evidence": {},
+      "limitations": []
+    },
+    {
+      "id": "sfu.history",
+      "domain": "application source",
+      "status": "observed_gap",
+      "claim": "The SFU application path omits assistant replies from history.",
+      "evidence": {
+        "source": "src/conversation.py:84",
+        "regression": "tests/test_sfu_conversation.py:71"
+      },
+      "limitations": [
+        "This is an explicit application policy tied to missing playback confirmation, not proof the SFU cannot support another policy."
+      ]
+    },
+    {
+      "id": "sfu.interruption_cleanup",
+      "domain": "application source",
+      "status": "observed_gap",
+      "claim": "Transport clear awaits remote cleanup; latency is not independent of control-plane responses.",
+      "evidence": {
+        "source": "src/sfu_transport.py:496",
+        "await": "await self._cleanup_retired()"
+      },
+      "limitations": [
+        "No measured audible latency is claimed; browser clear happens earlier."
+      ]
+    },
+    {
+      "id": "sfu.cleanup_contract",
+      "domain": "application source",
+      "status": "observed_gap",
+      "claim": "Cleanup records failures and can retain remote resources without a guaranteed successful retry.",
+      "evidence": {
+        "source": "src/sfu_transport.py:516",
+        "close": "src/sfu_transport.py:581"
+      },
+      "limitations": [
+        "This is an application contract gap, not a measured remote leak or proof of an SFU service limitation."
+      ]
+    },
+    {
+      "id": "candidate.artifact_integrity",
+      "domain": "candidate package provenance",
+      "status": "untested",
+      "claim": "Verify the release artifact checksum/signature and installed-file RECORD hashes. Distribution ownership alone does not establish an unchanged installation.",
+      "evidence": {},
+      "limitations": [
+        "Requires a separate implementation or live environment; never promoted from local mocks."
+      ]
+    },
+    {
+      "id": "package.installability",
+      "domain": "packaging",
+      "status": "untested",
+      "claim": "Resolve and install the final package in Python Workers without copied source or local edits; importing an existing environment does not prove this.",
+      "evidence": {},
+      "limitations": [
+        "Requires a separate implementation or live environment; never promoted from local mocks."
+      ]
+    },
+    {
+      "id": "workers.runtime",
+      "domain": "deployed Python Durable Object",
+      "status": "untested",
+      "claim": "Deploy the same candidate on a pinned Python/Pyodide/workerd runtime; run real turns, cancellation, concurrent sessions, reconnect, and cleanup.",
+      "evidence": {},
+      "limitations": [
+        "Requires a separate implementation or live environment; never promoted from local mocks."
+      ]
+    },
+    {
+      "id": "sfu.live",
+      "domain": "live WebRTC / SFU",
+      "status": "untested",
+      "claim": "Measure actual bidirectional media, stop-to-silence, stale speech, track reuse/reconnect, played-history policy, and confirmed remote resource cleanup.",
+      "evidence": {},
+      "limitations": [
+        "Requires a separate implementation or live environment; never promoted from local mocks."
+      ]
+    },
+    {
+      "id": "moq.relay_interop",
+      "domain": "real Pipecat / Cloudflare MoQ relay",
+      "status": "untested",
+      "claim": "On ordinary Python first, negotiate matching MoQT drafts plus media/catalog profiles and demonstrate both audio directions against the real relay.",
+      "evidence": {},
+      "limitations": [
+        "Requires a separate implementation or live environment; never promoted from local mocks."
+      ]
+    },
+    {
+      "id": "moq.workers_transport",
+      "domain": "Workers MoQ connection",
+      "status": "untested",
+      "claim": "Exercise an actual Workers-side WebTransport/QUIC or managed MoQ binding with auth, reconnect, ordering, backpressure, and cancellation.",
+      "evidence": {},
+      "limitations": [
+        "Requires a separate implementation or live environment; never promoted from local mocks."
+      ]
+    },
+    {
+      "id": "moq.media",
+      "domain": "real audio decode / encode",
+      "status": "untested",
+      "claim": "Decode captured compressed audio, resample/convert for STT, encode actual TTS output, and play it intelligibly. WebTransport alone does not provide codecs, container mapping, resampling, or clock control.",
+      "evidence": {},
+      "limitations": [
+        "Requires a separate implementation or live environment; never promoted from local mocks."
+      ]
+    },
+    {
+      "id": "workers.performance",
+      "domain": "deployed workload measurements",
+      "status": "untested",
+      "claim": "Measure CPU time (not wall time), memory, copies, queue depth, sustained streams, burst input, loss, codec profiles, and concurrent objects against actual configured runtime limits and target latency.",
+      "evidence": {},
+      "limitations": [
+        "Requires a separate implementation or live environment; never promoted from local mocks."
+      ]
+    },
+    {
+      "id": "physical.audio",
+      "domain": "physical browser microphone / speaker",
+      "status": "untested",
+      "claim": "Use physical audio and aligned loopback recordings to measure intelligibility, echo, turn endings, and audible interruption; synthetic frame checks cannot substitute.",
+      "evidence": {},
+      "limitations": [
+        "Requires a separate implementation or live environment; never promoted from local mocks."
+      ]
+    }
+  ]
+}
